@@ -87,6 +87,7 @@
           <doctitle>Quartz Enterprise Job Scheduler ${project.version} - Utility jobs</doctitle>
           <windowtitle>Quartz Enterprise Job Scheduler ${project.version} - Utility jobs</windowtitle>
           <bottom>Copyright 2001-{currentYear}, Terracotta, Inc.</bottom>
+          <additionalparam>-Xdoclint:none</additionalparam>
         </configuration>
         <executions>
           <execution>
