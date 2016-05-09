@@ -171,6 +171,8 @@ public class JobRunShell extends SchedulerListenerSupport implements Runnable {
                 // notify job & trigger listeners...
                 try {
                     if (!notifyListenersBeginning(jec)) {
+                    	CompletedExecutionInstruction instCode = trigger.executionComplete(jec, null);
+                    	qs.notifyJobStoreJobComplete(trigger, jobDetail, instCode);
                         break;
                     }
                 } catch(VetoedException ve) {
@@ -222,6 +224,8 @@ public class JobRunShell extends SchedulerListenerSupport implements Runnable {
 
                 // notify all job listeners
                 if (!notifyJobListenersComplete(jec, jobExEx)) {
+                	CompletedExecutionInstruction instCode = trigger.executionComplete(jec, jobExEx);
+                	qs.notifyJobStoreJobComplete(trigger, jobDetail, instCode);
                     break;
                 }
 
