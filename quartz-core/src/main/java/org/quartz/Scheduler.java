@@ -826,6 +826,14 @@ public interface Scheduler {
         throws SchedulerException;
 
     /**
+     * Reset the current state of the identified <code>{@link Trigger}</code>.
+     *
+     * @see Trigger.TriggerState
+     */
+    void resetTriggerState(TriggerKey triggerKey)
+            throws SchedulerException;
+
+    /**
      * Add (register) the given <code>Calendar</code> to the Scheduler.
      * 
      * @param updateTriggers whether or not to update existing triggers that

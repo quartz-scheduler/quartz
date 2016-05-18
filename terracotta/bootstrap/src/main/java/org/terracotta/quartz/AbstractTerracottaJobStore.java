@@ -230,6 +230,15 @@ public abstract class AbstractTerracottaJobStore implements JobStore {
   }
 
   @Override
+  public void resetTriggerState(TriggerKey triggerKey) throws JobPersistenceException {
+    try {
+      realJobStore.resetTriggerState(triggerKey);
+    } catch (RejoinException e) {
+      throw new JobPersistenceException("Trigger state reset failed due to client rejoin", e);
+    }
+  }
+
+  @Override
   public void initialize(ClassLoadHelper loadHelper, SchedulerSignaler signaler) throws SchedulerConfigException {
     init();
     realJobStore.setInstanceId(schedInstId);

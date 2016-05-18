@@ -1589,6 +1589,19 @@ J     *
 
     /**
      * <p>
+     * Reset the current state of the identified <code>{@link Trigger}</code>.
+     * </p>
+     *
+     * @see TriggerState
+     */
+    public void resetTriggerState(TriggerKey triggerKey) throws SchedulerException {
+        validateState();
+
+        resources.getJobStore().resetTriggerState(triggerKey);
+    }
+
+    /**
+     * <p>
      * Add (register) the given <code>Calendar</code> to the Scheduler.
      * </p>
      * 

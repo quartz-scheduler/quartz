@@ -130,6 +130,11 @@ public class PlainTerracottaJobStore<T extends ClusteredJobStore> implements Ter
   }
 
   @Override
+  public void resetTriggerState(final TriggerKey triggerKey) throws JobPersistenceException {
+    clusteredJobStore.resetTriggerState(triggerKey);
+  }
+
+  @Override
   public synchronized void initialize(ClassLoadHelper loadHelper, SchedulerSignaler signaler)
       throws SchedulerConfigException {
     if (clusteredJobStore != null) { throw new IllegalStateException("already initialized"); }
