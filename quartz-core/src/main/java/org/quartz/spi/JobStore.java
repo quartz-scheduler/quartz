@@ -432,6 +432,13 @@ public interface JobStore {
     /////////////////////////////////////////////////////////////////////////////
 
     /**
+     * Reset the current state of the identified <code>{@link Trigger}</code>.
+     *
+     * @see Trigger.TriggerState
+     */
+    void resetTriggerState(TriggerKey triggerKey) throws JobPersistenceException;
+
+    /**
      * Pause the <code>{@link org.quartz.Trigger}</code> with the given key.
      *
      * @see #resumeTrigger(TriggerKey)

@@ -523,6 +523,16 @@ public class StdScheduler implements Scheduler {
      * Calls the equivalent method on the 'proxied' <code>QuartzScheduler</code>.
      * </p>
      */
+    public void resetTriggerState(TriggerKey triggerKey)
+            throws SchedulerException {
+        sched.resetTriggerState(triggerKey);
+    }
+
+    /**
+     * <p>
+     * Calls the equivalent method on the 'proxied' <code>QuartzScheduler</code>.
+     * </p>
+     */
     public void addCalendar(String calName, Calendar calendar, boolean replace, boolean updateTriggers)
         throws SchedulerException {
         sched.addCalendar(calName, calendar, replace, updateTriggers);

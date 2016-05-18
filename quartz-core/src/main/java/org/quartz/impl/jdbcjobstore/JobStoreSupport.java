@@ -1603,6 +1603,37 @@ public abstract class JobStoreSupport implements JobStore, Constants {
 
     /**
      * <p>
+     * Reset the current state of the identified <code>{@link Trigger}</code>.
+     * </p>
+     *
+     * @see TriggerState#NORMAL
+     * @see TriggerState#PAUSED
+     * @see TriggerState#COMPLETE
+     * @see TriggerState#ERROR
+     * @see TriggerState#NONE
+     */
+    public void resetTriggerState(final TriggerKey triggerKey) throws JobPersistenceException {
+        executeWithoutLock(
+                new TransactionCallback() {
+                    public Object execute(Connection conn) throws JobPersistenceException {
+                        resetTriggerState(conn, triggerKey);
+                        return null;
+                    }
+                });
+    }
+
+    public void resetTriggerState(Connection conn, TriggerKey key)
+            throws JobPersistenceException {
+        try {
+            getDelegate().updateTriggerState(conn, key, STATE_WAITING);
+        } catch (SQLException e) {
+            throw new JobPersistenceException(
+                    "Couldn't reset state of trigger (" + key + "): " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * <p>
      * Store the given <code>{@link org.quartz.Calendar}</code>.
      * </p>
      * 

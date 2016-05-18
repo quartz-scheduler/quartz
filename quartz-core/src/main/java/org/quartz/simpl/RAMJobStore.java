@@ -671,6 +671,32 @@ public class RAMJobStore implements JobStore {
 
     /**
      * <p>
+     * Reset the current state of the identified <code>{@link Trigger}</code>.
+     * </p>
+     *
+     * @see TriggerState#NORMAL
+     * @see TriggerState#PAUSED
+     * @see TriggerState#COMPLETE
+     * @see TriggerState#ERROR
+     * @see TriggerState#BLOCKED
+     * @see TriggerState#NONE
+     */
+    public void resetTriggerState(TriggerKey triggerKey) throws JobPersistenceException {
+        synchronized (lock) {
+            TriggerWrapper tw = triggersByKey.get(triggerKey);
+
+            // does the trigger exist?
+            if (tw == null || tw.trigger == null) {
+                return;
+            }
+            tw.state = TriggerWrapper.STATE_WAITING;
+            applyMisfire(tw);
+            timeTriggers.add(tw);
+        }
+    }
+
+    /**
+     * <p>
      * Store the given <code>{@link org.quartz.Calendar}</code>.
      * </p>
      *

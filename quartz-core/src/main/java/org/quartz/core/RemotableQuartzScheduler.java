@@ -148,6 +148,8 @@ public interface RemotableQuartzScheduler extends Remote {
 
     TriggerState getTriggerState(TriggerKey triggerKey) throws SchedulerException, RemoteException;
 
+    void resetTriggerState(TriggerKey triggerKey) throws SchedulerException, RemoteException;
+
     void addCalendar(String calName, Calendar calendar, boolean replace, boolean updateTriggers) throws SchedulerException, RemoteException;
 
     boolean deleteCalendar(String calName) throws SchedulerException, RemoteException;

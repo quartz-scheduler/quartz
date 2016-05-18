@@ -825,6 +825,33 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
 
   /**
    * <p>
+   * Reset the current state of the identified <code>{@link Trigger}</code>.
+   * </p>
+   *
+   * @see Trigger.TriggerState
+   */
+  @Override
+  public void resetTriggerState(org.quartz.TriggerKey key) throws JobPersistenceException {
+    lock();
+    try {
+      TriggerWrapper tw = triggerFacade.get(key);
+
+      // does the trigger exist?
+      if (tw == null) { return; }
+
+      tw.setState(TriggerState.WAITING, terracottaClientId, triggerFacade);
+
+      applyMisfire(tw);
+
+      timeTriggers.add(tw);
+
+    } finally {
+      unlock();
+    }
+  }
+
+  /**
+   * <p>
    * Store the given <code>{@link org.quartz.Calendar}</code>.
    * </p>
    * 
