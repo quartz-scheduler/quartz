@@ -43,7 +43,6 @@ import java.beans.PropertyDescriptor;
 import java.io.*;
 import java.lang.reflect.Method;
 import java.security.AccessControlException;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Properties;
@@ -977,9 +976,14 @@ public class StdSchedulerFactory implements SchedulerFactory {
                     dbMgr = DBConnectionManager.getInstance();
                     dbMgr.addConnectionProvider(dsNames[i], cp);
                 } else {
+                    String poolingProvider = pp.getStringProperty(PoolingConnectionProvider.POOLING_PROVIDER);
                     String dsDriver = pp.getStringProperty(PoolingConnectionProvider.DB_DRIVER);
                     String dsURL = pp.getStringProperty(PoolingConnectionProvider.DB_URL);
 
+                    // default to c3p0
+                    if (poolingProvider == null) {
+                        poolingProvider = C3p0PoolingConnectionProvider.POOLING_PROVIDER_NAME;
+                    }
                     if (dsDriver == null) {
                         initException = new SchedulerException(
                                 "Driver not specified for DataSource: "
@@ -993,11 +997,23 @@ public class StdSchedulerFactory implements SchedulerFactory {
                         throw initException;
                     }
                     try {
-                        PoolingConnectionProvider cp = new PoolingConnectionProvider(pp.getUnderlyingProperties());
+                        PoolingConnectionProvider cp;
+                        if (poolingProvider.equals(C3p0PoolingConnectionProvider.POOLING_PROVIDER_NAME)) {
+                            cp = new C3p0PoolingConnectionProvider(pp.getUnderlyingProperties());
+                        } else if (poolingProvider.equals(HikariCpPoolingConnectionProvider.POOLING_PROVIDER_NAME)) {
+                            cp = new HikariCpPoolingConnectionProvider(pp.getUnderlyingProperties());
+                        } else {
+                            initException = new SchedulerException(
+                                "Unknown pooling provider name '" + poolingProvider + "' for DataSource: "
+                                    + dsNames[i]);
+                            throw initException;
+                        }
+
+
                         dbMgr = DBConnectionManager.getInstance();
                         dbMgr.addConnectionProvider(dsNames[i], cp);
 
-                        // Populate the underlying C3P0 data source pool properties
+                        // Populate the underlying data source pool properties
                         populateProviderWithExtraProps(cp, pp.getUnderlyingProperties());
                     } catch (Exception sqle) {
                         initException = new SchedulerException(
@@ -1360,10 +1376,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
         copyProps.remove(PoolingConnectionProvider.DB_URL);
         copyProps.remove(PoolingConnectionProvider.DB_USER);
         copyProps.remove(PoolingConnectionProvider.DB_PASSWORD);
-        copyProps.remove(PoolingConnectionProvider.DB_IDLE_VALIDATION_SECONDS);
         copyProps.remove(PoolingConnectionProvider.DB_MAX_CONNECTIONS);
-        copyProps.remove(PoolingConnectionProvider.DB_MAX_CACHED_STATEMENTS_PER_CONNECTION);
-        copyProps.remove(PoolingConnectionProvider.DB_VALIDATE_ON_CHECKOUT);
         copyProps.remove(PoolingConnectionProvider.DB_VALIDATION_QUERY);
         setBeanProps(cp.getDataSource(), copyProps);
     }
@@ -1391,6 +1404,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
             java.lang.reflect.InvocationTargetException,
             IntrospectionException, SchedulerConfigException {
         props.remove("class");
+        props.remove(PoolingConnectionProvider.POOLING_PROVIDER);
 
         BeanInfo bi = Introspector.getBeanInfo(obj.getClass());
         PropertyDescriptor[] propDescs = bi.getPropertyDescriptors();
