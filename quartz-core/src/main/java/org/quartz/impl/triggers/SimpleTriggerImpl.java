@@ -803,7 +803,9 @@ public class SimpleTriggerImpl extends AbstractTrigger<SimpleTrigger> implements
     }
 
     public int computeNumTimesFiredBetween(Date start, Date end) {
-
+        System.out.println("QUARTZ saziz");
+        System.out.println(start);
+        System.out.println(end);
         if(repeatInterval < 1) {
             return 0;
         }
