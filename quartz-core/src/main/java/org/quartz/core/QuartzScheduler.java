@@ -563,7 +563,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
                 catch(InterruptedException ignore) {}
                 try { start(); }
                 catch(SchedulerException se) {
-                    getLog().error("Unable to start secheduler after startup delay.", se);
+                    getLog().error("Unable to start scheduler after startup delay.", se);
                 }
             }
         });
