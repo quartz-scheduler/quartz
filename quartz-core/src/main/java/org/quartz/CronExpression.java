@@ -805,14 +805,12 @@ public final class CronExpression implements Serializable, Cloneable {
                     addToSet(val, end, v3, type);
                     i = vs.pos;
                     return i;
-                } else {
-                    addToSet(val, end, v2, type);
-                    return i;
                 }
-            } else {
-                addToSet(val, end, 1, type);
+                addToSet(val, end, v2, type);
                 return i;
             }
+            addToSet(val, end, 1, type);
+            return i;
         }
 
         if (c == '/') {
@@ -831,9 +829,8 @@ public final class CronExpression implements Serializable, Cloneable {
                 addToSet(val, end, v3, type);
                 i = vs.pos;
                 return i;
-            } else {
-                throw new ParseException("Unexpected character '" + c + "' after '/'", i);
             }
+            throw new ParseException("Unexpected character '" + c + "' after '/'", i);
         }
 
         addToSet(val, end, 0, type);
