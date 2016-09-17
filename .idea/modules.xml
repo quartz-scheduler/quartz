@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/quartz/quartz.iml" filepath="$PROJECT_DIR$/quartz/quartz.iml" />
+      <module fileurl="file://$PROJECT_DIR$/checkstyle/quartz-checkstyle.iml" filepath="$PROJECT_DIR$/checkstyle/quartz-checkstyle.iml" />
+      <module fileurl="file://$PROJECT_DIR$/quartz-commonj/quartz-commonj.iml" filepath="$PROJECT_DIR$/quartz-commonj/quartz-commonj.iml" />
+      <module fileurl="file://$PROJECT_DIR$/quartz-core/quartz-core.iml" filepath="$PROJECT_DIR$/quartz-core/quartz-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/quartz-jboss/quartz-jboss.iml" filepath="$PROJECT_DIR$/quartz-jboss/quartz-jboss.iml" />
+      <module fileurl="file://$PROJECT_DIR$/quartz-jobs/quartz-jobs.iml" filepath="$PROJECT_DIR$/quartz-jobs/quartz-jobs.iml" />
+      <module fileurl="file://$PROJECT_DIR$/quartz-oracle/quartz-oracle.iml" filepath="$PROJECT_DIR$/quartz-oracle/quartz-oracle.iml" />
+      <module fileurl="file://$PROJECT_DIR$/quartz-parent.iml" filepath="$PROJECT_DIR$/quartz-parent.iml" />
+      <module fileurl="file://$PROJECT_DIR$/quartz-plugins/quartz-plugins.iml" filepath="$PROJECT_DIR$/quartz-plugins/quartz-plugins.iml" />
+      <module fileurl="file://$PROJECT_DIR$/quartz-stubs/quartz-stubs.iml" filepath="$PROJECT_DIR$/quartz-stubs/quartz-stubs.iml" />
+      <module fileurl="file://$PROJECT_DIR$/terracotta/bootstrap/quartz-terracotta-bootstrap.iml" filepath="$PROJECT_DIR$/terracotta/bootstrap/quartz-terracotta-bootstrap.iml" />
+      <module fileurl="file://$PROJECT_DIR$/terracotta/quartz-terracotta-root.iml" filepath="$PROJECT_DIR$/terracotta/quartz-terracotta-root.iml" />
+      <module fileurl="file://$PROJECT_DIR$/quartz-weblogic/quartz-weblogic.iml" filepath="$PROJECT_DIR$/quartz-weblogic/quartz-weblogic.iml" />
+    </modules>
+  </component>
+</project>

@@ -1,0 +1,26 @@
+----------------------------------------------------------------
+Tue Sep 13 22:11:04 CST 2016:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.8.2.2 - (1181258): instance a816c00e-0157-23e3-0bdf-00000e8f61b8 
+on database directory memory:/Users/liushun/Documents/workspace/quartzsource/quartz/quartz-core/XmlDeleteNonExistsJobTestDatasase  with class loader sun.misc.Launcher$AppClassLoader@232204a1 
+Loaded from file:/Users/liushun/Documents/maven/org/apache/derby/derby/10.8.2.2/derby-10.8.2.2.jar
+java.vendor=Oracle Corporation
+java.runtime.version=1.8.0_65-b17
+user.dir=/Users/liushun/Documents/workspace/quartzsource/quartz/quartz-core
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''
+----------------------------------------------------------------
+Tue Sep 13 22:11:06 CST 2016:
+Shutting down instance a816c00e-0157-23e3-0bdf-00000e8f61b8 on database directory memory:/Users/liushun/Documents/workspace/quartzsource/quartz/quartz-core/XmlDeleteNonExistsJobTestDatasase with class loader sun.misc.Launcher$AppClassLoader@232204a1 
+----------------------------------------------------------------
+Tue Sep 13 22:11:06 CST 2016:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.8.2.2 - (1181258): instance 2aed0129-0157-23e3-0bdf-00000e8f61b8 
+on database directory memory:/Users/liushun/Documents/workspace/quartzsource/quartz/quartz-core/XmlDeleteNonExistsJobTestDatasase  with class loader sun.misc.Launcher$AppClassLoader@232204a1 
+Loaded from file:/Users/liushun/Documents/maven/org/apache/derby/derby/10.8.2.2/derby-10.8.2.2.jar
+java.vendor=Oracle Corporation
+java.runtime.version=1.8.0_65-b17
+user.dir=/Users/liushun/Documents/workspace/quartzsource/quartz/quartz-core
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''
+----------------------------------------------------------------
+Tue Sep 13 22:11:07 CST 2016:
+Shutting down instance 2aed0129-0157-23e3-0bdf-00000e8f61b8 on database directory memory:/Users/liushun/Documents/workspace/quartzsource/quartz/quartz-core/XmlDeleteNonExistsJobTestDatasase with class loader sun.misc.Launcher$AppClassLoader@232204a1 

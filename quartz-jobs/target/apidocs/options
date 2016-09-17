@@ -1,0 +1,25 @@
+-classpath
+'/Users/liushun/Documents/workspace/quartzsource/quartz/quartz-jobs/target/classes:/Users/liushun/Documents/maven/javax/mail/mail/1.4.7/mail-1.4.7.jar:/Users/liushun/Documents/maven/javax/activation/activation/1.1/activation-1.1.jar:/Users/liushun/Documents/maven/org/apache/openejb/javaee-api/6.0-5/javaee-api-6.0-5.jar:/Users/liushun/Documents/workspace/quartzsource/quartz/quartz-core/target/quartz-core-2.2.4-SNAPSHOT.jar:/Users/liushun/Documents/maven/org/slf4j/slf4j-api/1.7.7/slf4j-api-1.7.7.jar:/Users/liushun/Documents/maven/c3p0/c3p0/0.9.1.1/c3p0-0.9.1.1.jar'
+-encoding
+'UTF-8'
+-protected
+-quiet
+-sourcepath
+'/Users/liushun/Documents/workspace/quartzsource/quartz/quartz-jobs/src/main/java'
+-author
+-bottom
+'Copyright 2001-2016, Terracotta, Inc.'
+-charset
+'UTF-8'
+-d
+'/Users/liushun/Documents/workspace/quartzsource/quartz/quartz-jobs/target/apidocs'
+-docencoding
+'UTF-8'
+-doctitle
+'Quartz Enterprise Job Scheduler 2.2.4-SNAPSHOT - Utility jobs'
+-linkoffline
+'http://docs.oracle.com/javase/6/docs/api' '/Users/liushun/Documents/workspace/quartzsource/quartz/quartz-jobs/target/javadoc-bundle-options'
+-use
+-version
+-windowtitle
+'Quartz Enterprise Job Scheduler 2.2.4-SNAPSHOT - Utility jobs'

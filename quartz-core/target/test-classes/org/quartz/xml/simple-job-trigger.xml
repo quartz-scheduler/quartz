@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<job-scheduling-data version="2.0" xmlns="http://www.quartz-scheduler.org/xml/JobSchedulingData" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.quartz-scheduler.org/xml/JobSchedulingData http://www.quartz-scheduler.org/xml/job_scheduling_data_2_0.xsd">
+		
+	<schedule>
+		<job>
+			<name>job1</name>
+			<group>DEFAULT</group>
+			<job-class>org.quartz.xml.XMLSchedulingDataProcessorTest$MyJob</job-class>
+			<durability>true</durability>
+			<recover>false</recover>
+			<job-data-map>
+				<entry><key>foo</key><value>bar</value></entry>
+			</job-data-map>
+		</job>
+		<trigger>
+			<simple>
+				<name>job1</name>
+				<group>DEFAULT</group>
+				<job-name>job1</job-name>
+				<job-group>DEFAULT</job-group>
+				<repeat-count>-1</repeat-count>
+				<repeat-interval>1500</repeat-interval>
+			</simple>
+		</trigger>
+		
+	</schedule>
+	
+</job-scheduling-data>

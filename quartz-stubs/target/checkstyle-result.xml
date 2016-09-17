@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="5.5">
+<file name="/Users/liushun/Documents/workspace/quartzsource/quartz/quartz-stubs/src/main/java/oracle/sql/BLOB.java">
+</file>
+<file name="/Users/liushun/Documents/workspace/quartzsource/quartz/quartz-stubs/src/main/java/weblogic/jdbc/jts/Driver.java">
+</file>
+<file name="/Users/liushun/Documents/workspace/quartzsource/quartz/quartz-stubs/src/main/java/weblogic/jdbc/vendor/oracle/OracleThinBlob.java">
+</file>
+</checkstyle>

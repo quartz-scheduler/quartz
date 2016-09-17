@@ -1,0 +1,32 @@
+Invoking Maven for the goals: [org.apache.maven.plugins:maven-javadoc-plugin:2.9:javadoc] with no properties
+
+M2_HOME=/usr/local/Cellar/maven/3.3.9/libexec
+MAVEN_OPTS=null
+JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_65.jdk/Contents/Home/jre
+JAVA_OPTS=null
+
+[INFO] Scanning for projects...
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building quartz-core 2.2.4-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] >>> maven-javadoc-plugin:2.9:javadoc (default-cli) > generate-sources @ quartz-core >>>
+[INFO] 
+[INFO] <<< maven-javadoc-plugin:2.9:javadoc (default-cli) < generate-sources @ quartz-core <<<
+[INFO] 
+[INFO] --- maven-javadoc-plugin:2.9:javadoc (default-cli) @ quartz-core ---
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 1.968 s
+[INFO] Finished at: 2016-09-14T06:14:24+08:00
+[INFO] Final Memory: 12M/245M
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-javadoc-plugin:2.9:javadoc (default-cli) on project quartz-core: An error has occurred in JavaDocs report generation: Unable to find javadoc command: The javadoc executable '/Library/Java/JavaVirtualMachines/jdk1.8.0_65.jdk/Contents/Home/jre/bin/javadoc' doesn't exist or is not a file. Verify the JAVA_HOME environment variable. -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException

@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!-- 
+Test case for directives.
+
+Test should prepare a scheduler that already contains this job and trigger names.
+ -->
+<job-scheduling-data version="2.0" xmlns="http://www.quartz-scheduler.org/xml/JobSchedulingData" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.quartz-scheduler.org/xml/JobSchedulingData http://www.quartz-scheduler.org/xml/job_scheduling_data_2_0.xsd">
+	
+	<processing-directives>
+		<overwrite-existing-data>false</overwrite-existing-data>
+		<ignore-duplicates>true</ignore-duplicates>
+	</processing-directives>
+	
+	<schedule>
+		<job>
+			<name>job1</name>
+			<group>DEFAULT</group>
+			<job-class>org.quartz.xml.XMLSchedulingDataProcessorTest$MyJob</job-class>
+		</job>
+		<trigger>
+			<simple>
+				<name>job1</name>
+				<group>DEFAULT</group>
+				<job-name>job1</job-name>
+				<job-group>DEFAULT</job-group>
+				<repeat-count>-1</repeat-count>
+				<repeat-interval>1500</repeat-interval>
+			</simple>
+		</trigger>
+		
+		<job>
+			<name>job2</name>
+			<group>DEFAULT</group>
+			<job-class>org.quartz.xml.XMLSchedulingDataProcessorTest$MyJob</job-class>
+			<job-data-map>
+				<entry>
+					<key>color</key>
+					<value>GREEN</value>
+				</entry>
+			</job-data-map>
+		</job>
+		<trigger>
+			<cron>
+				<name>job2</name>
+				<group>DEFAULT</group>
+				<job-name>job2</job-name>
+				<job-group>DEFAULT</job-group>
+				<cron-expression>* * * * * ?</cron-expression>
+			</cron>
+		</trigger>
+		
+	</schedule>
+	
+</job-scheduling-data>
