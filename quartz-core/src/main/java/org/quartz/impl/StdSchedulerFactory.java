@@ -1365,7 +1365,6 @@ public class StdSchedulerFactory implements SchedulerFactory {
         copyProps.remove(PoolingConnectionProvider.DB_MAX_CACHED_STATEMENTS_PER_CONNECTION);
         copyProps.remove(PoolingConnectionProvider.DB_VALIDATE_ON_CHECKOUT);
         copyProps.remove(PoolingConnectionProvider.DB_VALIDATION_QUERY);
-        copyProps.remove(PoolingConnectionProvider.DB_DISCARD_IDLE_CONNECTIONS_SECONDS);
         setBeanProps(cp.getDataSource(), copyProps);
     }
 

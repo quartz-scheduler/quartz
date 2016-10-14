@@ -11,9 +11,10 @@ out/
 *.iws
 
 # Eclipse IDE noise
-.settings/
-.project
-.classpath
+**/.settings/
+**/.project
+**/.classpath
+**/.checkstyle
 
 # NetBeans noise
 nbproject/

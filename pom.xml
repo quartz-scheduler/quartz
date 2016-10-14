@@ -65,8 +65,7 @@
     <skipDeploy>false</skipDeploy>
     <skipJavadoc>false</skipJavadoc>
     <skipCheckstyle>false</skipCheckstyle>
-    <additionalparam>-Xdoclint:none</additionalparam>
-    
+
     <slf4j.version>1.7.7</slf4j.version>
     <c3p0.version>0.9.1.1</c3p0.version>
     <log4j.version>1.2.16</log4j.version>
