@@ -840,9 +840,6 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
       if (tw == null) { return; }
 
       tw.setState(TriggerState.WAITING, terracottaClientId, triggerFacade);
-
-      applyMisfire(tw);
-
       timeTriggers.add(tw);
 
     } finally {

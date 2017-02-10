@@ -1558,7 +1558,8 @@ J     *
 
     /**
      * <p>
-     * Reset the current state of the identified <code>{@link Trigger}</code>.
+     * Reset the current state of the identified <code>{@link Trigger}</code> to
+     * <code>{@link org.quartz.impl.jdbcjobstore.Constants#STATE_WAITING}</code>.
      * </p>
      *
      * @see TriggerState

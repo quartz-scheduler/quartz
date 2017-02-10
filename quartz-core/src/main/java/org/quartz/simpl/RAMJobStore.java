@@ -689,9 +689,8 @@ public class RAMJobStore implements JobStore {
             if (tw == null || tw.trigger == null) {
                 return;
             }
-            tw.state = TriggerWrapper.STATE_WAITING;
-            applyMisfire(tw);
             timeTriggers.add(tw);
+            triggersByKey.put(triggerKey, null);
         }
     }
 
