@@ -156,8 +156,6 @@ public class PlainTerracottaJobStore<T extends ClusteredJobStore> implements Ter
     clusteredJobStore.setTcRetryInterval(tcRetryInterval);
     clusteredJobStore.initialize(loadHelper, signaler);
 
-    // update check
-    scheduleUpdateCheck();
   }
 
   @Override
@@ -386,19 +384,17 @@ public class PlainTerracottaJobStore<T extends ClusteredJobStore> implements Ter
   }
 
   @Override
+  public long getAcquireRetryDelay(int failureCount) {
+    return tcRetryInterval;
+  }
+
+  @Override
   public String getUUID() {
     return toolkit.getClientUUID();
   }
 
   protected T createNewJobStoreInstance(String schedulerName, final boolean useSynchWrite) {
     return (T) new DefaultClusteredJobStore(useSynchWrite, toolkit, schedulerName);
-  }
-
-  private void scheduleUpdateCheck() {
-    if (!Boolean.getBoolean("org.terracotta.quartz.skipUpdateCheck")) {
-      updateCheckTimer = new Timer("Update Checker", true);
-      updateCheckTimer.scheduleAtFixedRate(new UpdateChecker(), 100, WEEKLY);
-    }
   }
 
   @Override

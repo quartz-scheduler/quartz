@@ -96,7 +96,7 @@ public class PoolingConnectionProvider implements ConnectionProvider {
     public static final String DB_VALIDATE_ON_CHECKOUT = "validateOnCheckout";
     
     /** Discard connections after they have been idle this many seconds.  0 disables the feature. Default is 0.*/ 
-    private static final String DB_DISCARD_IDLE_CONNECTIONS_SECONDS = "discardIdleConnectionsSeconds"; 
+    public static final String DB_DISCARD_IDLE_CONNECTIONS_SECONDS = "discardIdleConnectionsSeconds";
 
     /** Default maximum number of database connections in the pool. */
     public static final int DEFAULT_DB_MAX_CONNECTIONS = 10;

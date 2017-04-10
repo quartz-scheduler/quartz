@@ -46,6 +46,12 @@ import org.quartz.utils.StringKeyDirtyFlagMap;
  * of merging the contents of the trigger's JobDataMap (if any) over the
  * Job's JobDataMap (if any).  
  * </p>
+ *
+ * <p>
+ * Update since 2.2.4 - We keep an dirty flag for this map so that whenever you modify(add/delete) any of the entries,
+ * it will set to "true". However if you create new instance using an exising map with {@link #JobDataMap(Map)}, then
+ * the dirty flag will NOT be set to "true" until you modify the instance.
+ * </p>
  * 
  * @see Job
  * @see PersistJobDataAfterExecution
@@ -85,6 +91,10 @@ public class JobDataMap extends StringKeyDirtyFlagMap implements Serializable {
         @SuppressWarnings("unchecked") // casting to keep API compatible and avoid compiler errors/warnings.
         Map<String, Object> mapTyped = (Map<String, Object>)map;
         putAll(mapTyped);
+
+        // When constructing a new data map from another existing map, we should NOT mark dirty flag as true
+        // Use case: loading JobDataMap from DB
+        clearDirtyFlag();
     }
 
     /*

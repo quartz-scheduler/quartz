@@ -1,0 +1,26 @@
+# Maven and test related noise
+target/
+derby.log
+logs/
+
+# IntelliJ IDEA noise
+out/
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Eclipse IDE noise
+.settings/
+.project
+.classpath
+
+# NetBeans noise
+nbproject/
+
+# Other Editor's noise
+*~
+*.swp
+
+# MacOSX noise
+.DS_Store

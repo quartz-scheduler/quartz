@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.quartz-scheduler</groupId>
     <artifactId>quartz-parent</artifactId>
-    <version>2.2.4-SNAPSHOT</version>
+    <version>2.3.0-SNAPSHOT</version>
   </parent>
 
   <groupId>org.quartz-scheduler.internal</groupId>
@@ -25,13 +25,6 @@
       <scope>provided</scope>
     </dependency>    
   </dependencies>
-  
-  <repositories>
-    <repository>
-      <id>mvnsearch</id>
-      <url>http://www.mvnsearch.org/maven2/</url>
-    </repository>
-  </repositories>
 
   <profiles>
     <profile>

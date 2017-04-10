@@ -34,7 +34,7 @@ public final class JdbcQuartzTestUtilities {
         String setupScript;
         try {
             InputStream setupStream = DerbyEmbeddedConnectionProvider.class
-                    .getClassLoader().getResourceAsStream("tables_derby.sql");
+                    .getClassLoader().getResourceAsStream("org/quartz/impl/jdbcjobstore/tables_derby.sql");
             try {
                 BufferedReader r = new BufferedReader(new InputStreamReader(setupStream, "US-ASCII"));
                 StringBuilder sb = new StringBuilder();

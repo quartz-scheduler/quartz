@@ -100,6 +100,7 @@ public class PoolingConnectionProviderTest extends QuartzDatabaseTestSupport {
         properties.put("org.quartz.dataSource.myDS.acquireIncrement","5");
         properties.put("org.quartz.dataSource.myDS.acquireRetryAttempts","3");
         properties.put("org.quartz.dataSource.myDS.acquireRetryDelay","3000");
+        properties.put("org.quartz.dataSource.myDS.discardIdleConnectionsSeconds","60");
 
         return properties;
     }

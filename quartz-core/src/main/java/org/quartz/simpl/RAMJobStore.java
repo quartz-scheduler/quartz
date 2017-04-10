@@ -98,7 +98,7 @@ public class RAMJobStore implements JobStore {
 
     protected HashMap<String, Calendar> calendarsByName = new HashMap<String, Calendar>(25);
 
-    protected ArrayList<TriggerWrapper> triggers = new ArrayList<TriggerWrapper>(1000);
+    protected Map<JobKey, List<TriggerWrapper>> triggersByJob = new HashMap<JobKey, List<TriggerWrapper>>(1000);
 
     protected final Object lock = new Object();
 
@@ -424,8 +424,14 @@ public class RAMJobStore implements JobStore {
                         + ") referenced by the trigger does not exist.");
             }
 
-            // add to triggers array
-            triggers.add(tw);
+            // add to triggers by job
+            List<TriggerWrapper> jobList = triggersByJob.get(tw.jobKey);
+            if(jobList == null) {
+                jobList = new ArrayList<TriggerWrapper>(1);
+                triggersByJob.put(tw.jobKey, jobList);
+            }
+            jobList.add(tw);
+            
             // add to triggers by group
             HashMap<TriggerKey, TriggerWrapper> grpMap = triggersByGroup.get(newTrigger.getKey().getGroup());
             if (grpMap == null) {
@@ -469,9 +475,9 @@ public class RAMJobStore implements JobStore {
 
         synchronized (lock) {
             // remove from triggers by FQN map
-            found = (triggersByKey.remove(key) != null);
+            TriggerWrapper tw = triggersByKey.remove(key);
+            found = tw != null;
             if (found) {
-                TriggerWrapper tw = null;
                 // remove from triggers by group
                 HashMap<TriggerKey, TriggerWrapper> grpMap = triggersByGroup.get(key.getGroup());
                 if (grpMap != null) {
@@ -480,15 +486,15 @@ public class RAMJobStore implements JobStore {
                         triggersByGroup.remove(key.getGroup());
                     }
                 }
-                // remove from triggers array
-                Iterator<TriggerWrapper> tgs = triggers.iterator();
-                while (tgs.hasNext()) {
-                    tw = tgs.next();
-                    if (key.equals(tw.key)) {
-                        tgs.remove();
-                        break;
+                //remove from triggers by job
+                List<TriggerWrapper> jobList = triggersByJob.get(tw.jobKey);
+                if(jobList != null) {
+                    jobList.remove(tw);
+                    if(jobList.isEmpty()) {
+                        triggersByJob.remove(tw.jobKey);
                     }
                 }
+               
                 timeTriggers.remove(tw);
 
                 if (removeOrphanedJob) {
@@ -525,7 +531,6 @@ public class RAMJobStore implements JobStore {
                     throw new JobPersistenceException("New trigger is not related to the same job as the old trigger.");
                 }
 
-                tw = null;
                 // remove from triggers by group
                 HashMap<TriggerKey, TriggerWrapper> grpMap = triggersByGroup.get(triggerKey.getGroup());
                 if (grpMap != null) {
@@ -534,15 +539,16 @@ public class RAMJobStore implements JobStore {
                         triggersByGroup.remove(triggerKey.getGroup());
                     }
                 }
-                // remove from triggers array
-                Iterator<TriggerWrapper> tgs = triggers.iterator();
-                while (tgs.hasNext()) {
-                    tw = tgs.next();
-                    if (triggerKey.equals(tw.key)) {
-                        tgs.remove();
-                        break;
+                
+                //remove from triggers by job
+                List<TriggerWrapper> jobList = triggersByJob.get(tw.jobKey);
+                if(jobList != null) {
+                    jobList.remove(tw);
+                    if(jobList.isEmpty()) {
+                        triggersByJob.remove(tw.jobKey);
                     }
                 }
+                
                 timeTriggers.remove(tw);
 
                 try {
@@ -683,9 +689,8 @@ public class RAMJobStore implements JobStore {
             if (tw == null || tw.trigger == null) {
                 return;
             }
-            tw.state = TriggerWrapper.STATE_WAITING;
-            applyMisfire(tw);
             timeTriggers.add(tw);
+            triggersByKey.put(triggerKey, null);
         }
     }
 
@@ -763,7 +768,7 @@ public class RAMJobStore implements JobStore {
         int numRefs = 0;
 
         synchronized (lock) {
-            for (TriggerWrapper trigger : triggers) {
+            for (TriggerWrapper trigger : triggersByKey.values()) {
                 OperableTrigger trigg = trigger.trigger;
                 if (trigg.getCalendarName() != null
                         && trigg.getCalendarName().equals(calName)) {
@@ -819,7 +824,7 @@ public class RAMJobStore implements JobStore {
      */
     public int getNumberOfTriggers() {
         synchronized (lock) {
-            return triggers.size();
+            return triggersByKey.size();
         }
     }
 
@@ -991,8 +996,9 @@ public class RAMJobStore implements JobStore {
         ArrayList<OperableTrigger> trigList = new ArrayList<OperableTrigger>();
 
         synchronized (lock) {
-            for (TriggerWrapper tw : triggers) {
-                if (tw.jobKey.equals(jobKey)) {
+            List<TriggerWrapper> jobList = triggersByJob.get(jobKey);
+            if(jobList != null) {
+                for(TriggerWrapper tw : jobList) {
                     trigList.add((OperableTrigger) tw.trigger.clone());
                 }
             }
@@ -1005,8 +1011,9 @@ public class RAMJobStore implements JobStore {
         ArrayList<TriggerWrapper> trigList = new ArrayList<TriggerWrapper>();
 
         synchronized (lock) {
-            for (TriggerWrapper trigger : triggers) {
-                if (trigger.jobKey.equals(jobKey)) {
+            List<TriggerWrapper> jobList = triggersByJob.get(jobKey);
+            if(jobList != null) {
+                for(TriggerWrapper trigger : jobList) {
                     trigList.add(trigger);
                 }
             }
@@ -1019,7 +1026,7 @@ public class RAMJobStore implements JobStore {
         ArrayList<TriggerWrapper> trigList = new ArrayList<TriggerWrapper>();
 
         synchronized (lock) {
-            for (TriggerWrapper tw : triggers) {
+            for (TriggerWrapper tw : triggersByKey.values()) {
                 String tcalName = tw.getTrigger().getCalendarName();
                 if (tcalName != null && tcalName.equals(calName)) {
                     trigList.add(tw);
@@ -1243,8 +1250,26 @@ public class RAMJobStore implements JobStore {
                 }
                 resumeTrigger(triggerKey);
             }
-            for (String group : groups) {
-                pausedTriggerGroups.remove(group);
+
+            // Find all matching paused trigger groups, and then remove them.
+            StringMatcher.StringOperatorName operator = matcher.getCompareWithOperator();
+            LinkedList<String> pausedGroups = new LinkedList<String>();
+            String matcherGroup = matcher.getCompareToValue();
+            switch (operator) {
+                case EQUALS:
+                    if(pausedTriggerGroups.contains(matcherGroup)) {
+                        pausedGroups.add(matcher.getCompareToValue());
+                    }
+                    break;
+                default :
+                    for (String group : pausedTriggerGroups) {
+                        if(operator.evaluate(group, matcherGroup)) {
+                            pausedGroups.add(group);
+                        }
+                    }
+            }
+            for (String pausedGroup : pausedGroups) {
+                pausedTriggerGroups.remove(pausedGroup);
             }
         }
 
@@ -1648,6 +1673,11 @@ public class RAMJobStore implements JobStore {
                 }
             }
         }
+    }
+
+    @Override
+    public long getAcquireRetryDelay(int failureCount) {
+        return 20;
     }
 
     protected void setAllTriggersOfJobToState(JobKey jobKey, int state) {

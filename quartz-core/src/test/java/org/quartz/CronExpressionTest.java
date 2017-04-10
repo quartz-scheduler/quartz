@@ -264,6 +264,219 @@ public class CronExpressionTest extends SerializationTestSupport {
         CronExpression copyCronExpression = new CronExpression(cronExpression);
         assertEquals(nonDefault, copyCronExpression.getTimeZone());
     }
+
+    // Issue #58
+    public void testSecRangeIntervalAfterSlash() throws Exception {
+        // Test case 1
+        try {
+            new CronExpression("/120 0 8-18 ? * 2-6");
+            fail("Cron did not validate bad range interval in '_blank/xxx' form");
+        } catch (ParseException e) {
+            assertEquals(e.getMessage(), "Increment > 60 : 120");
+        }
+
+        // Test case 2
+        try {
+            new CronExpression("0/120 0 8-18 ? * 2-6");
+            fail("Cron did not validate bad range interval in in '0/xxx' form");
+        } catch (ParseException e) {
+            assertEquals(e.getMessage(), "Increment > 60 : 120");
+        }
+
+        // Test case 3
+        try {
+            new CronExpression("/ 0 8-18 ? * 2-6");
+            fail("Cron did not validate bad range interval in '_blank/_blank'");
+        } catch (ParseException e) {
+            assertEquals(e.getMessage(), "'/' must be followed by an integer.");
+        }
+
+        // Test case 4
+        try {
+            new CronExpression("0/ 0 8-18 ? * 2-6");
+            fail("Cron did not validate bad range interval in '0/_blank'");
+        } catch (ParseException e) {
+            assertEquals(e.getMessage(), "'/' must be followed by an integer.");
+        }
+    }
+
+
+    // Issue #58
+    public void testMinRangeIntervalAfterSlash() throws Exception {
+        // Test case 1
+        try {
+            new CronExpression("0 /120 8-18 ? * 2-6");
+            fail("Cron did not validate bad range interval in '_blank/xxx' form");
+        } catch (ParseException e) {
+            assertEquals(e.getMessage(), "Increment > 60 : 120");
+        }
+
+        // Test case 2
+        try {
+            new CronExpression("0 0/120 8-18 ? * 2-6");
+            fail("Cron did not validate bad range interval in in '0/xxx' form");
+        } catch (ParseException e) {
+            assertEquals(e.getMessage(), "Increment > 60 : 120");
+        }
+
+        // Test case 3
+        try {
+            new CronExpression("0 / 8-18 ? * 2-6");
+            fail("Cron did not validate bad range interval in '_blank/_blank'");
+        } catch (ParseException e) {
+            assertEquals(e.getMessage(), "'/' must be followed by an integer.");
+        }
+
+        // Test case 4
+        try {
+            new CronExpression("0 0/ 8-18 ? * 2-6");
+            fail("Cron did not validate bad range interval in '0/_blank'");
+        } catch (ParseException e) {
+            assertEquals(e.getMessage(), "'/' must be followed by an integer.");
+        }
+    }
+
+    // Issue #58
+    public void testHourRangeIntervalAfterSlash() throws Exception {
+        // Test case 1
+        try {
+            new CronExpression("0 0 /120 ? * 2-6");
+            fail("Cron did not validate bad range interval in '_blank/xxx' form");
+        } catch (ParseException e) {
+            assertEquals(e.getMessage(), "Increment > 24 : 120");
+        }
+
+        // Test case 2
+        try {
+            new CronExpression("0 0 0/120 ? * 2-6");
+            fail("Cron did not validate bad range interval in in '0/xxx' form");
+        } catch (ParseException e) {
+            assertEquals(e.getMessage(), "Increment > 24 : 120");
+        }
+
+        // Test case 3
+        try {
+            new CronExpression("0 0 / ? * 2-6");
+            fail("Cron did not validate bad range interval in '_blank/_blank'");
+        } catch (ParseException e) {
+            assertEquals(e.getMessage(), "'/' must be followed by an integer.");
+        }
+
+        // Test case 4
+        try {
+            new CronExpression("0 0 0/ ? * 2-6");
+            fail("Cron did not validate bad range interval in '0/_blank'");
+        } catch (ParseException e) {
+            assertEquals(e.getMessage(), "'/' must be followed by an integer.");
+        }
+    }
+
+    // Issue #58
+    public void testDayOfMonthRangeIntervalAfterSlash() throws Exception {
+        // Test case 1
+        try {
+            new CronExpression("0 0 0 /120 * 2-6");
+            fail("Cron did not validate bad range interval in '_blank/xxx' form");
+        } catch (ParseException e) {
+            assertEquals(e.getMessage(), "Increment > 31 : 120");
+        }
+
+        // Test case 2
+        try {
+            new CronExpression("0 0 0 0/120 * 2-6");
+            fail("Cron did not validate bad range interval in in '0/xxx' form");
+        } catch (ParseException e) {
+            assertEquals(e.getMessage(), "Increment > 31 : 120");
+        }
+
+        // Test case 3
+        try {
+            new CronExpression("0 0 0 / * 2-6");
+            fail("Cron did not validate bad range interval in '_blank/_blank'");
+        } catch (ParseException e) {
+            assertEquals(e.getMessage(), "'/' must be followed by an integer.");
+        }
+
+        // Test case 4
+        try {
+            new CronExpression("0 0 0 0/ * 2-6");
+            fail("Cron did not validate bad range interval in '0/_blank'");
+        } catch (ParseException e) {
+            assertEquals(e.getMessage(), "'/' must be followed by an integer.");
+        }
+    }
+
+    // Issue #58
+    public void testMonthRangeIntervalAfterSlash() throws Exception {
+        // Test case 1
+        try {
+            new CronExpression("0 0 0 ? /120 2-6");
+            fail("Cron did not validate bad range interval in '_blank/xxx' form");
+        } catch (ParseException e) {
+            assertEquals(e.getMessage(), "Increment > 12 : 120");
+        }
+
+        // Test case 2
+        try {
+            new CronExpression("0 0 0 ? 0/120 2-6");
+            fail("Cron did not validate bad range interval in in '0/xxx' form");
+        } catch (ParseException e) {
+            assertEquals(e.getMessage(), "Increment > 12 : 120");
+        }
+
+        // Test case 3
+        try {
+            new CronExpression("0 0 0 ? / 2-6");
+            fail("Cron did not validate bad range interval in '_blank/_blank'");
+        } catch (ParseException e) {
+            assertEquals(e.getMessage(), "'/' must be followed by an integer.");
+        }
+
+        // Test case 4
+        try {
+            new CronExpression("0 0 0 ? 0/ 2-6");
+            fail("Cron did not validate bad range interval in '0/_blank'");
+        } catch (ParseException e) {
+            assertEquals(e.getMessage(), "'/' must be followed by an integer.");
+        }
+    }
+
+
+
+    // Issue #58
+    public void testDayOfWeekRangeIntervalAfterSlash() throws Exception {
+        // Test case 1
+        try {
+            new CronExpression("0 0 0 ? * /120");
+            fail("Cron did not validate bad range interval in '_blank/xxx' form");
+        } catch (ParseException e) {
+            assertEquals(e.getMessage(), "Increment > 7 : 120");
+        }
+
+        // Test case 2
+        try {
+            new CronExpression("0 0 0 ? * 0/120");
+            fail("Cron did not validate bad range interval in in '0/xxx' form");
+        } catch (ParseException e) {
+            assertEquals(e.getMessage(), "Increment > 7 : 120");
+        }
+
+        // Test case 3
+        try {
+            new CronExpression("0 0 0 ? * /");
+            fail("Cron did not validate bad range interval in '_blank/_blank'");
+        } catch (ParseException e) {
+            assertEquals(e.getMessage(), "'/' must be followed by an integer.");
+        }
+
+        // Test case 4
+        try {
+            new CronExpression("0 0 0 ? * 0/");
+            fail("Cron did not validate bad range interval in '0/_blank'");
+        } catch (ParseException e) {
+            assertEquals(e.getMessage(), "'/' must be followed by an integer.");
+        }
+    }
     
     // execute with version number to generate a new version's serialized form
     public static void main(String[] args) throws Exception {

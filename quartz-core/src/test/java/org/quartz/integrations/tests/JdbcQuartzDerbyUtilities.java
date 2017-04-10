@@ -70,7 +70,7 @@ public final class JdbcQuartzDerbyUtilities {
         String setupScript;
         try {
             InputStream setupStream = DerbyConnectionProvider.class
-                    .getClassLoader().getResourceAsStream("tables_derby.sql");
+                    .getClassLoader().getResourceAsStream("org/quartz/impl/jdbcjobstore/tables_derby.sql");
             try {
                 BufferedReader r = new BufferedReader(new InputStreamReader(setupStream, "US-ASCII"));
                 StringBuilder sb = new StringBuilder();

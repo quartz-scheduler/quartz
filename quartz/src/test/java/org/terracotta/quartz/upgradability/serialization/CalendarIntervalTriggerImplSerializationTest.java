@@ -79,7 +79,7 @@ public class CalendarIntervalTriggerImplSerializationTest {
     cti.setMisfireInstruction(MISFIRE_INSTRUCTION_SMART_POLICY);
     cti.setPriority(5);
     
-    validateSerializedForm(cti, COMPARATOR, expand("serializedforms/CalendarIntervalTriggerImplSerializationTest.testConstructed.{?}.ser", "JDK16", "JDK17"));
+    validateSerializedForm(cti, COMPARATOR, expand("serializedforms/CalendarIntervalTriggerImplSerializationTest.testConstructed.{?}.ser", "JDK16", "JDK17", "JDK18"));
   }
   
   @Test
@@ -96,7 +96,7 @@ public class CalendarIntervalTriggerImplSerializationTest {
 
     cti.triggered(null);
     
-    validateSerializedForm(cti, COMPARATOR, expand("serializedforms/CalendarIntervalTriggerImplSerializationTest.testFired.{?}.ser", "JDK16", "JDK17"));
+    validateSerializedForm(cti, COMPARATOR, expand("serializedforms/CalendarIntervalTriggerImplSerializationTest.testFired.{?}.ser", "JDK16", "JDK17", "JDK18"));
     
   }
 }

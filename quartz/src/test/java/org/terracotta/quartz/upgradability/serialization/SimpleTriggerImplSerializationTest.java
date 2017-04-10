@@ -65,7 +65,7 @@ public class SimpleTriggerImplSerializationTest {
     sti.setMisfireInstruction(MISFIRE_INSTRUCTION_SMART_POLICY);
     sti.setPriority(5);
     
-    validateSerializedForm(sti, COMPARATOR, expand("serializedforms/SimpleTriggerImplSerializationTest.testConstructed.{?}.ser", "JDK16", "JDK17"));
+    validateSerializedForm(sti, COMPARATOR, expand("serializedforms/SimpleTriggerImplSerializationTest.testConstructed.{?}.ser", "JDK16", "JDK17", "JDK18"));
   }
   
   @Test
@@ -79,7 +79,7 @@ public class SimpleTriggerImplSerializationTest {
 
     sti.triggered(null);
     
-    validateSerializedForm(sti, COMPARATOR, expand("serializedforms/SimpleTriggerImplSerializationTest.testFired.{?}.ser", "JDK16", "JDK17"));
+    validateSerializedForm(sti, COMPARATOR, expand("serializedforms/SimpleTriggerImplSerializationTest.testFired.{?}.ser", "JDK16", "JDK17", "JDK18"));
     
   }
 }

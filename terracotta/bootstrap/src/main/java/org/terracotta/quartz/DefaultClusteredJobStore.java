@@ -840,9 +840,6 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
       if (tw == null) { return; }
 
       tw.setState(TriggerState.WAITING, terracottaClientId, triggerFacade);
-
-      applyMisfire(tw);
-
       timeTriggers.add(tw);
 
     } finally {
@@ -2031,6 +2028,11 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
   public boolean isClustered() {
     // We throw an assertion here since this method should never be called directly on this instance.
     throw new AssertionError();
+  }
+
+  @Override
+  public long getAcquireRetryDelay(int failureCount) {
+    return retryInterval;
   }
 
   void injectTriggerWrapper(final TriggerWrapper triggerWrapper) {

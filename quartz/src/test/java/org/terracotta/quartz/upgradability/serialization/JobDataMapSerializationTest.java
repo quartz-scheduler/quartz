@@ -33,14 +33,14 @@ public class JobDataMapSerializationTest {
   @Test
   public void testEmptyMap() throws IOException, ClassNotFoundException {
     JobDataMap jdm = new JobDataMap();
-    validateSerializedForm(jdm, COMPARATOR, expand("serializedforms/JobDataMapSerializationTest.testEmptyMap.{?}.ser", "JDK16", "JDK17"));
+    validateSerializedForm(jdm, COMPARATOR, expand("serializedforms/JobDataMapSerializationTest.testEmptyMap.{?}.ser", "JDK16", "JDK17", "JDK18"));
   }
   
   @Test
   public void testEmptyAllowTransientsMap() throws IOException, ClassNotFoundException {
     JobDataMap jdm = new JobDataMap();
     jdm.setAllowsTransientData(true);
-    validateSerializedForm(jdm, COMPARATOR, expand("serializedforms/JobDataMapSerializationTest.testEmptyAllowTransientsMap.{?}.ser", "JDK16", "JDK17"));
+    validateSerializedForm(jdm, COMPARATOR, expand("serializedforms/JobDataMapSerializationTest.testEmptyAllowTransientsMap.{?}.ser", "JDK16", "JDK17", "JDK18"));
   }
   
   @Test

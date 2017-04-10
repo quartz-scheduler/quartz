@@ -639,4 +639,22 @@ public interface JobStore {
      * @since 2.0
      */
     void setThreadPoolSize(int poolSize);
+
+    /**
+     * Get the amount of time (in ms) to wait when accessing this job store
+     * repeatedly fails.
+     *
+     * Called by the executor thread(s) when calls to
+     * {@link #acquireNextTriggers} fail more than once in succession, and the
+     * thread thus wants to wait a bit before trying again, to not consume
+     * 100% CPU, write huge amounts of errors into logs, etc. in cases like
+     * the DB being offline/restarting.
+     *
+     * The delay returned by implementations should be between 20 and
+     * 600000 milliseconds.
+     *
+     * @param failureCount the number of successive failures seen so far
+     * @return the time (in milliseconds) to wait before trying again
+     */
+    long getAcquireRetryDelay(int failureCount);
 }

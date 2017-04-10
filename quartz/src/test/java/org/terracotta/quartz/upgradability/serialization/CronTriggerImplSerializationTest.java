@@ -79,7 +79,7 @@ public class CronTriggerImplSerializationTest {
     cti.setMisfireInstruction(MISFIRE_INSTRUCTION_SMART_POLICY);
     cti.setPriority(5);
     
-    validateSerializedForm(cti, COMPARATOR, expand("serializedforms/CronTriggerImplSerializationTest.testConstructed.{?}.ser", "JDK16", "JDK17"));
+    validateSerializedForm(cti, COMPARATOR, expand("serializedforms/CronTriggerImplSerializationTest.testConstructed.{?}.ser", "JDK16", "JDK17", "JDK18"));
   }
   
   @Test
@@ -93,7 +93,7 @@ public class CronTriggerImplSerializationTest {
 
     cti.triggered(null);
     
-    validateSerializedForm(cti, COMPARATOR, expand("serializedforms/CronTriggerImplSerializationTest.testFired.{?}.ser", "JDK16", "JDK17"));
+    validateSerializedForm(cti, COMPARATOR, expand("serializedforms/CronTriggerImplSerializationTest.testFired.{?}.ser", "JDK16", "JDK17", "JDK18"));
     
   }
   

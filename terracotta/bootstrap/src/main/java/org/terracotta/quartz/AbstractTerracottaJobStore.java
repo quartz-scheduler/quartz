@@ -607,6 +607,15 @@ public abstract class AbstractTerracottaJobStore implements JobStore {
     }
   }
 
+  @Override
+  public long getAcquireRetryDelay(int failureCount) {
+    try {
+      return realJobStore.getAcquireRetryDelay(failureCount);
+    } catch (Exception e) {
+      return 20;
+    }
+  }
+
   protected TerracottaJobStoreExtensions getRealJobStore() {
     return realJobStore;
   }

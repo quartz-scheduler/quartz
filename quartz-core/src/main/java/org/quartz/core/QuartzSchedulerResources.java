@@ -89,8 +89,6 @@ public class QuartzSchedulerResources {
 
     private ThreadExecutor threadExecutor;
 
-    private boolean runUpdateCheck = false;
-
     private long batchTimeWindow = 0;
 
     private int maxBatchSize = 1;
@@ -540,14 +538,6 @@ public class QuartzSchedulerResources {
         return "quartz:type=QuartzScheduler" + ",name="
             + schedName.replaceAll(":|=|\n", ".")
             + ",instance=" + schedInstId;
-    }
-
-    public boolean isRunUpdateCheck() {
-        return runUpdateCheck;
-    }
-
-    public void setRunUpdateCheck(boolean runUpdateCheck) {
-        this.runUpdateCheck = runUpdateCheck;
     }
 
     public long getBatchTimeWindow() {

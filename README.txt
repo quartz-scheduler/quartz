@@ -1,13 +1,13 @@
 1. To compile:
-  %> mvn install -DskipTests
+  %> ./mvnw install -DskipTests
   
 Note:  the final Quartz jar is found under quartz/target 
 
 2. To build Quartz distribution kit:
 
   %> cd distribution
-  %> mvn package
+  %> ./mvnw package
 
 3. To deploy Maven central repo (via Sonatype)
 
-  %> mvn clean deploy -P sign-artifacts,deploy-sonatype -DskipTests
+  %> ./mvnw clean deploy -P sign-artifacts,deploy-sonatype -DskipTests

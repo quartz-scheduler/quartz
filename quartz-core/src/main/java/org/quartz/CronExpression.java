@@ -645,17 +645,7 @@ public final class CronExpression implements Serializable, Cloneable {
                 if (incr > 10) {
                     i++;
                 }
-                if (incr > 59 && (type == SECOND || type == MINUTE)) {
-                    throw new ParseException("Increment > 60 : " + incr, i);
-                } else if (incr > 23 && (type == HOUR)) { 
-                    throw new ParseException("Increment > 24 : " + incr, i);
-                } else if (incr > 31 && (type == DAY_OF_MONTH)) { 
-                    throw new ParseException("Increment > 31 : " + incr, i);
-                } else if (incr > 7 && (type == DAY_OF_WEEK)) { 
-                    throw new ParseException("Increment > 7 : " + incr, i);
-                } else if (incr > 12 && (type == MONTH)) {
-                    throw new ParseException("Increment > 12 : " + incr, i);
-                }
+                checkIncrementRange(incr, type, i);
             } else {
                 incr = 1;
             }
@@ -708,6 +698,20 @@ public final class CronExpression implements Serializable, Cloneable {
         }
 
         return i;
+    }
+
+    private void checkIncrementRange(int incr, int type, int idxPos) throws ParseException {
+        if (incr > 59 && (type == SECOND || type == MINUTE)) {
+            throw new ParseException("Increment > 60 : " + incr, idxPos);
+        } else if (incr > 23 && (type == HOUR)) {
+            throw new ParseException("Increment > 24 : " + incr, idxPos);
+        } else if (incr > 31 && (type == DAY_OF_MONTH)) {
+            throw new ParseException("Increment > 31 : " + incr, idxPos);
+        } else if (incr > 7 && (type == DAY_OF_WEEK)) {
+            throw new ParseException("Increment > 7 : " + incr, idxPos);
+        } else if (incr > 12 && (type == MONTH)) {
+            throw new ParseException("Increment > 12 : " + incr, idxPos);
+        }
     }
 
     protected int checkNext(int pos, String s, int val, int type)
@@ -816,11 +820,16 @@ public final class CronExpression implements Serializable, Cloneable {
         }
 
         if (c == '/') {
+            if ((i + 1) >= s.length() || s.charAt(i + 1) == ' ' || s.charAt(i + 1) == '\t') {
+                throw new ParseException("'/' must be followed by an integer.", i);
+            }
+
             i++;
             c = s.charAt(i);
             int v2 = Integer.parseInt(String.valueOf(c));
             i++;
             if (i >= s.length()) {
+                checkIncrementRange(v2, type, i);
                 addToSet(val, end, v2, type);
                 return i;
             }
@@ -828,6 +837,7 @@ public final class CronExpression implements Serializable, Cloneable {
             if (c >= '0' && c <= '9') {
                 ValueSet vs = getValue(v2, s, i);
                 int v3 = vs.value;
+                checkIncrementRange(v3, type, i);
                 addToSet(val, end, v3, type);
                 i = vs.pos;
                 return i;

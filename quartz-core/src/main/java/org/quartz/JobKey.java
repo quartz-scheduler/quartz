@@ -23,7 +23,7 @@ import org.quartz.utils.Key;
  * Uniquely identifies a {@link JobDetail}.
  * 
  * <p>Keys are composed of both a name and group, and the name must be unique
- * within the group.  If only a group is specified then the default group
+ * within the group.  If only a name is specified then the default group
  * name will be used.</p> 
  *
  * <p>Quartz provides a builder-style API for constructing scheduling-related
