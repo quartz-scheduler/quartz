@@ -45,6 +45,7 @@ public class ShutdownHookPlugin implements SchedulerPlugin {
     private boolean cleanShutdown = true;
 
     private final Logger log = LoggerFactory.getLogger(getClass());
+    private Thread thread;
     
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -111,7 +112,7 @@ public class ShutdownHookPlugin implements SchedulerPlugin {
      * the <code>SchedulerPlugin</code> a chance to initialize.
      * </p>
      * 
-     * @throws SchedulerConfigException
+     * @throws SchedulerException
      *           if there is an error initializing.
      */
     public void initialize(String name, final Scheduler scheduler, ClassLoadHelper classLoadHelper)
@@ -119,7 +120,7 @@ public class ShutdownHookPlugin implements SchedulerPlugin {
 
         getLog().info("Registering Quartz shutdown hook.");
 
-        Thread t = new Thread("Quartz Shutdown-Hook "
+        thread = new Thread("Quartz Shutdown-Hook "
                 + scheduler.getSchedulerName()) {
             @Override
             public void run() {
@@ -133,7 +134,7 @@ public class ShutdownHookPlugin implements SchedulerPlugin {
             }
         };
 
-        Runtime.getRuntime().addShutdownHook(t);
+        Runtime.getRuntime().addShutdownHook(thread);
     }
 
     public void start() {
@@ -148,8 +149,8 @@ public class ShutdownHookPlugin implements SchedulerPlugin {
      * </p>
      */
     public void shutdown() {
-        // nothing to do in this case (since the scheduler is already shutting
-        // down)
+        // remove new thread from runtime hooks
+        Runtime.getRuntime().removeShutdownHook(thread);
     }
 
 }
