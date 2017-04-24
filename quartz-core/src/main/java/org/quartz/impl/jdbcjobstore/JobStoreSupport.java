@@ -22,6 +22,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -1107,22 +1108,33 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         throws JobPersistenceException {
 
         boolean existingJob = jobExists(conn, newJob.getKey());
-        try {
-            if (existingJob) {
-                if (!replaceExisting) { 
-                    throw new ObjectAlreadyExistsException(newJob); 
+        while (true) {
+            try {
+                if (existingJob) {
+                    if (!replaceExisting) {
+                        throw new ObjectAlreadyExistsException(newJob);
+                    }
+                    getDelegate().updateJobDetail(conn, newJob);
+                } else {
+                    getDelegate().insertJobDetail(conn, newJob);
                 }
-                getDelegate().updateJobDetail(conn, newJob);
-            } else {
-                getDelegate().insertJobDetail(conn, newJob);
+                break;
+            } catch (IOException e) {
+                throw wrapJobStoreException(e);
+            } catch (SQLIntegrityConstraintViolationException e) {
+                if (existingJob) {
+                    throw wrapJobStoreException(e);
+                }
+                existingJob = true;
+            } catch (SQLException e) {
+                throw wrapJobStoreException(e);
             }
-        } catch (IOException e) {
-            throw new JobPersistenceException("Couldn't store job: "
-                    + e.getMessage(), e);
-        } catch (SQLException e) {
-            throw new JobPersistenceException("Couldn't store job: "
-                    + e.getMessage(), e);
         }
+    }
+
+    private JobPersistenceException wrapJobStoreException(Exception e) {
+        return new JobPersistenceException("Couldn't store job: "
+                + e.getMessage(), e);
     }
 
     /**
