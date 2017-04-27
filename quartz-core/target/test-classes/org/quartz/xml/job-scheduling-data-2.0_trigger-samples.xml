@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<job-scheduling-data 
+	xmlns="http://www.quartz-scheduler.org/xml/JobSchedulingData"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.quartz-scheduler.org/xml/JobSchedulingData job_scheduling_data_2_0.xsd">
+	
+	<schedule>
+	
+		<!-- Sample job1 for all trigger testing. -->
+		<job>
+			<name>job1</name>
+			<group>DEFAULT</group>
+			<job-class>org.quartz.xml.XMLSchedulingDataProcessorTest$MyJob</job-class>
+			<durability>true</durability>
+			<recover>false</recover>
+		</job>
+		
+		<!-- Typical/Normal 6 fields cron -->
+		<trigger>
+			<cron>
+				<name>every_sec_no_day_of_week</name>
+				<job-name>job1</job-name>
+				<cron-expression>* * * * * ?</cron-expression>
+			</cron>
+		</trigger>
+		<trigger>
+			<cron>
+				<name>every_sec_no_day_of_month</name>
+				<job-name>job1</job-name>
+				<cron-expression>* * * ? * *</cron-expression>
+			</cron>
+		</trigger>
+		<trigger>
+			<cron>
+				<name>every_min</name>
+				<job-name>job1</job-name>
+				<cron-expression>0 * * * * ?</cron-expression>
+			</cron>
+		</trigger>
+		<trigger>
+			<cron>
+				<name>every_hour</name>
+				<job-name>job1</job-name>
+				<cron-expression>0 0 * * * ?</cron-expression>
+			</cron>
+		</trigger>
+		<trigger>
+			<cron>
+				<name>every_day</name>
+				<job-name>job1</job-name>
+				<cron-expression>0 0 0 * * ?</cron-expression>
+			</cron>
+		</trigger>
+		<trigger>
+			<cron>
+				<name>every_first_of_month</name>
+				<job-name>job1</job-name>
+				<cron-expression>0 0 0 1 * ?</cron-expression>
+			</cron>
+		</trigger>
+		<trigger>
+			<cron>
+				<name>every_first_of_JAN</name>
+				<job-name>job1</job-name>
+				<cron-expression>0 0 0 1 1 ?</cron-expression>
+			</cron>
+		</trigger>
+		
+		<!-- Ranges -->
+		<trigger>
+			<cron>
+				<name>every_day_8am_to_5pm</name>
+				<job-name>job1</job-name>
+				<cron-expression>0 0 8-17 * * ?</cron-expression>
+			</cron>
+		</trigger>
+		<trigger>
+			<cron>
+				<name>every_weekdays_8am_to_5pm</name>
+				<job-name>job1</job-name>
+				<cron-expression>0 0 8-17 ? * MON-FRI</cron-expression>
+			</cron>
+		</trigger>
+		<trigger>
+			<cron>
+				<name>every_weekdays_8am_to_5pm_JUN_ot_SEP</name>
+				<job-name>job1</job-name>
+				<cron-expression>0 0 8-17 ? JUN-SEP MON-FRI</cron-expression>
+			</cron>
+		</trigger>
+		<trigger>
+			<cron>
+				<name>every_weekdays_8am_to_5pm_JUN_ot_SEP_within_years</name>
+				<job-name>job1</job-name>
+				<cron-expression>0 0 8-17 ? JUN-SEP MON-FRI 1970-2099</cron-expression>
+			</cron>
+		</trigger>
+		
+		<!-- The L character -->
+		<trigger>
+			<cron>
+				<name>last_day_of_work_OR_SAT</name>
+				<job-name>job1</job-name>
+				<cron-expression>0 15 10 ? * L</cron-expression>
+			</cron>
+		</trigger>
+		<trigger>
+			<cron>
+				<name>last_FRI_of_month</name>
+				<job-name>job1</job-name>
+				<cron-expression>0 15 10 ? * 6L</cron-expression>
+			</cron>
+		</trigger>
+		<trigger>
+			<cron>
+				<name>last_SAT_of_month</name>
+				<job-name>job1</job-name>
+				<cron-expression>0 15 10 ? * SATL</cron-expression>
+			</cron>
+		</trigger>
+		<trigger>
+			<cron>
+				<name>last_day_of_month</name>
+				<job-name>job1</job-name>
+				<cron-expression>0 15 10 L * ?</cron-expression>
+			</cron>
+		</trigger>
+		
+		<!--  The new offset of month feature added in Quartz 2.0 -->
+		<trigger>
+			<cron>
+				<name>third_to_last_day_of_month</name>
+				<job-name>job1</job-name>
+				<cron-expression>0 15 10 L-3 * ?</cron-expression>
+			</cron>
+		</trigger>		
+		<trigger>
+			<cron>
+				<name>31th_to_last_day_of_month_or_new_offset_feature_in_2_0</name>
+				<job-name>job1</job-name>
+				<cron-expression>0 15 10 L-30 * ?</cron-expression>
+			</cron>
+		</trigger>
+		
+		<!-- The W character: you can not use it by itself! -->
+		<trigger>
+			<cron>
+				<name>every_weekdays_near_first_of_month_at_noon_time</name>
+				<job-name>job1</job-name>
+				<cron-expression>0 0 12 1W * ?</cron-expression>
+			</cron>
+		</trigger>
+		<trigger>
+			<cron>
+				<name>every_weekdays_near_last_day_of_month_at_noon_time</name>
+				<job-name>job1</job-name>
+				<cron-expression>0 0 12 LW * ?</cron-expression>
+			</cron>
+		</trigger>
+		
+		<!-- The optional Year field -->
+		<trigger>
+			<cron>
+				<name>unspecified_year</name>
+				<job-name>job1</job-name>
+				<cron-expression>0 * * * * ?</cron-expression>
+			</cron>
+		</trigger>
+		<trigger>
+			<cron>
+				<name>specific_year</name>
+				<job-name>job1</job-name>
+				<cron-expression>0 * * * * ? 2099</cron-expression>
+			</cron>
+		</trigger>
+		<trigger>
+			<cron>
+				<name>year_range</name>
+				<job-name>job1</job-name>
+				<cron-expression>0 * * * * ? 2012-2099</cron-expression>
+			</cron>
+		</trigger>
+		<trigger>
+			<cron>
+				<name>any_year</name>
+				<job-name>job1</job-name>
+				<cron-expression>0 * * * * ? *</cron-expression>
+			</cron>
+		</trigger>
+		
+		<!-- "the nth" XXX day of the month for day-of-week field only -->
+		<trigger>
+			<cron>
+				<name>every_4th_MON_of_month_at_12AM</name>
+				<job-name>job1</job-name>
+				<cron-expression>0 0 0 ? * 2#4</cron-expression>
+			</cron>
+		</trigger>
+		<trigger>
+			<cron>
+				<name>every_4th_TUE_of_month_at_12AM</name>
+				<job-name>job1</job-name>
+				<cron-expression>0 0 0 ? * TUE#4</cron-expression>
+			</cron>
+		</trigger>	
+		<trigger>
+			<cron>
+				<name>every_4th_TUE_of_month_at_12AM_in_2050</name>
+				<job-name>job1</job-name>
+				<cron-expression>0 0 0 ? * WED#4 2050</cron-expression>
+			</cron>
+		</trigger>
+		
+		<!-- Specific values -->	
+		<trigger>
+			<cron>
+				<name>every_MON_WED_FRI_of_month_at_12AM</name>
+				<job-name>job1</job-name>
+				<cron-expression>0 0 0 ? * MON,WED,FRI</cron-expression>
+			</cron>
+		</trigger>
+		<trigger>
+			<cron>
+				<name>every_1st_and_15th_of_month_at_12AM</name>
+				<job-name>job1</job-name>
+				<cron-expression>0 0 0 1,15 * ?</cron-expression>
+			</cron>
+		</trigger>
+		<trigger>
+			<cron>
+				<name>1st_and_15th_of_JAN_JUN_DEC_at_12AM</name>
+				<job-name>job1</job-name>
+				<cron-expression>0 0 0 1,15 JAN,JUN,DEC ?</cron-expression>
+			</cron>
+		</trigger>
+		<trigger>
+			<cron>
+				<name>1st_and_15th_of_JAN_JUN_DEC_at_12AM_year_50_n_51</name>
+				<job-name>job1</job-name>
+				<cron-expression>0 0 0 1,15 JAN,JUN,DEC ? 2050,2051</cron-expression>
+			</cron>
+		</trigger>
+		
+		<!--  Increments -->
+		<trigger>
+			<cron>
+				<name>every_15_sec_inc</name>
+				<job-name>job1</job-name>
+				<cron-expression>0/15 * * * * ?</cron-expression>
+			</cron>
+		</trigger>
+		<trigger>
+			<cron>
+				<name>every_15_sec_inc_with_star</name>
+				<job-name>job1</job-name>
+				<cron-expression>*/15 * * * * ?</cron-expression>
+			</cron>
+		</trigger>
+		<trigger>
+			<cron>
+				<name>every_inc_2_fields</name>
+				<job-name>job1</job-name>
+				<cron-expression>*/15 5/50 * * * ?</cron-expression>
+			</cron>
+		</trigger>		
+		<trigger>
+			<cron>
+				<name>every_inc_of_something</name>
+				<job-name>job1</job-name>
+				<cron-expression>*/15 5/50 5/15 1/3 7/6 ?</cron-expression>
+			</cron>
+		</trigger>
+    <trigger>
+  			<cron>
+  				<name>QTZ-329</name>
+  				<job-name>job1</job-name>
+          <cron-expression>0 0/30 0-6,12,19-21,22 * * ?</cron-expression>
+  			</cron>
+  		</trigger>
+
+	</schedule>
+	
+</job-scheduling-data>

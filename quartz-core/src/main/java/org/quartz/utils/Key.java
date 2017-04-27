@@ -155,7 +155,12 @@ public class Key<T>  implements Serializable, Comparable<Key<T>> {
         
         return name.compareTo(o.getName());
     }
-    
+
+    /**
+     * 创建唯一的名字
+     * @param group
+     * @return
+     */
     public static String createUniqueName(String group) {
         if(group == null)
             group = DEFAULT_GROUP;

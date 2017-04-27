@@ -1,0 +1,5 @@
+org.quartz.jobs
+org.quartz.jobs.ee.ejb
+org.quartz.jobs.ee.jms
+org.quartz.jobs.ee.jmx
+org.quartz.jobs.ee.mail

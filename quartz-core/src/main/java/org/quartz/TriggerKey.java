@@ -20,13 +20,16 @@ package org.quartz;
 import org.quartz.utils.Key;
 
 /**
+ *
  * Uniquely identifies a {@link Trigger}.
- * 
+ * 一个触发器的唯一识别标识
  * <p>Keys are composed of both a name and group, and the name must be unique
+ *
+ * key被一个名称和组组合,名称必须在组内唯一.乳沟一个名称被制定一个默认组,名称将会被使用
  * within the group.  If only a name is specified then the default group
  * name will be used.</p> 
  *
- *
+ * quartz提供了构造者风格的api来构造调度相关的实例,通过领域语言,领域语言能
  * <p>Quartz provides a builder-style API for constructing scheduling-related
  * entities via a Domain-Specific Language (DSL).  The DSL can best be
  * utilized through the usage of static imports of the methods on the classes

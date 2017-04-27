@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <resourceExtensions />
+    <wildcardResourcePatterns>
+      <entry name="!?*.java" />
+      <entry name="!?*.form" />
+      <entry name="!?*.class" />
+      <entry name="!?*.groovy" />
+      <entry name="!?*.scala" />
+      <entry name="!?*.flex" />
+      <entry name="!?*.kt" />
+      <entry name="!?*.clj" />
+      <entry name="!?*.aj" />
+    </wildcardResourcePatterns>
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="false">
+        <processorPath useClasspath="true" />
+      </profile>
+      <profile default="false" name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="quartz" />
+        <module name="quartz-checkstyle" />
+        <module name="quartz-commonj" />
+        <module name="quartz-core" />
+        <module name="quartz-jboss" />
+        <module name="quartz-jobs" />
+        <module name="quartz-oracle" />
+        <module name="quartz-plugins" />
+        <module name="quartz-stubs" />
+        <module name="quartz-terracotta-bootstrap" />
+      </profile>
+      <profile default="false" name="Annotation profile for quartz-weblogic" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="quartz-weblogic" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="quartz" target="1.5" />
+      <module name="quartz-checkstyle" target="1.5" />
+      <module name="quartz-commonj" target="1.5" />
+      <module name="quartz-core" target="1.5" />
+      <module name="quartz-jboss" target="1.5" />
+      <module name="quartz-jobs" target="1.5" />
+      <module name="quartz-oracle" target="1.5" />
+      <module name="quartz-parent" target="1.5" />
+      <module name="quartz-plugins" target="1.5" />
+      <module name="quartz-stubs" target="1.5" />
+      <module name="quartz-terracotta-bootstrap" target="1.5" />
+      <module name="quartz-terracotta-root" target="1.5" />
+      <module name="quartz-weblogic" target="1.6" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
