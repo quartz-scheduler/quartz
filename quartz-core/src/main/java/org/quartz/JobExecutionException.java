@@ -52,6 +52,10 @@ public class JobExecutionException extends SchedulerException {
     private boolean unscheduleTrigg = false;
 
     private boolean unscheduleAllTriggs = false;
+    
+    private boolean pauseTrigger = false;
+   
+    private boolean pauseAllTriggers = false;
 
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -174,5 +178,22 @@ public class JobExecutionException extends SchedulerException {
     public boolean unscheduleAllTriggers() {
         return unscheduleAllTriggs;
     }
+    
 
+    public void setPauseFiringTrigger(boolean pauseTrigger) {
+        this.pauseTrigger = pauseTrigger;
+    }
+
+    public boolean pauseFiringTrigger() {
+        return pauseTrigger;
+    }
+
+    public void setPauseAllTriggers(boolean pauseAllTriggs) {
+        this.pauseAllTriggers = pauseAllTriggs;
+    }
+
+    public boolean pauseAllTriggers() {
+        return pauseAllTriggers;
+    }
+    
 }

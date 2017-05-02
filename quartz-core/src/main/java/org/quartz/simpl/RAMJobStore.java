@@ -1681,6 +1681,16 @@ public class RAMJobStore implements JobStore {
                 } else if (triggerInstCode == CompletedExecutionInstruction.SET_ALL_JOB_TRIGGERS_COMPLETE) {
                     setAllTriggersOfJobToState(trigger.getJobKey(), TriggerWrapper.STATE_COMPLETE);
                     signaler.signalSchedulingChange(0L);
+                } else if(triggerInstCode == CompletedExecutionInstruction.SET_TRIGGER_PAUSED) {
+                    getLog().info("Trigger " + trigger.getKey() + " set to PAUSED state.");
+                    tw.state = TriggerWrapper.STATE_PAUSED;
+                    timeTriggers.remove(tw);
+                    signaler.signalSchedulingChange(0L);
+                } else if (triggerInstCode == CompletedExecutionInstruction.SET_ALL_JOB_TRIGGERS_PAUSED) {
+                    getLog().info("All triggers of Job " 
+                            + trigger.getJobKey() + " set to PAUSED state.");
+                    setAllTriggersOfJobToState(trigger.getJobKey(), TriggerWrapper.STATE_PAUSED);
+                    signaler.signalSchedulingChange(0L);
                 }
             }
         }

@@ -15,6 +15,11 @@
  */
 package org.quartz;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.JobKey.jobKey;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
@@ -32,15 +37,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.Test;
-
 import org.quartz.Trigger.TriggerState;
 import org.quartz.impl.matchers.GroupMatcher;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Test High Level Scheduler functionality (implicitly tests the underlying jobstore (RAMJobStore))
@@ -63,6 +61,24 @@ public abstract class AbstractSchedulerTest {
                 throws JobExecutionException {
         }
     }
+    
+    public static class TestPauseJob implements Job {
+       public void execute(JobExecutionContext context) 
+               throws JobExecutionException {
+         JobExecutionException jec = new JobExecutionException();
+         jec.setPauseFiringTrigger(true);
+         throw jec;
+      }
+    }
+    
+    public static class TestMultiTriggerPauseJob implements Job {
+        public void execute(JobExecutionContext context) 
+                throws JobExecutionException {
+          JobExecutionException jec = new JobExecutionException();
+          jec.setPauseAllTriggers(true);
+          throw jec;
+       }
+     }
     
 	public static final long TEST_TIMEOUT_SECONDS = 125;
     
@@ -471,6 +487,8 @@ public abstract class AbstractSchedulerTest {
 		sched.shutdown(true);
 	}
     
+  
+    
     @Test
     public void testShutdownWithoutWaitIsUnclean() throws Exception {
         CyclicBarrier barrier = new CyclicBarrier(2);
@@ -542,4 +560,64 @@ public abstract class AbstractSchedulerTest {
             t.join();
         }
     }
+    
+    @Test
+  	public void testScheduleJobWithPausedCompleteInstruction() throws SchedulerException, InterruptedException {  		
+  		JobDetail job = newJob(TestPauseJob.class).withIdentity("job1", "group1").build();
+  		Trigger trigger1 = newTrigger()
+  				.withIdentity("trigger1", "group1")
+  				.startNow()
+  				.withSchedule(
+  						SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(5)
+  								.repeatForever())
+  				.build();
+  		Set<Trigger> triggersForJob = new HashSet<Trigger>(); 
+  		triggersForJob.add(trigger1);
+  		
+  		Scheduler sched = createScheduler("testScheduleJobWithPausedCompleteInstruction", 1);
+  		sched.start();
+  		sched.scheduleJob(job,triggersForJob, true);
+  		Thread.sleep(2000);
+  		TriggerState triggerState = sched.getTriggerState(trigger1.getKey());
+  		assertEquals(TriggerState.PAUSED,triggerState);
+  		sched.shutdown(true);
+  	}
+      
+      @Test
+  	public void testScheduleMultipleTriggersForAJobWithPausedCompleteInstruction() throws SchedulerException, InterruptedException {
+
+  		
+  		JobDetail job = newJob(TestMultiTriggerPauseJob.class).withIdentity("job1", "group1").build();
+  		Trigger trigger1 = newTrigger()
+  				.withIdentity("trigger1", "group1")
+  				.startNow()
+  				.withSchedule(
+  						SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(5)
+  								.repeatForever())
+  				.build();
+  		Trigger trigger2 = newTrigger()
+  				.withIdentity("trigger2", "group1")
+  				.startNow()
+  				.withSchedule(
+  						SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(10)
+  								.repeatForever())
+  				.build();
+  		Set<Trigger> triggersForJob = new HashSet<Trigger>(); 
+  		triggersForJob.add(trigger1);
+  		triggersForJob.add(trigger2);
+  		
+  		Scheduler sched = createScheduler("testScheduleMultipleTriggersForAJobWithPausedCompleteInstruction", 2);
+  		sched.scheduleJob(job,triggersForJob, true);
+  		sched.start();
+
+  		Thread.sleep(2000);
+
+  		List<? extends Trigger> triggers = sched.getTriggersOfJob(job.getKey());
+  		for (int i=0;i<triggers.size();i++){
+  			TriggerState triggerState = sched.getTriggerState(triggers.get(i).getKey());
+  			assertEquals(TriggerState.PAUSED,triggerState);
+  		}
+  		
+  		sched.shutdown(true);
+  	}
 }

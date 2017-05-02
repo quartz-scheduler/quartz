@@ -30,4 +30,6 @@ public class RAMSchedulerTest extends AbstractSchedulerTest {
         config.setProperty("org.quartz.threadPool.class", "org.quartz.simpl.SimpleThreadPool");
         return new StdSchedulerFactory(config).getScheduler();
     }
+    
+   
 }

@@ -1893,7 +1893,15 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
             } else if (triggerInstCode == CompletedExecutionInstruction.SET_ALL_JOB_TRIGGERS_COMPLETE) {
               setAllTriggersOfJobToState(trigger.getJobKey(), TriggerState.COMPLETE);
               signaler.signalSchedulingChange(0L);
-            }
+            } else if (triggerInstCode == CompletedExecutionInstruction.SET_TRIGGER_PAUSED) {
+                getLog().info("Trigger " + trigger.getKey() + " set to PAUSED state.");
+                tw.setState(TriggerState.PAUSED, terracottaClientId, triggerFacade);
+                signaler.signalSchedulingChange(0L);
+              } else if (triggerInstCode == CompletedExecutionInstruction.SET_ALL_JOB_TRIGGERS_PAUSED) {
+                getLog().info("All triggers of Job " + trigger.getJobKey() + " set to PAUSED state.");
+                setAllTriggersOfJobToState(trigger.getJobKey(), TriggerState.PAUSED);
+                signaler.signalSchedulingChange(0L);
+              }
           }
         } finally {
           unlock();

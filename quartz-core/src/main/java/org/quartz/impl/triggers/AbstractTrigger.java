@@ -543,6 +543,14 @@ public abstract class AbstractTrigger<T extends Trigger> implements OperableTrig
         if (result != null && result.unscheduleAllTriggers()) {
             return CompletedExecutionInstruction.SET_ALL_JOB_TRIGGERS_COMPLETE;
         }
+        
+        if (result != null && result.pauseFiringTrigger()) {
+            return CompletedExecutionInstruction.SET_TRIGGER_PAUSED;
+        }
+        
+        if (result != null && result.pauseAllTriggers()) {
+            return CompletedExecutionInstruction.SET_ALL_JOB_TRIGGERS_PAUSED;
+        }
     
         if (!mayFireAgain()) {
             return CompletedExecutionInstruction.DELETE_TRIGGER;

@@ -3143,6 +3143,15 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                 getDelegate().updateTriggerStatesForJob(conn,
                         trigger.getJobKey(), STATE_ERROR);
                 signalSchedulingChangeOnTxCompletion(0L);
+            }else if (triggerInstCode == CompletedExecutionInstruction.SET_TRIGGER_PAUSED) {
+                getLog().info("Trigger " + trigger.getKey() + " set to PAUSED state.");
+                getDelegate().updateTriggerState(conn, trigger.getKey(),
+                        STATE_PAUSED);
+                signalSchedulingChangeOnTxCompletion(0L);
+            } else if (triggerInstCode == CompletedExecutionInstruction.SET_ALL_JOB_TRIGGERS_PAUSED) {
+                getDelegate().updateTriggerStatesForJob(conn,
+                        trigger.getJobKey(), STATE_PAUSED);
+                signalSchedulingChangeOnTxCompletion(0L);
             }
 
             if (jobDetail.isConcurrentExectionDisallowed()) {
