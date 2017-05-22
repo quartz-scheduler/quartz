@@ -2893,6 +2893,8 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         try {
             getDelegate().updateTriggerStateFromOtherState(conn,
                     trigger.getKey(), STATE_WAITING, STATE_ACQUIRED);
+            getDelegate().updateTriggerStateFromOtherState(conn,
+                    trigger.getKey(), STATE_WAITING, STATE_BLOCKED);
             getDelegate().deleteFiredTrigger(conn, trigger.getFireInstanceId());
         } catch (SQLException e) {
             throw new JobPersistenceException(
