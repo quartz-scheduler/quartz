@@ -337,7 +337,7 @@ public final class CronExpression implements Serializable, Cloneable {
         testDateCal.set(Calendar.MILLISECOND, 0);
         Date originalDate = testDateCal.getTime();
         
-        testDateCal.add(Calendar.SECOND, -1);
+        testDateCal.add(Calendar.SECOND, 1);
         
         Date timeBefore = getTimeBefore(testDateCal.getTime());
 
@@ -1379,10 +1379,12 @@ public final class CronExpression implements Serializable, Cloneable {
                         
                         java.util.Calendar tcal = java.util.Calendar.getInstance(getTimeZone());
                         if (after) {
+                            tcal.set(Calendar.MILLISECOND, 0);
                             tcal.set(Calendar.SECOND, 0);
                             tcal.set(Calendar.MINUTE, 0);
                             tcal.set(Calendar.HOUR_OF_DAY, 0);
                         } else {
+                            tcal.set(Calendar.MILLISECOND, 999);
                             tcal.set(Calendar.SECOND, 59);
                             tcal.set(Calendar.MINUTE, 59);
                             tcal.set(Calendar.HOUR_OF_DAY, 23);
@@ -1414,7 +1416,7 @@ public final class CronExpression implements Serializable, Cloneable {
                             day = 1;
                             mon++;
                         }
-                        if(!after && baseTime.before(nTime)) {
+                        if(!after && nTime.before(baseTime)) {
                             mon--;
                             if (mon <= 0) {
                                 mon = 12;
@@ -1433,10 +1435,12 @@ public final class CronExpression implements Serializable, Cloneable {
 
                     java.util.Calendar tcal = java.util.Calendar.getInstance(getTimeZone());
                     if (after) {
+                        tcal.set(Calendar.MILLISECOND, 0);
                         tcal.set(Calendar.SECOND, 0);
                         tcal.set(Calendar.MINUTE, 0);
                         tcal.set(Calendar.HOUR_OF_DAY, 0);
                     } else {
+                        tcal.set(Calendar.MILLISECOND, 999);
                         tcal.set(Calendar.SECOND, 59);
                         tcal.set(Calendar.MINUTE, 59);
                         tcal.set(Calendar.HOUR_OF_DAY, 23);
@@ -1467,7 +1471,7 @@ public final class CronExpression implements Serializable, Cloneable {
                     if(nTime.before(baseTime) && after) {
                         day = daysOfMonth.first();
                         mon++;
-                    } else if (!after && baseTime.before(nTime)) {
+                    } else if (!after && nTime.before(baseTime)) {
                         mon--;
                         if (mon <= 0) {
                             mon = 12;
