@@ -119,6 +119,33 @@ public class CronExpressionTest extends SerializationTestSupport {
         cal.set(2010, Calendar.OCTOBER, 29, 10, 15, 0); // nearest weekday to last day - 1 (29th is a friday in 2010)
         assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
         assertTrue(cronExpression.isSatisfiedByBefore(cal.getTime()));
+
+        cronExpression = new CronExpression("19 15 10 24 May ? ");
+
+        cal.set(2017, Calendar.MAY, 24, 10, 15, 19);
+        for (int i=94; i > 0; i--) {
+            System.out.println(i + " " + cal.getTime());
+            assertTrue(cronExpression.isSatisfied(cal.getTime()));
+            cal.add(Calendar.DAY_OF_YEAR, -1);
+        }
+
+        cronExpression = new CronExpression("0 0 0 LW * ? *");
+
+        cal.set(2017, Calendar.MAY, 24, 10, 15, 0);
+        for (int i=94; i > 0; i--) {
+            System.out.println(i + " " + cal.getTime());
+            assertTrue(cronExpression.isSatisfied(cal.getTime()));
+            cal.add(Calendar.DAY_OF_YEAR, -1);
+        }
+
+        cronExpression = new CronExpression("0 0 0 ? * 2#3 *");
+
+        cal.set(2017, Calendar.MAY, 24, 10, 15, 0);
+        for (int i=94; i > 0; i--) {
+            System.out.println(i + " " + cal.getTime());
+            assertTrue(cronExpression.isSatisfied(cal.getTime()));
+            cal.add(Calendar.DAY_OF_YEAR, -1);
+        }
         
     }
 

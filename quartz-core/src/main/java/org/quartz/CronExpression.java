@@ -344,6 +344,25 @@ public final class CronExpression implements Serializable, Cloneable {
         return ((timeBefore != null) && (timeBefore.equals(originalDate)));
     }
     
+    public boolean isSatisfied(Date date) {
+        Calendar testDateCal = Calendar.getInstance(getTimeZone());
+        testDateCal.setTime(date);
+        testDateCal.set(Calendar.MILLISECOND, 0);
+
+        Date timeBefore = getTimeBefore(testDateCal.getTime());
+        if (timeBefore == null) {
+            System.out.println("testDateCal " + testDateCal.getTime());
+            return false;
+        }
+        Date originalDate = getTimeAfter(timeBefore);
+        if (originalDate == null) {
+            System.out.println("originalDate " + originalDate);
+            return false;
+        }
+        Date newTimeBefore = getTimeBefore(originalDate);
+        return ((newTimeBefore != null) && (newTimeBefore.equals(timeBefore)));
+    }
+
     /**
      * Returns the next date/time <I>after</I> the given date/time which
      * satisfies the cron expression.
@@ -1378,13 +1397,12 @@ public final class CronExpression implements Serializable, Cloneable {
                         day -= lastdayOffset;
                         
                         java.util.Calendar tcal = java.util.Calendar.getInstance(getTimeZone());
+                        tcal.set(Calendar.MILLISECOND, 0);
                         if (after) {
-                            tcal.set(Calendar.MILLISECOND, 0);
                             tcal.set(Calendar.SECOND, 0);
                             tcal.set(Calendar.MINUTE, 0);
                             tcal.set(Calendar.HOUR_OF_DAY, 0);
                         } else {
-                            tcal.set(Calendar.MILLISECOND, 999);
                             tcal.set(Calendar.SECOND, 59);
                             tcal.set(Calendar.MINUTE, 59);
                             tcal.set(Calendar.HOUR_OF_DAY, 23);
@@ -1416,7 +1434,7 @@ public final class CronExpression implements Serializable, Cloneable {
                             day = 1;
                             mon++;
                         }
-                        if(!after && nTime.before(baseTime)) {
+                        if(!after && baseTime.before(nTime)) {
                             mon--;
                             if (mon <= 0) {
                                 mon = 12;
@@ -1434,13 +1452,12 @@ public final class CronExpression implements Serializable, Cloneable {
                     }
 
                     java.util.Calendar tcal = java.util.Calendar.getInstance(getTimeZone());
+                    tcal.set(Calendar.MILLISECOND, 0);
                     if (after) {
-                        tcal.set(Calendar.MILLISECOND, 0);
                         tcal.set(Calendar.SECOND, 0);
                         tcal.set(Calendar.MINUTE, 0);
                         tcal.set(Calendar.HOUR_OF_DAY, 0);
                     } else {
-                        tcal.set(Calendar.MILLISECOND, 999);
                         tcal.set(Calendar.SECOND, 59);
                         tcal.set(Calendar.MINUTE, 59);
                         tcal.set(Calendar.HOUR_OF_DAY, 23);
@@ -1488,7 +1505,6 @@ public final class CronExpression implements Serializable, Cloneable {
                     }
                     // make sure we don't over-run a short month, such as february
                     int lastDay = getLastDayOfMonth(mon, cl.get(Calendar.YEAR));
-                    // TODO be tested when after is false
                     if (day > lastDay) {
                         if (after) {
                             day = daysOfMonth.first();
@@ -1504,7 +1520,6 @@ public final class CronExpression implements Serializable, Cloneable {
                         }
                     }
                 } else {
-                    // TODO be tested when after is false
                     if (after) {
                         day = daysOfMonth.first();
                         mon++;
@@ -1798,7 +1813,6 @@ public final class CronExpression implements Serializable, Cloneable {
                     mon = st.last();
                 }
             } else {
-                year++;
                 if (after) {
                     mon = months.first();
                     year++;
