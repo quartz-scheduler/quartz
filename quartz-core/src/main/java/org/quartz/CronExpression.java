@@ -1488,7 +1488,7 @@ public final class CronExpression implements Serializable, Cloneable {
                     if(nTime.before(baseTime) && after) {
                         day = daysOfMonth.first();
                         mon++;
-                    } else if (!after && nTime.before(baseTime)) {
+                    } else if (!after && baseTime.before(nTime)) {
                         mon--;
                         if (mon <= 0) {
                             mon = 12;

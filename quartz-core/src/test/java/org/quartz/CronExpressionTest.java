@@ -146,7 +146,24 @@ public class CronExpressionTest extends SerializationTestSupport {
             assertTrue(cronExpression.isSatisfied(cal.getTime()));
             cal.add(Calendar.DAY_OF_YEAR, -1);
         }
-        
+
+        cronExpression = new CronExpression("0 0 0 5W * ? *");
+
+        cal.set(2017, Calendar.MAY, 24, 10, 15, 0);
+        for (int i=94; i > 0; i--) {
+            System.out.println(i + " " + cal.getTime());
+            assertTrue(cronExpression.isSatisfied(cal.getTime()));
+            cal.add(Calendar.DAY_OF_YEAR, -1);
+        }
+
+        cronExpression = new CronExpression("0 0 0 ? * SUNL *");
+        cal.set(2017, Calendar.MAY, 24, 10, 15, 0);
+        for (int i=89; i > 0; i--) {
+            System.out.println(i + " " + cal.getTime());
+            assertTrue(cronExpression.isSatisfied(cal.getTime()));
+            cal.add(Calendar.DAY_OF_YEAR, -1);
+        }
+
     }
 
     /*
