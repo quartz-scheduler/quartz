@@ -143,12 +143,10 @@ public class RecurrenceRuleScheduleBuilder extends ScheduleBuilder<RecurrenceRul
             throw new IllegalArgumentException("You must specify at least one day of week.");
         }
 
-        
         DateBuilder.validateHour(hour);
         DateBuilder.validateMinute(minute);
 
-        return recurrenceRuleSchedule(
-                new Recurrence.Builder(Frequency.DAILY).byDay(daysOfWeek).byHour(hour).byMinute(minute).build());
+        return recurrenceRuleSchedule(new Recurrence.Builder(Frequency.DAILY).byDay(daysOfWeek).byHour(hour).byMinute(minute).build());
     }
 
     /**
@@ -171,13 +169,12 @@ public class RecurrenceRuleScheduleBuilder extends ScheduleBuilder<RecurrenceRul
      * @see DateBuilder#SUNDAY
      */
     public static RecurrenceRuleScheduleBuilder weeklyOnDayAndHourAndMinute (DayOfWeek dayOfWeek, int hour, int minute) {
-        
+
         DateBuilder.validateHour(hour);
         DateBuilder.validateMinute(minute);
-        
-        return recurrenceRuleSchedule(
-                new Recurrence.Builder(Frequency.WEEKLY).byDay(dayOfWeek).byHour(hour).byMinute(minute).build());
-        
+
+        return recurrenceRuleSchedule(new Recurrence.Builder(Frequency.WEEKLY).byDay(dayOfWeek).byHour(hour).byMinute(minute).build());
+
     }
 
     /**
@@ -246,5 +243,4 @@ public class RecurrenceRuleScheduleBuilder extends ScheduleBuilder<RecurrenceRul
         return this;
     }
 
-    
 }

@@ -31,7 +31,7 @@ import biweekly.util.com.google.ical.compat.javautil.DateIterator;
  * 
  */
 public class RecurrenceRuleTriggerImpl extends AbstractTrigger<RecurrenceRuleTrigger> implements RecurrenceRuleTrigger, CoreTrigger {
-    
+
     /** Serial Version UID. */
     private static final long serialVersionUID = 1233337060012692693L;
 
@@ -59,14 +59,13 @@ public class RecurrenceRuleTriggerImpl extends AbstractTrigger<RecurrenceRuleTri
     public RecurrenceRuleTriggerImpl() {
         super();
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public Object clone() {
-        RecurrenceRuleTriggerImpl copy = (RecurrenceRuleTriggerImpl) super
-                .clone();
+    public Object clone () {
+        RecurrenceRuleTriggerImpl copy = (RecurrenceRuleTriggerImpl) super.clone();
         if (getRecurrenceRuleExpression() != null) {
             try {
                 copy.setRecurrenceRuleExpression(getRecurrenceRuleExpression());
@@ -292,7 +291,7 @@ public class RecurrenceRuleTriggerImpl extends AbstractTrigger<RecurrenceRuleTri
     public Date getFireTimeAfter (Date afterTime) {
         return getFireTimeAfter(afterTime, false);
     }
-    
+
     /**
      * <p>
      * Returns the next time at which the <code>RecurrenceRuleTrigger</code> will fire, after the given time. If the trigger will not fire after the given time, <code>null</code> will be returned.
@@ -516,7 +515,7 @@ public class RecurrenceRuleTriggerImpl extends AbstractTrigger<RecurrenceRuleTri
             DateIterator it = getRecurrenceRule().getDateIterator(afterTime, TimeZone.getDefault());
             if (it.hasNext()) {
                 Date nextDate = it.next();
-                if (!firstTime) {
+                if ( !firstTime) {
                     nextDate = it.next();
                 }
                 return nextDate;

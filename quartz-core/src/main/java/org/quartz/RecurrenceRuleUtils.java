@@ -10,11 +10,11 @@ import biweekly.property.RecurrenceRule;
 import biweekly.util.Recurrence;
 
 public class RecurrenceRuleUtils {
-    
+
     private RecurrenceRuleUtils() {
         throw new IllegalAccessError("Utility class");
-      }
-    
+    }
+
     public static Recurrence parseRecurrenceRuleExpression (String recurrenceRuleExpression) {
         RecurrenceRuleScribe scribe = new RecurrenceRuleScribe();
         ParseContext context = new ParseContext();
@@ -22,7 +22,7 @@ public class RecurrenceRuleUtils {
         RecurrenceRule rrule = scribe.parseText(recurrenceRuleExpression, null, new ICalParameters(), context);
         return rrule.getValue();
     }
-    
+
     public static String generateRecurrenceRuleExpression (Recurrence rrule) {
         WriteContext context = new WriteContext(ICalVersion.V2_0, new TimezoneInfo(), null);
         RecurrenceRuleScribe scribe = new RecurrenceRuleScribe();
