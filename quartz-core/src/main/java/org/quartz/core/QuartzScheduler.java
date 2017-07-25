@@ -1024,8 +1024,14 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
 
         resources.getJobStore().storeJobsAndTriggers(triggersAndJobs, replace);
         notifySchedulerThread(0L);
-        for(JobDetail job: triggersAndJobs.keySet())
-            notifySchedulerListenersJobAdded(job);
+        for (JobDetail job : triggersAndJobs.keySet()) {
+			notifySchedulerListenersJobAdded(job);
+			// Miss invoking notifySchedulerListenersSchduled(trigger) here.
+			Set<? extends Trigger> triggers = triggersAndJobs.get(job);
+			for (Trigger trigger : triggers) {
+				notifySchedulerListenersSchduled(trigger);
+			}
+		}
     }
 
     public void scheduleJob(JobDetail jobDetail, Set<? extends Trigger> triggersForJob,
