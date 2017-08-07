@@ -119,6 +119,8 @@ public abstract class JobStoreSupport implements JobStore, Constants {
 
     private boolean isClustered = false;
 
+    private boolean pauseTriggeredJobOnNodeFail = false;
+
     private boolean useDBLocks = false;
     
     private boolean lockOnInsert = true;
@@ -300,6 +302,16 @@ public abstract class JobStoreSupport implements JobStore, Constants {
      */
     public boolean isClustered() {
         return isClustered;
+    }
+
+    public boolean isPauseTriggeredJobOnNodeFail()
+    {
+        return pauseTriggeredJobOnNodeFail;
+    }
+
+    public void setPauseTriggeredJobOnNodeFail(boolean pauseTriggeredJobOnNodeFail)
+    {
+        this.pauseTriggeredJobOnNodeFail = pauseTriggeredJobOnNodeFail;
     }
 
     /**
@@ -3575,6 +3587,17 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                                     .updateTriggerStatesForJobFromOtherState(
                                             conn, jKey,
                                             STATE_PAUSED, STATE_PAUSED_BLOCKED);
+
+                            if (pauseTriggeredJobOnNodeFail) {
+                                if (ftRec.getJobKey() != null) {
+                                    log.warn(String.format("job %s paused, because it was running when node %s failed. Make sure that job is NOT running, then unpause it", ftRec.getJobKey(), ftRec.getFireInstanceId()));
+
+                                    List<OperableTrigger> triggers = getTriggersForJob(conn, ftRec.getJobKey());
+                                    for (OperableTrigger trigger : triggers) {
+                                        pauseTrigger(conn, trigger.getKey());
+                                    }
+                                }
+                            }
                         }
                     }
 
