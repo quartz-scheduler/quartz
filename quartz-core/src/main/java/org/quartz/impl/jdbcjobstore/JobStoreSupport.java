@@ -3590,8 +3590,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
 
                             if (pauseTriggeredJobOnNodeFail) {
                                 if (ftRec.getJobKey() != null) {
-                                    log.warn(String.format("job %s paused, because it was running when node %s failed. " +
-                                            "Make sure that job is NOT running, then unpause it", ftRec.getJobKey(), ftRec.getFireInstanceId()));
+                                    log.warn(String.format("job %s paused, because it was running when node %s failed. Make sure that job is NOT running, then unpause it", ftRec.getJobKey(), ftRec.getFireInstanceId()));
 
                                     List<OperableTrigger> triggers = getTriggersForJob(conn, ftRec.getJobKey());
                                     for (OperableTrigger trigger : triggers) {
