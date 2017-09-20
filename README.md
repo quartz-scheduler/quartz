@@ -15,6 +15,6 @@ Note:  the final Quartz jar is found under quartz/target
 ### To build Quartz distribution kit:
 ```
   %> cd distribution
-  %> ./mvnw package
+  %> ../mvnw package
 ```
 
