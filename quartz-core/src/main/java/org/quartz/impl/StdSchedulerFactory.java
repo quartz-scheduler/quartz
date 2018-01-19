@@ -285,6 +285,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
 
     public static final String MANAGEMENT_REST_SERVICE_HOST_PORT = "org.quartz.managementRESTService.bind";
 
+    public static final String PROP_JOB_RUN_SHELL_FACTORY_CLASS = "org.quartz.scheduler.jobRunShellFactory.class";
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      *
@@ -1220,14 +1221,30 @@ public class StdSchedulerFactory implements SchedulerFactory {
     
             if (userTXLocation != null) {
                 UserTransactionHelper.setUserTxLocation(userTXLocation);
+                if (wrapJobInTx) {
+                    jrsf = new JTAJobRunShellFactory();
+                } else {
+                    jrsf = new JTAAnnotationAwareJobRunShellFactory();
+                }
+            }else{
+
+                String jobRunShellFactoryClass = cfg.getStringProperty(PROP_JOB_RUN_SHELL_FACTORY_CLASS);
+                if (jobRunShellFactoryClass != null) {
+                    try{
+                        jrsf = (JobRunShellFactory)loadHelper.loadClass(jobRunShellFactoryClass).newInstance();
+                        log.info("Using custom implementation for JobRunShellFactory: " + jobRunShellFactoryClass);
+                        setBeanProps(jrsf, tProps);
+                    }catch (Exception e){
+                        initException = new SchedulerException(
+                                "JobRunShellFactory class '" + jobRunShellFactoryClass + "' could not be instantiated.", e);
+                        throw initException;
+                    }
+                }else{
+                    log.info("Using default implementation for JobRunShellFactory");
+                    jrsf = new StdJobRunShellFactory();
+                }
             }
-    
-            if (wrapJobInTx) {
-                jrsf = new JTAJobRunShellFactory();
-            } else {
-                jrsf = new JTAAnnotationAwareJobRunShellFactory();
-            }
-    
+
             if (autoId) {
                 try {
                   schedInstId = DEFAULT_INSTANCE_ID;
