@@ -174,51 +174,10 @@ public class JobRunShell extends SchedulerListenerSupport implements Runnable {
                         break;
                     }
                 } catch(VetoedException ve) {
-                    try {
-                        CompletedExecutionInstruction instCode = trigger.executionComplete(jec, null);
-                        qs.notifyJobStoreJobVetoed(trigger, jobDetail, instCode);
-                        
-                        // QTZ-205
-                        // Even if trigger got vetoed, we still needs to check to see if it's the trigger's finalized run or not.
-                        if (jec.getTrigger().getNextFireTime() == null) {
-                            qs.notifySchedulerListenersFinalized(jec.getTrigger());
-                        }
-
-                        complete(true);
-                    } catch (SchedulerException se) {
-                        qs.notifySchedulerListenersError("Error during veto of Job ("
-                                + jec.getJobDetail().getKey()
-                                + ": couldn't finalize execution.", se);
-                    }
+                    treatVetoedExeption(trigger, jobDetail);
                     break;
                 }
-
-                long startTime = System.currentTimeMillis();
-                long endTime = startTime;
-
-                // execute the job
-                try {
-                    log.debug("Calling execute on job " + jobDetail.getKey());
-                    job.execute(jec);
-                    endTime = System.currentTimeMillis();
-                } catch (JobExecutionException jee) {
-                    endTime = System.currentTimeMillis();
-                    jobExEx = jee;
-                    getLog().info("Job " + jobDetail.getKey() +
-                            " threw a JobExecutionException: ", jobExEx);
-                } catch (Throwable e) {
-                    endTime = System.currentTimeMillis();
-                    getLog().error("Job " + jobDetail.getKey() +
-                            " threw an unhandled Exception: ", e);
-                    SchedulerException se = new SchedulerException(
-                            "Job threw an unhandled exception.", e);
-                    qs.notifySchedulerListenersError("Job ("
-                            + jec.getJobDetail().getKey()
-                            + " threw an exception.", se);
-                    jobExEx = new JobExecutionException(se, false);
-                }
-
-                jec.setJobRunTime(endTime - startTime);
+                executeJob(jobDetail, jobExEx, job);
 
                 // notify all job listeners
                 if (!notifyJobListenersComplete(jec, jobExEx)) {
@@ -228,16 +187,7 @@ public class JobRunShell extends SchedulerListenerSupport implements Runnable {
                 CompletedExecutionInstruction instCode = CompletedExecutionInstruction.NOOP;
 
                 // update the trigger
-                try {
-                    instCode = trigger.executionComplete(jec, jobExEx);
-                } catch (Exception e) {
-                    // If this happens, there's a bug in the trigger...
-                    SchedulerException se = new SchedulerException(
-                            "Trigger threw an unhandled exception.", e);
-                    qs.notifySchedulerListenersError(
-                            "Please report this error to the Quartz developers.",
-                            se);
-                }
+                instCode = updateTrigger(trigger, jobExEx, instCode);
 
                 // notify all trigger listeners
                 if (!notifyTriggerListenersComplete(jec, instCode)) {
@@ -246,14 +196,7 @@ public class JobRunShell extends SchedulerListenerSupport implements Runnable {
 
                 // update job/trigger or re-execute job
                 if (instCode == CompletedExecutionInstruction.RE_EXECUTE_JOB) {
-                    jec.incrementRefireCount();
-                    try {
-                        complete(false);
-                    } catch (SchedulerException se) {
-                        qs.notifySchedulerListenersError("Error executing Job ("
-                                + jec.getJobDetail().getKey()
-                                + ": couldn't finalize execution.", se);
-                    }
+                    reExecuteJob();
                     continue;
                 }
 
@@ -275,7 +218,80 @@ public class JobRunShell extends SchedulerListenerSupport implements Runnable {
         }
     }
 
-    protected void begin() throws SchedulerException {
+	private void treatVetoedExeption(OperableTrigger trigger, JobDetail jobDetail) {
+		try {
+		    CompletedExecutionInstruction instCode = trigger.executionComplete(jec, null);
+		    qs.notifyJobStoreJobVetoed(trigger, jobDetail, instCode);
+		    
+		    // QTZ-205
+		    // Even if trigger got vetoed, we still needs to check to see if it's the trigger's finalized run or not.
+		    if (jec.getTrigger().getNextFireTime() == null) {
+		        qs.notifySchedulerListenersFinalized(jec.getTrigger());
+		    }
+
+		    complete(true);
+		} catch (SchedulerException se) {
+		    qs.notifySchedulerListenersError("Error during veto of Job ("
+		            + jec.getJobDetail().getKey()
+		            + ": couldn't finalize execution.", se);
+		}
+	}
+
+	private void reExecuteJob() {
+		jec.incrementRefireCount();
+		try {
+		    complete(false);
+		} catch (SchedulerException se) {
+		    qs.notifySchedulerListenersError("Error executing Job ("
+		            + jec.getJobDetail().getKey()
+		            + ": couldn't finalize execution.", se);
+		}
+	}
+
+	private CompletedExecutionInstruction updateTrigger(OperableTrigger trigger, JobExecutionException jobExEx,
+			CompletedExecutionInstruction instCode) {
+		try {
+		    instCode = trigger.executionComplete(jec, jobExEx);
+		} catch (Exception e) {
+		    // If this happens, there's a bug in the trigger...
+		    SchedulerException se = new SchedulerException(
+		            "Trigger threw an unhandled exception.", e);
+		    qs.notifySchedulerListenersError(
+		            "Please report this error to the Quartz developers.",
+		            se);
+		}
+		return instCode;
+	}
+
+    private void executeJob(JobDetail jobDetail, JobExecutionException jobExEx,Job job) {
+    		long startTime = System.currentTimeMillis();
+        long endTime = startTime;
+        // execute the job
+        try {
+            log.debug("Calling execute on job " + jobDetail.getKey());
+            job.execute(jec);
+            endTime = System.currentTimeMillis();
+        } catch (JobExecutionException jee) {
+            endTime = System.currentTimeMillis();
+            jobExEx = jee;
+            getLog().info("Job " + jobDetail.getKey() +
+                    " threw a JobExecutionException: ", jobExEx);
+        } catch (Throwable e) {
+            endTime = System.currentTimeMillis();
+            getLog().error("Job " + jobDetail.getKey() +
+                    " threw an unhandled Exception: ", e);
+            SchedulerException se = new SchedulerException(
+                    "Job threw an unhandled exception.", e);
+            qs.notifySchedulerListenersError("Job ("
+                    + jec.getJobDetail().getKey()
+                    + " threw an exception.", se);
+            jobExEx = new JobExecutionException(se, false);
+        }
+
+        jec.setJobRunTime(endTime - startTime);
+	}
+
+	protected void begin() throws SchedulerException {
     }
 
     protected void complete(boolean successfulExecution)

@@ -503,13 +503,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
 
         log.debug("Found " + deleteJobGroupNodes.getLength() + " delete job group commands.");
 
-        for (int i = 0; i < deleteJobGroupNodes.getLength(); i++) {
-            Node node = deleteJobGroupNodes.item(i);
-            String t = node.getTextContent();
-            if(t == null || (t = t.trim()).length() == 0)
-                continue;
-            jobGroupsToDelete.add(t);
-        }
+        parseJobGroupsToDelete(deleteJobGroupNodes);
 
         NodeList deleteTriggerGroupNodes = (NodeList) xpath.evaluate(
                 "/q:job-scheduling-data/q:pre-processing-commands/q:delete-triggers-in-group",
@@ -517,13 +511,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
 
         log.debug("Found " + deleteTriggerGroupNodes.getLength() + " delete trigger group commands.");
 
-        for (int i = 0; i < deleteTriggerGroupNodes.getLength(); i++) {
-            Node node = deleteTriggerGroupNodes.item(i);
-            String t = node.getTextContent();
-            if(t == null || (t = t.trim()).length() == 0)
-                continue;
-            triggerGroupsToDelete.add(t);
-        }
+        parseTriggersGroupToDelete(deleteTriggerGroupNodes);
 
         NodeList deleteJobNodes = (NodeList) xpath.evaluate(
                 "/q:job-scheduling-data/q:pre-processing-commands/q:delete-job",
@@ -531,16 +519,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
 
         log.debug("Found " + deleteJobNodes.getLength() + " delete job commands.");
 
-        for (int i = 0; i < deleteJobNodes.getLength(); i++) {
-            Node node = deleteJobNodes.item(i);
-
-            String name = getTrimmedToNullString(xpath, "q:name", node);
-            String group = getTrimmedToNullString(xpath, "q:group", node);
-            
-            if(name == null)
-                throw new ParseException("Encountered a 'delete-job' command without a name specified.", -1);
-            jobsToDelete.add(new JobKey(name, group));
-        }
+        parseJobsToDelete(deleteJobNodes);
 
         NodeList deleteTriggerNodes = (NodeList) xpath.evaluate(
                 "/q:job-scheduling-data/q:pre-processing-commands/q:delete-trigger",
@@ -548,16 +527,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
 
         log.debug("Found " + deleteTriggerNodes.getLength() + " delete trigger commands.");
 
-        for (int i = 0; i < deleteTriggerNodes.getLength(); i++) {
-            Node node = deleteTriggerNodes.item(i);
-
-            String name = getTrimmedToNullString(xpath, "q:name", node);
-            String group = getTrimmedToNullString(xpath, "q:group", node);
-            
-            if(name == null)
-                throw new ParseException("Encountered a 'delete-trigger' command without a name specified.", -1);
-            triggersToDelete.add(new TriggerKey(name, group));
-        }
+        parseTriggersToDelete(deleteTriggerNodes);
         
         //
         // Extract directives
@@ -565,23 +535,11 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
 
         Boolean overWrite = getBoolean(xpath, 
                 "/q:job-scheduling-data/q:processing-directives/q:overwrite-existing-data", document);
-        if(overWrite == null) {
-            log.debug("Directive 'overwrite-existing-data' not specified, defaulting to " + isOverWriteExistingData());
-        }
-        else {
-            log.debug("Directive 'overwrite-existing-data' specified as: " + overWrite);
-            setOverWriteExistingData(overWrite);
-        }
+        checkOverWriteExistingData(overWrite);
         
         Boolean ignoreDupes = getBoolean(xpath, 
                 "/q:job-scheduling-data/q:processing-directives/q:ignore-duplicates", document);
-        if(ignoreDupes == null) {
-            log.debug("Directive 'ignore-duplicates' not specified, defaulting to " + isIgnoreDuplicates());
-        }
-        else {
-            log.debug("Directive 'ignore-duplicates' specified as: " + ignoreDupes);
-            setIgnoreDuplicates(ignoreDupes);
-        }
+        checkIgnoreDuplicates(ignoreDupes);
         
         //
         // Extract Job definitions...
@@ -592,7 +550,173 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
 
         log.debug("Found " + jobNodes.getLength() + " job definitions.");
 
-        for (int i = 0; i < jobNodes.getLength(); i++) {
+        parseJobDefinitions(jobNodes);
+        
+        //
+        // Extract Trigger definitions...
+        //
+
+        NodeList triggerEntries = (NodeList) xpath.evaluate(
+                "/q:job-scheduling-data/q:schedule/q:trigger/*", document, XPathConstants.NODESET);
+
+        log.debug("Found " + triggerEntries.getLength() + " trigger definitions.");
+
+        parseTriggerDefinitions(triggerEntries);
+    }
+
+	private void parseTriggerDefinitions(NodeList triggerEntries) throws XPathExpressionException, ParseException {
+		for (int j = 0; j < triggerEntries.getLength(); j++) {
+            Node triggerNode = triggerEntries.item(j);
+            String triggerName = getTrimmedToNullString(xpath, "q:name", triggerNode);
+            String triggerGroup = getTrimmedToNullString(xpath, "q:group", triggerNode);
+            String triggerDescription = getTrimmedToNullString(xpath, "q:description", triggerNode);
+            String triggerMisfireInstructionConst = getTrimmedToNullString(xpath, "q:misfire-instruction", triggerNode);
+            String triggerPriorityString = getTrimmedToNullString(xpath, "q:priority", triggerNode);
+            String triggerCalendarRef = getTrimmedToNullString(xpath, "q:calendar-name", triggerNode);
+            String triggerJobName = getTrimmedToNullString(xpath, "q:job-name", triggerNode);
+            String triggerJobGroup = getTrimmedToNullString(xpath, "q:job-group", triggerNode);
+
+            int triggerPriority = Trigger.DEFAULT_PRIORITY;
+            if(triggerPriorityString != null)
+                triggerPriority = Integer.valueOf(triggerPriorityString);
+            
+            String startTimeString = getTrimmedToNullString(xpath, "q:start-time", triggerNode);
+            String startTimeFutureSecsString = getTrimmedToNullString(xpath, "q:start-time-seconds-in-future", triggerNode);
+            String endTimeString = getTrimmedToNullString(xpath, "q:end-time", triggerNode);
+
+            //QTZ-273 : use of DatatypeConverter.parseDateTime() instead of SimpleDateFormat
+            Date triggerStartTime;
+            if(startTimeFutureSecsString != null)
+                triggerStartTime = new Date(System.currentTimeMillis() + (Long.valueOf(startTimeFutureSecsString) * 1000L));
+            else 
+                triggerStartTime = (startTimeString == null || startTimeString.length() == 0 ? new Date() : DatatypeConverter.parseDateTime(startTimeString).getTime());
+            Date triggerEndTime = endTimeString == null || endTimeString.length() == 0 ? null : DatatypeConverter.parseDateTime(endTimeString).getTime();
+
+            TriggerKey triggerKey = triggerKey(triggerName, triggerGroup);
+            
+            ScheduleBuilder<?> sched=null;
+            
+            sched = initSchedule(triggerNode, triggerMisfireInstructionConst, triggerKey, sched);
+
+            
+            MutableTrigger trigger = (MutableTrigger) newTrigger()
+                .withIdentity(triggerName, triggerGroup)
+                .withDescription(triggerDescription)
+                .forJob(triggerJobName, triggerJobGroup)
+                .startAt(triggerStartTime)
+                .endAt(triggerEndTime)
+                .withPriority(triggerPriority)
+                .modifiedByCalendar(triggerCalendarRef)
+                .withSchedule(sched)
+                .build();
+
+            NodeList jobDataEntries = (NodeList) xpath.evaluate(
+                    "q:job-data-map/q:entry", triggerNode,
+                    XPathConstants.NODESET);
+            
+            updateTriggerDataMap(trigger, jobDataEntries);
+            
+            if(log.isDebugEnabled())
+                log.debug("Parsed trigger definition: " + trigger);
+            
+            addTriggerToSchedule(trigger);
+        }
+	}
+
+	private ScheduleBuilder<?> initSchedule(Node triggerNode, String triggerMisfireInstructionConst,
+			TriggerKey triggerKey, ScheduleBuilder<?> sched) throws XPathExpressionException, ParseException {
+		if (triggerNode.getNodeName().equals("simple")) {
+		    String repeatCountString = getTrimmedToNullString(xpath, "q:repeat-count", triggerNode);
+		    String repeatIntervalString = getTrimmedToNullString(xpath, "q:repeat-interval", triggerNode);
+
+		    int repeatCount = repeatCountString == null ? 0 : Integer.parseInt(repeatCountString);
+		    long repeatInterval = repeatIntervalString == null ? 0 : Long.parseLong(repeatIntervalString);
+
+		    sched = simpleSchedule()
+		        .withIntervalInMilliseconds(repeatInterval)
+		        .withRepeatCount(repeatCount);
+		    
+		    triggerMisfireInstruction(triggerMisfireInstructionConst, triggerKey, sched);
+		} else if (triggerNode.getNodeName().equals("cron")) {
+		    String cronExpression = getTrimmedToNullString(xpath, "q:cron-expression", triggerNode);
+		    String timezoneString = getTrimmedToNullString(xpath, "q:time-zone", triggerNode);
+
+		    TimeZone tz = timezoneString == null ? null : TimeZone.getTimeZone(timezoneString);
+
+		    sched = cronSchedule(cronExpression)
+		        .inTimeZone(tz);
+
+		    if (triggerMisfireInstructionConst != null && triggerMisfireInstructionConst.length() != 0) {
+		        if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_DO_NOTHING"))
+		            ((CronScheduleBuilder)sched).withMisfireHandlingInstructionDoNothing();
+		        else if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_FIRE_ONCE_NOW"))
+		            ((CronScheduleBuilder)sched).withMisfireHandlingInstructionFireAndProceed();
+		        else if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_SMART_POLICY")) {
+		            // do nothing.... (smart policy is default)
+		        }
+		        else
+		            throw new ParseException("Unexpected/Unhandlable Misfire Instruction encountered '" + triggerMisfireInstructionConst + "', for trigger: " + triggerKey, -1);
+		    }
+		} else if (triggerNode.getNodeName().equals("calendar-interval")) {
+		    String repeatIntervalString = getTrimmedToNullString(xpath, "q:repeat-interval", triggerNode);
+		    String repeatUnitString = getTrimmedToNullString(xpath, "q:repeat-interval-unit", triggerNode);
+
+		    int repeatInterval = Integer.parseInt(repeatIntervalString);
+
+		    IntervalUnit repeatUnit = IntervalUnit.valueOf(repeatUnitString);
+
+		    sched = calendarIntervalSchedule()
+		        .withInterval(repeatInterval, repeatUnit);
+
+		    if (triggerMisfireInstructionConst != null && triggerMisfireInstructionConst.length() != 0) {
+		        if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_DO_NOTHING"))
+		            ((CalendarIntervalScheduleBuilder)sched).withMisfireHandlingInstructionDoNothing();
+		        else if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_FIRE_ONCE_NOW"))
+		            ((CalendarIntervalScheduleBuilder)sched).withMisfireHandlingInstructionFireAndProceed();
+		        else if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_SMART_POLICY")) {
+		            // do nothing.... (smart policy is default)
+		        }
+		        else
+		            throw new ParseException("Unexpected/Unhandlable Misfire Instruction encountered '" + triggerMisfireInstructionConst + "', for trigger: " + triggerKey, -1);
+		    }
+		} else {
+		    throw new ParseException("Unknown trigger type: " + triggerNode.getNodeName(), -1);
+		}
+		return sched;
+	}
+
+	private void updateTriggerDataMap(MutableTrigger trigger, NodeList jobDataEntries) throws XPathExpressionException {
+		for (int k = 0; k < jobDataEntries.getLength(); k++) {
+		    Node entryNode = jobDataEntries.item(k);
+		    String key = getTrimmedToNullString(xpath, "q:key", entryNode);
+		    String value = getTrimmedToNullString(xpath, "q:value", entryNode);
+		    trigger.getJobDataMap().put(key, value);
+		}
+	}
+
+	private void triggerMisfireInstruction(String triggerMisfireInstructionConst, TriggerKey triggerKey,
+			ScheduleBuilder<?> sched) throws ParseException {
+		if (triggerMisfireInstructionConst != null && triggerMisfireInstructionConst.length() != 0) {
+		    if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_FIRE_NOW"))
+		        ((SimpleScheduleBuilder)sched).withMisfireHandlingInstructionFireNow();
+		    else if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_EXISTING_COUNT"))
+		        ((SimpleScheduleBuilder)sched).withMisfireHandlingInstructionNextWithExistingCount();
+		    else if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_REMAINING_COUNT"))
+		        ((SimpleScheduleBuilder)sched).withMisfireHandlingInstructionNextWithRemainingCount();
+		    else if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_RESCHEDULE_NOW_WITH_EXISTING_REPEAT_COUNT"))
+		        ((SimpleScheduleBuilder)sched).withMisfireHandlingInstructionNowWithExistingCount();
+		    else if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_RESCHEDULE_NOW_WITH_REMAINING_REPEAT_COUNT"))
+		        ((SimpleScheduleBuilder)sched).withMisfireHandlingInstructionNowWithRemainingCount();
+		    else if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_SMART_POLICY")) {
+		        // do nothing.... (smart policy is default)
+		    }
+		    else
+		        throw new ParseException("Unexpected/Unhandlable Misfire Instruction encountered '" + triggerMisfireInstructionConst + "', for trigger: " + triggerKey, -1);
+		}
+	}
+
+	private void parseJobDefinitions(NodeList jobNodes) throws XPathExpressionException, ClassNotFoundException {
+		for (int i = 0; i < jobNodes.getLength(); i++) {
             Node jobDetailNode = jobNodes.item(i);
             String t = null;
 
@@ -630,150 +754,73 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
 
             addJobToSchedule(jobDetail);
         }
-        
-        //
-        // Extract Trigger definitions...
-        //
+	}
 
-        NodeList triggerEntries = (NodeList) xpath.evaluate(
-                "/q:job-scheduling-data/q:schedule/q:trigger/*", document, XPathConstants.NODESET);
-
-        log.debug("Found " + triggerEntries.getLength() + " trigger definitions.");
-
-        for (int j = 0; j < triggerEntries.getLength(); j++) {
-            Node triggerNode = triggerEntries.item(j);
-            String triggerName = getTrimmedToNullString(xpath, "q:name", triggerNode);
-            String triggerGroup = getTrimmedToNullString(xpath, "q:group", triggerNode);
-            String triggerDescription = getTrimmedToNullString(xpath, "q:description", triggerNode);
-            String triggerMisfireInstructionConst = getTrimmedToNullString(xpath, "q:misfire-instruction", triggerNode);
-            String triggerPriorityString = getTrimmedToNullString(xpath, "q:priority", triggerNode);
-            String triggerCalendarRef = getTrimmedToNullString(xpath, "q:calendar-name", triggerNode);
-            String triggerJobName = getTrimmedToNullString(xpath, "q:job-name", triggerNode);
-            String triggerJobGroup = getTrimmedToNullString(xpath, "q:job-group", triggerNode);
-
-            int triggerPriority = Trigger.DEFAULT_PRIORITY;
-            if(triggerPriorityString != null)
-                triggerPriority = Integer.valueOf(triggerPriorityString);
-            
-            String startTimeString = getTrimmedToNullString(xpath, "q:start-time", triggerNode);
-            String startTimeFutureSecsString = getTrimmedToNullString(xpath, "q:start-time-seconds-in-future", triggerNode);
-            String endTimeString = getTrimmedToNullString(xpath, "q:end-time", triggerNode);
-
-            //QTZ-273 : use of DatatypeConverter.parseDateTime() instead of SimpleDateFormat
-            Date triggerStartTime;
-            if(startTimeFutureSecsString != null)
-                triggerStartTime = new Date(System.currentTimeMillis() + (Long.valueOf(startTimeFutureSecsString) * 1000L));
-            else 
-                triggerStartTime = (startTimeString == null || startTimeString.length() == 0 ? new Date() : DatatypeConverter.parseDateTime(startTimeString).getTime());
-            Date triggerEndTime = endTimeString == null || endTimeString.length() == 0 ? null : DatatypeConverter.parseDateTime(endTimeString).getTime();
-
-            TriggerKey triggerKey = triggerKey(triggerName, triggerGroup);
-            
-            ScheduleBuilder<?> sched;
-            
-            if (triggerNode.getNodeName().equals("simple")) {
-                String repeatCountString = getTrimmedToNullString(xpath, "q:repeat-count", triggerNode);
-                String repeatIntervalString = getTrimmedToNullString(xpath, "q:repeat-interval", triggerNode);
-
-                int repeatCount = repeatCountString == null ? 0 : Integer.parseInt(repeatCountString);
-                long repeatInterval = repeatIntervalString == null ? 0 : Long.parseLong(repeatIntervalString);
-
-                sched = simpleSchedule()
-                    .withIntervalInMilliseconds(repeatInterval)
-                    .withRepeatCount(repeatCount);
-                
-                if (triggerMisfireInstructionConst != null && triggerMisfireInstructionConst.length() != 0) {
-                    if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_FIRE_NOW"))
-                        ((SimpleScheduleBuilder)sched).withMisfireHandlingInstructionFireNow();
-                    else if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_EXISTING_COUNT"))
-                        ((SimpleScheduleBuilder)sched).withMisfireHandlingInstructionNextWithExistingCount();
-                    else if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_REMAINING_COUNT"))
-                        ((SimpleScheduleBuilder)sched).withMisfireHandlingInstructionNextWithRemainingCount();
-                    else if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_RESCHEDULE_NOW_WITH_EXISTING_REPEAT_COUNT"))
-                        ((SimpleScheduleBuilder)sched).withMisfireHandlingInstructionNowWithExistingCount();
-                    else if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_RESCHEDULE_NOW_WITH_REMAINING_REPEAT_COUNT"))
-                        ((SimpleScheduleBuilder)sched).withMisfireHandlingInstructionNowWithRemainingCount();
-                    else if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_SMART_POLICY")) {
-                        // do nothing.... (smart policy is default)
-                    }
-                    else
-                        throw new ParseException("Unexpected/Unhandlable Misfire Instruction encountered '" + triggerMisfireInstructionConst + "', for trigger: " + triggerKey, -1);
-                }
-            } else if (triggerNode.getNodeName().equals("cron")) {
-                String cronExpression = getTrimmedToNullString(xpath, "q:cron-expression", triggerNode);
-                String timezoneString = getTrimmedToNullString(xpath, "q:time-zone", triggerNode);
-
-                TimeZone tz = timezoneString == null ? null : TimeZone.getTimeZone(timezoneString);
-
-                sched = cronSchedule(cronExpression)
-                    .inTimeZone(tz);
-
-                if (triggerMisfireInstructionConst != null && triggerMisfireInstructionConst.length() != 0) {
-                    if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_DO_NOTHING"))
-                        ((CronScheduleBuilder)sched).withMisfireHandlingInstructionDoNothing();
-                    else if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_FIRE_ONCE_NOW"))
-                        ((CronScheduleBuilder)sched).withMisfireHandlingInstructionFireAndProceed();
-                    else if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_SMART_POLICY")) {
-                        // do nothing.... (smart policy is default)
-                    }
-                    else
-                        throw new ParseException("Unexpected/Unhandlable Misfire Instruction encountered '" + triggerMisfireInstructionConst + "', for trigger: " + triggerKey, -1);
-                }
-            } else if (triggerNode.getNodeName().equals("calendar-interval")) {
-                String repeatIntervalString = getTrimmedToNullString(xpath, "q:repeat-interval", triggerNode);
-                String repeatUnitString = getTrimmedToNullString(xpath, "q:repeat-interval-unit", triggerNode);
-
-                int repeatInterval = Integer.parseInt(repeatIntervalString);
-
-                IntervalUnit repeatUnit = IntervalUnit.valueOf(repeatUnitString);
-
-                sched = calendarIntervalSchedule()
-                    .withInterval(repeatInterval, repeatUnit);
-
-                if (triggerMisfireInstructionConst != null && triggerMisfireInstructionConst.length() != 0) {
-                    if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_DO_NOTHING"))
-                        ((CalendarIntervalScheduleBuilder)sched).withMisfireHandlingInstructionDoNothing();
-                    else if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_FIRE_ONCE_NOW"))
-                        ((CalendarIntervalScheduleBuilder)sched).withMisfireHandlingInstructionFireAndProceed();
-                    else if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_SMART_POLICY")) {
-                        // do nothing.... (smart policy is default)
-                    }
-                    else
-                        throw new ParseException("Unexpected/Unhandlable Misfire Instruction encountered '" + triggerMisfireInstructionConst + "', for trigger: " + triggerKey, -1);
-                }
-            } else {
-                throw new ParseException("Unknown trigger type: " + triggerNode.getNodeName(), -1);
-            }
-
-            
-            MutableTrigger trigger = (MutableTrigger) newTrigger()
-                .withIdentity(triggerName, triggerGroup)
-                .withDescription(triggerDescription)
-                .forJob(triggerJobName, triggerJobGroup)
-                .startAt(triggerStartTime)
-                .endAt(triggerEndTime)
-                .withPriority(triggerPriority)
-                .modifiedByCalendar(triggerCalendarRef)
-                .withSchedule(sched)
-                .build();
-
-            NodeList jobDataEntries = (NodeList) xpath.evaluate(
-                    "q:job-data-map/q:entry", triggerNode,
-                    XPathConstants.NODESET);
-            
-            for (int k = 0; k < jobDataEntries.getLength(); k++) {
-                Node entryNode = jobDataEntries.item(k);
-                String key = getTrimmedToNullString(xpath, "q:key", entryNode);
-                String value = getTrimmedToNullString(xpath, "q:value", entryNode);
-                trigger.getJobDataMap().put(key, value);
-            }
-            
-            if(log.isDebugEnabled())
-                log.debug("Parsed trigger definition: " + trigger);
-            
-            addTriggerToSchedule(trigger);
+	private void checkIgnoreDuplicates(Boolean ignoreDupes) {
+		if(ignoreDupes == null) {
+            log.debug("Directive 'ignore-duplicates' not specified, defaulting to " + isIgnoreDuplicates());
         }
-    }
+        else {
+            log.debug("Directive 'ignore-duplicates' specified as: " + ignoreDupes);
+            setIgnoreDuplicates(ignoreDupes);
+        }
+	}
+
+	private void checkOverWriteExistingData(Boolean overWrite) {
+		if(overWrite == null) {
+            log.debug("Directive 'overwrite-existing-data' not specified, defaulting to " + isOverWriteExistingData());
+        }
+        else {
+            log.debug("Directive 'overwrite-existing-data' specified as: " + overWrite);
+            setOverWriteExistingData(overWrite);
+        }
+	}
+
+	private void parseTriggersToDelete(NodeList deleteTriggerNodes) throws XPathExpressionException, ParseException {
+		for (int i = 0; i < deleteTriggerNodes.getLength(); i++) {
+            Node node = deleteTriggerNodes.item(i);
+
+            String name = getTrimmedToNullString(xpath, "q:name", node);
+            String group = getTrimmedToNullString(xpath, "q:group", node);
+            
+            if(name == null)
+                throw new ParseException("Encountered a 'delete-trigger' command without a name specified.", -1);
+            triggersToDelete.add(new TriggerKey(name, group));
+        }
+	}
+
+	private void parseJobsToDelete(NodeList deleteJobNodes) throws XPathExpressionException, ParseException {
+		for (int i = 0; i < deleteJobNodes.getLength(); i++) {
+            Node node = deleteJobNodes.item(i);
+
+            String name = getTrimmedToNullString(xpath, "q:name", node);
+            String group = getTrimmedToNullString(xpath, "q:group", node);
+            
+            if(name == null)
+                throw new ParseException("Encountered a 'delete-job' command without a name specified.", -1);
+            jobsToDelete.add(new JobKey(name, group));
+        }
+	}
+
+	private void parseTriggersGroupToDelete(NodeList deleteTriggerGroupNodes) {
+		for (int i = 0; i < deleteTriggerGroupNodes.getLength(); i++) {
+            Node node = deleteTriggerGroupNodes.item(i);
+            String t = node.getTextContent();
+            if(t == null || (t = t.trim()).length() == 0)
+                continue;
+            triggerGroupsToDelete.add(t);
+        }
+	}
+
+	private void parseJobGroupsToDelete(NodeList deleteJobGroupNodes) {
+		for (int i = 0; i < deleteJobGroupNodes.getLength(); i++) {
+            Node node = deleteJobGroupNodes.item(i);
+            String t = node.getTextContent();
+            if(t == null || (t = t.trim()).length() == 0)
+                continue;
+            jobGroupsToDelete.add(t);
+        }
+	}
     
     protected String getTrimmedToNullString(XPath xpathToElement, String elementName, Node parentNode) throws XPathExpressionException {
         String str = (String) xpathToElement.evaluate(elementName,
