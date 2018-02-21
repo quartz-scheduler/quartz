@@ -160,7 +160,7 @@ public class QuartzInitializerListener implements ServletContextListener {
                 performShutdown = Boolean.valueOf(shutdownPref).booleanValue();
             }
             String shutdownWaitPref = servletContext.getInitParameter("quartz:wait-on-shutdown");
-            if (shutdownPref != null) {
+            if (shutdownWaitPref != null) {
                 waitOnShutdown = Boolean.valueOf(shutdownWaitPref).booleanValue();
             }
 
