@@ -255,6 +255,7 @@ public final class CronExpression implements Serializable, Cloneable {
     protected transient boolean expressionParsed = false;
     
     public static final int MAX_YEAR = Calendar.getInstance().get(Calendar.YEAR) + 100;
+    public static final int MIN_YEAR = Calendar.getInstance().get(Calendar.YEAR) - 100;
 
     /**
      * Constructs a new <CODE>CronExpression</CODE> based on the specified 
@@ -1589,9 +1590,409 @@ public final class CronExpression implements Serializable, Cloneable {
      * NOT YET IMPLEMENTED: Returns the time before the given time
      * that the <code>CronExpression</code> matches.
      */ 
-    public Date getTimeBefore(Date endTime) { 
-        // FUTURE_TODO: implement QUARTZ-423
-        return null;
+    public Date getTimeBefore(Date beforeTime) {
+        Calendar cl = new java.util.GregorianCalendar(getTimeZone());
+
+        beforeTime = new Date(beforeTime.getTime() - 1000);
+        cl.setTime(beforeTime);
+        cl.set(Calendar.MILLISECOND, 0);
+
+        boolean gotOne = false;
+        while (!gotOne) {
+
+            if(cl.get(Calendar.YEAR) > 2999) {
+                cl.set(Calendar.YEAR, 2999);
+            }
+
+            SortedSet<Integer> st = null;
+            int t = 0;
+
+            int sec = cl.get(Calendar.SECOND);
+            int min = cl.get(Calendar.MINUTE);
+
+            // get second.................................................
+            st = seconds.headSet(sec, true);
+            if (st != null && st.size() != 0) {
+                sec = st.last();
+            } else {
+                sec = (int) seconds.last();
+                min--;
+                cl.set(Calendar.MINUTE, min);
+            }
+            cl.set(Calendar.SECOND, sec);
+
+            min = cl.get(Calendar.MINUTE);
+            int hr = cl.get(Calendar.HOUR_OF_DAY);
+            t = -1;
+
+            // get minute.................................................
+            st = minutes.headSet(min, true);
+            if (st != null && st.size() != 0) {
+                t = min;
+                min = st.last();
+            } else {
+                min = (int) minutes.last();
+                hr--;
+            }
+            if (min != t) {
+                cl.set(Calendar.SECOND, 59);
+                cl.set(Calendar.MINUTE, min);
+                setCalendarHour(cl, hr);
+                continue;
+            }
+            cl.set(Calendar.MINUTE, min);
+
+            hr = cl.get(Calendar.HOUR_OF_DAY);
+            int day = cl.get(Calendar.DAY_OF_MONTH);
+            t = -1;
+
+            // get hour...................................................
+            st = hours.headSet(hr, true);
+            if (st != null && st.size() != 0) {
+                t = hr;
+                hr = st.last();
+            } else {
+                hr = (int) hours.last();
+                day--;
+            }
+            if (hr != t) {
+                cl.set(Calendar.SECOND, 59);
+                cl.set(Calendar.MINUTE, 59);
+                cl.set(Calendar.DAY_OF_MONTH, day);
+                setCalendarHour(cl, hr);
+                continue;
+            }
+            cl.set(Calendar.HOUR_OF_DAY, hr);
+
+            day = cl.get(Calendar.DAY_OF_MONTH);
+            int mon = cl.get(Calendar.MONTH) + 1;
+            t = -1;
+            int tmon = mon;
+
+            // get day...................................................
+            boolean dayOfMSpec = !daysOfMonth.contains(NO_SPEC);
+            boolean dayOfWSpec = !daysOfWeek.contains(NO_SPEC);
+            if (dayOfMSpec && !dayOfWSpec) { // get day by day of month rule
+                st = daysOfMonth.headSet(day, true);
+                if (lastdayOfMonth) {
+                    if(!nearestWeekday) {
+                        t = day;
+                        day = getLastDayOfMonth(mon, cl.get(Calendar.YEAR));
+                        day -= lastdayOffset;
+                        if(t < day) {
+                            mon--;
+                            if(mon < 1) {
+                                mon = 12;
+                                tmon = 3333; // ensure test of mon != tmon further below fails
+                                cl.add(Calendar.YEAR, -1);
+                            }
+                            day = getLastDayOfMonth(mon, cl.get(Calendar.YEAR));
+                        }
+                    } else {
+                        t = day;
+                        day = getLastDayOfMonth(mon, cl.get(Calendar.YEAR));
+                        day -= lastdayOffset;
+
+                        Calendar tcal = Calendar.getInstance(getTimeZone());
+                        tcal.set(Calendar.SECOND, 0);
+                        tcal.set(Calendar.MINUTE, 0);
+                        tcal.set(Calendar.HOUR_OF_DAY, 0);
+                        tcal.set(Calendar.DAY_OF_MONTH, day);
+                        tcal.set(Calendar.MONTH, mon - 1);
+                        tcal.set(Calendar.YEAR, cl.get(Calendar.YEAR));
+
+                        int ldom = getLastDayOfMonth(mon, cl.get(Calendar.YEAR));
+                        int dow = tcal.get(Calendar.DAY_OF_WEEK);
+
+                        if(dow == Calendar.SATURDAY && day == 1) {
+                            day += 2;
+                        } else if(dow == Calendar.SATURDAY) {
+                            day -= 1;
+                        } else if(dow == Calendar.SUNDAY && day == ldom) {
+                            day -= 2;
+                        } else if(dow == Calendar.SUNDAY) {
+                            day += 1;
+                        }
+
+                        tcal.set(Calendar.SECOND, sec);
+                        tcal.set(Calendar.MINUTE, min);
+                        tcal.set(Calendar.HOUR_OF_DAY, hr);
+                        tcal.set(Calendar.DAY_OF_MONTH, day);
+                        tcal.set(Calendar.MONTH, mon - 1);
+                        Date nTime = tcal.getTime();
+                        if(nTime.after(beforeTime)) {
+                            mon--;
+                            day = getLastDayOfMonth(mon-1, cl.get(Calendar.YEAR));
+                        }
+                    }
+                } else if(nearestWeekday) {
+                    t = day;
+                    day = (int) daysOfMonth.last();
+
+                    Calendar tcal = Calendar.getInstance(getTimeZone());
+                    tcal.set(Calendar.SECOND, 0);
+                    tcal.set(Calendar.MINUTE, 0);
+                    tcal.set(Calendar.HOUR_OF_DAY, 0);
+                    tcal.set(Calendar.DAY_OF_MONTH, day);
+                    tcal.set(Calendar.MONTH, mon - 1);
+                    tcal.set(Calendar.YEAR, cl.get(Calendar.YEAR));
+
+                    int ldom = getLastDayOfMonth(mon, cl.get(Calendar.YEAR));
+                    int dow = tcal.get(Calendar.DAY_OF_WEEK);
+
+                    if(dow == Calendar.SATURDAY && day == 1) {
+                        day += 2;
+                    } else if(dow == Calendar.SATURDAY) {
+                        day -= 1;
+                    } else if(dow == Calendar.SUNDAY && day == ldom) {
+                        day -= 2;
+                    } else if(dow == Calendar.SUNDAY) {
+                        day += 1;
+                    }
+
+
+                    tcal.set(Calendar.SECOND, sec);
+                    tcal.set(Calendar.MINUTE, min);
+                    tcal.set(Calendar.HOUR_OF_DAY, hr);
+                    tcal.set(Calendar.DAY_OF_MONTH, day);
+                    tcal.set(Calendar.MONTH, mon - 1);
+                    Date nTime = tcal.getTime();
+                    if(nTime.after(beforeTime)) {
+                        day = (int) daysOfMonth.last();
+                        mon--;
+                    }
+                } else if (st != null && st.size() != 0) {
+                    t = day;
+                    day = st.last();
+                    // make sure we don't over-run a short month, such as february
+                    int lastDay = getLastDayOfMonth(mon, cl.get(Calendar.YEAR));
+                    if (day > lastDay) {
+                        day = (int) daysOfMonth.last();
+                        mon--;
+                    }
+                } else {
+                    day = (int) daysOfMonth.last();
+                    mon--;
+                }
+
+                if (day != t || mon != tmon) {
+                    cl.set(Calendar.SECOND, 59);
+                    cl.set(Calendar.MINUTE, 59);
+                    cl.set(Calendar.HOUR_OF_DAY, 23);
+                    cl.set(Calendar.DAY_OF_MONTH, day);
+                    cl.set(Calendar.MONTH, mon - 1);
+                    // '- 1' because calendar is 0-based for this field, and we
+                    // are 1-based
+                    continue;
+                }
+            } else if (dayOfWSpec && !dayOfMSpec) { // get day by day of week rule
+                if (lastdayOfWeek) { // are we looking for the last XXX day of
+                    // the month?
+                    int dow = (int) daysOfWeek.last(); // desired
+                    // d-o-w
+                    int cDow = cl.get(Calendar.DAY_OF_WEEK); // current d-o-w
+                    int daysToAdd = 0;
+                    if (cDow < dow) {
+                        daysToAdd = dow - cDow;
+                    }
+                    if (cDow > dow) {
+                        daysToAdd = dow + (7 - cDow);
+                    }
+
+                    int lDay = getLastDayOfMonth(mon, cl.get(Calendar.YEAR));
+
+                    if (day + daysToAdd > lDay) {
+                        if (cDow < dow) {
+                            daysToAdd = dow - cDow - 7;
+                        }
+                        if (cDow > dow) {
+                            daysToAdd = dow - cDow;
+                        }
+                        day += daysToAdd;
+                        cl.set(Calendar.SECOND, 59);
+                        cl.set(Calendar.MINUTE, 59);
+                        cl.set(Calendar.HOUR_OF_DAY, 23);
+                        cl.set(Calendar.DAY_OF_MONTH, day);
+                        cl.set(Calendar.MONTH, mon - 1);
+                        // no '- 1' here because we are promoting the month
+                        continue;
+                    } else if (daysToAdd > 0) {
+                        cl.set(Calendar.SECOND, 59);
+                        cl.set(Calendar.MINUTE, 59);
+                        cl.set(Calendar.HOUR_OF_DAY, 23);
+                        if (mon == 1) {
+                            mon = 12;
+                            cl.set(Calendar.MONTH, mon - 1);
+                            cl.set(Calendar.DAY_OF_MONTH, getLastDayOfMonth(mon, cl.get(Calendar.YEAR)));
+                            cl.add(Calendar.YEAR, -1);
+                        } else {
+                            cl.set(Calendar.MONTH, mon - 1 - 1);
+                            cl.set(Calendar.DAY_OF_MONTH, getLastDayOfMonth(mon - 1, cl.get(Calendar.YEAR)));
+                        }
+                        continue;
+                    }
+                } else if (nthdayOfWeek != 0) {
+                    // are we looking for the Nth XXX day in the month?
+                    int dow = (int) daysOfWeek.last(); // desired
+                    // d-o-w
+                    int cDow = cl.get(Calendar.DAY_OF_WEEK); // current d-o-w
+                    int daysToAdd = 0;
+                    if (cDow > dow) {
+                        daysToAdd = dow - cDow;
+                    } else if (cDow < dow) {
+                        daysToAdd = dow - cDow - 7;
+                    }
+
+                    boolean dayShifted = false;
+                    if (daysToAdd < 0) {
+                        dayShifted = true;
+                    }
+
+                    day += daysToAdd;
+                    int weekOfMonth = day / 7;
+                    if (day % 7 > 0) {
+                        weekOfMonth++;
+                    }
+
+                    daysToAdd = (nthdayOfWeek - weekOfMonth) * 7;
+                    day += daysToAdd;
+                    if (daysToAdd > 0 || day < 1) {
+                        cl.set(Calendar.SECOND, 59);
+                        cl.set(Calendar.MINUTE, 59);
+                        cl.set(Calendar.HOUR_OF_DAY, 23);
+                        if (mon == 1) {
+                            mon = 12;
+                            cl.set(Calendar.DAY_OF_MONTH, getLastDayOfMonth(mon, cl.get(Calendar.YEAR)));
+                            cl.set(Calendar.MONTH, mon - 1);
+                            cl.set(Calendar.YEAR, cl.get(Calendar.YEAR) - 1);
+                        } else {
+                            cl.set(Calendar.DAY_OF_MONTH, getLastDayOfMonth(mon - 1, cl.get(Calendar.YEAR)));
+                            cl.set(Calendar.MONTH, mon - 1 - 1);
+                        }
+                        continue;
+                    } else if (daysToAdd < 0 || dayShifted) {
+                        cl.set(Calendar.SECOND, 0);
+                        cl.set(Calendar.MINUTE, 0);
+                        cl.set(Calendar.HOUR_OF_DAY, 0);
+                        cl.set(Calendar.DAY_OF_MONTH, day);
+                        cl.set(Calendar.MONTH, mon - 1);
+                        // '- 1' here because we are NOT promoting the month
+                        continue;
+                    }
+                } else {
+                    int cDow = cl.get(Calendar.DAY_OF_WEEK); // current d-o-w
+                    int dow = (int) daysOfWeek.last(); // desired
+                    // d-o-w
+                    st = daysOfWeek.headSet(cDow, true);
+                    if (st != null && st.size() > 0) {
+                        dow = st.last();
+                    }
+
+                    int daysToAdd = 0;
+                    if (cDow > dow) {
+                        daysToAdd = dow - cDow;
+                    }
+                    if (cDow < dow) {
+                        daysToAdd = dow - cDow - 7;
+                    }
+
+//                    int lDay = getLastDayOfMonth(mon, cl.get(Calendar.YEAR));
+
+                    if (day + daysToAdd < 1) { // will we pass the end of
+                        // the month?
+                        cl.set(Calendar.SECOND, 59);
+                        cl.set(Calendar.MINUTE, 59);
+                        cl.set(Calendar.HOUR_OF_DAY, 23);
+                        if (mon == 1) {
+                            mon = 12;
+                            cl.set(Calendar.DAY_OF_MONTH, getLastDayOfMonth(mon, cl.get(Calendar.YEAR)));
+                            cl.set(Calendar.MONTH, mon - 1);
+                            cl.set(Calendar.YEAR, cl.get(Calendar.YEAR) - 1);
+                        } else {
+                            cl.set(Calendar.DAY_OF_MONTH, getLastDayOfMonth(mon - 1, cl.get(Calendar.YEAR)));
+                            cl.set(Calendar.MONTH, mon - 1 - 1);
+                        }
+                        continue;
+                    } else if (daysToAdd < 0) { // are we swithing days?
+                        cl.set(Calendar.SECOND, 59);
+                        cl.set(Calendar.MINUTE, 59);
+                        cl.set(Calendar.HOUR_OF_DAY, 23);
+                        cl.set(Calendar.DAY_OF_MONTH, day + daysToAdd);
+                        cl.set(Calendar.MONTH, mon - 1);
+                        // '- 1' because calendar is 0-based for this field,
+                        // and we are 1-based
+                        continue;
+                    }
+                }
+            } else { // dayOfWSpec && !dayOfMSpec
+                throw new UnsupportedOperationException(
+                        "Support for specifying both a day-of-week AND a day-of-month parameter is not implemented.");
+            }
+            cl.set(Calendar.DAY_OF_MONTH, day);
+
+            mon = cl.get(Calendar.MONTH) + 1;
+            // '+ 1' because calendar is 0-based for this field, and we are
+            // 1-based
+            int year = cl.get(Calendar.YEAR);
+            t = -1;
+
+            // test for expressions that never generate a valid fire date,
+            // but keep looping...
+            if (year < MIN_YEAR) {
+                return null;
+            }
+
+            // get month...................................................
+            st = months.headSet(mon, true);
+            if (st != null && st.size() != 0) {
+                t = mon;
+                mon = st.last();
+            } else {
+                mon = (int) months.last();
+                year--;
+            }
+            if (mon != t) {
+                cl.set(Calendar.SECOND, 59);
+                cl.set(Calendar.MINUTE, 59);
+                cl.set(Calendar.HOUR_OF_DAY, 23);
+                cl.set(Calendar.DAY_OF_MONTH, getLastDayOfMonth(mon, cl.get(Calendar.YEAR)));
+                cl.set(Calendar.MONTH, mon - 1);
+                // '- 1' because calendar is 0-based for this field, and we are
+                // 1-based
+                cl.set(Calendar.YEAR, year);
+                continue;
+            }
+            cl.set(Calendar.MONTH, mon - 1);
+            // '- 1' because calendar is 0-based for this field, and we are
+            // 1-based
+
+            year = cl.get(Calendar.YEAR);
+            t = -1;
+
+            // get year...................................................
+            st = years.headSet(year, true);
+            if (st != null && st.size() != 0) {
+                t = year;
+                year = st.last();
+            } else {
+                return null;
+            }
+
+            if (year != t) {
+                cl.set(Calendar.SECOND, 59);
+                cl.set(Calendar.MINUTE, 59);
+                cl.set(Calendar.HOUR_OF_DAY, 23);
+                cl.set(Calendar.DAY_OF_MONTH, getLastDayOfMonth(12, year));
+                cl.set(Calendar.MONTH, 11);
+                cl.set(Calendar.YEAR, year);
+                continue;
+            }
+            cl.set(Calendar.YEAR, year);
+
+            gotOne = true;
+        }
+
+        return cl.getTime();
     }
 
     /**
