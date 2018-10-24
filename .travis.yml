@@ -1,1 +1,4 @@
+os: 
+  - linux
+  - linux-ppc64le
 language: java
