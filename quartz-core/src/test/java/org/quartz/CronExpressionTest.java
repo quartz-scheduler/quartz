@@ -17,6 +17,7 @@ package org.quartz;
 
 import java.io.*;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -476,6 +477,126 @@ public class CronExpressionTest extends SerializationTestSupport {
         } catch (ParseException e) {
             assertEquals(e.getMessage(), "'/' must be followed by an integer.");
         }
+    }
+
+    public void testGetTimeBefore() throws Exception {
+        CronExpression cron0 = new CronExpression("1 2 3 4 5 ? *");
+        assertEqual(cron0, "2018-06-02 12:12:12", "2018-05-04 03:02:01");
+        assertEqual(cron0, "2018-05-02 00:00:00", "2017-05-04 03:02:01");
+        assertEqual(cron0, "2018-01-02 01:02:03", "2017-05-04 03:02:01");
+
+        CronExpression cron1 = new CronExpression("* * * * * ? *");
+        assertEqual(cron1, "2018-01-02 12:12:12", "2018-01-02 12:12:11");
+        assertEqual(cron1, "2018-01-02 00:00:00", "2018-01-01 23:59:59");
+        assertEqual(cron1, "2016-03-01 00:00:00", "2016-02-29 23:59:59");
+        assertEqual(cron1, "2018-01-01 00:00:00", "2017-12-31 23:59:59");
+
+        CronExpression cron2 = new CronExpression("0 * * * * ? *");
+        assertEqual(cron2, "2018-01-02 12:12:12", "2018-01-02 12:12:00");
+        assertEqual(cron2, "2018-01-02 00:00:00", "2018-01-01 23:59:00");
+        assertEqual(cron2, "2016-03-01 00:00:00", "2016-02-29 23:59:00");
+        assertEqual(cron2, "2018-01-01 00:00:00", "2017-12-31 23:59:00");
+
+        CronExpression cron3 = new CronExpression("* 25 * * * ? *");
+        assertEqual(cron3, "2018-01-02 12:12:12", "2018-01-02 11:25:59");
+        assertEqual(cron3, "2018-01-02 12:55:12", "2018-01-02 12:25:59");
+        assertEqual(cron3, "2018-01-02 00:00:00", "2018-01-01 23:25:59");
+        assertEqual(cron3, "2016-03-01 00:00:00", "2016-02-29 23:25:59");
+        assertEqual(cron3, "2018-01-01 00:00:00", "2017-12-31 23:25:59");
+
+        CronExpression cron4 = new CronExpression("* * 11 * * ? *");
+        assertEqual(cron4, "2018-01-02 12:12:12", "2018-01-02 11:59:59");
+        assertEqual(cron4, "2018-01-02 00:12:12", "2018-01-01 11:59:59");
+        assertEqual(cron4, "2016-03-01 00:00:00", "2016-02-29 11:59:59");
+        assertEqual(cron4, "2018-01-01 00:00:00", "2017-12-31 11:59:59");
+
+        CronExpression cron5 = new CronExpression("* * * 31 * ? *");
+        assertEqual(cron5, "2018-08-02 12:12:12", "2018-07-31 23:59:59");
+        assertEqual(cron5, "2018-03-02 00:00:00", "2018-01-31 23:59:59");
+        assertEqual(cron5, "2018-01-22 00:00:00", "2017-12-31 23:59:59");
+
+        CronExpression cron6 = new CronExpression("* * * ? * 1 *");
+        assertEqual(cron6, "2018-01-01 12:12:12", "2017-12-31 23:59:59");//Mon
+        assertEqual(cron6, "2018-01-14 12:12:12", "2018-01-14 12:12:11");//Sun
+        assertEqual(cron6, "2018-01-14 00:00:00", "2018-01-07 23:59:59");//Sun
+        assertEqual(cron6, "2018-01-13 12:12:12", "2018-01-07 23:59:59");//Sat
+
+        CronExpression cron7 = new CronExpression("11,21 * * ? * * *");
+        assertEqual(cron7, "2018-01-01 12:12:05", "2018-01-01 12:11:21");
+        assertEqual(cron7, "2018-01-01 12:12:12", "2018-01-01 12:12:11");
+        assertEqual(cron7, "2018-01-01 12:12:30", "2018-01-01 12:12:21");
+
+        CronExpression cron8 = new CronExpression("* 5-10 * ? * * *");
+        assertEqual(cron8, "2018-01-01 12:03:12", "2018-01-01 11:10:59");
+        assertEqual(cron8, "2018-01-01 12:08:12", "2018-01-01 12:08:11");
+        assertEqual(cron8, "2018-01-01 12:11:12", "2018-01-01 12:10:59");
+        assertEqual(cron8, "2018-01-01 00:03:12", "2017-12-31 23:10:59");
+
+        CronExpression cron9 = new CronExpression("* * 2/3 ? * * *");
+        assertEqual(cron9, "2018-01-01 01:00:12", "2017-12-31 23:59:59");
+        assertEqual(cron9, "2018-01-01 03:08:12", "2018-01-01 02:59:59");
+        assertEqual(cron9, "2018-01-01 06:08:12", "2018-01-01 05:59:59");
+
+        CronExpression cron10 = new CronExpression("* * * L * ? *");
+        assertEqual(cron10, "2018-08-08 12:08:12", "2018-07-31 23:59:59");
+        assertEqual(cron10, "2018-03-08 12:08:12", "2018-02-28 23:59:59");
+        assertEqual(cron10, "2016-03-08 12:08:12", "2016-02-29 23:59:59");
+
+        CronExpression cron11 = new CronExpression("* * * LW 6 ? *");
+        assertEqual(cron11, "2018-08-08 12:08:12", "2018-06-29 23:59:59");
+        assertEqual(cron11, "2018-05-08 12:08:12", "2017-06-30 23:59:59");
+
+        CronExpression cron12 = new CronExpression("* * * 5W * ? *");
+        assertEqual(cron12, "2018-11-05 12:08:12", "2018-11-05 12:08:11");//Mon
+        assertEqual(cron12, "2018-08-07 12:08:12", "2018-08-06 23:59:59");//Sun
+        assertEqual(cron12, "2018-08-06 12:08:12", "2018-08-06 12:08:11");//Sun
+        assertEqual(cron12, "2018-08-05 12:08:12", "2018-07-05 23:59:59");//Sun
+        assertEqual(cron12, "2018-05-05 12:08:12", "2018-05-04 23:59:59");//Sat
+
+        CronExpression cron13 = new CronExpression("* * * ? * L *");
+        assertEqual(cron13, "2018-11-06 12:08:12", "2018-11-03 23:59:59");//Tue
+        assertEqual(cron13, "2018-11-03 12:08:12", "2018-11-03 12:08:11");//Sat
+        assertEqual(cron13, "2018-11-01 12:08:12", "2018-10-27 23:59:59");//Thu
+        assertEqual(cron13, "2018-10-31 12:08:12", "2018-10-27 23:59:59");//Wed
+
+        CronExpression cron14 = new CronExpression("* * * ? * 5L *");
+        assertEqual(cron14, "2018-11-29 12:08:12", "2018-11-29 12:08:11");//Thu
+        assertEqual(cron14, "2018-11-30 12:08:12", "2018-11-29 23:59:59");//Fri
+        assertEqual(cron14, "2018-11-28 12:08:12", "2018-10-25 23:59:59");//Wed
+        assertEqual(cron14, "2018-11-21 12:08:12", "2018-10-25 23:59:59");//Wed
+
+        CronExpression cron15 = new CronExpression("* * * ? 11 6#1 2018");//2018-11-02
+        assertEqual(cron15, "2018-11-02 12:08:12", "2018-11-02 12:08:11");//Fri
+        assertEqual(cron15, "2018-11-01 12:08:12", null);//Thu
+        assertEqual(cron15, "2018-11-05 12:08:12", "2018-11-02 23:59:59");//Mon
+
+        CronExpression cron16 = new CronExpression("* * * ? 11 1#5 2018");//not existed
+        assertEqual(cron16, "2018-11-02 12:08:12", null);
+        assertEqual(cron16, "2018-11-30 12:08:12", null);
+
+        CronExpression cron17 = new CronExpression("* * * L-2 * ? *");
+        assertEqual(cron17, "2018-10-31 12:08:12", "2018-10-29 23:59:59");
+        assertEqual(cron17, "2018-11-12 12:08:12", "2018-10-29 23:59:59");
+        assertEqual(cron17, "2016-03-28 12:08:12", "2016-02-27 23:59:59");
+    }
+
+
+    private void assertEqual(CronExpression cron, String beforeDate, String expectedDate) {
+        assertEquals(cron.getTimeBefore(getDate(beforeDate)), getDate(expectedDate));
+    }
+
+    private Date getDate(String dateStr) {
+        if (dateStr == null) {
+            return null;
+        }
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = null;
+        try {
+            date = formatter.parse(dateStr);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return date;
     }
     
     // execute with version number to generate a new version's serialized form
