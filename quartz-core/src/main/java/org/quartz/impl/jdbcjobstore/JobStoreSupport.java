@@ -2970,6 +2970,20 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                     trigger.getKey());
             if (!state.equals(STATE_ACQUIRED)) {
                 return null;
+            } else if(! isAcquireTriggersWithinLock()) {
+                // if acquireTriggersWithinLock not configured, double check to resolve the ABA problem of https://github.com/quartz-scheduler/quartz/issues/107
+
+                // Sample job'nextFireTime 18:05:00, Node1 happened ABA problem in line 2842 of this file.
+                // Cluster Node1: step1.acquireNextTrigger(WAITING   -----------occurred Full GC etc. ----------------> ACQUIRED)  ---->  step2.triggerFired(ACQUIRED->WAITING)
+                //                                         18:04:53                                                    18:05:00.108                18:05:00.115
+                // Cluster Node2: step1.acquireNextTrigger(WAITING->ACQUIRED) ----> step2.triggerFired(ACQUIRED->WAITING)
+                //                                         18:04:53 18:04:54                              18:05:00.073
+
+                OperableTrigger retrieveTrigger = retrieveTrigger(conn, trigger.getKey());
+                if (retrieveTrigger == null || retrieveTrigger.getNextFireTime() == null || retrieveTrigger.getNextFireTime().getTime() != trigger.getNextFireTime().getTime()) {
+                    getLog().info("Unable to trigger duplicate, because nextFireTime:{} is expired, the actually nextFireTime:{}", trigger.getNextFireTime(), retrieveTrigger.getNextFireTime());
+                    return null;
+                }
             }
         } catch (SQLException e) {
             throw new JobPersistenceException("Couldn't select trigger state: "
@@ -3075,7 +3089,6 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                         removeTrigger(conn, trigger.getKey());
                     }
                 } else{
-                    removeTrigger(conn, trigger.getKey());
                     signalSchedulingChangeOnTxCompletion(0L);
                 }
             } else if (triggerInstCode == CompletedExecutionInstruction.SET_TRIGGER_COMPLETE) {
