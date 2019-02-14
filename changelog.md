@@ -15,6 +15,7 @@ THIS RELEASE REQUIRES JDK7
 * #281 improv: Fix no setter for dataSource property validateOnCheckout
 * #264 improv: Fix no setter for dataSource property discardIdleConnectionsSeconds
 * #245 improv: Sybase: Changed varchar length TRIGGER_NAME from 80 to 200
+* #340 improv: Use all-caps table names in the liquibase script
 * #293 build: Setup Azure CI server for Quartz project
 * #66  build: Remove unused 'svn' requirement during maven package build
 * #301 build: Improve project with readme, and license changes log
