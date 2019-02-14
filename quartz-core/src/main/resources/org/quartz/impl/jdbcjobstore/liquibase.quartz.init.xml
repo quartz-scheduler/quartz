@@ -1,9 +1,15 @@
 <databaseChangeLog
-        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+    http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <property name="blob_type" value="BYTEA" dbms="postgresql"/>
+    <property name="blob_type" value="BLOB"/>
 
     <changeSet id="quartz-init" author="nasazh">
+
         <createTable tableName="QRTZ_LOCKS">
             <column name="SCHED_NAME" type="VARCHAR(120)">
                 <constraints nullable="false"/>
@@ -89,7 +95,7 @@
             <column name="CALENDAR_NAME" type="VARCHAR(200)">
                 <constraints nullable="false"/>
             </column>
-            <column name="CALENDAR" type="blob">
+            <column name="CALENDAR" type="${blob_type}">
                 <constraints nullable="false"/>
             </column>
         </createTable>
@@ -147,7 +153,7 @@
             <column name="REQUESTS_RECOVERY" type="BOOLEAN">
                 <constraints nullable="false"/>
             </column>
-            <column name="JOB_DATA" type="blob"/>
+            <column name="JOB_DATA" type="${blob_type}"/>
         </createTable>
         <addPrimaryKey columnNames="SCHED_NAME, JOB_NAME, JOB_GROUP" tableName="QRTZ_JOB_DETAILS"/>
 
@@ -193,7 +199,7 @@
             <column name="END_TIME" type="BIGINT"/>
             <column name="CALENDAR_NAME" type="VARCHAR(200)"/>
             <column name="MISFIRE_INSTR" type="smallint"/>
-            <column name="JOB_DATA" type="blob"/>
+            <column name="JOB_DATA" type="${blob_type}"/>
         </createTable>
         <addPrimaryKey columnNames="SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP" tableName="QRTZ_TRIGGERS"/>
 
@@ -272,7 +278,7 @@
             <column name="TRIGGER_GROUP" type="VARCHAR(200)">
                 <constraints nullable="false"/>
             </column>
-            <column name="BLOB_DATA" type="blob"/>
+            <column name="BLOB_DATA" type="${blob_type}"/>
         </createTable>
         <addPrimaryKey columnNames="SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP" tableName="QRTZ_BLOB_TRIGGERS"/>
 
