@@ -278,6 +278,35 @@
           <version>42.2.5.jre7</version>
         </dependency>
       </dependencies>
+      <properties>
+        <liquibase.url>jdbc:postgresql://localhost:5432/quartz</liquibase.url>
+        <liquibase.username>quartz</liquibase.username>
+        <liquibase.password></liquibase.password>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-maven-plugin</artifactId>
+            <version>3.6.3</version>
+            <configuration>
+              <changeLogFile>org/quartz/impl/jdbcjobstore/liquibase.quartz.init.xml</changeLogFile>
+              <driver>org.postgresql.Driver</driver>
+              <url>${liquibase.url}</url>
+              <username>${liquibase.username}</username>
+              <password>${liquibase.password}</password>
+            </configuration>
+            <executions>
+              <execution>
+                <phase>process-resources</phase>
+                <goals>
+                  <goal>update</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
     <profile>
       <id>dist</id>
