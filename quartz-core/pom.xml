@@ -13,9 +13,9 @@
   <name>quartz-core</name>
 
   <properties>
-	<derby-version>10.8.2.2</derby-version>
-	<biweekly.version>0.6.1</biweekly.version>
-	<commons-lang3.version>3.5</commons-lang3.version>
+    <derby-version>10.8.2.2</derby-version>
+    <biweekly.version>0.6.3</biweekly.version>
+    <commons-lang3.version>3.8.1</commons-lang3.version>
   </properties>
 
   <dependencies>
@@ -39,18 +39,18 @@
     </dependency>
     
     <!-- biweekly (iCalendar)-->
-	<dependency>
-		<groupId>net.sf.biweekly</groupId>
-	    <artifactId>biweekly</artifactId>
-	    <version>${biweekly.version}</version>
-	</dependency>
-	
-	<!-- Apache commons -->
-	<dependency>
-	    <groupId>org.apache.commons</groupId>
-	    <artifactId>commons-lang3</artifactId>
-	    <version>${commons-lang3.version}</version>
-	</dependency>
+    <dependency>
+      <groupId>net.sf.biweekly</groupId>
+      <artifactId>biweekly</artifactId>
+      <version>${biweekly.version}</version>
+    </dependency>
+
+    <!-- Apache commons -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>${commons-lang3.version}</version>
+    </dependency>
 
     <!-- provided scope -->
     <dependency>
@@ -104,16 +104,16 @@
       <scope>test</scope>
     </dependency>
 	<dependency>
-		<groupId>org.apache.derby</groupId>
-		<artifactId>derbynet</artifactId>
-		<version>${derby-version}</version>
-		<scope>test</scope>
+	  <groupId>org.apache.derby</groupId>
+	  <artifactId>derbynet</artifactId>
+	  <version>${derby-version}</version>
+	  <scope>test</scope>
 	</dependency>
 	<dependency>
-		<groupId>org.apache.derby</groupId>
-		<artifactId>derbyclient</artifactId>
-		<version>${derby-version}</version>
-		<scope>test</scope>
+	  <groupId>org.apache.derby</groupId>
+	  <artifactId>derbyclient</artifactId>
+	  <version>${derby-version}</version>
+	  <scope>test</scope>
 	</dependency>
 
   </dependencies>
