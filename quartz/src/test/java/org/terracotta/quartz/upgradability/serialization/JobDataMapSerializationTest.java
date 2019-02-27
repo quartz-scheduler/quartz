@@ -31,13 +31,7 @@ import static org.terracotta.upgradability.serialization.SerializationUpgradabil
  */
 public class JobDataMapSerializationTest {
 
-  private static final Comparator<JobDataMap> COMPARATOR = new Comparator<JobDataMap>() {
-
-    @Override
-    public int compare(JobDataMap o1, JobDataMap o2) {
-      return o1.equals(o2) && o1.isDirty() == o2.isDirty() && o1.getAllowsTransientData() == o2.getAllowsTransientData() ? 0 : -1;
-    }
-  };
+  private static final Comparator<JobDataMap> COMPARATOR = (o1, o2) -> o1.equals(o2) && o1.isDirty() == o2.isDirty() && o1.getAllowsTransientData() == o2.getAllowsTransientData() ? 0 : -1;
   
   @Test
   public void testEmptyMap() throws IOException, ClassNotFoundException {

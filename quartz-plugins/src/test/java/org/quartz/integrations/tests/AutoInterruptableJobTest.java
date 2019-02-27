@@ -53,8 +53,7 @@ public class AutoInterruptableJobTest extends TestCase {
             System.out.println("TestInterruptableJob is executing.");
             try {
                 sync.await(); // wait for test thread to notice the job is now running
-            } catch (InterruptedException e1) {
-            } catch (BrokenBarrierException e1) {
+            } catch (InterruptedException | BrokenBarrierException e1) {
             }
             for(int i=0; i < 200; i++) {
                 try {
@@ -68,8 +67,7 @@ public class AutoInterruptableJobTest extends TestCase {
             try {
                 System.out.println("TestInterruptableJob exiting with interrupted = " + interrupted);
                 sync.await();
-            } catch (InterruptedException e) {
-            } catch (BrokenBarrierException e) {
+            } catch (InterruptedException | BrokenBarrierException e) {
             }
         }
 

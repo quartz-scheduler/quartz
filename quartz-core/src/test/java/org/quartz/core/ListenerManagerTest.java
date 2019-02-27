@@ -133,7 +133,7 @@ public class ListenerManagerTest extends TestCase {
         assertEquals("Unexpected size of listener list", 1, manager.getTriggerListeners().size());
         
         // test adding a matcher
-        manager.addTriggerListenerMatcher("tl2", NameMatcher.<TriggerKey>nameContains("foo"));
+        manager.addTriggerListenerMatcher("tl2", NameMatcher.nameContains("foo"));
         assertEquals("Unexpected size of listener's matcher list", 2, manager.getTriggerListenerMatchers("tl2").size());
         
         // Test ordering of registration is preserved.

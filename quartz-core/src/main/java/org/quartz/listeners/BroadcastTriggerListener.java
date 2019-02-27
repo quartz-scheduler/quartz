@@ -56,7 +56,7 @@ public class BroadcastTriggerListener implements TriggerListener {
             throw new IllegalArgumentException("Listener name cannot be null!");
         }
         this.name = name;
-        listeners = new LinkedList<TriggerListener>();
+        listeners = new LinkedList<>();
     }
 
     /**
@@ -100,19 +100,15 @@ public class BroadcastTriggerListener implements TriggerListener {
 
     public void triggerFired(Trigger trigger, JobExecutionContext context) {
 
-        Iterator<TriggerListener> itr = listeners.iterator();
-        while(itr.hasNext()) {
-            TriggerListener l = itr.next();
+        for (TriggerListener l : listeners) {
             l.triggerFired(trigger, context);
         }
     }
 
     public boolean vetoJobExecution(Trigger trigger, JobExecutionContext context) {
 
-        Iterator<TriggerListener> itr = listeners.iterator();
-        while(itr.hasNext()) {
-            TriggerListener l = itr.next();
-            if(l.vetoJobExecution(trigger, context)) {
+        for (TriggerListener l : listeners) {
+            if (l.vetoJobExecution(trigger, context)) {
                 return true;
             }
         }
@@ -121,18 +117,14 @@ public class BroadcastTriggerListener implements TriggerListener {
 
     public void triggerMisfired(Trigger trigger) {
 
-        Iterator<TriggerListener> itr = listeners.iterator();
-        while(itr.hasNext()) {
-            TriggerListener l = itr.next();
+        for (TriggerListener l : listeners) {
             l.triggerMisfired(trigger);
         }
     }
 
     public void triggerComplete(Trigger trigger, JobExecutionContext context, CompletedExecutionInstruction triggerInstructionCode) {
 
-        Iterator<TriggerListener> itr = listeners.iterator();
-        while(itr.hasNext()) {
-            TriggerListener l = itr.next();
+        for (TriggerListener l : listeners) {
             l.triggerComplete(trigger, context, triggerInstructionCode);
         }
     }

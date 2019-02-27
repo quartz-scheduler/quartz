@@ -74,8 +74,8 @@ public class SimpleThreadPool implements ThreadPool {
     private final Object nextRunnableLock = new Object();
 
     private List<WorkerThread> workers;
-    private LinkedList<WorkerThread> availWorkers = new LinkedList<WorkerThread>();
-    private LinkedList<WorkerThread> busyWorkers = new LinkedList<WorkerThread>();
+    private LinkedList<WorkerThread> availWorkers = new LinkedList<>();
+    private LinkedList<WorkerThread> busyWorkers = new LinkedList<>();
 
     private String threadNamePrefix;
 
@@ -271,16 +271,14 @@ public class SimpleThreadPool implements ThreadPool {
         }
 
         // create the worker threads and start them
-        Iterator<WorkerThread> workerThreads = createWorkerThreads(count).iterator();
-        while(workerThreads.hasNext()) {
-            WorkerThread wt = workerThreads.next();
+        for (WorkerThread wt : createWorkerThreads(count)) {
             wt.start();
             availWorkers.add(wt);
         }
     }
 
     protected List<WorkerThread> createWorkerThreads(int createCount) {
-        workers = new LinkedList<WorkerThread>();
+        workers = new LinkedList<>();
         for (int i = 1; i<= createCount; ++i) {
             String threadPrefix = getThreadNamePrefix();
             if (threadPrefix == null) {
@@ -333,9 +331,7 @@ public class SimpleThreadPool implements ThreadPool {
                 return;
 
             // signal each worker thread to shut down
-            Iterator<WorkerThread> workerThreads = workers.iterator();
-            while(workerThreads.hasNext()) {
-                WorkerThread wt = workerThreads.next();
+            for (WorkerThread wt : workers) {
                 wt.shutdown();
                 availWorkers.remove(wt);
             }
@@ -353,14 +349,14 @@ public class SimpleThreadPool implements ThreadPool {
                     while(handoffPending) {
                         try {
                             nextRunnableLock.wait(100);
-                        } catch(InterruptedException _) {
+                        } catch(InterruptedException e) {
                             interrupted = true;
                         }
                     }
 
                     // Wait until all worker threads are shut down
                     while (busyWorkers.size() > 0) {
-                        WorkerThread wt = (WorkerThread) busyWorkers.getFirst();
+                        WorkerThread wt = busyWorkers.getFirst();
                         try {
                             getLog().debug(
                                     "Waiting for thread " + wt.getName()
@@ -369,18 +365,18 @@ public class SimpleThreadPool implements ThreadPool {
                             // note: with waiting infinite time the
                             // application may appear to 'hang'.
                             nextRunnableLock.wait(2000);
-                        } catch (InterruptedException _) {
+                        } catch (InterruptedException e) {
                             interrupted = true;
                         }
                     }
 
-                    workerThreads = workers.iterator();
+                    Iterator<WorkerThread> workerThreads = workers.iterator();
                     while(workerThreads.hasNext()) {
-                        WorkerThread wt = (WorkerThread) workerThreads.next();
+                        WorkerThread wt = workerThreads.next();
                         try {
                             wt.join();
                             workerThreads.remove();
-                        } catch (InterruptedException _) {
+                        } catch (InterruptedException e) {
                             interrupted = true;
                         }
                     }
@@ -425,7 +421,7 @@ public class SimpleThreadPool implements ThreadPool {
             }
 
             if (!isShutdown) {
-                WorkerThread wt = (WorkerThread)availWorkers.removeFirst();
+                WorkerThread wt = availWorkers.removeFirst();
                 busyWorkers.add(wt);
                 wt.run(runnable);
             } else {

@@ -154,13 +154,11 @@ public class DirectoryScanJob implements Job {
             return null;
         } 
         
-        File[] files = dir.listFiles(new FileFilter() {
-
-            public boolean accept(File pathname) {
-                if(pathname.lastModified() > lastDate && pathname.lastModified() < maxAgeDate)
-                    return true;
-                return false;
-            }});
+        File[] files = dir.listFiles(pathname -> {
+            if(pathname.lastModified() > lastDate && pathname.lastModified() < maxAgeDate)
+                return true;
+            return false;
+        });
 
         if(files == null)
             files = new File[0];

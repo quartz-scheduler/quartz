@@ -187,7 +187,7 @@ public class DailyTimeIntervalTriggerImplTest extends TestCase {
     Date startTime = dateOf(0, 0, 0, 1, 1, 2011); // Jan 1, 2011 was a saturday...
     TimeOfDay startTimeOfDay = new TimeOfDay(8, 0, 0);
     DailyTimeIntervalTriggerImpl trigger = new DailyTimeIntervalTriggerImpl();
-    Set<Integer> daysOfWeek = new HashSet<Integer>();
+    Set<Integer> daysOfWeek = new HashSet<>();
     daysOfWeek.add(DateBuilder.MONDAY);
     daysOfWeek.add(DateBuilder.TUESDAY);
     daysOfWeek.add(DateBuilder.WEDNESDAY);
@@ -380,7 +380,7 @@ public class DailyTimeIntervalTriggerImplTest extends TestCase {
   }
 
   public void testMonOnly() throws Exception {
-    Set<Integer> daysOfWeek = new HashSet<Integer>();
+    Set<Integer> daysOfWeek = new HashSet<>();
     daysOfWeek.add(Calendar.MONDAY);
     Date startTime = dateOf(0, 0, 0, 1, 1, 2011); // SAT(7)
     TimeOfDay startTimeOfDay = new TimeOfDay(8, 0, 0);

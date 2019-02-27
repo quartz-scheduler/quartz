@@ -105,13 +105,13 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
 
     public TabularData getAllJobDetails() throws Exception {
         try {
-            List<JobDetail> detailList = new ArrayList<JobDetail>();
+            List<JobDetail> detailList = new ArrayList<>();
             for (String jobGroupName : scheduler.getJobGroupNames()) {
                 for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(jobGroupName))) {
                     detailList.add(scheduler.getJobDetail(jobKey));
                 }
             }
-            return JobDetailSupport.toTabularData(detailList.toArray(new JobDetail[detailList.size()]));
+            return JobDetailSupport.toTabularData(detailList.toArray(new JobDetail[0]));
         } catch (Exception e) {
             throw newPlainException(e);
         }
@@ -119,7 +119,7 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
 
     public List<CompositeData> getAllTriggers() throws Exception {
         try {
-            List<Trigger> triggerList = new ArrayList<Trigger>();
+            List<Trigger> triggerList = new ArrayList<>();
             for (String triggerGroupName : scheduler.getTriggerGroupNames()) {
                 for (TriggerKey triggerKey : scheduler.getTriggerKeys(GroupMatcher.triggerGroupEquals(triggerGroupName))) {
                     triggerList.add(scheduler.getTrigger(triggerKey));
@@ -383,7 +383,7 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
 
     public List<String> getJobNames(String groupName) throws Exception {
         try {
-            List<String> jobNames = new ArrayList<String>();
+            List<String> jobNames = new ArrayList<>();
             for(JobKey key: scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
                 jobNames.add(key.getName());
             }
@@ -424,7 +424,7 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
 
     public List<String> getTriggerNames(String groupName) throws Exception {
         try {
-            List<String> triggerNames = new ArrayList<String>();
+            List<String> triggerNames = new ArrayList<>();
             for(TriggerKey key: scheduler.getTriggerKeys(GroupMatcher.triggerGroupEquals(groupName))) {
                 triggerNames.add(key.getName());
             }
@@ -569,19 +569,19 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
     }
     
     public void pauseJobGroup(String jobGroup) throws Exception {
-        pauseJobs(GroupMatcher.<JobKey>groupEquals(jobGroup));
+        pauseJobs(GroupMatcher.groupEquals(jobGroup));
     }
 
     public void pauseJobsStartingWith(String jobGroupPrefix) throws Exception {
-        pauseJobs(GroupMatcher.<JobKey>groupStartsWith(jobGroupPrefix));
+        pauseJobs(GroupMatcher.groupStartsWith(jobGroupPrefix));
     }
 
     public void pauseJobsEndingWith(String jobGroupSuffix) throws Exception {
-        pauseJobs(GroupMatcher.<JobKey>groupEndsWith(jobGroupSuffix));
+        pauseJobs(GroupMatcher.groupEndsWith(jobGroupSuffix));
     }
 
     public void pauseJobsContaining(String jobGroupToken) throws Exception {
-        pauseJobs(GroupMatcher.<JobKey>groupContains(jobGroupToken));
+        pauseJobs(GroupMatcher.groupContains(jobGroupToken));
     }
 
     public void pauseJobsAll() throws Exception {
@@ -605,19 +605,19 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
     }
     
     public void pauseTriggerGroup(String triggerGroup) throws Exception {
-        pauseTriggers(GroupMatcher.<TriggerKey>groupEquals(triggerGroup));
+        pauseTriggers(GroupMatcher.groupEquals(triggerGroup));
     }
 
     public void pauseTriggersStartingWith(String triggerGroupPrefix) throws Exception {
-        pauseTriggers(GroupMatcher.<TriggerKey>groupStartsWith(triggerGroupPrefix));
+        pauseTriggers(GroupMatcher.groupStartsWith(triggerGroupPrefix));
     }
 
     public void pauseTriggersEndingWith(String triggerGroupSuffix) throws Exception {
-        pauseTriggers(GroupMatcher.<TriggerKey>groupEndsWith(triggerGroupSuffix));
+        pauseTriggers(GroupMatcher.groupEndsWith(triggerGroupSuffix));
     }
 
     public void pauseTriggersContaining(String triggerGroupToken) throws Exception {
-        pauseTriggers(GroupMatcher.<TriggerKey>groupContains(triggerGroupToken));
+        pauseTriggers(GroupMatcher.groupContains(triggerGroupToken));
     }
 
     public void pauseTriggersAll() throws Exception {
@@ -657,19 +657,19 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
     }
 
     public void resumeJobGroup(String jobGroup) throws Exception {
-        resumeJobs(GroupMatcher.<JobKey>groupEquals(jobGroup));
+        resumeJobs(GroupMatcher.groupEquals(jobGroup));
     }
 
     public void resumeJobsStartingWith(String jobGroupPrefix) throws Exception {
-        resumeJobs(GroupMatcher.<JobKey>groupStartsWith(jobGroupPrefix));
+        resumeJobs(GroupMatcher.groupStartsWith(jobGroupPrefix));
     }
 
     public void resumeJobsEndingWith(String jobGroupSuffix) throws Exception {
-        resumeJobs(GroupMatcher.<JobKey>groupEndsWith(jobGroupSuffix));
+        resumeJobs(GroupMatcher.groupEndsWith(jobGroupSuffix));
     }
 
     public void resumeJobsContaining(String jobGroupToken) throws Exception {
-        resumeJobs(GroupMatcher.<JobKey>groupContains(jobGroupToken));
+        resumeJobs(GroupMatcher.groupContains(jobGroupToken));
     }
 
     public void resumeJobsAll() throws Exception {
@@ -693,19 +693,19 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
     }
     
     public void resumeTriggerGroup(String triggerGroup) throws Exception {
-        resumeTriggers(GroupMatcher.<TriggerKey>groupEquals(triggerGroup));
+        resumeTriggers(GroupMatcher.groupEquals(triggerGroup));
     }
 
     public void resumeTriggersStartingWith(String triggerGroupPrefix) throws Exception {
-        resumeTriggers(GroupMatcher.<TriggerKey>groupStartsWith(triggerGroupPrefix));
+        resumeTriggers(GroupMatcher.groupStartsWith(triggerGroupPrefix));
     }
 
     public void resumeTriggersEndingWith(String triggerGroupSuffix) throws Exception {
-        resumeTriggers(GroupMatcher.<TriggerKey>groupEndsWith(triggerGroupSuffix));
+        resumeTriggers(GroupMatcher.groupEndsWith(triggerGroupSuffix));
     }
 
     public void resumeTriggersContaining(String triggerGroupToken) throws Exception {
-        resumeTriggers(GroupMatcher.<TriggerKey>groupContains(triggerGroupToken));
+        resumeTriggers(GroupMatcher.groupContains(triggerGroupToken));
     }
 
     public void resumeTriggersAll() throws Exception {
@@ -736,7 +736,7 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
     }
 
     public void jobDeleted(JobKey jobKey) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("jobName", jobKey.getName());
         map.put("jobGroup", jobKey.getGroup());
         sendNotification(JOB_DELETED, map);
@@ -747,7 +747,7 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
     }
 
     public void jobUnscheduled(TriggerKey triggerKey) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("triggerName", triggerKey.getName());
         map.put("triggerGroup", triggerKey.getGroup());
         sendNotification(JOB_UNSCHEDULED, map);
@@ -758,28 +758,28 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
     }
     
     public void jobPaused(JobKey jobKey) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("jobName", jobKey.getName());
         map.put("jobGroup", jobKey.getGroup());
         sendNotification(JOBS_PAUSED, map);
     }
 
     public void jobsPaused(String jobGroup) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("jobName", null);
         map.put("jobGroup", jobGroup);
         sendNotification(JOBS_PAUSED, map);
     }
     
     public void jobsResumed(String jobGroup) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("jobName", null);
         map.put("jobGroup", jobGroup);
         sendNotification(JOBS_RESUMED, map);
     }
 
     public void jobResumed(JobKey jobKey) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("jobName", jobKey.getName());
         map.put("jobGroup", jobKey.getGroup());
         sendNotification(JOBS_RESUMED, map);
@@ -812,21 +812,21 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
     }
 
     public void triggerFinalized(Trigger trigger) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("triggerName", trigger.getKey().getName());
         map.put("triggerGroup", trigger.getKey().getGroup());
         sendNotification(TRIGGER_FINALIZED, map);
     }
 
     public void triggersPaused(String triggerGroup) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("triggerName", null);
         map.put("triggerGroup", triggerGroup);
         sendNotification(TRIGGERS_PAUSED, map);
     }
 
     public void triggerPaused(TriggerKey triggerKey) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         if(triggerKey != null) {
             map.put("triggerName", triggerKey.getName());
             map.put("triggerGroup", triggerKey.getGroup());
@@ -835,14 +835,14 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
     }
 
     public void triggersResumed(String triggerGroup) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("triggerName", null);
         map.put("triggerGroup", triggerGroup);
         sendNotification(TRIGGERS_RESUMED, map);
     }
 
     public void triggerResumed(TriggerKey triggerKey) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         if(triggerKey != null) {
             map.put("triggerName", triggerKey.getName());
             map.put("triggerGroup", triggerKey.getGroup());
@@ -982,7 +982,7 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
                  this.sampledStatistics.shutdown(); 
                  this.sampledStatistics = NULL_SAMPLED_STATISTICS;
             }
-            sendNotification(SAMPLED_STATISTICS_ENABLED, Boolean.valueOf(enabled));
+            sendNotification(SAMPLED_STATISTICS_ENABLED, enabled);
         }
     }
 
@@ -999,13 +999,10 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
     }
 
     public Map<String, Long> getPerformanceMetrics() {
-        Map<String, Long> result = new HashMap<String, Long>();
-        result.put("JobsCompleted", Long
-                .valueOf(getJobsCompletedMostRecentSample()));
-        result.put("JobsExecuted", Long
-                .valueOf(getJobsExecutedMostRecentSample()));
-        result.put("JobsScheduled", Long
-                .valueOf(getJobsScheduledMostRecentSample()));
+        Map<String, Long> result = new HashMap<>();
+        result.put("JobsCompleted", getJobsCompletedMostRecentSample());
+        result.put("JobsExecuted", getJobsExecutedMostRecentSample());
+        result.put("JobsScheduled", getJobsScheduledMostRecentSample());
         return result;
     }
 }

@@ -107,32 +107,26 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
 
     static {
         Properties props = new Properties();
-        InputStream is = null;
-        try {
-            is = QuartzScheduler.class.getResourceAsStream("quartz-build.properties");
-            if(is != null) {
+        try (InputStream is = QuartzScheduler.class.getResourceAsStream("quartz-build.properties")) {
+            if (is != null) {
                 props.load(is);
                 String version = props.getProperty("version");
                 if (version != null) {
                     String[] versionComponents = version.split("\\.");
                     VERSION_MAJOR = versionComponents[0];
                     VERSION_MINOR = versionComponents[1];
-                    if(versionComponents.length > 2)
+                    if (versionComponents.length > 2)
                         VERSION_ITERATION = versionComponents[2];
                     else
                         VERSION_ITERATION = "0";
                 } else {
-                  (LoggerFactory.getLogger(QuartzScheduler.class)).error(
-                      "Can't parse Quartz version from quartz-build.properties");
+                    (LoggerFactory.getLogger(QuartzScheduler.class)).error(
+                            "Can't parse Quartz version from quartz-build.properties");
                 }
             }
         } catch (Exception e) {
             (LoggerFactory.getLogger(QuartzScheduler.class)).error(
-                "Error loading version info from quartz-build.properties.", e);
-        } finally {
-            if(is != null) {
-                try { is.close(); } catch(Exception ignore) {}
-            }
+                    "Error loading version info from quartz-build.properties.", e);
         }
     }
     
@@ -155,11 +149,11 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
 
     private ListenerManager listenerManager = new ListenerManagerImpl();
     
-    private HashMap<String, JobListener> internalJobListeners = new HashMap<String, JobListener>(10);
+    private HashMap<String, JobListener> internalJobListeners = new HashMap<>(10);
 
-    private HashMap<String, TriggerListener> internalTriggerListeners = new HashMap<String, TriggerListener>(10);
+    private HashMap<String, TriggerListener> internalTriggerListeners = new HashMap<>(10);
 
-    private ArrayList<SchedulerListener> internalSchedulerListeners = new ArrayList<SchedulerListener>(10);
+    private List<SchedulerListener> internalSchedulerListeners = new ArrayList<>(10);
 
     private JobFactory jobFactory = new PropertySettingJobFactory();
     
@@ -171,7 +165,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
 
     private Random random = new Random();
 
-    private ArrayList<Object> holdToPreventGC = new ArrayList<Object>(5);
+    private List<Object> holdToPreventGC = new ArrayList<>(5);
 
     private boolean signalOnSchedulingChange = true;
 
@@ -557,14 +551,12 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
                     "The Scheduler cannot be restarted after shutdown() has been called.");
         }
 
-        Thread t = new Thread(new Runnable() {
-            public void run() {
-                try { Thread.sleep(seconds * 1000L); }
-                catch(InterruptedException ignore) {}
-                try { start(); }
-                catch(SchedulerException se) {
-                    getLog().error("Unable to start scheduler after startup delay.", se);
-                }
+        Thread t = new Thread(() -> {
+            try { Thread.sleep(seconds * 1000L); }
+            catch(InterruptedException ignore) {}
+            try { start(); }
+            catch(SchedulerException se) {
+                getLog().error("Unable to start scheduler after startup delay.", se);
             }
         });
         t.start();
@@ -1036,7 +1028,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
 
     public void scheduleJob(JobDetail jobDetail, Set<? extends Trigger> triggersForJob,
             boolean replace) throws SchedulerException {
-        Map<JobDetail, Set<? extends Trigger>> triggersAndJobs = new HashMap<JobDetail, Set<? extends Trigger>>();
+        Map<JobDetail, Set<? extends Trigger>> triggersAndJobs = new HashMap<>();
         triggersAndJobs.put(jobDetail, triggersForJob);
         scheduleJobs(triggersAndJobs, replace);
     }
@@ -1670,7 +1662,7 @@ J     *
      */
     public List<JobListener> getInternalJobListeners() {
         synchronized (internalJobListeners) {
-            return java.util.Collections.unmodifiableList(new LinkedList<JobListener>(internalJobListeners.values()));
+            return java.util.Collections.unmodifiableList(new LinkedList<>(internalJobListeners.values()));
         }
     }
 
@@ -1727,7 +1719,7 @@ J     *
      */
     public List<TriggerListener> getInternalTriggerListeners() {
         synchronized (internalTriggerListeners) {
-            return java.util.Collections.unmodifiableList(new LinkedList<TriggerListener>(internalTriggerListeners.values()));
+            return java.util.Collections.unmodifiableList(new LinkedList<>(internalTriggerListeners.values()));
         }
     }
 
@@ -1778,7 +1770,7 @@ J     *
      */
     public List<SchedulerListener> getInternalSchedulerListeners() {
         synchronized (internalSchedulerListeners) {
-            return java.util.Collections.unmodifiableList(new ArrayList<SchedulerListener>(internalSchedulerListeners));
+            return java.util.Collections.unmodifiableList(new ArrayList<>(internalSchedulerListeners));
         }
     }
 
@@ -1798,7 +1790,7 @@ J     *
 
     private List<TriggerListener> buildTriggerListenerList()
         throws SchedulerException {
-        List<TriggerListener> allListeners = new LinkedList<TriggerListener>();
+        List<TriggerListener> allListeners = new LinkedList<>();
         allListeners.addAll(getListenerManager().getTriggerListeners());
         allListeners.addAll(getInternalTriggerListeners());
 
@@ -1807,7 +1799,7 @@ J     *
 
     private List<JobListener> buildJobListenerList()
         throws SchedulerException {
-        List<JobListener> allListeners = new LinkedList<JobListener>();
+        List<JobListener> allListeners = new LinkedList<>();
         allListeners.addAll(getListenerManager().getJobListeners());
         allListeners.addAll(getInternalJobListeners());
 
@@ -1815,7 +1807,7 @@ J     *
     }
 
     private List<SchedulerListener> buildSchedulerListenerList() {
-        List<SchedulerListener> allListeners = new LinkedList<SchedulerListener>();
+        List<SchedulerListener> allListeners = new LinkedList<>();
         allListeners.addAll(getListenerManager().getSchedulerListeners());
         allListeners.addAll(getInternalSchedulerListeners());
     
@@ -2375,17 +2367,13 @@ J     *
     }
     
     private void shutdownPlugins() {
-        java.util.Iterator<SchedulerPlugin> itr = resources.getSchedulerPlugins().iterator();
-        while (itr.hasNext()) {
-            SchedulerPlugin plugin = itr.next();
+        for (SchedulerPlugin plugin : resources.getSchedulerPlugins()) {
             plugin.shutdown();
         }
     }
 
     private void startPlugins() {
-        java.util.Iterator<SchedulerPlugin> itr = resources.getSchedulerPlugins().iterator();
-        while (itr.hasNext()) {
-            SchedulerPlugin plugin = itr.next();
+        for (SchedulerPlugin plugin : resources.getSchedulerPlugins()) {
             plugin.start();
         }
     }
@@ -2416,7 +2404,7 @@ class ErrorLogger extends SchedulerListenerSupport {
 /////////////////////////////////////////////////////////////////////////////
 
 class ExecutingJobsManager implements JobListener {
-    HashMap<String, JobExecutionContext> executingJobs = new HashMap<String, JobExecutionContext>();
+    HashMap<String, JobExecutionContext> executingJobs = new HashMap<>();
 
     AtomicInteger numJobsFired = new AtomicInteger(0);
 
@@ -2455,7 +2443,7 @@ class ExecutingJobsManager implements JobListener {
 
     public List<JobExecutionContext> getExecutingJobs() {
         synchronized (executingJobs) {
-            return java.util.Collections.unmodifiableList(new ArrayList<JobExecutionContext>(
+            return java.util.Collections.unmodifiableList(new ArrayList<>(
                     executingJobs.values()));
         }
     }

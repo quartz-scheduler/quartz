@@ -1,10 +1,7 @@
 package org.quartz.impl.calendar;
 
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.StringTokenizer;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * This implementation of the Calendar excludes (or includes - see below) a 
@@ -538,7 +535,7 @@ public class DailyCalendar extends BaseCalendar {
                         getTimeRangeEndingTimeInMillis(nextIncludedTime)) {
                     //(move to start of next day)
                     nextIncludedTime = getEndOfDayJavaCalendar(nextIncludedTime).getTime().getTime();
-                    nextIncludedTime += 1l; 
+                    nextIncludedTime += 1L;
                 } else if ((getBaseCalendar() != null) && 
                         (!getBaseCalendar().isTimeIncluded(nextIncludedTime))){
                     nextIncludedTime = 
@@ -645,7 +642,7 @@ public class DailyCalendar extends BaseCalendar {
         buffer.append(":");
         numberFormatter.setMinimumIntegerDigits(3);
         buffer.append(numberFormatter.format(rangeEndingMillis));
-        buffer.append("', inverted: " + invertTimeRange + "]");
+        buffer.append("', inverted: ").append(invertTimeRange).append("]");
         return buffer.toString();
     }
     
@@ -653,14 +650,14 @@ public class DailyCalendar extends BaseCalendar {
      * Helper method to split the given string by the given delimiter.
      */
     private String[] split(String string, String delim) {
-        ArrayList<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         
         StringTokenizer stringTokenizer = new StringTokenizer(string, delim);
         while (stringTokenizer.hasMoreTokens()) {
             result.add(stringTokenizer.nextToken());
         }
         
-        return (String[])result.toArray(new String[result.size()]);
+        return result.toArray(new String[0]);
     }
     
     /**

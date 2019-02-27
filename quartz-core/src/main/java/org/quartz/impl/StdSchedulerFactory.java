@@ -921,14 +921,14 @@ public class StdSchedulerFactory implements SchedulerFactory {
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         String[] dsNames = cfg.getPropertyGroups(PROP_DATASOURCE_PREFIX);
-        for (int i = 0; i < dsNames.length; i++) {
+        for (String dsName : dsNames) {
             PropertiesParser pp = new PropertiesParser(cfg.getPropertyGroup(
-                    PROP_DATASOURCE_PREFIX + "." + dsNames[i], true));
+                    PROP_DATASOURCE_PREFIX + "." + dsName, true));
 
             String cpClass = pp.getStringProperty(PROP_CONNECTION_PROVIDER_CLASS, null);
 
             // custom connectionProvider...
-            if(cpClass != null) {
+            if (cpClass != null) {
                 ConnectionProvider cp = null;
                 try {
                     cp = (ConnectionProvider) loadHelper.loadClass(cpClass).newInstance();
@@ -944,7 +944,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
                             PROP_CONNECTION_PROVIDER_CLASS);
 
                     if (cp instanceof PoolingConnectionProvider) {
-                        populateProviderWithExtraProps((PoolingConnectionProvider)cp, pp.getUnderlyingProperties());
+                        populateProviderWithExtraProps((PoolingConnectionProvider) cp, pp.getUnderlyingProperties());
                     } else {
                         setBeanProps(cp, pp.getUnderlyingProperties());
                     }
@@ -956,7 +956,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
                 }
 
                 dbMgr = DBConnectionManager.getInstance();
-                dbMgr.addConnectionProvider(dsNames[i], cp);
+                dbMgr.addConnectionProvider(dsName, cp);
             } else {
                 String dsJndi = pp.getStringProperty(PROP_DATASOURCE_JNDI_URL, null);
 
@@ -995,7 +995,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
                     JNDIConnectionProvider cp = new JNDIConnectionProvider(dsJndi,
                             props, dsAlwaysLookup);
                     dbMgr = DBConnectionManager.getInstance();
-                    dbMgr.addConnectionProvider(dsNames[i], cp);
+                    dbMgr.addConnectionProvider(dsName, cp);
                 } else {
                     String poolingProvider = pp.getStringProperty(PoolingConnectionProvider.POOLING_PROVIDER);
                     String dsDriver = pp.getStringProperty(PoolingConnectionProvider.DB_DRIVER);
@@ -1004,24 +1004,23 @@ public class StdSchedulerFactory implements SchedulerFactory {
                     if (dsDriver == null) {
                         initException = new SchedulerException(
                                 "Driver not specified for DataSource: "
-                                        + dsNames[i]);
+                                        + dsName);
                         throw initException;
                     }
                     if (dsURL == null) {
                         initException = new SchedulerException(
                                 "DB URL not specified for DataSource: "
-                                        + dsNames[i]);
+                                        + dsName);
                         throw initException;
                     }
                     // we load even these "core" providers by class name in order to avoid a static dependency on
                     // the c3p0 and hikaricp libraries
-                    if(poolingProvider != null && poolingProvider.equals(PoolingConnectionProvider.POOLING_PROVIDER_HIKARICP)) {
+                    if (poolingProvider != null && poolingProvider.equals(PoolingConnectionProvider.POOLING_PROVIDER_HIKARICP)) {
                         cpClass = "org.quartz.utils.HikariCpPoolingConnectionProvider";
-                    }
-                    else {
+                    } else {
                         cpClass = "org.quartz.utils.C3p0PoolingConnectionProvider";
                     }
-                    log.info("Using ConnectionProvider class '" + cpClass + "' for data source '" + dsNames[i] + "'");
+                    log.info("Using ConnectionProvider class '" + cpClass + "' for data source '" + dsName + "'");
 
                     try {
                         ConnectionProvider cp = null;
@@ -1034,13 +1033,13 @@ public class StdSchedulerFactory implements SchedulerFactory {
                             throw initException;
                         }
                         dbMgr = DBConnectionManager.getInstance();
-                        dbMgr.addConnectionProvider(dsNames[i], cp);
+                        dbMgr.addConnectionProvider(dsName, cp);
 
                         // Populate the underlying C3P0/HikariCP data source pool properties
-                        populateProviderWithExtraProps((PoolingConnectionProvider)cp, pp.getUnderlyingProperties());
+                        populateProviderWithExtraProps((PoolingConnectionProvider) cp, pp.getUnderlyingProperties());
                     } catch (Exception sqle) {
                         initException = new SchedulerException(
-                                "Could not initialize DataSource: " + dsNames[i],
+                                "Could not initialize DataSource: " + dsName,
                                 sqle);
                         throw initException;
                     }
@@ -1126,7 +1125,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
                     /* do nothing */ 
                 }
                 if(nameSetter != null) {
-                    nameSetter.invoke(listener, new Object[] {jobListenerNames[i] } );
+                    nameSetter.invoke(listener, jobListenerNames[i]);
                 }
                 setBeanProps(listener, lp);
             } catch (Exception e) {
@@ -1172,7 +1171,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
                 }
                 catch(NoSuchMethodException ignore) { /* do nothing */ }
                 if(nameSetter != null) {
-                    nameSetter.invoke(listener, new Object[] {triggerListenerNames[i] } );
+                    nameSetter.invoke(listener, triggerListenerNames[i]);
                 }
                 setBeanProps(listener, lp);
             } catch (Exception e) {
@@ -1314,8 +1313,8 @@ public class StdSchedulerFactory implements SchedulerFactory {
             rsrcs.setJobStore(js);
     
             // add plugins
-            for (int i = 0; i < plugins.length; i++) {
-                rsrcs.addSchedulerPlugin(plugins[i]);
+            for (SchedulerPlugin plugin : plugins) {
+                rsrcs.addSchedulerPlugin(plugin);
             }
     
             qs = new QuartzScheduler(rsrcs, idleWaitTime, dbFailureRetry);
@@ -1335,11 +1334,11 @@ public class StdSchedulerFactory implements SchedulerFactory {
             }
     
             // add listeners
-            for (int i = 0; i < jobListeners.length; i++) {
-                qs.getListenerManager().addJobListener(jobListeners[i], EverythingMatcher.allJobs());
+            for (JobListener jobListener : jobListeners) {
+                qs.getListenerManager().addJobListener(jobListener, EverythingMatcher.allJobs());
             }
-            for (int i = 0; i < triggerListeners.length; i++) {
-                qs.getListenerManager().addTriggerListener(triggerListeners[i], EverythingMatcher.allTriggers());
+            for (TriggerListener triggerListener : triggerListeners) {
+                qs.getListenerManager().addTriggerListener(triggerListener, EverythingMatcher.allTriggers());
             }
     
             // set scheduler context data...
@@ -1375,17 +1374,9 @@ public class StdSchedulerFactory implements SchedulerFactory {
             schedRep.bind(scheduler);
             return scheduler;
         }
-        catch(SchedulerException e) {
+        catch(SchedulerException | Error | RuntimeException e) {
             shutdownFromInstantiateException(tp, qs, tpInited, qsInited);
             throw e;
-        }
-        catch(RuntimeException re) {
-            shutdownFromInstantiateException(tp, qs, tpInited, qsInited);
-            throw re;
-        }
-        catch(Error re) {
-            shutdownFromInstantiateException(tp, qs, tpInited, qsInited);
-            throw re;
         }
     }
 
@@ -1473,17 +1464,17 @@ public class StdSchedulerFactory implements SchedulerFactory {
                     refName = name;
                 
                 if (params[0].equals(int.class)) {
-                    setMeth.invoke(obj, new Object[]{Integer.valueOf(refProps.getIntProperty(refName))});
+                    setMeth.invoke(obj, refProps.getIntProperty(refName));
                 } else if (params[0].equals(long.class)) {
-                    setMeth.invoke(obj, new Object[]{Long.valueOf(refProps.getLongProperty(refName))});
+                    setMeth.invoke(obj, refProps.getLongProperty(refName));
                 } else if (params[0].equals(float.class)) {
-                    setMeth.invoke(obj, new Object[]{Float.valueOf(refProps.getFloatProperty(refName))});
+                    setMeth.invoke(obj, refProps.getFloatProperty(refName));
                 } else if (params[0].equals(double.class)) {
-                    setMeth.invoke(obj, new Object[]{Double.valueOf(refProps.getDoubleProperty(refName))});
+                    setMeth.invoke(obj, refProps.getDoubleProperty(refName));
                 } else if (params[0].equals(boolean.class)) {
-                    setMeth.invoke(obj, new Object[]{Boolean.valueOf(refProps.getBooleanProperty(refName))});
+                    setMeth.invoke(obj, refProps.getBooleanProperty(refName));
                 } else if (params[0].equals(String.class)) {
-                    setMeth.invoke(obj, new Object[]{refProps.getStringProperty(refName)});
+                    setMeth.invoke(obj, refProps.getStringProperty(refName));
                 } else {
                     throw new NoSuchMethodException(
                             "No primitive-type setter for property '" + name
@@ -1498,8 +1489,8 @@ public class StdSchedulerFactory implements SchedulerFactory {
 
     private java.lang.reflect.Method getSetMethod(String name,
             PropertyDescriptor[] props) {
-        for (int i = 0; i < props.length; i++) {
-            java.lang.reflect.Method wMeth = props[i].getWriteMethod();
+        for (PropertyDescriptor prop : props) {
+            Method wMeth = prop.getWriteMethod();
 
             if (wMeth != null && wMeth.getName().equals(name)) {
                 return wMeth;

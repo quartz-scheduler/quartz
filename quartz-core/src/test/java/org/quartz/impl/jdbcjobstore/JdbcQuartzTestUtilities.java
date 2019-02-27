@@ -37,20 +37,15 @@ public final class JdbcQuartzTestUtilities {
     static {
         try {
             Class.forName(DATABASE_DRIVER_CLASS).newInstance();
-        } catch (ClassNotFoundException e) {
-            throw new AssertionError(e);
-        } catch (InstantiationException e) {
-            throw new AssertionError(e);
-        } catch (IllegalAccessException e) {
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
             throw new AssertionError(e);
         }
 
-        List<String> setup = new ArrayList<String>();
+        List<String> setup = new ArrayList<>();
         String setupScript;
         try {
-            InputStream setupStream = DerbyEmbeddedConnectionProvider.class
-                    .getClassLoader().getResourceAsStream("org/quartz/impl/jdbcjobstore/tables_derby.sql");
-            try {
+            try (InputStream setupStream = DerbyEmbeddedConnectionProvider.class
+                    .getClassLoader().getResourceAsStream("org/quartz/impl/jdbcjobstore/tables_derby.sql")) {
                 BufferedReader r = new BufferedReader(new InputStreamReader(setupStream, "US-ASCII"));
                 StringBuilder sb = new StringBuilder();
                 while (true) {
@@ -62,8 +57,6 @@ public final class JdbcQuartzTestUtilities {
                     }
                 }
                 setupScript = sb.toString();
-            } finally {
-                setupStream.close();
             }
         } catch (IOException e) {
             throw new AssertionError(e);
@@ -103,11 +96,7 @@ public final class JdbcQuartzTestUtilities {
         }
         try {
             Class.forName(DATABASE_DRIVER_CLASS).newInstance();
-        } catch (ClassNotFoundException e) {
-            throw new AssertionError(e);
-        } catch (InstantiationException e) {
-            throw new AssertionError(e);
-        } catch (IllegalAccessException e) {
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
             throw new AssertionError(e);
         }
     }
@@ -118,15 +107,12 @@ public final class JdbcQuartzTestUtilities {
 
         DerbyEmbeddedConnectionProvider(String name) throws SQLException {
             this.databaseName = name;
-            Connection conn = DriverManager.getConnection(DATABASE_CONNECTION_PREFIX + databaseName + ";create=true");
-            try {
+            try (Connection conn = DriverManager.getConnection(DATABASE_CONNECTION_PREFIX + databaseName + ";create=true")) {
                 Statement statement = conn.createStatement();
                 for (String command : DATABASE_SETUP_STATEMENTS) {
                     statement.addBatch(command);
                 }
                 statement.executeBatch();
-            } finally {
-                conn.close();
             }
         }
 

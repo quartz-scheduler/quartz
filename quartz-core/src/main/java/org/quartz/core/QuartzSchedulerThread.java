@@ -181,7 +181,7 @@ public class QuartzSchedulerThread extends Thread {
                     try {
                         join();
                         break;
-                    } catch (InterruptedException _) {
+                    } catch (InterruptedException e) {
                         interrupted = true;
                     }
                 }
@@ -342,7 +342,7 @@ public class QuartzSchedulerThread extends Thread {
                             continue;
 
                         // set triggers to 'executing'
-                        List<TriggerFiredResult> bndles = new ArrayList<TriggerFiredResult>();
+                        List<TriggerFiredResult> bndles = new ArrayList<>();
 
                         boolean goAhead = true;
                         synchronized(sigLock) {
@@ -359,8 +359,8 @@ public class QuartzSchedulerThread extends Thread {
                                                 + triggers + "'", se);
                                 //QTZ-179 : a problem occurred interacting with the triggers from the db
                                 //we release them and loop again
-                                for (int i = 0; i < triggers.size(); i++) {
-                                    qsRsrcs.getJobStore().releaseAcquiredTrigger(triggers.get(i));
+                                for (OperableTrigger trigger : triggers) {
+                                    qsRsrcs.getJobStore().releaseAcquiredTrigger(trigger);
                                 }
                                 continue;
                             }

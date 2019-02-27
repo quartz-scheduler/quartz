@@ -41,7 +41,7 @@ public class QuartzMemoryCronTriggerTest extends QuartzMemoryTestSupport {
                 .withIdentity("test")
                 .withSchedule(CronScheduleBuilder.cronSchedule("* * * * * ?"))
                 .build();
-        List<Long> scheduledTimes = Collections.synchronizedList(new LinkedList<Long>());
+        List<Long> scheduledTimes = Collections.synchronizedList(new LinkedList<>());
         scheduler.getContext().put(SCHEDULED_TIMES_KEY, scheduledTimes);
         JobDetail jobDetail = JobBuilder.newJob(TrackingJob.class).withIdentity("test").build();
         scheduler.scheduleJob(jobDetail, trigger);
@@ -51,7 +51,7 @@ public class QuartzMemoryCronTriggerTest extends QuartzMemoryTestSupport {
         }
         assertThat(scheduledTimes, hasSize(greaterThanOrEqualTo(3)));
 
-        Long[] times = scheduledTimes.toArray(new Long[scheduledTimes.size()]);
+        Long[] times = scheduledTimes.toArray(new Long[0]);
         
         long baseline = times[0];
         assertThat(baseline % 1000, is(0L));

@@ -195,12 +195,10 @@ public class EJBInvokerJob implements Job {
             try {
                 // invoke 'create()' method on home interface
                 remoteObj = (EJBObject) methodCreate.invoke(ejbHome, ((Object[])null));
-            } catch (IllegalAccessException iae) {
+            } catch (IllegalAccessException | InvocationTargetException iae) {
                 throw new JobExecutionException(iae);
-            } catch (InvocationTargetException ite) {
-                throw new JobExecutionException(ite);
             }
-    
+
             // execute user-specified method on remote object
             Method methodExecute = null;
     
@@ -228,10 +226,8 @@ public class EJBInvokerJob implements Job {
                 // Return any result in the JobExecutionContext so it will be 
                 // available to Job/TriggerListeners
                 context.setResult(returnObj);
-            } catch (IllegalAccessException iae) {
+            } catch (IllegalAccessException | InvocationTargetException iae) {
                 throw new JobExecutionException(iae);
-            } catch (InvocationTargetException ite) {
-                throw new JobExecutionException(ite);
             }
         } finally {
             // Don't close jndiContext until after method execution because
@@ -249,7 +245,7 @@ public class EJBInvokerJob implements Job {
 
     protected InitialContext getInitialContext(JobDataMap jobDataMap)
         throws NamingException {
-        Hashtable<String, String> params = new Hashtable<String, String>(2);
+        Hashtable<String, String> params = new Hashtable<>(2);
         
         String initialContextFactory =
             jobDataMap.getString(INITIAL_CONTEXT_FACTORY);

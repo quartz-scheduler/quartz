@@ -32,12 +32,7 @@ import static org.terracotta.upgradability.serialization.SerializationUpgradabil
  */
 public class TimeTriggerSerializationTest {
   
-  private static final Comparator<TimeTrigger> COMPARATOR = new Comparator<TimeTrigger>() {
-    @Override
-    public int compare(TimeTrigger o1, TimeTrigger o2) {
-      return o1.compareTo(o2);
-    }
-  };
+  private static final Comparator<TimeTrigger> COMPARATOR = TimeTrigger::compareTo;
   
   @Test
   public void testSimple() throws Exception {

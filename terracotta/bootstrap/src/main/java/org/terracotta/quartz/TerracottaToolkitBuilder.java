@@ -32,7 +32,7 @@ public class TerracottaToolkitBuilder {
   private static final String      TC_CONFIG_SNIPPET_KEY         =  "tcConfigSnippet";
   private static final String      TC_REJOIN_KEY                 = "rejoin";
   private final TCConfigTypeStatus tcConfigTypeStatus            = new TCConfigTypeStatus();
-  private final Set<String>        tunnelledMBeanDomains         = Collections.synchronizedSet(new HashSet<String>());
+  private final Set<String>        tunnelledMBeanDomains         = Collections.synchronizedSet(new HashSet<>());
 
   private boolean                  rejoin                        = false;
   

@@ -57,11 +57,8 @@ public class CUBRIDDelegate extends StdJDBCDelegate {
         if (bytes != null && bytes.length != 0) {
             binaryInput = new ByteArrayInputStream(bytes);
 
-            ObjectInputStream in = new ObjectInputStream(binaryInput);
-            try {
+            try (ObjectInputStream in = new ObjectInputStream(binaryInput)) {
                 obj = in.readObject();
-            } finally {
-                in.close();
             }
         }
 
@@ -115,7 +112,7 @@ public class CUBRIDDelegate extends StdJDBCDelegate {
         if (conn instanceof C3P0ProxyConnection) {
             try {
                 C3P0ProxyConnection c3p0Conn = (C3P0ProxyConnection) conn;
-                Method m = Connection.class.getMethod("createBlob", new Class[]{}); //will call createBlob method on the underlying connection
+                Method m = Connection.class.getMethod("createBlob"); //will call createBlob method on the underlying connection
                 Object[] args = new Object[]{}; //arguments to be passed to the method. none in this case
                 Blob blob = (Blob) c3p0Conn.rawConnectionOperation(m, C3P0ProxyConnection.RAW_CONNECTION, args); 
                 blob.setBytes(1, byteArray);

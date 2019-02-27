@@ -320,7 +320,7 @@ public abstract class AbstractSchedulerTest {
       Thread.sleep(200L);
 
       Map<Thread, StackTraceElement[]> allThreadsEnd = Thread.getAllStackTraces();
-      Set<Thread> endingThreads = new HashSet<Thread>(allThreadsEnd.keySet());
+      Set<Thread> endingThreads = new HashSet<>(allThreadsEnd.keySet());
       // remove all pre-existing threads from the set
       for(Thread t: allThreadsStart.keySet()) {
         allThreadsEnd.remove(t);
@@ -354,7 +354,7 @@ public abstract class AbstractSchedulerTest {
     @Test
     public void testAbilityToFireImmediatelyWhenStartedBefore() throws Exception {
     	
-		List<Long> jobExecTimestamps = Collections.synchronizedList(new ArrayList<Long>());
+		List<Long> jobExecTimestamps = Collections.synchronizedList(new ArrayList<>());
 		CyclicBarrier barrier = new CyclicBarrier(2);
     	
         Scheduler sched = createScheduler("testAbilityToFireImmediatelyWhenStartedBefore", 5);
@@ -383,7 +383,7 @@ public abstract class AbstractSchedulerTest {
     @Test
     public void testAbilityToFireImmediatelyWhenStartedBeforeWithTriggerJob() throws Exception {
     	
-		List<Long> jobExecTimestamps = Collections.synchronizedList(new ArrayList<Long>());
+		List<Long> jobExecTimestamps = Collections.synchronizedList(new ArrayList<>());
 		CyclicBarrier barrier = new CyclicBarrier(2);
     	
         Scheduler sched = createScheduler("testAbilityToFireImmediatelyWhenStartedBeforeWithTriggerJob", 5);
@@ -413,7 +413,7 @@ public abstract class AbstractSchedulerTest {
     @Test
     public void testAbilityToFireImmediatelyWhenStartedAfter() throws Exception {
     	
-		List<Long> jobExecTimestamps = Collections.synchronizedList(new ArrayList<Long>());
+		List<Long> jobExecTimestamps = Collections.synchronizedList(new ArrayList<>());
 		CyclicBarrier barrier = new CyclicBarrier(2);
     	
         Scheduler sched = createScheduler("testAbilityToFireImmediatelyWhenStartedAfter", 5);
@@ -456,7 +456,7 @@ public abstract class AbstractSchedulerTest {
 						SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(1)
 								.repeatForever())
 				.build();
-		Set<Trigger> triggersForJob = new HashSet<Trigger>(); 
+		Set<Trigger> triggersForJob = new HashSet<>();
 		triggersForJob.add(trigger1);
 		triggersForJob.add(trigger2);
 		
@@ -511,7 +511,7 @@ public abstract class AbstractSchedulerTest {
     @Test
     public void testShutdownWithWaitIsClean() throws Exception {
         final AtomicBoolean shutdown = new AtomicBoolean(false);
-        List<Long> jobExecTimestamps = Collections.synchronizedList(new ArrayList<Long>());
+        List<Long> jobExecTimestamps = Collections.synchronizedList(new ArrayList<>());
         CyclicBarrier barrier = new CyclicBarrier(2);
         final Scheduler scheduler = createScheduler("testShutdownWithWaitIsClean", 8);
         try {
@@ -524,17 +524,14 @@ public abstract class AbstractSchedulerTest {
                 Thread.sleep(50);
             }
         } finally {
-            Thread t = new Thread() {
-                @Override
-                public void run() {
-                    try {
-                        scheduler.shutdown(true);
-                        shutdown.set(true);
-                    } catch (SchedulerException ex) {
-                        throw new RuntimeException(ex);
-                    }
+            Thread t = new Thread(() -> {
+                try {
+                    scheduler.shutdown(true);
+                    shutdown.set(true);
+                } catch (SchedulerException ex) {
+                    throw new RuntimeException(ex);
                 }
-            };
+            });
             t.start();
             Thread.sleep(1000);
             assertFalse(shutdown.get());

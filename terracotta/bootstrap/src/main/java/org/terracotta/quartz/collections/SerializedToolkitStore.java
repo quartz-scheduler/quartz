@@ -53,9 +53,7 @@ public class SerializedToolkitStore<K, V extends Serializable> implements Toolki
   private static Object deserializeFromString(String key) {
     try {
       return SerializationHelper.deserializeFromString(key);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    } catch (ClassNotFoundException e) {
+    } catch (IOException | ClassNotFoundException e) {
       throw new RuntimeException(e);
     }
   }
@@ -82,7 +80,7 @@ public class SerializedToolkitStore<K, V extends Serializable> implements Toolki
 
   @Override
   public void putAll(Map<? extends K, ? extends V> m) {
-    Map<String, V> tempMap = new HashMap<String, V>();
+    Map<String, V> tempMap = new HashMap<>();
     for (Entry<? extends K, ? extends V> entry : m.entrySet()) {
       tempMap.put(serializeToString(entry.getKey()), entry.getValue());
     }
@@ -132,13 +130,13 @@ public class SerializedToolkitStore<K, V extends Serializable> implements Toolki
 
   @Override
   public Map<K, V> getAll(Collection<? extends K> keys) {
-    HashSet<String> tempSet = new HashSet<String>();
+    HashSet<String> tempSet = new HashSet<>();
     for (K key : keys) {
       tempSet.add(serializeToString(key));
     }
 
     Map<String, V> m = toolkitStore.getAll(tempSet);
-    Map<K, V> tempMap = m.isEmpty() ? Collections.EMPTY_MAP : new HashMap<K, V>();
+    Map<K, V> tempMap = m.isEmpty() ? Collections.EMPTY_MAP : new HashMap<>();
 
     for (Entry<String, V> entry : m.entrySet()) {
       tempMap.put((K) deserializeFromString(entry.getKey()), entry.getValue());
@@ -235,13 +233,13 @@ public class SerializedToolkitStore<K, V extends Serializable> implements Toolki
 
       Map.Entry<K, V> entry = (java.util.Map.Entry<K, V>) o;
       ToolkitMapEntry<String, V> toolkitEntry = null;
-      toolkitEntry = new ToolkitMapEntry<String, V>(serializeToString(entry.getKey()), entry.getValue());
+      toolkitEntry = new ToolkitMapEntry<>(serializeToString(entry.getKey()), entry.getValue());
       return this.set.contains(toolkitEntry);
     }
 
     @Override
     public Iterator<java.util.Map.Entry<K, V>> iterator() {
-      return new ToolkitEntryIterator<K, V>(set.iterator());
+      return new ToolkitEntryIterator<>(set.iterator());
     }
 
     @Override
@@ -368,7 +366,7 @@ public class SerializedToolkitStore<K, V extends Serializable> implements Toolki
 
     @Override
     public Iterator<K> iterator() {
-      return new ToolkitKeyIterator<K>(set.iterator());
+      return new ToolkitKeyIterator<>(set.iterator());
     }
 
     @Override

@@ -40,7 +40,7 @@ public class QTZ212_SchedulerListener_Test {
 
 	private static final String SCHEDULER_STARTED = "SCHEDULER_STARTED";
 	private static final String SCHEDULER_STARTING = "SCHEDULER_STARTING";
-	private static List<String> methodsCalledInSchedulerListener =  new ArrayList<String>();
+	private static List<String> methodsCalledInSchedulerListener = new ArrayList<>();
 	
 	
 	@Test
@@ -60,10 +60,10 @@ public class QTZ212_SchedulerListener_Test {
 	@Test
 	public void broadcastSchedulerListenerCallsSchedulerStartingOnAllItsListeners() throws SchedulerException {
 		
-		methodsCalledInSchedulerListener =  new ArrayList<String>();
+		methodsCalledInSchedulerListener = new ArrayList<>();
 		SchedulerFactory sf = new StdSchedulerFactory();
 		Scheduler sched = sf.getScheduler();
-		List<SchedulerListener> listeners=  new ArrayList<SchedulerListener>();
+		List<SchedulerListener> listeners= new ArrayList<>();
 		listeners.add(new TestSchedulerListener());
 		
 		sched.getListenerManager().addSchedulerListener(new BroadcastSchedulerListener(listeners));

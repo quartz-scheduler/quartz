@@ -50,7 +50,7 @@ public class QTZ385Test {
   private static final Method TRIGGERS_FIRED;
   static {
     try {
-      TRIGGERS_FIRED = JobStore.class.getDeclaredMethod("triggersFired", new Class[] {List.class});
+      TRIGGERS_FIRED = JobStore.class.getDeclaredMethod("triggersFired", List.class);
     } catch (NoSuchMethodException e) {
       throw new AssertionError(e);
     }
@@ -66,21 +66,18 @@ public class QTZ385Test {
       realJobStore.setInstanceId("SINGLE_NODE_TEST");
       realJobStore.setInstanceName("testShutdownOrdering");
 
-      JobStore evilJobStore = (JobStore) Proxy.newProxyInstance(JobStore.class.getClassLoader(), new Class[] {JobStore.class}, new InvocationHandler() {
-        @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-          if (TRIGGERS_FIRED.equals(method)) {
-            Object result = method.invoke(realJobStore, args);
-            barrier.await();
-            try {
-              barrier.await(1, TimeUnit.SECONDS);
-            } catch (Exception e) {
-              //ignore
-            }
-            return result;
-          } else {
-            return method.invoke(realJobStore, args);
+      JobStore evilJobStore = (JobStore) Proxy.newProxyInstance(JobStore.class.getClassLoader(), new Class[] {JobStore.class}, (proxy, method, args) -> {
+        if (TRIGGERS_FIRED.equals(method)) {
+          Object result = method.invoke(realJobStore, args);
+          barrier.await();
+          try {
+            barrier.await(1, TimeUnit.SECONDS);
+          } catch (Exception e) {
+            //ignore
           }
+          return result;
+        } else {
+          return method.invoke(realJobStore, args);
         }
       });
 

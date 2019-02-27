@@ -38,17 +38,11 @@ import static org.terracotta.upgradability.serialization.SerializationUpgradabil
  */
 public class AnnualCalendarSerializationTest {
   
-  private static final Comparator<AnnualCalendar> COMPARATOR = new Comparator<AnnualCalendar>() {
-
-    @Override
-    public int compare(AnnualCalendar o1, AnnualCalendar o2) {
-      return o1.getDaysExcluded().equals(o2.getDaysExcluded()) 
-              && nullSafeEquals(o1.getDescription(), o2.getDescription())
-              && nullSafeEquals(o1.getTimeZone(), o2.getTimeZone())
-              && ((o1.getBaseCalendar() == null) == (o2.getBaseCalendar() == null))
-              ? 0 : -1;
-    }
-  };
+  private static final Comparator<AnnualCalendar> COMPARATOR = (o1, o2) -> o1.getDaysExcluded().equals(o2.getDaysExcluded())
+          && nullSafeEquals(o1.getDescription(), o2.getDescription())
+          && nullSafeEquals(o1.getTimeZone(), o2.getTimeZone())
+          && ((o1.getBaseCalendar() == null) == (o2.getBaseCalendar() == null))
+          ? 0 : -1;
 
   @Test
   public void testNoBaseSimple() throws IOException, ClassNotFoundException {

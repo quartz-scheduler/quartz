@@ -4,6 +4,7 @@ import static javax.management.openmbean.SimpleType.STRING;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.management.openmbean.CompositeData;
@@ -39,8 +40,8 @@ public class JobDataMapSupport {
         JobDataMap jobDataMap = new JobDataMap();
 
         if(tabularData != null) {
-            for (final Iterator<?> pos = tabularData.values().iterator(); pos.hasNext();) {
-                CompositeData cData = (CompositeData) pos.next();
+            for (Object o : tabularData.values()) {
+                CompositeData cData = (CompositeData) o;
                 jobDataMap.put((String) cData.get("key"), (String) cData.get("value"));
             }
         }
@@ -52,8 +53,7 @@ public class JobDataMapSupport {
         JobDataMap jobDataMap = new JobDataMap();
 
         if(map != null) {
-            for (final Iterator<String> pos = map.keySet().iterator(); pos.hasNext();) {
-                String key = pos.next();
+            for (String key : map.keySet()) {
                 jobDataMap.put(key, map.get(key));
             }
         }
@@ -79,13 +79,11 @@ public class JobDataMapSupport {
      */
     public static TabularData toTabularData(JobDataMap jobDataMap) {
         TabularData tData = new TabularDataSupport(TABULAR_TYPE);
-        ArrayList<CompositeData> list = new ArrayList<CompositeData>();
-        Iterator<String> iter = jobDataMap.keySet().iterator();
-        while (iter.hasNext()) {
-            String key = iter.next();
+        List<CompositeData> list = new ArrayList<>();
+        for (String key : jobDataMap.keySet()) {
             list.add(toCompositeData(key, String.valueOf(jobDataMap.get(key))));
         }
-        tData.putAll(list.toArray(new CompositeData[list.size()]));
+        tData.putAll(list.toArray(new CompositeData[0]));
         return tData;
     }
 

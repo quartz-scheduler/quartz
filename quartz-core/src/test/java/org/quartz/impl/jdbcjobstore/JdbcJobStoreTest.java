@@ -23,7 +23,7 @@ import org.quartz.spi.JobStore;
 
 public class JdbcJobStoreTest extends AbstractJobStoreTest {
 
-	private HashMap<String, JobStoreSupport> stores = new HashMap<String, JobStoreSupport>();
+	private HashMap<String, JobStoreSupport> stores = new HashMap<>();
 	
     public void testNothing() {
         // nothing

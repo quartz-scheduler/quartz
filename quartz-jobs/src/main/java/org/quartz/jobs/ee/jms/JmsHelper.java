@@ -62,10 +62,10 @@ public final class JmsHelper {
             return;
 
         try {
-            final Method m = resource.getClass().getMethod("close",
-                    new Class[0]);
+            final Method m = resource.getClass().getMethod("close"
+            );
 
-            m.invoke(resource, new Object[0]);
+            m.invoke(resource);
         } catch (final Exception e) {
         }
 
@@ -73,7 +73,7 @@ public final class JmsHelper {
 
     public static InitialContext getInitialContext(final JobDataMap dataMap)
             throws NamingException {
-        final Hashtable<String, String> params = new Hashtable<String, String>(4);
+        final Hashtable<String, String> params = new Hashtable<>(4);
 
         final String initialContextFactory = dataMap
                 .getString(INITIAL_CONTEXT_FACTORY);

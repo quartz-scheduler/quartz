@@ -77,7 +77,7 @@ public class CascadingClassLoadHelper implements ClassLoadHelper {
      * thread, which is the thread that is initializing Quartz.
      */
     public void initialize() {
-        loadHelpers = new LinkedList<ClassLoadHelper>();
+        loadHelpers = new LinkedList<>();
 
         loadHelpers.add(new LoadingLoaderClassLoadHelper());
         loadHelpers.add(new SimpleClassLoadHelper());
@@ -106,9 +106,8 @@ public class CascadingClassLoadHelper implements ClassLoadHelper {
         Class<?> clazz = null;
         ClassLoadHelper loadHelper = null;
 
-        Iterator<ClassLoadHelper> iter = loadHelpers.iterator();
-        while (iter.hasNext()) {
-            loadHelper = iter.next();
+        for (ClassLoadHelper loadHelper1 : loadHelpers) {
+            loadHelper = loadHelper1;
 
             try {
                 clazz = loadHelper.loadClass(name);
@@ -160,9 +159,8 @@ public class CascadingClassLoadHelper implements ClassLoadHelper {
 
         ClassLoadHelper loadHelper = null;
 
-        Iterator<ClassLoadHelper> iter = loadHelpers.iterator();
-        while (iter.hasNext()) {
-            loadHelper = iter.next();
+        for (ClassLoadHelper loadHelper1 : loadHelpers) {
+            loadHelper = loadHelper1;
 
             result = loadHelper.getResource(name);
             if (result != null) {
@@ -196,9 +194,8 @@ public class CascadingClassLoadHelper implements ClassLoadHelper {
 
         ClassLoadHelper loadHelper = null;
 
-        Iterator<ClassLoadHelper> iter = loadHelpers.iterator();
-        while (iter.hasNext()) {
-            loadHelper = iter.next();
+        for (ClassLoadHelper loadHelper1 : loadHelpers) {
+            loadHelper = loadHelper1;
 
             result = loadHelper.getResourceAsStream(name);
             if (result != null) {

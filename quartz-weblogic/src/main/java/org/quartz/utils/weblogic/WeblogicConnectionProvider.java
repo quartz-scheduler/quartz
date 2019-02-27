@@ -72,12 +72,12 @@ public class WeblogicConnectionProvider implements ConnectionProvider {
 
     public Connection getConnection() throws SQLException {
         return driver.connect("jdbc:weblogic:jts:" + poolName,
-                (java.util.Properties) null);
+                null);
     }
 
     public void initialize() throws SQLException {
         try {
-            driver = (Driver) weblogic.jdbc.jts.Driver.class.newInstance();
+            driver = Driver.class.newInstance();
         } catch (Exception e) {
             throw new SQLException(
                     "Could not get weblogic pool connection with name '"

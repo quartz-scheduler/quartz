@@ -33,18 +33,11 @@ import static org.terracotta.upgradability.serialization.SerializationUpgradabil
  */
 public class CronCalendarSerializationTest {
   
-  private static final Comparator<CronCalendar> COMPARATOR = new Comparator<CronCalendar>() {
-
-    @Override
-    public int compare(CronCalendar o1, CronCalendar o2) {
-      return o1.getCronExpression().getCronExpression().equals(o2.getCronExpression().getCronExpression())
-              && o1.getTimeZone().equals(o2.getTimeZone())
-              && nullSafeEquals(o1.getDescription(), o2.getDescription())
-              && (o1.getBaseCalendar() == null) == (o2.getBaseCalendar() == null)
-              ? 0 : -1;
-    }
-    
-  };
+  private static final Comparator<CronCalendar> COMPARATOR = (o1, o2) -> o1.getCronExpression().getCronExpression().equals(o2.getCronExpression().getCronExpression())
+          && o1.getTimeZone().equals(o2.getTimeZone())
+          && nullSafeEquals(o1.getDescription(), o2.getDescription())
+          && (o1.getBaseCalendar() == null) == (o2.getBaseCalendar() == null)
+          ? 0 : -1;
   
   @Test
   public void testWithoutBase() throws ParseException, IOException, ClassNotFoundException, ParseException {

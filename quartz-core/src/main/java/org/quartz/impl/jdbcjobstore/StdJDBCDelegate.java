@@ -98,7 +98,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
     
     protected ClassLoadHelper classLoadHelper;
 
-    protected List<TriggerPersistenceDelegate> triggerPersistenceDelegates = new LinkedList<TriggerPersistenceDelegate>();
+    protected List<TriggerPersistenceDelegate> triggerPersistenceDelegates = new LinkedList<>();
 
     
     /*
@@ -259,7 +259,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             ps.setBigDecimal(1, new BigDecimal(String.valueOf(ts)));
             rs = ps.executeQuery();
 
-            LinkedList<TriggerKey> list = new LinkedList<TriggerKey>();
+            LinkedList<TriggerKey> list = new LinkedList<>();
             while (rs.next()) {
                 String triggerName = rs.getString(COL_TRIGGER_NAME);
                 String groupName = rs.getString(COL_TRIGGER_GROUP);
@@ -293,7 +293,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             ps.setString(1, state);
             rs = ps.executeQuery();
 
-            LinkedList<TriggerKey> list = new LinkedList<TriggerKey>();
+            LinkedList<TriggerKey> list = new LinkedList<>();
             while (rs.next()) {
                 list.add(triggerKey(rs.getString(1), rs.getString(2)));
             }
@@ -316,7 +316,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             ps.setString(2, state);
             rs = ps.executeQuery();
 
-            LinkedList<TriggerKey> list = new LinkedList<TriggerKey>();
+            LinkedList<TriggerKey> list = new LinkedList<>();
             while (rs.next()) {
                 String triggerName = rs.getString(COL_TRIGGER_NAME);
                 String groupName = rs.getString(COL_TRIGGER_GROUP);
@@ -427,7 +427,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             ps.setString(3, state);
             rs = ps.executeQuery();
 
-            LinkedList<TriggerKey> list = new LinkedList<TriggerKey>();
+            LinkedList<TriggerKey> list = new LinkedList<>();
             while (rs.next()) {
                 String triggerName = rs.getString(COL_TRIGGER_NAME);
                 list.add(triggerKey(triggerName, groupName));
@@ -473,7 +473,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             rs = ps.executeQuery();
 
             long dumId = System.currentTimeMillis();
-            LinkedList<OperableTrigger> list = new LinkedList<OperableTrigger>();
+            LinkedList<OperableTrigger> list = new LinkedList<>();
             while (rs.next()) {
                 String jobName = rs.getString(COL_JOB_NAME);
                 String jobGroup = rs.getString(COL_JOB_GROUP);
@@ -690,7 +690,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             ps.setString(2, jobKey.getGroup());
             rs = ps.executeQuery();
 
-            LinkedList<TriggerKey> list = new LinkedList<TriggerKey>();
+            LinkedList<TriggerKey> list = new LinkedList<>();
             while (rs.next()) {
                 String trigName = rs.getString(COL_TRIGGER_NAME);
                 String trigGroup = rs.getString(COL_TRIGGER_GROUP);
@@ -940,7 +940,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             ps = conn.prepareStatement(rtp(SELECT_JOB_GROUPS));
             rs = ps.executeQuery();
 
-            LinkedList<String> list = new LinkedList<String>();
+            LinkedList<String> list = new LinkedList<>();
             while (rs.next()) {
                 list.add(rs.getString(1));
             }
@@ -979,12 +979,12 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             }
             rs = ps.executeQuery();
 
-            LinkedList<JobKey> list = new LinkedList<JobKey>();
+            LinkedList<JobKey> list = new LinkedList<>();
             while (rs.next()) {
                 list.add(jobKey(rs.getString(1), rs.getString(2)));
             }
 
-            return new HashSet<JobKey>(list);
+            return new HashSet<>(list);
         } finally {
             closeResultSet(rs);
             closeStatement(ps);
@@ -1247,11 +1247,9 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
     public int updateBlobTrigger(Connection conn, OperableTrigger trigger)
         throws SQLException, IOException {
         PreparedStatement ps = null;
-        ByteArrayOutputStream os = null;
 
-        try {
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             // update the blob
-            os = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(os);
             oos.writeObject(trigger);
             oos.close();
@@ -1267,9 +1265,6 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             return ps.executeUpdate();
         } finally {
             closeStatement(ps);
-            if (os != null) {
-                os.close();
-            }
         }
     }
 
@@ -1690,7 +1685,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
     public List<OperableTrigger> selectTriggersForJob(Connection conn, JobKey jobKey) throws SQLException, ClassNotFoundException,
             IOException, JobPersistenceException {
 
-        LinkedList<OperableTrigger> trigList = new LinkedList<OperableTrigger>();
+        LinkedList<OperableTrigger> trigList = new LinkedList<>();
         PreparedStatement ps = null;
         ResultSet rs = null;
 
@@ -1717,7 +1712,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
     public List<OperableTrigger> selectTriggersForCalendar(Connection conn, String calName)
         throws SQLException, ClassNotFoundException, IOException, JobPersistenceException {
 
-        LinkedList<OperableTrigger> trigList = new LinkedList<OperableTrigger>();
+        LinkedList<OperableTrigger> trigList = new LinkedList<>();
         PreparedStatement ps = null;
         ResultSet rs = null;
 
@@ -2054,7 +2049,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             ps = conn.prepareStatement(rtp(SELECT_TRIGGER_GROUPS));
             rs = ps.executeQuery();
 
-            LinkedList<String> list = new LinkedList<String>();
+            LinkedList<String> list = new LinkedList<>();
             while (rs.next()) {
                 list.add(rs.getString(1));
             }
@@ -2075,7 +2070,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             ps.setString(1, toSqlLikeClause(matcher));
             rs = ps.executeQuery();
 
-            LinkedList<String> list = new LinkedList<String>();
+            LinkedList<String> list = new LinkedList<>();
             while (rs.next()) {
                 list.add(rs.getString(1));
             }
@@ -2114,7 +2109,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             }
             rs = ps.executeQuery();
 
-            Set<TriggerKey> keys = new HashSet<TriggerKey>();
+            Set<TriggerKey> keys = new HashSet<>();
             while (rs.next()) {
                 keys.add(triggerKey(rs.getString(1), rs.getString(2)));
             }
@@ -2467,7 +2462,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             ps = conn.prepareStatement(rtp(SELECT_CALENDARS));
             rs = ps.executeQuery();
 
-            LinkedList<String> list = new LinkedList<String>();
+            LinkedList<String> list = new LinkedList<>();
             while (rs.next()) {
                 list.add(rs.getString(1));
             }
@@ -2505,7 +2500,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             if (rs.next()) {
                 return rs.getLong(ALIAS_COL_NEXT_FIRE_TIME);
             } else {
-                return 0l;
+                return 0L;
             }
         } finally {
             closeResultSet(rs);
@@ -2594,7 +2589,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         throws SQLException {
         PreparedStatement ps = null;
         ResultSet rs = null;
-        List<TriggerKey> nextTriggers = new LinkedList<TriggerKey>();
+        List<TriggerKey> nextTriggers = new LinkedList<>();
         try {
             ps = conn.prepareStatement(rtp(SELECT_NEXT_TRIGGER_TO_ACQUIRE));
             
@@ -2727,7 +2722,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
-            List<FiredTriggerRecord> lst = new LinkedList<FiredTriggerRecord>();
+            List<FiredTriggerRecord> lst = new LinkedList<>();
 
             if (triggerName != null) {
                 ps = conn.prepareStatement(rtp(SELECT_FIRED_TRIGGER));
@@ -2779,7 +2774,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
-            List<FiredTriggerRecord> lst = new LinkedList<FiredTriggerRecord>();
+            List<FiredTriggerRecord> lst = new LinkedList<>();
 
             if (jobName != null) {
                 ps = conn.prepareStatement(rtp(SELECT_FIRED_TRIGGERS_OF_JOB));
@@ -2826,7 +2821,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
-            List<FiredTriggerRecord> lst = new LinkedList<FiredTriggerRecord>();
+            List<FiredTriggerRecord> lst = new LinkedList<>();
 
             ps = conn.prepareStatement(rtp(SELECT_INSTANCES_FIRED_TRIGGERS));
             ps.setString(1, instanceName);
@@ -2877,7 +2872,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
-            Set<String> instanceNames = new HashSet<String>();
+            Set<String> instanceNames = new HashSet<>();
 
             ps = conn.prepareStatement(rtp(SELECT_FIRED_TRIGGER_INSTANCE_NAMES));
             rs = ps.executeQuery();
@@ -2983,7 +2978,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
-            List<SchedulerStateRecord> lst = new LinkedList<SchedulerStateRecord>();
+            List<SchedulerStateRecord> lst = new LinkedList<>();
 
             if (theInstanceId != null) {
                 ps = conn.prepareStatement(rtp(SELECT_SCHEDULER_STATE));
@@ -3095,18 +3090,12 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
      * null if all values are serializable.
      */
     protected Object getKeyOfNonSerializableValue(Map<?, ?> data) {
-        for (Iterator<?> entryIter = data.entrySet().iterator(); entryIter.hasNext();) {
-            Map.Entry<?, ?> entry = (Map.Entry<?, ?>)entryIter.next();
-            
-            ByteArrayOutputStream baos = null;
-            try {
-                baos = serializeObject(entry.getValue());
+        for (Map.Entry<?, ?> entry1 : data.entrySet()) {
+            Map.Entry<?, ?> entry = (Map.Entry<?, ?>) entry1;
+
+            try (ByteArrayOutputStream baos = serializeObject(entry.getValue())) {
             } catch (IOException e) {
                 return entry.getKey();
-            } finally {
-                if (baos != null) {
-                    try { baos.close(); } catch (IOException ignore) {}
-                }
             }
         }
         
@@ -3133,7 +3122,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
      * convert the JobDataMap into a list of properties
      */
     protected Map<?, ?> convertFromProperty(Properties properties) throws IOException {
-        return new HashMap<Object, Object>(properties);
+        return new HashMap<>(properties);
     }
 
     /**
@@ -3141,25 +3130,25 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
      */
     protected Properties convertToProperty(Map<?, ?> data) throws IOException {
         Properties properties = new Properties();
-        
-        for (Iterator<?> entryIter = data.entrySet().iterator(); entryIter.hasNext();) {
-            Map.Entry<?, ?> entry = (Map.Entry<?, ?>)entryIter.next();
-            
+
+        for (Map.Entry<?, ?> entry1 : data.entrySet()) {
+            Map.Entry<?, ?> entry = (Map.Entry<?, ?>) entry1;
+
             Object key = entry.getKey();
             Object val = (entry.getValue() == null) ? "" : entry.getValue();
-            
-            if(!(key instanceof String)) {
-                throw new IOException("JobDataMap keys/values must be Strings " 
-                        + "when the 'useProperties' property is set. " 
+
+            if (!(key instanceof String)) {
+                throw new IOException("JobDataMap keys/values must be Strings "
+                        + "when the 'useProperties' property is set. "
                         + " offending Key: " + key);
             }
-            
-            if(!(val instanceof String)) {
-                throw new IOException("JobDataMap values must be Strings " 
-                        + "when the 'useProperties' property is set. " 
+
+            if (!(val instanceof String)) {
+                throw new IOException("JobDataMap values must be Strings "
+                        + "when the 'useProperties' property is set. "
                         + " Key of offending value: " + key);
             }
-            
+
             properties.put(key, val);
         }
         
@@ -3196,11 +3185,8 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
                     && ((ByteArrayInputStream) binaryInput).available() == 0 ) {
                     //do nothing
                 } else {
-                    ObjectInputStream in = new ObjectInputStream(binaryInput);
-                    try {
+                    try (ObjectInputStream in = new ObjectInputStream(binaryInput)) {
                         obj = in.readObject();
-                    } finally {
-                        in.close();
                     }
                 }
             }
@@ -3248,7 +3234,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         PreparedStatement ps = null;
         ResultSet rs = null;
 
-        HashSet<String> set = new HashSet<String>();
+        HashSet<String> set = new HashSet<>();
         try {
             ps = conn.prepareStatement(rtp(SELECT_PAUSED_TRIGGER_GROUPS));
             rs = ps.executeQuery();

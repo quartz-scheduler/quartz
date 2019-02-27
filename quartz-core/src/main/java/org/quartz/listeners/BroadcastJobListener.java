@@ -56,7 +56,7 @@ public class BroadcastJobListener implements JobListener {
             throw new IllegalArgumentException("Listener name cannot be null!");
         }
         this.name = name;
-        listeners = new LinkedList<JobListener>();
+        listeners = new LinkedList<>();
     }
 
     /**
@@ -100,27 +100,21 @@ public class BroadcastJobListener implements JobListener {
 
     public void jobToBeExecuted(JobExecutionContext context) {
 
-        Iterator<JobListener> itr = listeners.iterator();
-        while(itr.hasNext()) {
-            JobListener jl = itr.next();
+        for (JobListener jl : listeners) {
             jl.jobToBeExecuted(context);
         }
     }
 
     public void jobExecutionVetoed(JobExecutionContext context) {
 
-        Iterator<JobListener> itr = listeners.iterator();
-        while(itr.hasNext()) {
-            JobListener jl = itr.next();
+        for (JobListener jl : listeners) {
             jl.jobExecutionVetoed(context);
         }
     }
 
     public void jobWasExecuted(JobExecutionContext context, JobExecutionException jobException) {
 
-        Iterator<JobListener> itr = listeners.iterator();
-        while(itr.hasNext()) {
-            JobListener jl = itr.next();
+        for (JobListener jl : listeners) {
             jl.jobWasExecuted(context, jobException);
         }
     }

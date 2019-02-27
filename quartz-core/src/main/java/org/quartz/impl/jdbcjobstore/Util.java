@@ -21,6 +21,7 @@ package org.quartz.impl.jdbcjobstore;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -65,7 +66,7 @@ public final class Util {
      * @return the query, with proper table prefix substituted
      */
     public static String rtp(String query, String tablePrefix, String schedNameLiteral) {
-        return MessageFormat.format(query, new Object[]{tablePrefix, schedNameLiteral});
+        return MessageFormat.format(query, tablePrefix, schedNameLiteral);
     }
 
     /**
@@ -156,7 +157,7 @@ public final class Util {
                         "No 1-argument setter for property '" + name + "'");
                 }
                 
-                setMeth.invoke(obj, new Object[]{ propValues[i] });
+                setMeth.invoke(obj, propValues[i]);
             }
         }
         catch(Exception e) {
@@ -167,9 +168,9 @@ public final class Util {
     }
 
     private static java.lang.reflect.Method getSetMethod(String name, PropertyDescriptor[] props) {
-        for (int i = 0; i < props.length; i++) {
-            java.lang.reflect.Method wMeth = props[i].getWriteMethod();
-    
+        for (PropertyDescriptor prop : props) {
+            Method wMeth = prop.getWriteMethod();
+
             if (wMeth != null && wMeth.getName().equals(name)) {
                 return wMeth;
             }

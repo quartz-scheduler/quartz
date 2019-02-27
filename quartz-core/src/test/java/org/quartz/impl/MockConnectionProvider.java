@@ -31,7 +31,7 @@ import org.quartz.utils.ConnectionProvider;
 public class MockConnectionProvider implements ConnectionProvider {
 
 	private String customProperty; 
-	public static List<String> methodsCalled = new ArrayList<String>();
+	public static List<String> methodsCalled = new ArrayList<>();
 	
 	public Connection getConnection() throws SQLException {
 		methodsCalled.add("getConnection");

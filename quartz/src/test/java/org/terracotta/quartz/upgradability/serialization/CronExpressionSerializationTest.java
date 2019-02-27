@@ -35,15 +35,11 @@ import static org.terracotta.upgradability.serialization.SerializationUpgradabil
  */
 public class CronExpressionSerializationTest {
 
-  private static final Comparator<CronExpression> COMPARATOR = new Comparator<CronExpression>() {
-
-    @Override
-    public int compare(CronExpression o1, CronExpression o2) {
-      if (o1.getCronExpression().equals(o2.getCronExpression()) && o1.getTimeZone().equals(o2.getTimeZone())) {
-        return 0;
-      } else {
-        return -1;
-      }
+  private static final Comparator<CronExpression> COMPARATOR = (o1, o2) -> {
+    if (o1.getCronExpression().equals(o2.getCronExpression()) && o1.getTimeZone().equals(o2.getTimeZone())) {
+      return 0;
+    } else {
+      return -1;
     }
   };
   

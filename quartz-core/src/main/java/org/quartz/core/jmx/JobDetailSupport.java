@@ -4,6 +4,7 @@ import static javax.management.openmbean.SimpleType.BOOLEAN;
 import static javax.management.openmbean.SimpleType.STRING;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.management.openmbean.CompositeData;
@@ -130,11 +131,11 @@ public class JobDetailSupport {
     public static TabularData toTabularData(JobDetail[] jobDetails) {
         TabularData tData = new TabularDataSupport(TABULAR_TYPE);
         if (jobDetails != null) {
-            ArrayList<CompositeData> list = new ArrayList<CompositeData>();
+            List<CompositeData> list = new ArrayList<>();
             for (JobDetail jobDetail : jobDetails) {
                 list.add(toCompositeData(jobDetail));
             }
-            tData.putAll(list.toArray(new CompositeData[list.size()]));
+            tData.putAll(list.toArray(new CompositeData[0]));
         }
         return tData;
     }

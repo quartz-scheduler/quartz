@@ -64,22 +64,22 @@ public class ToolkitDSHolder {
   private final String                                                              jobStoreName;
   protected final Toolkit                                                           toolkit;
 
-  private final AtomicReference<SerializedToolkitStore<JobKey, JobWrapper>>         jobsMapReference                    = new AtomicReference<SerializedToolkitStore<JobKey, JobWrapper>>();
-  private final AtomicReference<SerializedToolkitStore<TriggerKey, TriggerWrapper>> triggersMapReference                = new AtomicReference<SerializedToolkitStore<TriggerKey, TriggerWrapper>>();
+  private final AtomicReference<SerializedToolkitStore<JobKey, JobWrapper>>         jobsMapReference                    = new AtomicReference<>();
+  private final AtomicReference<SerializedToolkitStore<TriggerKey, TriggerWrapper>> triggersMapReference                = new AtomicReference<>();
 
-  private final AtomicReference<ToolkitSet<String>>                                 allGroupsReference                  = new AtomicReference<ToolkitSet<String>>();
-  private final AtomicReference<ToolkitSet<String>>                                 allTriggersGroupsReference          = new AtomicReference<ToolkitSet<String>>();
-  private final AtomicReference<ToolkitSet<String>>                                 pausedGroupsReference               = new AtomicReference<ToolkitSet<String>>();
-  private final AtomicReference<ToolkitSet<JobKey>>                                 blockedJobsReference                = new AtomicReference<ToolkitSet<JobKey>>();
-  private final Map<String, ToolkitSet<String>>                                     jobsGroupSet                        = new HashMap<String, ToolkitSet<String>>();
-  private final Map<String, ToolkitSet<String>>                                     triggersGroupSet                    = new HashMap<String, ToolkitSet<String>>();
-  private final AtomicReference<ToolkitSet<String>>                                 pausedTriggerGroupsReference        = new AtomicReference<ToolkitSet<String>>();
+  private final AtomicReference<ToolkitSet<String>>                                 allGroupsReference                  = new AtomicReference<>();
+  private final AtomicReference<ToolkitSet<String>>                                 allTriggersGroupsReference          = new AtomicReference<>();
+  private final AtomicReference<ToolkitSet<String>>                                 pausedGroupsReference               = new AtomicReference<>();
+  private final AtomicReference<ToolkitSet<JobKey>>                                 blockedJobsReference                = new AtomicReference<>();
+  private final Map<String, ToolkitSet<String>>                                     jobsGroupSet                        = new HashMap<>();
+  private final Map<String, ToolkitSet<String>>                                     triggersGroupSet                    = new HashMap<>();
+  private final AtomicReference<ToolkitSet<String>>                                 pausedTriggerGroupsReference        = new AtomicReference<>();
 
-  private final AtomicReference<ToolkitStore<String, FiredTrigger>>                 firedTriggersMapReference           = new AtomicReference<ToolkitStore<String, FiredTrigger>>();
-  private final AtomicReference<ToolkitStore<String, Calendar>>                     calendarWrapperMapReference         = new AtomicReference<ToolkitStore<String, Calendar>>();
-  private final AtomicReference<TimeTriggerSet>                                     timeTriggerSetReference             = new AtomicReference<TimeTriggerSet>();
+  private final AtomicReference<ToolkitStore<String, FiredTrigger>>                 firedTriggersMapReference           = new AtomicReference<>();
+  private final AtomicReference<ToolkitStore<String, Calendar>>                     calendarWrapperMapReference         = new AtomicReference<>();
+  private final AtomicReference<TimeTriggerSet>                                     timeTriggerSetReference             = new AtomicReference<>();
 
-  private final Map<String, ToolkitStore<?, ?>>                                     toolkitMaps                         = new HashMap<String, ToolkitStore<?, ?>>();
+  private final Map<String, ToolkitStore<?, ?>>                                     toolkitMaps                         = new HashMap<>();
   
   public ToolkitDSHolder(String jobStoreName, Toolkit toolkit) {
     this.jobStoreName = jobStoreName;
@@ -92,7 +92,7 @@ public class ToolkitDSHolder {
 
   public SerializedToolkitStore<JobKey, JobWrapper> getOrCreateJobsMap() {
     String jobsMapName = generateName(JOBS_MAP_PREFIX);
-    SerializedToolkitStore<JobKey, JobWrapper> temp = new SerializedToolkitStore<JobKey, JobWrapper>(createStore(jobsMapName));
+    SerializedToolkitStore<JobKey, JobWrapper> temp = new SerializedToolkitStore<>(createStore(jobsMapName));
     jobsMapReference.compareAndSet(null, temp);
     return jobsMapReference.get();
   }
@@ -115,8 +115,8 @@ public class ToolkitDSHolder {
 
   public SerializedToolkitStore<TriggerKey, TriggerWrapper> getOrCreateTriggersMap() {
     String triggersMapName = generateName(TRIGGERS_MAP_PREFIX);
-    SerializedToolkitStore<TriggerKey, TriggerWrapper> temp = new SerializedToolkitStore<TriggerKey, TriggerWrapper>(
-                                                                                                                     createStore(triggersMapName));
+    SerializedToolkitStore<TriggerKey, TriggerWrapper> temp = new SerializedToolkitStore<>(
+            createStore(triggersMapName));
     triggersMapReference.compareAndSet(null, temp);
     return triggersMapReference.get();
   }

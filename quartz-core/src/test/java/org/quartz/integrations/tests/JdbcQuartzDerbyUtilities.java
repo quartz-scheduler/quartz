@@ -74,20 +74,15 @@ public final class JdbcQuartzDerbyUtilities {
     	
         try {
             Class.forName(DATABASE_DRIVER_CLASS).newInstance();
-        } catch (ClassNotFoundException e) {
-            throw new AssertionError(e);
-        } catch (InstantiationException e) {
-            throw new AssertionError(e);
-        } catch (IllegalAccessException e) {
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
             throw new AssertionError(e);
         }
 
-        List<String> setup = new ArrayList<String>();
+        List<String> setup = new ArrayList<>();
         String setupScript;
         try {
-            InputStream setupStream = DerbyConnectionProvider.class
-                    .getClassLoader().getResourceAsStream("org/quartz/impl/jdbcjobstore/tables_derby.sql");
-            try {
+            try (InputStream setupStream = DerbyConnectionProvider.class
+                    .getClassLoader().getResourceAsStream("org/quartz/impl/jdbcjobstore/tables_derby.sql")) {
                 BufferedReader r = new BufferedReader(new InputStreamReader(setupStream, "US-ASCII"));
                 StringBuilder sb = new StringBuilder();
                 while (true) {
@@ -99,8 +94,6 @@ public final class JdbcQuartzDerbyUtilities {
                     }
                 }
                 setupScript = sb.toString();
-            } finally {
-                setupStream.close();
             }
         } catch (IOException e) {
             throw new AssertionError(e);
@@ -114,12 +107,11 @@ public final class JdbcQuartzDerbyUtilities {
         DATABASE_SETUP_STATEMENTS = setup;
         
         
-        List<String> tearDown = new ArrayList<String>();
+        List<String> tearDown = new ArrayList<>();
         String tearDownScript;
         try {
-            InputStream tearDownStream = DerbyConnectionProvider.class
-                    .getClassLoader().getResourceAsStream("tables_derby_drop.sql");
-            try {
+            try (InputStream tearDownStream = DerbyConnectionProvider.class
+                    .getClassLoader().getResourceAsStream("tables_derby_drop.sql")) {
                 BufferedReader r = new BufferedReader(new InputStreamReader(tearDownStream, "US-ASCII"));
                 StringBuilder sb = new StringBuilder();
                 while (true) {
@@ -131,8 +123,6 @@ public final class JdbcQuartzDerbyUtilities {
                     }
                 }
                 tearDownScript = sb.toString();
-            } finally {
-                tearDownStream.close();
             }
         } catch (IOException e) {
             throw new AssertionError(e);
@@ -153,63 +143,49 @@ public final class JdbcQuartzDerbyUtilities {
         File derbyDirectory = new File(DERBY_DIRECTORY);
         delete(derbyDirectory);
 
-    	Connection conn = DriverManager.getConnection(DATABASE_CONNECTION_PREFIX ,PROPS);
-        try {
+        try (Connection conn = DriverManager.getConnection(DATABASE_CONNECTION_PREFIX, PROPS)) {
             Statement statement = conn.createStatement();
             for (String command : DATABASE_SETUP_STATEMENTS) {
                 statement.addBatch(command);
             }
             statement.executeBatch();
         }
-        finally {
-            conn.close();
-        }
     }
 
     
 	public static int triggersInAcquiredState() throws SQLException {
 		int triggersInAcquiredState = 0;
-		Connection conn = DriverManager.getConnection(DATABASE_CONNECTION_PREFIX, PROPS);
-		try {
-			Statement statement = conn.createStatement();
-			ResultSet result = statement.executeQuery("SELECT count( * ) FROM QRTZ_TRIGGERS WHERE TRIGGER_STATE = 'ACQUIRED' ");
-			while (result.next()) { 
-				triggersInAcquiredState = result.getInt(1);
-			}
-		} finally {
-			conn.close();
-		}
+        try (Connection conn = DriverManager.getConnection(DATABASE_CONNECTION_PREFIX, PROPS)) {
+            Statement statement = conn.createStatement();
+            ResultSet result = statement.executeQuery("SELECT count( * ) FROM QRTZ_TRIGGERS WHERE TRIGGER_STATE = 'ACQUIRED' ");
+            while (result.next()) {
+                triggersInAcquiredState = result.getInt(1);
+            }
+        }
 		return triggersInAcquiredState;
 	}
     
 	
 	public static BigDecimal timesTriggered(String triggerName,String triggerGroup) throws SQLException {
 		BigDecimal timesTriggered = BigDecimal.ZERO;
-		Connection conn = DriverManager.getConnection(DATABASE_CONNECTION_PREFIX, PROPS);
-		try {
-			PreparedStatement ps = conn.prepareStatement("SELECT TIMES_TRIGGERED FROM QRTZ_SIMPLE_TRIGGERS WHERE TRIGGER_NAME = ? AND TRIGGER_GROUP = ? ");
-			ps.setString(1, triggerName);
-			ps.setString(2, triggerGroup);
-			ResultSet result = ps.executeQuery();
-			result.next(); 
-			timesTriggered = result.getBigDecimal(1);
-		} finally {
-			conn.close();
-		}
+        try (Connection conn = DriverManager.getConnection(DATABASE_CONNECTION_PREFIX, PROPS)) {
+            PreparedStatement ps = conn.prepareStatement("SELECT TIMES_TRIGGERED FROM QRTZ_SIMPLE_TRIGGERS WHERE TRIGGER_NAME = ? AND TRIGGER_GROUP = ? ");
+            ps.setString(1, triggerName);
+            ps.setString(2, triggerGroup);
+            ResultSet result = ps.executeQuery();
+            result.next();
+            timesTriggered = result.getBigDecimal(1);
+        }
 		return timesTriggered;
 	}
 	
     public static void destroyDatabase() throws SQLException {
-    	Connection conn = DriverManager.getConnection(DATABASE_CONNECTION_PREFIX ,PROPS);
-        try {
+        try (Connection conn = DriverManager.getConnection(DATABASE_CONNECTION_PREFIX, PROPS)) {
             Statement statement = conn.createStatement();
             for (String command : DATABASE_TEARDOWN_STATEMENTS) {
                 statement.addBatch(command);
             }
             statement.executeBatch();
-        }
-        finally {
-            conn.close();
         }
 
         File derbyDirectory = new File(DERBY_DIRECTORY);

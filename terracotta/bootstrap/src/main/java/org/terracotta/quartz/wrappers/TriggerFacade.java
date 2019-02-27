@@ -117,7 +117,7 @@ public class TriggerFacade {
   }
 
   public List<TriggerWrapper> getTriggerWrappersForJob(JobKey key) {
-    List<TriggerWrapper> trigList = new ArrayList<TriggerWrapper>();
+    List<TriggerWrapper> trigList = new ArrayList<>();
 
     for (TriggerKey triggerKey : triggersByFQN.keySet()) {
       TriggerWrapper tw = triggersByFQN.get(triggerKey);
@@ -130,7 +130,7 @@ public class TriggerFacade {
   }
 
   public List<TriggerWrapper> getTriggerWrappersForCalendar(String calName) {
-    List<TriggerWrapper> trigList = new ArrayList<TriggerWrapper>();
+    List<TriggerWrapper> trigList = new ArrayList<>();
 
     for (TriggerKey triggerKey : triggersByFQN.keySet()) {
       TriggerWrapper tw = triggersByFQN.get(triggerKey);

@@ -78,65 +78,65 @@ public class JMXInvokerJob implements Job {
             JobDataMap jobDataMap = context.getMergedJobDataMap();
             
             String[] keys = jobDataMap.getKeys();
-            for (int i = 0; i < keys.length; i++) {
-                String value = jobDataMap.getString(keys[i]);
-                if ("JMX_OBJECTNAME".equalsIgnoreCase(keys[i])) {
+            for (String key : keys) {
+                String value = jobDataMap.getString(key);
+                if ("JMX_OBJECTNAME".equalsIgnoreCase(key)) {
                     objName = value;
-                } else if ("JMX_METHOD".equalsIgnoreCase(keys[i])) {
+                } else if ("JMX_METHOD".equalsIgnoreCase(key)) {
                     objMethod = value;
-                } else if("JMX_PARAMDEFS".equalsIgnoreCase(keys[i])) {
-                    String[] paramdefs=split(value, ",");
-                    params=new Object[paramdefs.length];
-                    types=new String[paramdefs.length];
-                    for(int k=0;k<paramdefs.length;k++) {
-                        String parts[]=  split(paramdefs[k], ":");
-                        if (parts.length<2) {
-                            throw new Exception("Invalid parameter definition: required parts missing "+paramdefs[k]);
+                } else if ("JMX_PARAMDEFS".equalsIgnoreCase(key)) {
+                    String[] paramdefs = split(value, ",");
+                    params = new Object[paramdefs.length];
+                    types = new String[paramdefs.length];
+                    for (int k = 0; k < paramdefs.length; k++) {
+                        String parts[] = split(paramdefs[k], ":");
+                        if (parts.length < 2) {
+                            throw new Exception("Invalid parameter definition: required parts missing " + paramdefs[k]);
                         }
-                        switch(parts[0].charAt(0)) {
+                        switch (parts[0].charAt(0)) {
                             case 'i':
-                                params[k]=Integer.valueOf(jobDataMap.getString(parts[1]));
-                                types[k]=Integer.TYPE.getName();
+                                params[k] = Integer.valueOf(jobDataMap.getString(parts[1]));
+                                types[k] = Integer.TYPE.getName();
                                 break;
                             case 'I':
-                                params[k]=Integer.valueOf(jobDataMap.getString(parts[1]));
-                                types[k]=Integer.class.getName();
+                                params[k] = Integer.valueOf(jobDataMap.getString(parts[1]));
+                                types[k] = Integer.class.getName();
                                 break;
                             case 'l':
-                                params[k]=Long.valueOf(jobDataMap.getString(parts[1]));
-                                types[k]=Long.TYPE.getName();
+                                params[k] = Long.valueOf(jobDataMap.getString(parts[1]));
+                                types[k] = Long.TYPE.getName();
                                 break;
                             case 'L':
-                                params[k]=Long.valueOf(jobDataMap.getString(parts[1]));
-                                types[k]=Long.class.getName();
+                                params[k] = Long.valueOf(jobDataMap.getString(parts[1]));
+                                types[k] = Long.class.getName();
                                 break;
                             case 'f':
-                                params[k]=Float.valueOf(jobDataMap.getString(parts[1]));
-                                types[k]=Float.TYPE.getName();
+                                params[k] = Float.valueOf(jobDataMap.getString(parts[1]));
+                                types[k] = Float.TYPE.getName();
                                 break;
                             case 'F':
-                                params[k]=Float.valueOf(jobDataMap.getString(parts[1]));
-                                types[k]=Float.class.getName();
+                                params[k] = Float.valueOf(jobDataMap.getString(parts[1]));
+                                types[k] = Float.class.getName();
                                 break;
                             case 'd':
-                                params[k]=Double.valueOf(jobDataMap.getString(parts[1]));
-                                types[k]=Double.TYPE.getName();
+                                params[k] = Double.valueOf(jobDataMap.getString(parts[1]));
+                                types[k] = Double.TYPE.getName();
                                 break;
                             case 'D':
-                                params[k]=Double.valueOf(jobDataMap.getString(parts[1]));
-                                types[k]=Double.class.getName();
+                                params[k] = Double.valueOf(jobDataMap.getString(parts[1]));
+                                types[k] = Double.class.getName();
                                 break;
                             case 's':
-                                params[k]=jobDataMap.getString(parts[1]);
-                                types[k]=String.class.getName();
+                                params[k] = jobDataMap.getString(parts[1]);
+                                types[k] = String.class.getName();
                                 break;
                             case 'b':
-                                params[k]= Boolean.valueOf(jobDataMap.getString(parts[1]));
-                                types[k]=Boolean.TYPE.getName();
+                                params[k] = Boolean.valueOf(jobDataMap.getString(parts[1]));
+                                types[k] = Boolean.TYPE.getName();
                                 break;
                             case 'B':
-                                params[k]= Boolean.valueOf(jobDataMap.getString(parts[1]));
-                                types[k]=Boolean.class.getName();
+                                params[k] = Boolean.valueOf(jobDataMap.getString(parts[1]));
+                                types[k] = Boolean.class.getName();
                                 break;
                         }
                     }
@@ -157,7 +157,7 @@ public class JMXInvokerJob implements Job {
   
     private String[] split(String str, String splitStr) // Same as String.split(.) in JDK 1.4
     {
-        LinkedList<String> l = new LinkedList<String>();
+        LinkedList<String> l = new LinkedList<>();
     
         StringTokenizer strTok = new StringTokenizer(str, splitStr);
         while(strTok.hasMoreTokens()) {
@@ -165,11 +165,11 @@ public class JMXInvokerJob implements Job {
             l.add(tok);
         }
     
-        return (String[])l.toArray(new String[l.size()]);
+        return l.toArray(new String[0]);
     }
 
     private Object invoke(String objectName, String method, Object[] params, String[] types) throws Exception {
-        MBeanServer server = (MBeanServer) MBeanServerFactory.findMBeanServer(null).get(0);
+        MBeanServer server = MBeanServerFactory.findMBeanServer(null).get(0);
         ObjectName mbean = new ObjectName(objectName);
 
         if (server == null) {

@@ -100,7 +100,7 @@ public class SimpleClassLoadHelper implements ClassLoadHelper {
             // Create a method instance representing the protected
             // getCallerClassLoader method of class ClassLoader
             Method mthd = ClassLoader.class.getDeclaredMethod(
-                    "getCallerClassLoader", new Class<?>[0]);
+                    "getCallerClassLoader");
             // Make the method accessible.
             AccessibleObject.setAccessible(new AccessibleObject[] {mthd}, true);
             // Try to get the caller's class-loader

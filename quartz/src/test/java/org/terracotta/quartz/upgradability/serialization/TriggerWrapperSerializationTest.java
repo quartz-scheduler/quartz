@@ -46,15 +46,10 @@ import static org.terracotta.upgradability.serialization.SerializationUpgradabil
  */
 public class TriggerWrapperSerializationTest {
   
-  private static final Comparator<TriggerWrapper> COMPARATOR = new Comparator<TriggerWrapper>() {
-    @Override
-    public int compare(TriggerWrapper o1, TriggerWrapper o2) {
-      return o1.jobDisallowsConcurrence() == o2.jobDisallowsConcurrence()
-              && nullSafeEquals(o1.getLastTerracotaClientId(), o2.getLastTerracotaClientId())
-              && o1.getState() == o2.getState()
-              && (o1.getTriggerClone() == null) == (o2.getTriggerClone() == null) ? 0 : -1;
-    }
-  };
+  private static final Comparator<TriggerWrapper> COMPARATOR = (o1, o2) -> o1.jobDisallowsConcurrence() == o2.jobDisallowsConcurrence()
+          && nullSafeEquals(o1.getLastTerracotaClientId(), o2.getLastTerracotaClientId())
+          && o1.getState() == o2.getState()
+          && (o1.getTriggerClone() == null) == (o2.getTriggerClone() == null) ? 0 : -1;
 
   @Test
   public void testSimple() throws IOException, ClassNotFoundException {

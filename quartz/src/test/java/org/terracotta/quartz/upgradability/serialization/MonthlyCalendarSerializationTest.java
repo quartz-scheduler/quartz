@@ -33,16 +33,10 @@ import static org.terracotta.upgradability.serialization.SerializationUpgradabil
  */
 public class MonthlyCalendarSerializationTest {
   
-  private static final Comparator<MonthlyCalendar> COMPARATOR = new Comparator<MonthlyCalendar>() {
-
-    @Override
-    public int compare(MonthlyCalendar o1, MonthlyCalendar o2) {
-      return Arrays.equals(o1.getDaysExcluded(), o2.getDaysExcluded())
-              && (o1.getBaseCalendar() != null) == (o2.getBaseCalendar() != null)
-              && nullSafeEquals(o1.getDescription(), o2.getDescription())
-              && nullSafeEquals(o1.getTimeZone(), o2.getTimeZone()) ? 0 : -1;
-    }
-  };
+  private static final Comparator<MonthlyCalendar> COMPARATOR = (o1, o2) -> Arrays.equals(o1.getDaysExcluded(), o2.getDaysExcluded())
+          && (o1.getBaseCalendar() != null) == (o2.getBaseCalendar() != null)
+          && nullSafeEquals(o1.getDescription(), o2.getDescription())
+          && nullSafeEquals(o1.getTimeZone(), o2.getTimeZone()) ? 0 : -1;
 
   @Test
   public void testNoDaysExcluded() throws IOException, ClassNotFoundException {

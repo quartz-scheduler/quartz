@@ -95,7 +95,7 @@ public class DisallowConcurrentExecutionJobTest {
         @Test
 	public void testNoConcurrentExecOnSameJob() throws Exception {
 
-		List<Date> jobExecDates = Collections.synchronizedList(new ArrayList<Date>());
+		List<Date> jobExecDates = Collections.synchronizedList(new ArrayList<>());
 		CyclicBarrier barrier = new CyclicBarrier(2);
 		
 		Date startTime = new Date(System.currentTimeMillis() + 100); // make the triggers fire at the same time.
@@ -132,7 +132,7 @@ public class DisallowConcurrentExecutionJobTest {
         @Test
 	public void testNoConcurrentExecOnSameJobWithBatching() throws Exception {
 
-		List<Date> jobExecDates = Collections.synchronizedList(new ArrayList<Date>());
+		List<Date> jobExecDates = Collections.synchronizedList(new ArrayList<>());
 		CyclicBarrier barrier = new CyclicBarrier(2);
 		
 		Date startTime = new Date(System.currentTimeMillis() + 100); // make the triggers fire at the same time.

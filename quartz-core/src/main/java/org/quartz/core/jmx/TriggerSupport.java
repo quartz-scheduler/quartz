@@ -100,17 +100,17 @@ public class TriggerSupport {
     public static TabularData toTabularData(List<? extends Trigger> triggers) {
         TabularData tData = new TabularDataSupport(TABULAR_TYPE);
         if (triggers != null) {
-            ArrayList<CompositeData> list = new ArrayList<CompositeData>();
+            List<CompositeData> list = new ArrayList<>();
             for (Trigger trigger : triggers) {
                 list.add(toCompositeData(trigger));
             }
-            tData.putAll(list.toArray(new CompositeData[list.size()]));
+            tData.putAll(list.toArray(new CompositeData[0]));
         }
         return tData;
     }
     
     public static List<CompositeData> toCompositeList(List<? extends Trigger> triggers) {
-        List<CompositeData> result = new ArrayList<CompositeData>();
+        List<CompositeData> result = new ArrayList<>();
         for(Trigger trigger : triggers) {
             CompositeData cData = TriggerSupport.toCompositeData(trigger);
             if(cData != null) {
@@ -124,7 +124,7 @@ public class TriggerSupport {
         trigger.setDescription((String) cData.get("description"));
         trigger.setCalendarName((String) cData.get("calendarName"));
         if(cData.containsKey("priority")) {
-            trigger.setPriority(((Integer)cData.get("priority")).intValue());
+            trigger.setPriority((Integer) cData.get("priority"));
         }
         if(cData.containsKey("jobDataMap")) {
             trigger.setJobDataMap(JobDataMapSupport.newJobDataMap((TabularData)cData.get("jobDataMap")));
@@ -138,7 +138,7 @@ public class TriggerSupport {
         trigger.setStartTime(startTime);
         trigger.setEndTime((Date) cData.get("endTime"));
         if(cData.containsKey("misfireInstruction")) {
-            trigger.setMisfireInstruction(((Integer)cData.get("misfireInstruction")).intValue());
+            trigger.setMisfireInstruction((Integer) cData.get("misfireInstruction"));
         }
         trigger.setKey(new TriggerKey((String) cData.get("name"), (String) cData.get("group")));
         trigger.setJobKey(new JobKey((String) cData.get("jobName"), (String) cData.get("jobGroup")));
@@ -148,7 +148,7 @@ public class TriggerSupport {
         trigger.setDescription((String) attrMap.get("description"));
         trigger.setCalendarName((String) attrMap.get("calendarName"));
         if(attrMap.containsKey("priority")) {
-            trigger.setPriority(((Integer)attrMap.get("priority")).intValue());
+            trigger.setPriority((Integer) attrMap.get("priority"));
         }
         if(attrMap.containsKey("jobDataMap")) {
             @SuppressWarnings("unchecked") // cast as expected.
@@ -166,7 +166,7 @@ public class TriggerSupport {
             trigger.setEndTime((Date) attrMap.get("endTime"));
         }
         if(attrMap.containsKey("misfireInstruction")) {
-            trigger.setMisfireInstruction(((Integer)attrMap.get("misfireInstruction")).intValue());
+            trigger.setMisfireInstruction((Integer) attrMap.get("misfireInstruction"));
         }
         trigger.setKey(new TriggerKey((String) attrMap.get("name"), (String) attrMap.get("group")));
         trigger.setJobKey(new JobKey((String) attrMap.get("jobName"), (String) attrMap.get("jobGroup")));

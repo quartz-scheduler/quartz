@@ -354,7 +354,7 @@ public class PlainTerracottaJobStore<T extends ClusteredJobStore> implements Ter
     if (cjs != null) {
       cjs.setMisfireThreshold(threshold);
     } else {
-      misfireThreshold = Long.valueOf(threshold);
+      misfireThreshold = threshold;
     }
   }
 

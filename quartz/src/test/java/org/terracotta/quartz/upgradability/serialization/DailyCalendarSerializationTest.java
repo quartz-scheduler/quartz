@@ -32,17 +32,12 @@ import static org.terracotta.upgradability.serialization.SerializationUpgradabil
  */
 public class DailyCalendarSerializationTest {
   
-  private static final Comparator<DailyCalendar> COMPARATOR = new Comparator<DailyCalendar>() {
-    @Override
-    public int compare(DailyCalendar o1, DailyCalendar o2) {
-      return o1.getTimeRangeStartingTimeInMillis(0) == o2.getTimeRangeStartingTimeInMillis(0)
-              && o1.getTimeRangeEndingTimeInMillis(0) == o2.getTimeRangeEndingTimeInMillis(0)
-              && o1.getInvertTimeRange() == o2.getInvertTimeRange()
-              && (o1.getBaseCalendar() != null) == (o2.getBaseCalendar() != null)
-              && nullSafeEquals(o1.getDescription(), o2.getDescription())
-              && nullSafeEquals(o1.getTimeZone(), o2.getTimeZone()) ? 0 : -1;
-    }
-  };
+  private static final Comparator<DailyCalendar> COMPARATOR = (o1, o2) -> o1.getTimeRangeStartingTimeInMillis(0) == o2.getTimeRangeStartingTimeInMillis(0)
+          && o1.getTimeRangeEndingTimeInMillis(0) == o2.getTimeRangeEndingTimeInMillis(0)
+          && o1.getInvertTimeRange() == o2.getInvertTimeRange()
+          && (o1.getBaseCalendar() != null) == (o2.getBaseCalendar() != null)
+          && nullSafeEquals(o1.getDescription(), o2.getDescription())
+          && nullSafeEquals(o1.getTimeZone(), o2.getTimeZone()) ? 0 : -1;
   
   @Test
   public void testWithoutBaseCalendar() throws IOException, ClassNotFoundException {

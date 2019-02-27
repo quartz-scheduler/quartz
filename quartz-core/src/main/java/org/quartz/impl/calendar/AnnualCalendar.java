@@ -18,11 +18,7 @@
 package org.quartz.impl.calendar;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.TimeZone;
+import java.util.*;
 
 import org.quartz.Calendar;
 
@@ -42,7 +38,7 @@ public class AnnualCalendar extends BaseCalendar implements Calendar,
 
     static final long serialVersionUID = 7346867105876610961L;
 
-    private ArrayList<java.util.Calendar> excludeDays = new ArrayList<java.util.Calendar>();
+    private List<java.util.Calendar> excludeDays = new ArrayList<>();
 
     // true, if excludeDays is sorted
     private boolean dataSorted = false;
@@ -65,7 +61,7 @@ public class AnnualCalendar extends BaseCalendar implements Calendar,
     @Override
     public Object clone() {
         AnnualCalendar clone = (AnnualCalendar) super.clone();
-        clone.excludeDays = new ArrayList<java.util.Calendar>(excludeDays);
+        clone.excludeDays = new ArrayList<>(excludeDays);
         return clone;
     }
 
@@ -74,7 +70,7 @@ public class AnnualCalendar extends BaseCalendar implements Calendar,
      * Get the array which defines the exclude-value of each day of month
      * </p>
      */
-    public ArrayList<java.util.Calendar> getDaysExcluded() {
+    public List<java.util.Calendar> getDaysExcluded() {
         return excludeDays;
     }
 
@@ -99,14 +95,11 @@ public class AnnualCalendar extends BaseCalendar implements Calendar,
         int dday = day.get(java.util.Calendar.DAY_OF_MONTH);
 
         if (dataSorted == false) {
-            Collections.sort(excludeDays, new CalendarComparator());
+            excludeDays.sort(new CalendarComparator());
             dataSorted = true;
         }
 
-        Iterator<java.util.Calendar> iter = excludeDays.iterator();
-        while (iter.hasNext()) {
-            java.util.Calendar cl = (java.util.Calendar) iter.next();
-
+        for (java.util.Calendar cl : excludeDays) {
             // remember, the list is sorted
             if (dmonth < cl.get(java.util.Calendar.MONTH)) {
                 return false;
@@ -134,7 +127,7 @@ public class AnnualCalendar extends BaseCalendar implements Calendar,
      */
     public void setDaysExcluded(ArrayList<java.util.Calendar> days) {
         if (days == null) {
-            excludeDays = new ArrayList<java.util.Calendar>();
+            excludeDays = new ArrayList<>();
         } else {
             excludeDays = days;
         }
@@ -189,10 +182,7 @@ public class AnnualCalendar extends BaseCalendar implements Calendar,
         
         // Since there is no guarantee that the given day is in the arraylist with the exact same year
         // search for the object based on month and day of month in the list and remove it
-        Iterator<java.util.Calendar> iter = excludeDays.iterator();
-        while (iter.hasNext()) {
-            java.util.Calendar cl = (java.util.Calendar) iter.next();
-
+        for (java.util.Calendar cl : excludeDays) {
             if (dmonth != cl.get(java.util.Calendar.MONTH)) {
                 continue;
             }

@@ -79,8 +79,7 @@ public class RecoverJobsTest {
             // emulate fail over situation
             scheduler.shutdown(false);
 
-            Connection conn = DBConnectionManager.getInstance().getConnection(dsName);
-            try {
+            try (Connection conn = DBConnectionManager.getInstance().getConnection(dsName)) {
                 Statement st = conn.createStatement();
                 ResultSet rs1 = st.executeQuery("SELECT TRIGGER_STATE from QRTZ_TRIGGERS");
                 rs1.next();
@@ -92,8 +91,6 @@ public class RecoverJobsTest {
                 // check that fired trigger remains after fail over situation
                 Assert.assertEquals(1, rs2.getLong(1));
                 st.close();
-            } finally {
-                conn.close();
             }
 
             // stop job executing to not as part of emulation fail over situation

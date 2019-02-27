@@ -211,7 +211,7 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
 
     Collection<ClusterNode> nodes = clusterInfo.getNodes();
 
-    Set<String> activeClientIDs = new HashSet<String>();
+    Set<String> activeClientIDs = new HashSet<>();
     for (ClusterNode node : nodes) {
       boolean added = activeClientIDs.add(node.getId());
       if (!added) {
@@ -221,7 +221,7 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
 
     lock();
     try {
-      List<TriggerWrapper> toEval = new ArrayList<TriggerWrapper>();
+      List<TriggerWrapper> toEval = new ArrayList<>();
 
       // scan for orphaned triggers
       for (TriggerKey triggerKey : triggerFacade.allTriggerKeys()) {
@@ -714,7 +714,7 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
   @Override
   public JobDetail retrieveJob(JobKey jobKey) throws JobPersistenceException {
     JobWrapper jobWrapper = getJob(jobKey);
-    return jobWrapper == null ? null : (JobDetail) jobWrapper.getJobDetailClone();
+    return jobWrapper == null ? null : jobWrapper.getJobDetailClone();
   }
 
   JobWrapper getJob(final JobKey key) throws JobPersistenceException {
@@ -739,7 +739,7 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
     lock();
     try {
       TriggerWrapper tw = triggerFacade.get(triggerKey);
-      return (tw != null) ? (OperableTrigger) tw.getTriggerClone() : null;
+      return (tw != null) ? tw.getTriggerClone() : null;
     } finally {
       unlock();
     }
@@ -1002,7 +1002,7 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
   public Set<JobKey> getJobKeys(GroupMatcher<JobKey> matcher) throws JobPersistenceException {
     lock();
     try {
-      Set<String> matchingGroups = new HashSet<String>();
+      Set<String> matchingGroups = new HashSet<>();
       switch (matcher.getCompareWithOperator()) {
         case EQUALS:
           matchingGroups.add(matcher.getCompareToValue());
@@ -1015,7 +1015,7 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
           }
       }
 
-      Set<JobKey> out = new HashSet<JobKey>();
+      Set<JobKey> out = new HashSet<>();
       for (String matchingGroup : matchingGroups) {
 
         Set<String> grpJobNames = toolkitDSHolder.getOrCreateJobsGroupMap(matchingGroup);
@@ -1047,7 +1047,7 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
     lock();
     try {
       Set<String> names = calendarsByName.keySet();
-      return new ArrayList<String>(names);
+      return new ArrayList<>(names);
     } finally {
       unlock();
     }
@@ -1062,7 +1062,7 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
   public Set<TriggerKey> getTriggerKeys(GroupMatcher<TriggerKey> matcher) throws JobPersistenceException {
     lock();
     try {
-      Set<String> groupNames = new HashSet<String>();
+      Set<String> groupNames = new HashSet<>();
       switch (matcher.getCompareWithOperator()) {
         case EQUALS:
           groupNames.add(matcher.getCompareToValue());
@@ -1075,7 +1075,7 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
           }
       }
 
-      Set<TriggerKey> out = new HashSet<TriggerKey>();
+      Set<TriggerKey> out = new HashSet<>();
 
       for (String groupName : groupNames) {
         Set<String> grpSet = toolkitDSHolder.getOrCreateTriggersGroupMap(groupName);
@@ -1104,7 +1104,7 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
   public List<String> getJobGroupNames() throws JobPersistenceException {
     lock();
     try {
-      return new ArrayList<String>(jobFacade.getAllGroupNames());
+      return new ArrayList<>(jobFacade.getAllGroupNames());
     } finally {
       unlock();
     }
@@ -1119,7 +1119,7 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
   public List<String> getTriggerGroupNames() throws JobPersistenceException {
     lock();
     try {
-      return new ArrayList<String>(triggerFacade.allTriggersGroupNames());
+      return new ArrayList<>(triggerFacade.allTriggersGroupNames());
     } finally {
       unlock();
     }
@@ -1135,7 +1135,7 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
    */
   @Override
   public List<OperableTrigger> getTriggersForJob(final JobKey jobKey) throws JobPersistenceException {
-    List<OperableTrigger> trigList = new ArrayList<OperableTrigger>();
+    List<OperableTrigger> trigList = new ArrayList<>();
 
     lock();
     try {
@@ -1195,7 +1195,7 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
    */
   @Override
   public Collection<String> pauseTriggers(GroupMatcher<TriggerKey> matcher) throws JobPersistenceException {
-    HashSet<String> pausedGroups = new HashSet<String>();
+    HashSet<String> pausedGroups = new HashSet<>();
     lock();
     try {
       Set<TriggerKey> triggerKeys = getTriggerKeys(matcher);
@@ -1246,7 +1246,7 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
    */
   @Override
   public Collection<String> pauseJobs(GroupMatcher<JobKey> matcher) throws JobPersistenceException {
-    Collection<String> pausedGroups = new HashSet<String>();
+    Collection<String> pausedGroups = new HashSet<>();
     lock();
     try {
 
@@ -1318,7 +1318,7 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
    */
   @Override
   public Collection<String> resumeTriggers(GroupMatcher<TriggerKey> matcher) throws JobPersistenceException {
-    Collection<String> groups = new HashSet<String>();
+    Collection<String> groups = new HashSet<>();
     lock();
     try {
       Set<TriggerKey> triggerKeys = getTriggerKeys(matcher);
@@ -1375,7 +1375,7 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
    */
   @Override
   public Collection<String> resumeJobs(GroupMatcher<JobKey> matcher) throws JobPersistenceException {
-    Collection<String> groups = new HashSet<String>();
+    Collection<String> groups = new HashSet<>();
     lock();
     try {
       Set<JobKey> jobKeys = getJobKeys(matcher);
@@ -1478,7 +1478,7 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
   @Override
   public List<OperableTrigger> acquireNextTriggers(long noLaterThan, int maxCount, long timeWindow)
       throws JobPersistenceException {
-    List<OperableTrigger> result = new ArrayList<OperableTrigger>();;
+    List<OperableTrigger> result = new ArrayList<>();;
     lock();
     try {
       for (TriggerWrapper tw : getNextTriggerWrappers(timeTriggers, noLaterThan, maxCount, timeWindow)) {
@@ -1514,14 +1514,7 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
           } finally {
             unlock();
           }
-        } catch (JobPersistenceException e) {
-          try {
-            Thread.sleep(retryInterval);
-          } catch (InterruptedException f) {
-            throw new IllegalStateException("Received interrupted exception", f);
-          }
-          continue;
-        } catch (RejoinException e) {
+        } catch (JobPersistenceException | RejoinException e) {
           try {
             Thread.sleep(retryInterval);
           } catch (InterruptedException f) {
@@ -1551,9 +1544,9 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
   List<TriggerWrapper> getNextTriggerWrappers(final TimeTriggerSet source, final long noLaterThan, final int maxCount,
                                               final long timeWindow) throws JobPersistenceException {
 
-    List<TriggerWrapper> wrappers = new ArrayList<TriggerWrapper>();
-    Set<JobKey> acquiredJobKeysForNoConcurrentExec = new HashSet<JobKey>();
-    Set<TriggerWrapper> excludedTriggers = new HashSet<TriggerWrapper>();
+    List<TriggerWrapper> wrappers = new ArrayList<>();
+    Set<JobKey> acquiredJobKeysForNoConcurrentExec = new HashSet<>();
+    Set<TriggerWrapper> excludedTriggers = new HashSet<>();
     JobPersistenceException caughtJpe = null;
     long batchEnd = noLaterThan;
 
@@ -1651,14 +1644,7 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
         } finally {
           unlock();
         }
-      } catch (RejoinException e) {
-        try {
-          Thread.sleep(retryInterval);
-        } catch (InterruptedException f) {
-          throw new IllegalStateException("Received interrupted exception", f);
-        }
-        continue;
-      } catch (JobPersistenceException e) {
+      } catch (RejoinException | JobPersistenceException e) {
         try {
           Thread.sleep(retryInterval);
         } catch (InterruptedException f) {
@@ -1679,7 +1665,7 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
   @Override
   public List<TriggerFiredResult> triggersFired(List<OperableTrigger> triggersFired) throws JobPersistenceException {
 
-    List<TriggerFiredResult> results = new ArrayList<TriggerFiredResult>();
+    List<TriggerFiredResult> results = new ArrayList<>();
     lock();
     try {
       for (OperableTrigger trigger : triggersFired) {
@@ -1784,14 +1770,7 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
           } finally {
             unlock();
           }
-        } catch (JobPersistenceException e) {
-          try {
-            Thread.sleep(retryInterval);
-          } catch (InterruptedException f) {
-            throw new IllegalStateException("Received interrupted exception", f);
-          }
-          continue;
-        } catch (RejoinException e) {
+        } catch (JobPersistenceException | RejoinException e) {
           try {
             Thread.sleep(retryInterval);
           } catch (InterruptedException f) {
@@ -1898,14 +1877,7 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
         } finally {
           unlock();
         }
-      } catch (RejoinException e) {
-        try {
-          Thread.sleep(retryInterval);
-        } catch (InterruptedException f) {
-          throw new IllegalStateException("Received interrupted exception", f);
-        }
-        continue;
-      } catch (JobPersistenceException e) {
+      } catch (RejoinException | JobPersistenceException e) {
         try {
           Thread.sleep(retryInterval);
         } catch (InterruptedException f) {
@@ -1935,7 +1907,7 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
   public Set<String> getPausedTriggerGroups() throws JobPersistenceException {
     lock();
     try {
-      return new HashSet<String>(triggerFacade.allPausedTriggersGroupNames());
+      return new HashSet<>(triggerFacade.allPausedTriggersGroupNames());
     } finally {
       unlock();
     }
@@ -1968,7 +1940,7 @@ class DefaultClusteredJobStore implements ClusteredJobStore {
 
     try {
 
-      List<TriggerWrapper> toEval = new ArrayList<TriggerWrapper>();
+      List<TriggerWrapper> toEval = new ArrayList<>();
 
       for (TriggerKey triggerKey : triggerFacade.allTriggerKeys()) {
         TriggerWrapper tw = triggerFacade.get(triggerKey);

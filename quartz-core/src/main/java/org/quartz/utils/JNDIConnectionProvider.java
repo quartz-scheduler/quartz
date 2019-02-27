@@ -121,7 +121,7 @@ public class JNDIConnectionProvider implements ConnectionProvider {
             try {
                 ctx = (props != null) ? new InitialContext(props) : new InitialContext(); 
 
-                datasource = (DataSource) ctx.lookup(url);
+                datasource = ctx.lookup(url);
             } catch (Exception e) {
                 getLog().error(
                         "Error looking up datasource: " + e.getMessage(), e);

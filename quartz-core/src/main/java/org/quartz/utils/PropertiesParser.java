@@ -102,13 +102,13 @@ public class PropertiesParser {
         }
 
         StringTokenizer stok = new StringTokenizer(vals, ",");
-        ArrayList<String> strs = new ArrayList<String>();
+        ArrayList<String> strs = new ArrayList<>();
         try {
             while (stok.hasMoreTokens()) {
                 strs.add(stok.nextToken().trim());
             }
             
-            return (String[])strs.toArray(new String[strs.size()]);
+            return strs.toArray(new String[0]);
         } catch (Exception e) {
             return def;
         }
@@ -121,7 +121,7 @@ public class PropertiesParser {
     public boolean getBooleanProperty(String name, boolean def) {
         String val = getStringProperty(name);
         
-        return (val == null) ? def : Boolean.valueOf(val).booleanValue();
+        return (val == null) ? def : Boolean.valueOf(val);
     }
 
     public byte getByteProperty(String name) throws NumberFormatException {
@@ -253,7 +253,7 @@ public class PropertiesParser {
         }
 
         StringTokenizer stok = new StringTokenizer(vals, ",");
-        ArrayList<Integer> ints = new ArrayList<Integer>();
+        ArrayList<Integer> ints = new ArrayList<>();
         try {
             while (stok.hasMoreTokens()) {
                 try {
@@ -265,7 +265,7 @@ public class PropertiesParser {
                         
             int[] outInts = new int[ints.size()];
             for (int i = 0; i < ints.size(); i++) {
-                outInts[i] = ((Integer)ints.get(i)).intValue();
+                outInts[i] = (Integer) ints.get(i);
             }
             return outInts;
         } catch (Exception e) {
@@ -329,7 +329,7 @@ public class PropertiesParser {
 
     public String[] getPropertyGroups(String prefix) {
         Enumeration<?> keys = props.propertyNames();
-        HashSet<String> groups = new HashSet<String>(10);
+        HashSet<String> groups = new HashSet<>(10);
 
         if (!prefix.endsWith(".")) {
             prefix += ".";
@@ -344,7 +344,7 @@ public class PropertiesParser {
             }
         }
 
-        return (String[]) groups.toArray(new String[groups.size()]);
+        return groups.toArray(new String[0]);
     }
 
     public Properties getPropertyGroup(String prefix) {

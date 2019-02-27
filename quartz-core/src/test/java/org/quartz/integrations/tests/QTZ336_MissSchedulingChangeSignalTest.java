@@ -54,11 +54,8 @@ public class QTZ336_MissSchedulingChangeSignalTest {
     @Test
     public void simpleScheduleAlwaysFiredUnder20s() throws Exception {
         Properties properties = new Properties();
-        InputStream propertiesIs = getClass().getResourceAsStream("/org/quartz/quartz.properties");
-        try {
+        try (InputStream propertiesIs = getClass().getResourceAsStream("/org/quartz/quartz.properties")) {
             properties.load(propertiesIs);
-        } finally {
-            propertiesIs.close();
         }
         properties.setProperty("org.quartz.scheduler.skipUpdateCheck", "true");
         // Use a custom RAMJobStore to produce context switches leading to the race condition
@@ -116,7 +113,7 @@ public class QTZ336_MissSchedulingChangeSignalTest {
     @DisallowConcurrentExecution
     public static class CollectDuractionBetweenFireTimesJob implements Job {
         private static final Logger log = LoggerFactory.getLogger(CollectDuractionBetweenFireTimesJob.class);
-        private static final List<Long> durationBetweenFireTimes = Collections.synchronizedList(new ArrayList<Long>());
+        private static final List<Long> durationBetweenFireTimes = Collections.synchronizedList(new ArrayList<>());
         private static Long lastFireTime = null;
 
         public void execute(JobExecutionContext context) throws JobExecutionException {
@@ -135,7 +132,7 @@ public class QTZ336_MissSchedulingChangeSignalTest {
          */
         public static List<Long> getDurations() {
             synchronized (durationBetweenFireTimes) {
-              return Collections.unmodifiableList(new ArrayList<Long>(durationBetweenFireTimes));
+              return Collections.unmodifiableList(new ArrayList<>(durationBetweenFireTimes));
             }
         }
 

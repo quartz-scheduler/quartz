@@ -39,7 +39,7 @@ public class PropertySettingJobFactoryTest extends TestCase {
     public void testSetBeanPropsPrimatives() throws SchedulerException {
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put("intValue", Integer.valueOf(1));
-        jobDataMap.put("longValue", Long.valueOf(2l));
+        jobDataMap.put("longValue", Long.valueOf(2L));
         jobDataMap.put("floatValue", Float.valueOf(3.0f));
         jobDataMap.put("doubleValue", Double.valueOf(4.0));
         jobDataMap.put("booleanValue", Boolean.TRUE);
@@ -53,7 +53,7 @@ public class PropertySettingJobFactoryTest extends TestCase {
         factory.setBeanProps(myBean, jobDataMap);
         
         assertEquals(1, myBean.getIntValue());
-        assertEquals(2l, myBean.getLongValue());
+        assertEquals(2L, myBean.getLongValue());
         assertEquals(3.0f, myBean.getFloatValue(), 0.0001);
         assertEquals(4.0, myBean.getDoubleValue(), 0.0001);
         assertTrue(myBean.getBooleanValue());
@@ -153,7 +153,7 @@ public class PropertySettingJobFactoryTest extends TestCase {
         factory.setBeanProps(myBean, jobDataMap);
         
         assertEquals(1, myBean.getIntValue());
-        assertEquals(2l, myBean.getLongValue());
+        assertEquals(2L, myBean.getLongValue());
         assertEquals(3.0f, myBean.getFloatValue(), 0.0001);
         assertEquals(4.0, myBean.getDoubleValue(), 0.0001);
         assertEquals(true, myBean.getBooleanValue());

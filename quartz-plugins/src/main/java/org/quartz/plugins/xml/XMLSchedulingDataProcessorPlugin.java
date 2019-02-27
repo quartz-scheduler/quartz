@@ -90,7 +90,7 @@ public class XMLSchedulingDataProcessorPlugin
     private String fileNames = XMLSchedulingDataProcessor.QUARTZ_XML_DEFAULT_FILE_NAME;
 
     // Populated by initialization
-    private Map<String, JobFile> jobFiles = new LinkedHashMap<String, JobFile>();
+    private Map<String, JobFile> jobFiles = new LinkedHashMap<>();
 
     private long scanInterval = 0; 
     
@@ -98,7 +98,7 @@ public class XMLSchedulingDataProcessorPlugin
     
     protected ClassLoadHelper classLoadHelper = null;
 
-    private Set<String> jobTriggerNameSet = new HashSet<String>();
+    private Set<String> jobTriggerNameSet = new HashSet<>();
     
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -213,22 +213,19 @@ public class XMLSchedulingDataProcessorPlugin
                 if (scanInterval > 0) {
                     getScheduler().getContext().put(JOB_INITIALIZATION_PLUGIN_NAME + '_' + getName(), this);
                 }
-                
-                Iterator<JobFile> iterator = jobFiles.values().iterator();
-                while (iterator.hasNext()) {
-                    JobFile jobFile = iterator.next();
-                
+
+                for (JobFile jobFile : jobFiles.values()) {
                     if (scanInterval > 0) {
                         String jobTriggerName = buildJobTriggerName(jobFile.getFileBasename());
                         TriggerKey tKey = new TriggerKey(jobTriggerName, JOB_INITIALIZATION_PLUGIN_NAME);
-                        
+
                         // remove pre-existing job/trigger, if any
                         getScheduler().unscheduleJob(tKey);
 
                         JobDetail job = newJob().withIdentity(jobTriggerName, JOB_INITIALIZATION_PLUGIN_NAME).ofType(FileScanJob.class)
-                            .usingJobData(FileScanJob.FILE_NAME, jobFile.getFileName())
-                            .usingJobData(FileScanJob.FILE_SCAN_LISTENER_NAME, JOB_INITIALIZATION_PLUGIN_NAME + '_' + getName())
-                            .build();
+                                .usingJobData(FileScanJob.FILE_NAME, jobFile.getFileName())
+                                .usingJobData(FileScanJob.FILE_SCAN_LISTENER_NAME, JOB_INITIALIZATION_PLUGIN_NAME + '_' + getName())
+                                .build();
 
                         SimpleTrigger trig = newTrigger().withIdentity(tKey).withSchedule(
                                 simpleSchedule().repeatForever().withIntervalInMilliseconds(scanInterval))
@@ -238,7 +235,7 @@ public class XMLSchedulingDataProcessorPlugin
                         getScheduler().scheduleJob(job, trig);
                         getLog().debug("Scheduled file scan job for data file: {}, at interval: {}", jobFile.getFileName(), scanInterval);
                     }
-                    
+
                     processFile(jobFile);
                 }
             }
@@ -322,7 +319,7 @@ public class XMLSchedulingDataProcessorPlugin
     }
     
     public void processFile(String filePath) {
-        processFile((JobFile)jobFiles.get(filePath));
+        processFile(jobFiles.get(filePath));
     }
 
     /** 

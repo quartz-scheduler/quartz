@@ -39,7 +39,7 @@ public class TriggerComparatorTest extends TestCase {
         Trigger t5 = newTrigger().withIdentity("a", "b").build();
         Trigger t6 = newTrigger().withIdentity("a", "c").build();
 
-        List<Trigger> ts = new LinkedList<Trigger>();
+        List<Trigger> ts = new LinkedList<>();
         // add triggers to list in somewhat randomized order
         ts.add(t5);
         ts.add(t6);
@@ -83,7 +83,7 @@ public class TriggerComparatorTest extends TestCase {
         Trigger t9 = newTrigger().withIdentity("j").startAt(futureDate(7, MINUTE)).build();
         ((OperableTrigger)t9).computeFirstFireTime(null);
 
-        List<Trigger> ts = new LinkedList<Trigger>();
+        List<Trigger> ts = new LinkedList<>();
         // add triggers to list in somewhat randomized order
         ts.add(t5);
         ts.add(t9);

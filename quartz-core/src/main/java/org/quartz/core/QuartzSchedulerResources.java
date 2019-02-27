@@ -73,7 +73,7 @@ public class QuartzSchedulerResources {
 
     private JobRunShellFactory jobRunShellFactory;
 
-    private List<SchedulerPlugin> schedulerPlugins = new ArrayList<SchedulerPlugin>(10);
+    private List<SchedulerPlugin> schedulerPlugins = new ArrayList<>(10);
     
     private boolean makeSchedulerThreadDaemon = false;
 

@@ -114,8 +114,7 @@ public class UserTransactionHelper {
      * UserTransaction is properly cleaned up.
      */
     public static void returnUserTransaction(UserTransaction userTransaction) {
-        if ((userTransaction != null) && 
-            (userTransaction instanceof UserTransactionWithContext)) {
+        if ((userTransaction instanceof UserTransactionWithContext)) {
             UserTransactionWithContext userTransactionWithContext = 
                 (UserTransactionWithContext)userTransaction;
             

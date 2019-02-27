@@ -90,12 +90,10 @@ public class EJB3InvokerJob extends EJBInvokerJob {
                 Object returnValue = value.getClass()
                         .getMethod(method, argTypes).invoke(value, arguments);
                 context.setResult(returnValue);
-            } catch (IllegalAccessException iae) {
+            } catch (IllegalAccessException | NoSuchMethodException iae) {
                 throw new JobExecutionException(iae);
             } catch (InvocationTargetException ite) {
                 throw new JobExecutionException(ite.getTargetException());
-            } catch (NoSuchMethodException nsme) {
-                throw new JobExecutionException(nsme);
             }
         } finally {
             if (jndiContext != null) {

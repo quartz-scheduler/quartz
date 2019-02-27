@@ -125,7 +125,7 @@ public class TriggerFiringRejoinTest extends AbstractRejoinTest {
                 }
               }
             }
-          } catch (JobPersistenceException _) {
+          } catch (JobPersistenceException e) {
             //ignore
           }
         }

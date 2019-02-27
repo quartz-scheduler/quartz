@@ -37,12 +37,7 @@ import static org.terracotta.upgradability.serialization.SerializationUpgradabil
  */
 public class JobWrapperSerializationTest {
   
-  private static final Comparator<JobWrapper> COMPARATOR = new Comparator<JobWrapper>() {
-    @Override
-    public int compare(JobWrapper o1, JobWrapper o2) {
-      return (o1.getJobDetailClone() == null) == (o2.getJobDetailClone() == null) ? 0 : -1;
-    }
-  };
+  private static final Comparator<JobWrapper> COMPARATOR = (o1, o2) -> (o1.getJobDetailClone() == null) == (o2.getJobDetailClone() == null) ? 0 : -1;
 
   @Test
   public void testSimple() throws IOException, ClassNotFoundException {

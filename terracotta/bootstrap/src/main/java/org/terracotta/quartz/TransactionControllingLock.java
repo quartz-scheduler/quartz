@@ -22,12 +22,7 @@ import org.terracotta.toolkit.rejoin.RejoinException;
  */
 class TransactionControllingLock implements ToolkitLock {
 
-  private final ThreadLocal<HoldState> threadState = new ThreadLocal<HoldState>() {
-    @Override
-    protected HoldState initialValue() {
-      return new HoldState();
-    }
-  };
+  private final ThreadLocal<HoldState> threadState = ThreadLocal.withInitial(HoldState::new);
   private final ToolkitTransactionController txnController;
   private final ToolkitTransactionType txnType;
   private final ToolkitLock delegate;

@@ -58,13 +58,7 @@ public class JobClassNotFoundExceptionErrorsTriggersTest extends QuartzDatabaseT
         public void execute(JobExecutionContext context) throws JobExecutionException {
             try {
                 ((CyclicBarrier) context.getScheduler().getContext().get(BARRIER_KEY)).await(20, TimeUnit.SECONDS);
-            } catch (SchedulerException ex) {
-                throw new JobExecutionException(ex);
-            } catch (InterruptedException ex) {
-                throw new JobExecutionException(ex);
-            } catch (BrokenBarrierException ex) {
-                throw new JobExecutionException(ex);
-            } catch (TimeoutException ex) {
+            } catch (SchedulerException | TimeoutException | BrokenBarrierException | InterruptedException ex) {
                 throw new JobExecutionException(ex);
             }
         }
@@ -106,7 +100,7 @@ public class JobClassNotFoundExceptionErrorsTriggersTest extends QuartzDatabaseT
                 .startAt(new Date(now))
                 .build();
 
-        Map<JobDetail, Set<? extends Trigger>> toSchedule = new HashMap<JobDetail, Set<? extends Trigger>>();
+        Map<JobDetail, Set<? extends Trigger>> toSchedule = new HashMap<>();
         toSchedule.put(badJob, Collections.singleton(badTrigger));
         toSchedule.put(goodJob, Collections.singleton(goodTrigger));
         scheduler.scheduleJobs(toSchedule, true);

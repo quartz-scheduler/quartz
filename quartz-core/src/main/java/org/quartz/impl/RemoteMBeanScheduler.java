@@ -717,7 +717,7 @@ public abstract class RemoteMBeanScheduler implements Scheduler {
                     new Object[] { matcher.getCompareToValue() },
                     new String[] { String.class.getName() });
 
-            return new HashSet<JobKey>(keys);
+            return new HashSet<>(keys);
         } else {
             throw new SchedulerException("Only equals matcher are supported for looking up JobKeys");
         }

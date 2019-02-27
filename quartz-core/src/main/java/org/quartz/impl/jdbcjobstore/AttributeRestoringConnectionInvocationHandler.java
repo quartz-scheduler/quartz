@@ -63,9 +63,9 @@ public class AttributeRestoringConnectionInvocationHandler implements Invocation
     public Object invoke(Object proxy, Method method, Object[] args)
         throws Throwable {
         if (method.getName().equals("setAutoCommit")) {
-            setAutoCommit(((Boolean)args[0]).booleanValue());
+            setAutoCommit((Boolean) args[0]);
         } else if (method.getName().equals("setTransactionIsolation")) {
-            setTransactionIsolation(((Integer)args[0]).intValue());
+            setTransactionIsolation((Integer) args[0]);
         } else if (method.getName().equals("close")) {
             close();
         } else {
