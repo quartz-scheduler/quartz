@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -35,12 +34,9 @@ import java.util.StringTokenizer;
 import javax.transaction.UserTransaction;
 
 import org.quartz.*;
-import org.quartz.impl.JobDetailImpl;
-import org.quartz.impl.triggers.SimpleTriggerImpl;
 import org.quartz.jobs.FileScanJob;
 import org.quartz.jobs.FileScanListener;
 import org.quartz.plugins.SchedulerPluginWithUserTransactionSupport;
-import org.quartz.simpl.CascadingClassLoadHelper;
 import org.quartz.spi.ClassLoadHelper;
 import org.quartz.xml.XMLSchedulingDataProcessor;
 

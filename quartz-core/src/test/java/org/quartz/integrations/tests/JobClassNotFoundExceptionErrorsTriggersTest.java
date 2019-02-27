@@ -25,7 +25,7 @@ import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import org.hamcrest.core.Is;
+
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
@@ -33,7 +33,6 @@ import org.quartz.Job;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
-import org.quartz.SimpleScheduleBuilder;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.JobExecutionException;
@@ -41,7 +40,6 @@ import org.quartz.SchedulerException;
 import org.quartz.simpl.CascadingClassLoadHelper;
 
 import static org.quartz.impl.StdSchedulerFactory.PROP_SCHED_CLASS_LOAD_HELPER_CLASS;
-import static org.quartz.integrations.tests.TrackingJob.SCHEDULED_TIMES_KEY;
 
 public class JobClassNotFoundExceptionErrorsTriggersTest extends QuartzDatabaseTestSupport {
 

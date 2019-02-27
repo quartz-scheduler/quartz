@@ -15,8 +15,6 @@
  */
 package org.quartz.integrations.tests;
 
-import org.hamcrest.Matchers;
-import org.junit.Assert;
 import org.junit.Test;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
@@ -27,7 +25,6 @@ import static org.junit.Assert.assertThat;
 import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
-import static org.quartz.TriggerKey.triggerKey;
 
 /**
  * Created by zemian on 10/25/16.

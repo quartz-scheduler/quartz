@@ -36,7 +36,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.terracotta.toolkit.builder.ToolkitStoreConfigBuilder;
 import org.terracotta.toolkit.collections.ToolkitSet;
-import org.terracotta.toolkit.store.ToolkitConfigFields;
 import org.terracotta.toolkit.store.ToolkitStore;
 
 /**

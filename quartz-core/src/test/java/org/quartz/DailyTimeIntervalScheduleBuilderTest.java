@@ -23,7 +23,6 @@ import static org.quartz.TimeOfDay.hourMinuteAndSecondOfDay;
 import static org.quartz.TriggerBuilder.newTrigger;
 
 import java.util.Date;
-import java.util.Calendar;
 import java.util.List;
 
 import junit.framework.Assert;

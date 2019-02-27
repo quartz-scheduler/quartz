@@ -19,10 +19,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.quartz.*;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
