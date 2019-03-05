@@ -80,7 +80,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.9</version>
+        <version>3.0.1</version>
         <configuration>
           <skip>${skipJavadoc}</skip>
           <quiet>true</quiet>
