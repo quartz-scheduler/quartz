@@ -211,7 +211,7 @@
             org.quartz.jobs;resolution:=optional,*</Import-Package>
             <Export-Package>org.quartz.*</Export-Package>
             <Private-Package>org.terracotta.quartz.*</Private-Package>
-            <Bundle-RequiredExecutionEnvironment>JavaSE-1.6</Bundle-RequiredExecutionEnvironment>
+            <Bundle-RequiredExecutionEnvironment>JavaSE-1.8</Bundle-RequiredExecutionEnvironment>
           </instructions>
           <excludeDependencies>*;scope=provided|runtime</excludeDependencies>
         </configuration>
