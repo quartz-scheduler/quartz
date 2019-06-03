@@ -27,7 +27,7 @@
     <dependency>
       <groupId>org.terracotta.toolkit</groupId>
       <artifactId>terracotta-toolkit-api-internal</artifactId>
-      <version>2.2.0</version>
+      <version>1.18_JAVA11-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
