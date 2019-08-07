@@ -17,9 +17,13 @@ package org.quartz.impl;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Properties;
+
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
+import org.slf4j.Logger;
 
 /**
  * TestCase to verify StdSchedulerFactory initializes correctly a custom ConnectionProvider
@@ -28,7 +32,7 @@ import org.quartz.SchedulerException;
  *
  */
 
-public class StdSchedulerFactoryCustomConnectionProviderTest {
+public class StdSchedulerFactoryTest {
 
 	@Test
 	public void loadAndInitializeCustomConnectionProviderTest() throws SchedulerException, InterruptedException {
@@ -45,5 +49,17 @@ public class StdSchedulerFactoryCustomConnectionProviderTest {
 		assertEquals("getConnection",MockConnectionProvider.methodsCalled.get(2));
 	}
 	
+	
+	@Test
+	public void testOverrideSystemProperties() {
+	    Properties p = new Properties();
+	    p.setProperty("nonsense1", "hello1");
+	    p.setProperty("nonsense2", "hello2");
+	    System.setProperty("nonsense1", "boo1");
+	    String osName = System.getProperty("os.name");
+	    Properties q = StdSchedulerFactory.overrideWithSysProps(p, Mockito.mock(Logger.class));
+	    assertEquals("boo1", q.get("nonsense1"));
+	    assertEquals(osName, q.get("os.name"));
+	}
 
 }
