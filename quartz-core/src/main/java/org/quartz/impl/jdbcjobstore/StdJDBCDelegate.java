@@ -2612,7 +2612,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             ps.setBigDecimal(3, new BigDecimal(String.valueOf(noEarlierThan)));
             rs = ps.executeQuery();
             
-            while (rs.next() && nextTriggers.size() <= maxCount) {
+            while (rs.next() && nextTriggers.size() < maxCount) {
                 nextTriggers.add(triggerKey(
                         rs.getString(COL_TRIGGER_NAME),
                         rs.getString(COL_TRIGGER_GROUP)));
