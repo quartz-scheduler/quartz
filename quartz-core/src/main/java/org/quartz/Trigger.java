@@ -98,7 +98,7 @@ public interface Trigger extends Serializable, Cloneable, Comparable<Trigger> {
      * 
      * <p>
      * In order to see if this instruction fits your needs, you should look at
-     * the documentation for the <code>getSmartMisfirePolicy()</code> method
+     * the documentation for the <code>updateAfterMisfire()</code> method
      * on the particular <code>Trigger</code> implementation you are using.
      * </p>
      */
