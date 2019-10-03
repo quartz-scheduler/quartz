@@ -181,7 +181,7 @@ public class QuartzSchedulerThread extends Thread {
                     try {
                         join();
                         break;
-                    } catch (InterruptedException e) {
+                    } catch (InterruptedException ie) {
                         interrupted = true;
                     }
                 }
