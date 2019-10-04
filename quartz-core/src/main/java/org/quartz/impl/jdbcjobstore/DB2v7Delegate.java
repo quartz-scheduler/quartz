@@ -1,5 +1,5 @@
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -38,15 +38,6 @@ import org.slf4j.Logger;
  */
 public class DB2v7Delegate extends StdJDBCDelegate {
 
-    public DB2v7Delegate(Logger logger, String tablePrefix, String schedName, String instanceId, ClassLoadHelper classLoadHelper) {
-        super(logger, tablePrefix, schedName, instanceId, classLoadHelper);
-    }
-
-    public DB2v7Delegate(Logger log, String tablePrefix, String schedName, String instanceId, ClassLoadHelper classLoadHelper,
-            Boolean useProperties) {
-        super(log, tablePrefix, schedName, instanceId, classLoadHelper, useProperties);
-    }
-    
     /**
      * Sets the designated parameter to the byte array of the given
      * <code>ByteArrayOutputStream</code>.  Will set parameter value to null if the 

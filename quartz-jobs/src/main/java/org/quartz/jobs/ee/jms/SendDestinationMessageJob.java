@@ -1,5 +1,5 @@
 /* 
- * Copyright 2004-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -34,7 +34,7 @@ import org.quartz.JobExecutionException;
  * <p>
  * A <code>Job</code> that sends a <code>javax.jms.Message</code> to a
  * <code>javax.jms.Destination</code>. Note, this class can only be used in a
- * JMS 1.1 compliant environment.
+ * JMS-based environment.
  * 
  * <p>
  * The following properties are expected to be provided in the

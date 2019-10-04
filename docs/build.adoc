@@ -1,0 +1,32 @@
+= Quartz Build Instructions
+:toc:
+
+== Build Instructions
+
+=== Requirement
+
+JDK 1.8
+
+NOTE: You should use our maven wrapper (`./mvnw`) script to
+get a more consistent build result. It should auto
+download the correct version of Maven tool if you do not already
+have one.
+
+
+=== To compile:
+----
+export JAVA_HOME=/path/to/jdk8
+./mvnw compile
+----
+
+
+=== To build distribution package
+
+----
+./mvnw package
+
+# Or if you want to skip tests
+./mvnw package -DskipTests
+----
+
+NOTE: The final combined single jar is found under `quartz/target/quartz-<version>.jar`

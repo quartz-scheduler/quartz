@@ -1,5 +1,5 @@
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -29,6 +29,8 @@ import java.util.UUID;
  * @author <a href="mailto:jeff@binaryfeed.org">Jeffrey Wescott</a>
  */
 public class Key<T>  implements Serializable, Comparable<Key<T>> {
+  
+    private static final long serialVersionUID = -7141167957642391350L;
 
     /**
      * The default group for scheduling entities, with the value "DEFAULT".
@@ -126,7 +128,7 @@ public class Key<T>  implements Serializable, Comparable<Key<T>> {
         if (getClass() != obj.getClass())
             return false;
         @SuppressWarnings("unchecked")
-    Key<T> other = (Key<T>) obj;
+        Key<T> other = (Key<T>) obj;
         if (group == null) {
             if (other.group != null)
                 return false;

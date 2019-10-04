@@ -2,45 +2,87 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-
   <groupId>org.quartz-scheduler</groupId>
   <artifactId>quartz-parent</artifactId>
-  <version>3.0.0-SNAPSHOT</version>
+  <version>${revision}</version>
   <name>quartz-parent</name>
   <packaging>pom</packaging>
-
+  
+  <description>Quartz is a full-featured, open source job scheduling system that
+    can be integrated with, or used along side virtually any J2EE or
+    J2SE application</description>
+  <url>http://www.quartz-scheduler.org</url>
+  <organization>
+    <name>Terracotta, Inc.</name>
+    <url>http://www.terracotta.org</url>
+  </organization>
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>  
+  <scm>
+    <connection>scm:git:git@github.com:quartz-scheduler/quartz.git</connection>
+    <developerConnection>scm:git:git@github.com:quartz-scheduler/quartz.git</developerConnection>
+    <tag />
+    <url>https://github.com/quartz-scheduler/quartz</url>
+  </scm>
+  <issueManagement>
+    <system>Terracotta's JIRA</system>
+    <url>https://github.com/quartz-scheduler/quartz/issues</url>
+  </issueManagement>  
+  <developers>
+    <developer>
+    <id>jhouserizer</id>
+    <name>James House</name>
+    <email>jhouse@terracotta.org</email>
+    <organization>Terracotta</organization>
+    <organizationUrl>http://www.terracotta.org</organizationUrl>
+    <roles>
+      <role>Primary Developer</role>
+    </roles>
+    <timezone>-6</timezone>
+    </developer>
+  </developers>  
   <modules>
-	  <module>checkstyle</module>
+    <module>checkstyle</module>
     <module>quartz-core</module>
     <module>quartz-commonj</module>
     <module>quartz-jboss</module>
+    <module>quartz-stubs</module>
     <module>quartz-oracle</module>
-    <module>quartz-weblogic</module>
+    <module>quartz-weblogic</module>    
     <module>quartz-jobs</module> 
     <module>quartz-plugins</module>
     <module>terracotta</module>
     <module>quartz</module>
-    <module>system-tests</module>
   </modules>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+
+    <revision>2.4.0-SNAPSHOT</revision>
+
     <skipDeploy>false</skipDeploy>
     <skipJavadoc>false</skipJavadoc>
     <skipCheckstyle>false</skipCheckstyle>
-
-    <slf4j.version>1.6.1</slf4j.version>
-    <c3p0.version>0.9.1.1</c3p0.version>
+    
+    <slf4j.version>1.7.7</slf4j.version>
+    <c3p0.version>0.9.5.3</c3p0.version>
+    <hikaricp.version>3.2.0</hikaricp.version>
     <log4j.version>1.2.16</log4j.version>
-    <maven-forge-plugin.version>1.0.5-SNAPSHOT</maven-forge-plugin.version>
+    <gmaven-plugin.version>1.4</gmaven-plugin.version>
+    <checkstyle-suppressions-file>${user.dir}/checkstyle/src/main/resources/suppressions.xml</checkstyle-suppressions-file>
+    <checkstyle-config-file>${user.dir}/checkstyle/src/main/resources/checkstyle.xml</checkstyle-config-file>
+    <checkstyle-header-file>${user.dir}/checkstyle/src/main/resources/header.txt</checkstyle-header-file>
 
-    <checkstyle-suppressions-file>suppressions.xml</checkstyle-suppressions-file>
-    <checkstyle-config-file>checkstyle.xml</checkstyle-config-file>
-    <checkstyle-header-file>header.txt</checkstyle-header-file>
-
-    <terracotta-snapshots-url>http://nexus.terracotta.lan:8080/content/repositories/terracotta-snapshots</terracotta-snapshots-url>
-    <terracotta-staging-url>http://nexus.terracotta.lan:8080/content/repositories/terracotta-staging</terracotta-staging-url>
-    <terracotta-releases-url>http://nexus.terracotta.lan:8080/content/repositories/terracotta-releases</terracotta-releases-url>    
+    <terracotta-snapshots-url>http://nexus.terracotta.eur.ad.sag/content/repositories/terracotta-snapshots</terracotta-snapshots-url>
+    <terracotta-staging-url>http://nexus.terracotta.eur.ad.sag/content/repositories/terracotta-staging</terracotta-staging-url>
+    <terracotta-releases-url>http://nexus.terracotta.eur.ad.sag/content/repositories/terracotta-releases</terracotta-releases-url>
   </properties>
 
   <build>
@@ -58,16 +100,31 @@
                 <pluginExecution>
                   <pluginExecutionFilter>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <versionRange>[1.3,)</versionRange>
+                    <goals>
+                      <goal>run</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore />
+                  </action>
+                </pluginExecution>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
                     <versionRange>[2.1,)</versionRange>
                     <goals>
                       <goal>build-classpath</goal>
-                      <goal>copy-depenendencies</goal>
+                      <goal>copy-dependencies</goal>
+                      <goal>unpack-dependencies</goal>
                       <goal>unpack</goal>
+                      <goal>copy</goal>
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore/>
+                    <ignore />
                   </action>
                 </pluginExecution>
                 <pluginExecution>
@@ -80,7 +137,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore/>
+                    <ignore />
                   </action>
                 </pluginExecution>
                 <pluginExecution>
@@ -93,7 +150,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore/>
+                    <ignore />
                   </action>
                 </pluginExecution>
                 <pluginExecution>
@@ -106,7 +163,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore/>
+                    <ignore />
                   </action>
                 </pluginExecution>
               </pluginExecutions>
@@ -118,8 +175,9 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>2.3.2</version>
           <configuration>
-            <source>1.6</source>
-            <target>1.6</target>
+            <fork>true</fork>
+            <meminitial>128</meminitial>
+            <maxmem>512</maxmem>
           </configuration>
         </plugin>      
         <plugin>
@@ -138,49 +196,28 @@
             <execution>
               <id>sources-jar</id>
               <goals>
-                <goal>aggregate</goal>
+                <goal>jar</goal>
               </goals>
             </execution>
           </executions>
-        </plugin>          
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-javadoc-plugin</artifactId>
-          <version>2.8.1</version>
-          <executions>
-            <execution>
-              <id>javadoc</id>
-              <goals>
-                <goal>aggregate-jar</goal>
-              </goals>
-              <configuration>
-                <inherited>false</inherited>
-                <skip>${skipJavadoc}</skip>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>       
+        </plugin>               
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>findbugs-maven-plugin</artifactId>
           <version>2.4.0</version>
           <configuration>
             <findbugsXmlOutput>true</findbugsXmlOutput>
+            <!--
+            This seems to be an invalid option.
             <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
+            -->
             <xmlOutput>true</xmlOutput>
           </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
-          <version>2.8</version>
-          <dependencies>
-            <dependency>
-              <groupId>org.quartz-scheduler.internal</groupId>
-              <artifactId>quartz-checkstyle</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-          </dependencies>					
+          <version>2.9.1</version>
           <configuration>
             <encoding>UTF-8</encoding>          
             <configLocation>${checkstyle-config-file}</configLocation>
@@ -204,8 +241,18 @@
               </goals>
             </execution>
           </executions>
-        </plugin>       
-      </plugins>        
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>2.4.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.1.1</version>
+        </plugin>
+      </plugins>
     </pluginManagement>
     <plugins>
       <plugin>
@@ -218,16 +265,91 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
       </plugin>      
     </plugins>
   </build>
 
   <profiles>
+    <profile>
+      <id>mysql-test</id>
+      <dependencies>
+        <dependency>
+          <groupId>mysql</groupId>
+          <artifactId>mysql-connector-java</artifactId>
+          <version>8.0.15</version>
+        </dependency>
+      </dependencies>
+      <properties>
+        <liquibase.url>jdbc:mysql://localhost:3306/quartz?serverTimezone=EST</liquibase.url>
+        <liquibase.username>quartz</liquibase.username>
+        <liquibase.password>quartz123</liquibase.password>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-maven-plugin</artifactId>
+            <version>3.6.3</version>
+            <configuration>
+              <changeLogFile>org/quartz/impl/jdbcjobstore/liquibase.quartz.init.xml</changeLogFile>
+              <driver>com.mysql.cj.jdbc.Driver</driver>
+              <url>${liquibase.url}</url>
+              <username>${liquibase.username}</username>
+              <password>${liquibase.password}</password>
+            </configuration>
+            <executions>
+              <execution>
+                <phase>process-resources</phase>
+                <goals>
+                  <goal>update</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>postgres-test</id>
+      <dependencies>
+        <dependency>
+          <groupId>org.postgresql</groupId>
+          <artifactId>postgresql</artifactId>
+          <version>42.2.5</version>
+        </dependency>
+      </dependencies>
+      <properties>
+        <liquibase.url>jdbc:postgresql://localhost:5432/quartz</liquibase.url>
+        <liquibase.username>quartz</liquibase.username>
+        <liquibase.password>quartz123</liquibase.password>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-maven-plugin</artifactId>
+            <version>3.6.3</version>
+            <configuration>
+              <changeLogFile>org/quartz/impl/jdbcjobstore/liquibase.quartz.init.xml</changeLogFile>
+              <driver>org.postgresql.Driver</driver>
+              <url>${liquibase.url}</url>
+              <username>${liquibase.username}</username>
+              <password>${liquibase.password}</password>
+            </configuration>
+            <executions>
+              <execution>
+                <phase>process-resources</phase>
+                <goals>
+                  <goal>update</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
     <profile>
       <id>dist</id>
       <modules>
@@ -252,13 +374,12 @@
             <executions>
               <execution>
                 <id>sign-artifacts</id>
-                <phase>package</phase>
+                <phase>verify</phase>
                 <goals>
                   <goal>sign</goal>
                 </goals>
                 <configuration>
                   <keyname>Terracotta Release Engineer</keyname>
-                  <passphrase>k1ngk0ng</passphrase>
                 </configuration>
               </execution>
             </executions>
@@ -268,7 +389,7 @@
     </profile>
 
     <profile>
-      <id>deploy-sourceforge</id>
+      <id>deploy-sonatype</id>
       <distributionManagement>
         <snapshotRepository>
           <id>quartz-snapshots</id>
@@ -291,7 +412,22 @@
           <url>${terracotta-releases-url}</url>
         </repository>
       </distributionManagement>
-    </profile>    
+    </profile>
+    <profile>
+      <id>system-tests</id>
+      <modules>
+        <module>system-tests</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>doclint-java8-disable</id>
+      <activation>
+        <jdk>[1.8,)</jdk>
+      </activation>
+      <properties>
+        <additionalparam>-Xdoclint:none</additionalparam>
+      </properties>
+    </profile>
   </profiles>  
 
   <distributionManagement>

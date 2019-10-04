@@ -53,6 +53,10 @@ public class ListenerManagerImpl implements ListenerManager {
     }
 
 
+    public void addJobListener(JobListener jobListener) {
+        addJobListener(jobListener, EverythingMatcher.allJobs());
+    }
+    
     public void addJobListener(JobListener jobListener, Matcher<JobKey> matcher) {
         if (jobListener.getName() == null || jobListener.getName().length() == 0) {
             throw new IllegalArgumentException(
@@ -74,7 +78,7 @@ public class ListenerManagerImpl implements ListenerManager {
 
     public boolean addJobListenerMatcher(String listenerName, Matcher<JobKey> matcher) {
         if(matcher == null)
-            throw new IllegalArgumentException("Non-null value not acceptable.");
+            throw new IllegalArgumentException("Null value not acceptable.");
         
         synchronized (globalJobListeners) {
             List<Matcher<JobKey>> matchers = globalJobListenersMatchers.get(listenerName);
@@ -161,10 +165,14 @@ public class ListenerManagerImpl implements ListenerManager {
             globalTriggerListenersMatchers.put(triggerListener.getName(), matchersL);
         }
     }
+    
+    public void addTriggerListener(TriggerListener triggerListener) {
+        addTriggerListener(triggerListener, EverythingMatcher.allTriggers());
+    }
 
     public void addTriggerListener(TriggerListener triggerListener, Matcher<TriggerKey> matcher) {
         if(matcher == null)
-            throw new IllegalArgumentException("Non-null value not acceptable for matcher.");
+            throw new IllegalArgumentException("Null value not acceptable for matcher.");
         
         if (triggerListener.getName() == null
                 || triggerListener.getName().length() == 0) {

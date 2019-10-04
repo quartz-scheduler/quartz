@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2009 Terracotta, Inc.
+ *  All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -27,6 +27,9 @@ import java.util.concurrent.atomic.AtomicLong;
  * 
  */
 public class CounterImpl implements Counter, Serializable {
+  
+    private static final long serialVersionUID = -1529134342654953984L;
+    
     private AtomicLong value;
 
     /**

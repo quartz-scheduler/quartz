@@ -1,5 +1,5 @@
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -46,7 +46,7 @@ public class StdRowLockSemaphore extends DBSemaphore {
     public static final String INSERT_LOCK = "INSERT INTO "
         + TABLE_PREFIX_SUBST + TABLE_LOCKS + "(" + COL_SCHEDULER_NAME + ", " + COL_LOCK_NAME + ") VALUES (" 
         + SCHED_NAME_SUBST + ", ?)"; 
-    
+
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      * 
@@ -55,8 +55,34 @@ public class StdRowLockSemaphore extends DBSemaphore {
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      */
 
+    public StdRowLockSemaphore() {
+        super(DEFAULT_TABLE_PREFIX, null, SELECT_FOR_LOCK, INSERT_LOCK);
+    }
+
     public StdRowLockSemaphore(String tablePrefix, String schedName, String selectWithLockSQL) {
         super(tablePrefix, schedName, selectWithLockSQL != null ? selectWithLockSQL : SELECT_FOR_LOCK, INSERT_LOCK);
+    }
+
+    // Data Members
+
+    // Configurable lock retry parameters
+    private int maxRetry = 3;
+    private long retryPeriod = 1000L;
+
+    public void setMaxRetry(int maxRetry) {
+        this.maxRetry = maxRetry;
+    }
+
+    public void setRetryPeriod(long retryPeriod) {
+        this.retryPeriod = retryPeriod;
+    }
+
+    public int getMaxRetry() {
+        return maxRetry;
+    }
+
+    public long getRetryPeriod() {
+        return retryPeriod;
     }
 
     /*
@@ -74,9 +100,15 @@ public class StdRowLockSemaphore extends DBSemaphore {
     protected void executeSQL(Connection conn, final String lockName, final String expandedSQL, final String expandedInsertSQL) throws LockException {
         PreparedStatement ps = null;
         ResultSet rs = null;
-
+        SQLException initCause = null;
+        
         // attempt lock two times (to work-around possible race conditions in inserting the lock row the first time running)
         int count = 0;
+
+        // Configurable lock retry attempts
+        int maxRetryLocal = this.maxRetry;
+        long retryPeriodLocal = this.retryPeriod;
+
         do {
             count++;
             try {
@@ -103,10 +135,10 @@ public class StdRowLockSemaphore extends DBSemaphore {
                     int res = ps.executeUpdate();
                     
                     if(res != 1) {
-                        if(count < 3) {
+                        if(count < maxRetryLocal) {
                             // pause a bit to give another thread some time to commit the insert of the new lock row
                             try {
-                                Thread.sleep(1000L);
+                                Thread.sleep(retryPeriodLocal);
                             } catch (InterruptedException ignore) {
                                 Thread.currentThread().interrupt();
                             }
@@ -118,10 +150,9 @@ public class StdRowLockSemaphore extends DBSemaphore {
                             "No row exists, and one could not be inserted in table " + TABLE_PREFIX_SUBST + TABLE_LOCKS + 
                             " for lock named: " + lockName, getTablePrefix(), getSchedulerNameLiteral()));
                     }
-                        
                 }
                 
-                break; // obtained lock, no need to retry
+                return; // obtained lock, go
             } catch (SQLException sqle) {
                 //Exception src =
                 // (Exception)getThreadLocksObtainer().get(lockName);
@@ -130,16 +161,19 @@ public class StdRowLockSemaphore extends DBSemaphore {
                 //else
                 //  System.err.println("--- ***************** NO OBTAINER!");
     
+                if(initCause == null)
+                    initCause = sqle;
+                
                 if (getLog().isDebugEnabled()) {
                     getLog().debug(
                         "Lock '" + lockName + "' was not obtained by: " + 
-                        Thread.currentThread().getName() + (count < 3 ? " - will try again." : ""));
+                        Thread.currentThread().getName() + (count < maxRetryLocal ? " - will try again." : ""));
                 }
                 
-                if(count < 3) {
+                if(count < maxRetryLocal) {
                     // pause a bit to give another thread some time to commit the insert of the new lock row
                     try {
-                        Thread.sleep(1000L);
+                        Thread.sleep(retryPeriodLocal);
                     } catch (InterruptedException ignore) {
                         Thread.currentThread().interrupt();
                     }
@@ -163,7 +197,9 @@ public class StdRowLockSemaphore extends DBSemaphore {
                     }
                 }
             }
-        } while(count < 2);
+        } while(count < (maxRetryLocal + 1));
+        
+        throw new LockException("Failure obtaining db row lock, reached maximum number of attempts. Initial exception (if any) attached as root cause.", initCause);
     }
 
     protected String getSelectWithLockSQL() {

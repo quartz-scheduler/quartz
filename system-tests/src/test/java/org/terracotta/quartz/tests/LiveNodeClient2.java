@@ -1,4 +1,20 @@
-package org.terracotta.quartz.tests;
+/* 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved. 
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
+ * use this file except in compliance with the License. You may obtain a copy 
+ * of the License at 
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0 
+ *   
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT 
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the 
+ * License for the specific language governing permissions and limitations 
+ * under the License.
+ * 
+ */
+ package org.terracotta.quartz.tests;
 
 import org.quartz.Scheduler;
 import org.quartz.impl.JobDetailImpl;
@@ -35,16 +51,18 @@ public class LiveNodeClient2 extends ClientBase {
     // not strictly necessary but this should make the newly added trigger get ACQUIRED locally
     Thread.sleep(5000L);
 
-    Socket s = null;
-    for (int i = 0; i < 30; i++) {
+    Socket s;
+
+    // make this loop forever in case a hang in the first client prevents the listener from ever starting. This loop
+    // should make the test timeout and thus we'll get a thread dump
+    while (true) {
       try {
         s = new Socket("127.0.0.1", node1Port);
+        break;
       } catch (ConnectException ce) {
         Thread.sleep(1000L);
       }
     }
-
-    if (s == null) { throw new AssertionError("no listening port found on " + node1Port); }
 
     InputStream in = s.getInputStream();
 

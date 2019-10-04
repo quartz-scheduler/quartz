@@ -1,5 +1,5 @@
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -178,6 +178,7 @@ public class PropertySettingJobFactoryTest extends TestCase {
             return booleanValue;
         }
     
+        @SuppressWarnings("unused")
         public void setBooleanValue(boolean booleanValue) {
             this.booleanValue = booleanValue;
         }
@@ -186,6 +187,7 @@ public class PropertySettingJobFactoryTest extends TestCase {
             return doubleValue;
         }
     
+        @SuppressWarnings("unused")
         public void setDoubleValue(double doubleValue) {
             this.doubleValue = doubleValue;
         }
@@ -194,6 +196,7 @@ public class PropertySettingJobFactoryTest extends TestCase {
             return floatValue;
         }
     
+        @SuppressWarnings("unused")
         public void setFloatValue(float floatValue) {
             this.floatValue = floatValue;
         }
@@ -202,6 +205,7 @@ public class PropertySettingJobFactoryTest extends TestCase {
             return intValue;
         }
     
+        @SuppressWarnings("unused")
         public void setIntValue(int intValue) {
             this.intValue = intValue;
         }
@@ -210,6 +214,7 @@ public class PropertySettingJobFactoryTest extends TestCase {
             return longValue;
         }
     
+        @SuppressWarnings("unused")
         public void setLongValue(long longValue) {
             this.longValue = longValue;
         }
@@ -226,6 +231,7 @@ public class PropertySettingJobFactoryTest extends TestCase {
             return stringValue;
         }
     
+        @SuppressWarnings("unused")
         public void setStringValue(String stringValue) {
             this.stringValue = stringValue;
         }
@@ -234,6 +240,7 @@ public class PropertySettingJobFactoryTest extends TestCase {
             return byteValue;
         }
 
+        @SuppressWarnings("unused")
         public void setByteValue(byte byteValue) {
             this.byteValue = byteValue;
         }
@@ -242,6 +249,7 @@ public class PropertySettingJobFactoryTest extends TestCase {
             return charValue;
         }
 
+        @SuppressWarnings("unused")
         public void setCharValue(char charValue) {
             this.charValue = charValue;
         }
@@ -250,6 +258,7 @@ public class PropertySettingJobFactoryTest extends TestCase {
             return shortValue;
         }
 
+        @SuppressWarnings("unused")
         public void setShortValue(short shortValue) {
             this.shortValue = shortValue;
         }

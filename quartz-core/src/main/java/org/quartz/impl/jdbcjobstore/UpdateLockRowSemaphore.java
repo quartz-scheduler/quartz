@@ -1,5 +1,5 @@
 /*
- * Copyright 2001-2009 Terracotta, Inc.
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -52,6 +52,8 @@ public class UpdateLockRowSemaphore extends DBSemaphore {
         + TABLE_PREFIX_SUBST + TABLE_LOCKS + "(" + COL_SCHEDULER_NAME + ", " + COL_LOCK_NAME + ") VALUES (" 
         + SCHED_NAME_SUBST + ", ?)"; 
     
+    private static final int RETRY_COUNT = 2;
+
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      *
@@ -77,90 +79,28 @@ public class UpdateLockRowSemaphore extends DBSemaphore {
      */
     @Override
     protected void executeSQL(Connection conn, final String lockName, final String expandedSQL, final String expandedInsertSQL) throws LockException {
-        PreparedStatement ps = null;
-
-        // attempt lock two times (to work-around possible race conditions in inserting the lock row the first time running)
-        int count = 0;
-        do {        
-            count++;
+        SQLException lastFailure = null;
+        for (int i = 0; i < RETRY_COUNT; i++) {
             try {
-                ps = conn.prepareStatement(expandedSQL);
-                ps.setString(1, lockName);
-    
-                if (getLog().isDebugEnabled()) {
-                    getLog().debug(
-                        "Lock '" + lockName + "' is being obtained: " + 
-                        Thread.currentThread().getName());
+                if (!lockViaUpdate(conn, lockName, expandedSQL)) {
+                    lockViaInsert(conn, lockName, expandedInsertSQL);
                 }
-                
-                int numUpdate = ps.executeUpdate();
-                
-                if (numUpdate < 1) {
-                    getLog().debug(
-                            "Inserting new lock row for lock: '" + lockName + "' being obtained by thread: " + 
-                            Thread.currentThread().getName());
-                    ps.close();
-                    ps = null;
-                    ps = conn.prepareStatement(expandedInsertSQL);
-                    ps.setString(1, lockName);
-    
-                    int res = ps.executeUpdate();
-                    
-                    if(res != 1) {
-                        if(count < 3) {
-                            // pause a bit to give another thread some time to commit the insert of the new lock row
-                            try {
-                                Thread.sleep(1000L);
-                            } catch (InterruptedException ignore) {
-                                Thread.currentThread().interrupt();
-                            }
-                            // try again ...
-                            continue;
-                        }                        
-                        
-                        throw new SQLException(Util.rtp(
-                            "No row exists, and one could not be inserted in table " + TABLE_PREFIX_SUBST + TABLE_LOCKS + 
-                            " for lock named: " + lockName, getTablePrefix(), getSchedulerNameLiteral()));
-                    }
-                    
-                    break; // obtained lock, no need to retry
+                return;
+            } catch (SQLException e) {
+                lastFailure = e;
+                if ((i + 1) == RETRY_COUNT) {
+                    getLog().debug("Lock '{}' was not obtained by: {}", lockName, Thread.currentThread().getName());
+                } else {
+                    getLog().debug("Lock '{}' was not obtained by: {} - will try again.", lockName, Thread.currentThread().getName());
                 }
-            } catch (SQLException sqle) {
-                //Exception src =
-                // (Exception)getThreadLocksObtainer().get(lockName);
-                //if(src != null)
-                //  src.printStackTrace();
-                //else
-                //  System.err.println("--- ***************** NO OBTAINER!");
-    
-                if(getLog().isDebugEnabled()) {
-                    getLog().debug(
-                        "Lock '" + lockName + "' was not obtained by: " + 
-                        Thread.currentThread().getName() + (count < 3 ? " - will try again." : ""));
-                }
-                
-                if(count < 3) {
-                    // pause a bit to give another thread some time to commit the insert of the new lock row
-                    try {
-                        Thread.sleep(1000L);
-                    } catch (InterruptedException ignore) {
-                        Thread.currentThread().interrupt();
-                    }
-                    // try again ...
-                    continue;
-                }
-                
-                throw new LockException(
-                    "Failure obtaining db row lock: " + sqle.getMessage(), sqle);
-            } finally {
-                if (ps != null) {
-                    try {
-                        ps.close();
-                    } catch (Exception ignore) {
-                    }
+                try {
+                    Thread.sleep(1000L);
+                } catch (InterruptedException _) {
+                    Thread.currentThread().interrupt();
                 }
             }
-        } while(count < 2);
+        }
+        throw new LockException("Failure obtaining db row lock: " + lastFailure.getMessage(), lastFailure);
     }
     
     protected String getUpdateLockRowSQL() {
@@ -169,5 +109,31 @@ public class UpdateLockRowSemaphore extends DBSemaphore {
 
     public void setUpdateLockRowSQL(String updateLockRowSQL) {
         setSQL(updateLockRowSQL);
+    }
+
+    private boolean lockViaUpdate(Connection conn, String lockName, String sql) throws SQLException {
+        PreparedStatement ps = conn.prepareStatement(sql);
+        try {
+            ps.setString(1, lockName);
+            getLog().debug("Lock '" + lockName + "' is being obtained: " + Thread.currentThread().getName());
+            return ps.executeUpdate() >= 1;
+        } finally {
+            ps.close();
+        }
+    }
+
+    private void lockViaInsert(Connection conn, String lockName, String sql) throws SQLException {
+        getLog().debug("Inserting new lock row for lock: '" + lockName + "' being obtained by thread: " + Thread.currentThread().getName());
+        PreparedStatement ps = conn.prepareStatement(sql);
+        try {
+            ps.setString(1, lockName);
+            if(ps.executeUpdate() != 1) {
+                throw new SQLException(Util.rtp(
+                    "No row exists, and one could not be inserted in table " + TABLE_PREFIX_SUBST + TABLE_LOCKS + 
+                    " for lock named: " + lockName, getTablePrefix(), getSchedulerNameLiteral()));
+            }
+        } finally {
+            ps.close();
+        }
     }
 }

@@ -5,19 +5,30 @@
   <parent>
     <groupId>org.quartz-scheduler</groupId>
     <artifactId>quartz-parent</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>${revision}</version>
   </parent>
 
   <groupId>org.quartz-scheduler.internal</groupId>
   <artifactId>quartz-core</artifactId>
   <name>quartz-core</name>
 
+  <properties>
+	 <derby-version>10.8.2.2</derby-version>
+  </properties>
+
   <dependencies>
     <!--Compile scope. If you add something to compile scope, you have to do the same thing in packaging/pom.xml -->
     <dependency>
-      <groupId>c3p0</groupId>
+      <groupId>com.mchange</groupId>
       <artifactId>c3p0</artifactId>
       <version>${c3p0.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.zaxxer</groupId>
+      <artifactId>HikariCP</artifactId>
+      <version>${hikaricp.version}</version>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -54,6 +65,12 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <version>1.9.5</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit-dep</artifactId>
       <version>4.8.2</version>
@@ -68,9 +85,21 @@
     <dependency>
       <groupId>org.apache.derby</groupId>
       <artifactId>derby</artifactId>
-      <version>10.8.1.2</version>
+      <version>${derby-version}</version>
       <scope>test</scope>
     </dependency>
+	<dependency>
+		<groupId>org.apache.derby</groupId>
+		<artifactId>derbynet</artifactId>
+		<version>${derby-version}</version>
+		<scope>test</scope>
+	</dependency>
+	<dependency>
+		<groupId>org.apache.derby</groupId>
+		<artifactId>derbyclient</artifactId>
+		<version>${derby-version}</version>
+		<scope>test</scope>
+	</dependency>
 
   </dependencies>
 
@@ -86,7 +115,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>rmic-maven-plugin</artifactId>
-        <version>1.0</version>
+        <version>1.1</version>
         <executions>
           <execution>
             <id>rmic-process-classes</id>
@@ -106,11 +135,15 @@
         <version>2.10</version>
         <configuration>
           <forkMode>always</forkMode>
-          <systemProperties>            
+          <systemProperties>  
+            <property>
+              <name>buildDirectory</name>
+              <value>${project.build.directory}</value>            
+            </property>
             <property>
               <!-- skip update check in tests -->
               <name>org.quartz.scheduler.skipUpdateCheck</name>
-              <value>true</value>            
+              <value>true</value>
             </property>
           </systemProperties>
         </configuration>      
@@ -137,7 +170,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore></ignore>
+                    <ignore />
                   </action>
                 </pluginExecution>
               </pluginExecutions>
@@ -147,5 +180,14 @@
       </plugins>
     </pluginManagement>
   </build>
+  
+  <profiles>
+    <profile>
+      <id>deploy-sonatype</id>
+      <properties>
+        <skipDeploy>true</skipDeploy>
+      </properties>
+    </profile>
+  </profiles>   
 
 </project>

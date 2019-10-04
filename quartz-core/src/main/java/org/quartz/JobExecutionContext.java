@@ -34,7 +34,8 @@ import java.util.Date;
  * <i>It is thus considered a 'best practice' that the execute code of a Job
  * retrieve data from the JobDataMap found on this object</i>  NOTE: Do not
  * expect value 'set' into this JobDataMap to somehow be set back onto a
- * <code>StatefulJob</code>'s own JobDataMap.
+ * job's own JobDataMap  - even if it has the
+ * <code>@PersistJobDataAfterExecution</code> annotation.
  * </p>
  * 
  * <p>
@@ -93,6 +94,21 @@ public interface JobExecutionContext {
      */
     public boolean isRecovering();
 
+    /**
+     * Return the {@code TriggerKey} of the originally scheduled and now recovering job.
+     * <p>
+     * When recovering a previously failed job execution this method returns the identity
+     * of the originally firing trigger.  This recovering job will have been scheduled for
+     * the same firing time as the original job, and so is available via the
+     * {@link #getScheduledFireTime()} method.  The original firing time of the job can be
+     * accessed via the {@link Scheduler#FAILED_JOB_ORIGINAL_TRIGGER_FIRETIME_IN_MILLISECONDS}
+     * element of this job's {@code JobDataMap}.
+     * 
+     * @return the recovering trigger details
+     * @throws IllegalStateException if this is not a recovering job.
+     */
+    public TriggerKey getRecoveringTriggerKey() throws IllegalStateException;
+
     public int getRefireCount();
 
     /**
@@ -109,9 +125,9 @@ public interface JobExecutionContext {
      * retrieve data from the JobDataMap found on this object.</i>
      * </p>
      * 
-     * <p>NOTE: Do not
-     * expect value 'set' into this JobDataMap to somehow be set back onto a
-     * <code>StatefulJob</code>'s own JobDataMap.
+     * <p>NOTE: Do not expect value 'set' into this JobDataMap to somehow be set
+     * or persisted back onto a job's own JobDataMap - even if it has the
+     * <code>@PersistJobDataAfterExecution</code> annotation.
      * </p>
      * 
      * <p>
@@ -223,15 +239,15 @@ public interface JobExecutionContext {
      * completes, and all TriggerListeners and JobListeners have been 
      * notified.</p> 
      *  
-     * @param key
-     * @param value
+     * @param key the key for the associated value
+     * @param value the value to store
      */
     public void put(Object key, Object value);
 
     /**
      * Get the value with the given key from the context's data map.
      * 
-     * @param key
+     * @param key the key for the desired value
      */
     public Object get(Object key);
 

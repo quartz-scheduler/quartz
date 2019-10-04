@@ -35,6 +35,8 @@ import java.util.TimeZone;
  */
 public class TimeOfDay implements Serializable {
 
+    private static final long serialVersionUID = 2964774315889061771L;
+
     private final int hour;
     private final int minute;
     private final int second;
@@ -169,16 +171,16 @@ public class TimeOfDay implements Serializable {
     
     /** Return a date with time of day reset to this object values. The millisecond value will be zero. */
     public Date getTimeOfDayForDate(Date dateTime) {
-      if (dateTime == null)
-        return null;
-      Calendar cal = Calendar.getInstance();
-      cal.setTime(dateTime);
-    cal.set(Calendar.HOUR_OF_DAY, hour);
-    cal.set(Calendar.MINUTE, minute);
-    cal.set(Calendar.SECOND, second);
-    cal.clear(Calendar.MILLISECOND);
-    return cal.getTime();
-  }
+        if (dateTime == null)
+            return null;
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(dateTime);
+        cal.set(Calendar.HOUR_OF_DAY, hour);
+        cal.set(Calendar.MINUTE, minute);
+        cal.set(Calendar.SECOND, second);
+        cal.clear(Calendar.MILLISECOND);
+        return cal.getTime();
+    }
     
     /**
      * Create a TimeOfDay from the given date, in the system default TimeZone.
@@ -186,7 +188,7 @@ public class TimeOfDay implements Serializable {
      * @param dateTime The java.util.Date from which to extract Hour, Minute and Second.
      */
     public static TimeOfDay hourAndMinuteAndSecondFromDate(Date dateTime) {
-      return hourAndMinuteAndSecondFromDate(dateTime, null);
+        return hourAndMinuteAndSecondFromDate(dateTime, null);
     }
     
     /**
@@ -197,14 +199,14 @@ public class TimeOfDay implements Serializable {
      * TimeZone will be used.
      */
     public static TimeOfDay hourAndMinuteAndSecondFromDate(Date dateTime, TimeZone tz) {
-      if (dateTime == null)
-        return null;
-      Calendar cal = Calendar.getInstance();
-      cal.setTime(dateTime);
-      if(tz != null)
-        cal.setTimeZone(tz);
-      
-      return new TimeOfDay(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND));
+        if (dateTime == null)
+            return null;
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(dateTime);
+        if(tz != null)
+            cal.setTimeZone(tz);
+        
+        return new TimeOfDay(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND));
     }
     
     /**
@@ -213,7 +215,7 @@ public class TimeOfDay implements Serializable {
      * @param dateTime The java.util.Date from which to extract Hour and Minute.
      */
     public static TimeOfDay hourAndMinuteFromDate(Date dateTime) {
-      return hourAndMinuteFromDate(dateTime, null);
+        return hourAndMinuteFromDate(dateTime, null);
     }
     
     /**
@@ -224,18 +226,18 @@ public class TimeOfDay implements Serializable {
      * TimeZone will be used.
      */
     public static TimeOfDay hourAndMinuteFromDate(Date dateTime, TimeZone tz) {
-      if (dateTime == null)
-        return null;
-      Calendar cal = Calendar.getInstance();
-      cal.setTime(dateTime);
-      if(tz != null)
-        cal.setTimeZone(tz);
-      
-      return new TimeOfDay(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
+        if (dateTime == null)
+            return null;
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(dateTime);
+        if(tz != null)
+            cal.setTimeZone(tz);
+        
+        return new TimeOfDay(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
     }
     
     @Override
     public String toString() {
-      return "TimeOfDay[" + hour + ":" + minute + ":" + second + "]";
+        return "TimeOfDay[" + hour + ":" + minute + ":" + second + "]";
     }
 }

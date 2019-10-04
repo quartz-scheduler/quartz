@@ -26,6 +26,8 @@ import org.quartz.utils.Key;
  * @author jhouse
  */
 public class GroupMatcher<T extends Key<?>> extends StringMatcher<T> {
+  
+    private static final long serialVersionUID = -3275767650469343849L;
 
     protected GroupMatcher(String compareTo, StringOperatorName compareWith) {
         super(compareTo, compareWith);
@@ -113,7 +115,28 @@ public class GroupMatcher<T extends Key<?>> extends StringMatcher<T> {
      */
     public static GroupMatcher<TriggerKey> triggerGroupContains(String compareTo) {
         return GroupMatcher.groupContains(compareTo);
-    }    
+    }
+
+    /**
+     * Create a GroupMatcher that matches groups starting with the given string.
+     */
+    public static <T extends Key<T>> GroupMatcher<T> anyGroup() {
+        return new GroupMatcher<T>("", StringOperatorName.ANYTHING);
+    }
+
+    /**
+     * Create a GroupMatcher that matches job groups starting with the given string.
+     */
+    public static GroupMatcher<JobKey> anyJobGroup() {
+        return GroupMatcher.anyGroup();
+    }
+
+    /**
+     * Create a GroupMatcher that matches trigger groups starting with the given string.
+     */
+    public static GroupMatcher<TriggerKey> anyTriggerGroup() {
+        return GroupMatcher.anyGroup();
+    }
 
     @Override
     protected String getValue(T key) {

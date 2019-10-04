@@ -1,5 +1,5 @@
 /* 
- * Copyright 2005 - 2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved. 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -14,7 +14,7 @@
  * under the License.
  * 
  */
-
+ 
 package org.quartz.examples.example6;
 
 import java.util.Date;
@@ -41,6 +41,7 @@ public class BadJob2 implements Job {
 
     // Logging
     private static Logger _log = LoggerFactory.getLogger(BadJob2.class);
+    private int calculation;
 
     /**
      * Empty public constructor for job initialization
@@ -67,8 +68,7 @@ public class BadJob2 implements Job {
         // divide by zero error
         try {
             int zero = 0;
-            @SuppressWarnings("unused")
-            int calculation = 4815 / zero;
+            calculation = 4815 / zero;
         } catch (Exception e) {
             _log.info("--- Error in job!");
             JobExecutionException e2 = 

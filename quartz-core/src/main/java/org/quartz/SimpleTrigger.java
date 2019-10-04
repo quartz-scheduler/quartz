@@ -160,5 +160,5 @@ public interface SimpleTrigger extends Trigger {
      */
     public int getTimesTriggered();
 
-  TriggerBuilder<SimpleTrigger> getTriggerBuilder();
+    TriggerBuilder<SimpleTrigger> getTriggerBuilder();
 }

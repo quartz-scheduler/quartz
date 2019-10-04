@@ -1,5 +1,5 @@
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -46,6 +46,7 @@ public class JobDataMapTest extends SerializationTestSupport {
      * Verify that the target object and the object we just deserialized 
      * match.
      */
+    @SuppressWarnings("deprecation")
     @Override
     protected void verifyMatch(Object target, Object deserialized) {
         JobDataMap targetMap = (JobDataMap)target;
@@ -58,6 +59,6 @@ public class JobDataMapTest extends SerializationTestSupport {
     }
     
     public static void main(String[] args) throws Exception {
-    new JobDataMapTest().writeJobDataFile("2.1");
-  }
+		new JobDataMapTest().writeJobDataFile("2.1");
+	}
 }

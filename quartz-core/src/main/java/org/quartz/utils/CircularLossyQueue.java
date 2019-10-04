@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2009 Terracotta, Inc.
+ *  All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ public class CircularLossyQueue<T> {
      * @param size
      */
     @SuppressWarnings("unchecked")
-  public CircularLossyQueue(int size) {
+    public CircularLossyQueue(int size) {
         this.circularArray = new AtomicReference[size];
         for (int i = 0; i < size; i++) {
             this.circularArray[i] = new AtomicReference<T>();

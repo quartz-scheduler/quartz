@@ -1,5 +1,5 @@
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -204,7 +204,7 @@ public class JTANonClusteredSemaphore implements Semaphore {
      * Release the lock on the identified resource if it is held by the calling
      * thread, unless currently in a JTA transaction.
      */
-    public synchronized void releaseLock(Connection conn, String lockName) throws LockException {
+    public synchronized void releaseLock(String lockName) throws LockException {
         releaseLock(lockName, false);
     }
     

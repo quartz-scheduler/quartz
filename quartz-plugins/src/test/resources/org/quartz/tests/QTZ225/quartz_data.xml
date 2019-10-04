@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<job-scheduling-data xmlns="http://www.quartz-scheduler.org/xml/JobSchedulingData"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.quartz-scheduler.org/xml/JobSchedulingData http://www.quartz-scheduler.org/xml/job_scheduling_data_2_0.xsd"
+    version="2.0">
+    
+    <pre-processing-commands>
+        <delete-jobs-in-group>*</delete-jobs-in-group>  <!-- clear all jobs in scheduler -->
+        <delete-triggers-in-group>*</delete-triggers-in-group> <!-- clear all triggers in scheduler -->
+    </pre-processing-commands>
+    
+    <processing-directives>
+        <!-- if there are any jobs/trigger in scheduler of same name (as in this file), overwrite them -->
+        <overwrite-existing-data>true</overwrite-existing-data>
+        <!-- if there are any jobs/trigger in scheduler of same name (as in this file), and over-write is false, ignore them rather then generating an error -->
+        <ignore-duplicates>false</ignore-duplicates> 
+    </processing-directives>
+    
+    <schedule>
+	    <job>
+	        <name>ImaginaryJob</name>
+	        <job-class>imaginary.class.OnlyVisibleByDummyClassLoadHelperJob</job-class>
+	    </job>
+	    
+        <trigger>
+	        <simple>
+	            <name>TestSimpleTrigger1AtFiveSecondInterval</name>
+	            <job-name>ImaginaryJob</job-name>
+	            <repeat-count>-1</repeat-count> <!-- repeat indefinitely  -->
+	            <repeat-interval>5000</repeat-interval>  <!--  every 5 seconds -->
+	        </simple>
+	    </trigger>
+	
+	   
+    </schedule>    
+</job-scheduling-data>

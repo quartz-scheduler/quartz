@@ -1,0 +1,106 @@
+A summary of each issue fixed should be documented here along with the code changes.
+
+For a details of release notes see https://github.com/quartz-scheduler/quartz/releases[GitHub Release]
+
+== quartz-2.4.0
+
+This release is still work in progress under `master` branch!
+
+THIS RELEASE REQUIRES JDK8
+
+- https://github.com/quartz-scheduler/quartz/milestone/6[Open Issues]
+- https://github.com/quartz-scheduler/quartz/milestone/6?closed=1[Completed Issues]
+
+
+== quartz-2.3.1
+
+Released on 25-Mar-2018
+
+THIS RELEASE REQUIRES JDK7
+
+* #294 depen: Update hikaricp-java6:2.3.13 to hikaricp-java7:2.4.13
+* #316 depen: Updated C3P0 version to 0.9.5.3
+* #147 bugfix: Fix BINARY to BLOG type for job data for hsqldb
+* #156 bugfix: Fix null string used in thread name with DirectSchedulerFactory
+* #159 bugfix: Fix extra bad char tick on drop table qurtz_fired_triggers for postgres
+* #146 bugfix: Release BLOCKED triggers in releaseAcquiredTrigger
+* #212 bugfix: QuartzInitializerListener: fix a typo
+* #193 bugfix: Job execution context impl returns incorrect recovering job key
+* #172 bugfix: Miss notify SchedulerListeners in QuartzScheduler.java
+* #220 bugifx: DailyTimeIntervalTrigger failed to set endingDailyAfterCount = 1
+* #160 improv: Add drop table if exists check in sql script for postgres
+* #214 improv: Reuse JobBuilder.storeDurably(boolean) in JobBuilder
+* #281 improv: Fix no setter for dataSource property validateOnCheckout
+* #264 improv: Fix no setter for dataSource property discardIdleConnectionsSeconds
+* #245 improv: Sybase: Changed varchar length TRIGGER_NAME from 80 to 200
+* #340 improv: Use all-caps table names in the liquibase script
+* #189 improv: NPE thrown when acquiring next trigger due to null next fire time value
+* #268 improv: Add configurable params for StdRowLockSemaphore for Failure obtaining db row lock
+* #293 build: Setup Azure CI server for Quartz project
+* #66  build: Remove unused 'svn' requirement during maven package build
+* #301 build: Improve project with readme, and license changes log
+* #302 build: Update mvnw wrapper to use Maven 3.6.0
+* #226 build: Replace maven-forge-plugin with maven-jar-plugin
+* #170 docs: Minor fix and improvement on Javadoc
+* #203 docs: Minor fix and improvement on Javadoc
+* #360 docs: Update docs and migrate it into main source repository
+
+== quartz-2.3.0
+
+Released on 19-Apr-2017
+
+THIS RELEASE REQUIRES JDK7
+
+* #9   build:  Fix the Java 8 javadoc issue with 'doclint:none'
+* #6   bugfix: Fix cannot create tables in MySQL with InnoDB and UTF8mb4
+* #93  bugfix: Fix the jobs recovering (on scheduler startup)
+* #76  improv: Add missing foreign key for BLOB triggers table for ms sql server
+* #114 improv: Add 'if exists' clause to drop tables command for postgres
+* #25  feat: Add resetTriggerFromErrorState functionality
+* #126 feat: Add support for hikari cp, upgrade c3p0 library, break static dependencies
+
+== Previous Releases
+
+----
+quartz-2.2.3 	14-Apr-2016
+quartz-2.2.2 	13-Oct-2015
+quartz-2.2.1 	26-Sep-2013
+quartz-2.2.0 	29-Jun-2013
+
+quartz-2.1.7 	08-Mar-2013
+quartz-2.1.6 	13-Aug-2012
+quartz-2.1.5 	27-Apr-2012
+quartz-2.1.4 	16-Apr-2012
+quartz-2.1.3 	30-Jan-2012
+quartz-2.1.2 	22-Dec-2011
+quartz-2.1.1 	14-Nov-2011
+quartz-2.1.0 	16-Sep-2011
+
+quartz-2.0.2  26-May-2011
+quartz-2.0.1  12-Apr-2011
+quartz-2.0.0  28-Mar-2011
+
+quartz-1.8.6  12-Jan-2012
+quartz-1.8.5  12-Apr-2011
+quartz-1.8.4  19-Jul-2010
+quartz-1.8.3  22-Jun-2010
+quartz-1.8.2  18-Jun-2010
+quartz-1.8.1 	11-Jun-2010
+quartz-1.8.0 	23-Apr-2010
+
+quartz-1.7.3 	24-Feb-2010
+quartz-1.7.2 	10-Feb-2010 
+----
+
+See https://jira.terracotta.org/jira/browse/QTZ/?selectedTab=com.atlassian.jira.jira-projects-plugin:changelog-panel[older JIRA for older release changelog].
+
+== Change Categories
+
+* `build:` Changes for build, release and project management etc
+* `depen:` Changes for third-party dependencies update
+* `bugfix:` Changes for bug fix
+* `impro:` Changes for code improvement, refactoring and reformat etc
+* `feat:` Changes for new feature
+* `docs:` Changes for documentation only
+* `test:` Changes for tests only
+ 

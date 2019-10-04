@@ -1,6 +1,6 @@
 
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -181,6 +181,14 @@ public interface SchedulerListener {
      * </p>
      */
     void schedulerStarted();
+    
+    /**
+     * <p>
+     * Called by the <code>{@link Scheduler}</code> to inform the listener
+     * that it is starting.
+     * </p>
+     */
+    void schedulerStarting();
     
     /**
      * <p>

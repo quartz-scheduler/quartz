@@ -1,6 +1,6 @@
 
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -492,7 +492,7 @@ public class SimpleTriggerImpl extends AbstractTrigger<SimpleTrigger> implements
                 newFireTime = getFireTimeAfter(newFireTime);
 
                 if(newFireTime == null)
-                  break;
+                    break;
                 
                 //avoid infinite loop
                 java.util.Calendar c = java.util.Calendar.getInstance();
@@ -509,7 +509,7 @@ public class SimpleTriggerImpl extends AbstractTrigger<SimpleTrigger> implements
                 newFireTime = getFireTimeAfter(newFireTime);
 
                 if(newFireTime == null)
-                  break;
+                    break;
                 
                 //avoid infinite loop
                 java.util.Calendar c = java.util.Calendar.getInstance();
@@ -582,11 +582,11 @@ public class SimpleTriggerImpl extends AbstractTrigger<SimpleTrigger> implements
 
         while (nextFireTime != null && calendar != null
                 && !calendar.isTimeIncluded(nextFireTime.getTime())) {
-          
+            
             nextFireTime = getFireTimeAfter(nextFireTime);
 
             if(nextFireTime == null)
-              break;
+                break;
             
             //avoid infinite loop
             java.util.Calendar c = java.util.Calendar.getInstance();
@@ -598,8 +598,7 @@ public class SimpleTriggerImpl extends AbstractTrigger<SimpleTrigger> implements
     }
 
     /**
-     *  
-     * @see org.quartz.Trigger#updateWithNewCalendar(org.quartz.Calendar, long)
+     * @see org.quartz.impl.triggers.AbstractTrigger#updateWithNewCalendar(org.quartz.Calendar, long)
      */
     @Override
     public void updateWithNewCalendar(Calendar calendar, long misfireThreshold)
@@ -616,7 +615,7 @@ public class SimpleTriggerImpl extends AbstractTrigger<SimpleTrigger> implements
             nextFireTime = getFireTimeAfter(nextFireTime);
 
             if(nextFireTime == null)
-              break;
+                break;
             
             //avoid infinite loop
             java.util.Calendar c = java.util.Calendar.getInstance();
@@ -660,7 +659,7 @@ public class SimpleTriggerImpl extends AbstractTrigger<SimpleTrigger> implements
             nextFireTime = getFireTimeAfter(nextFireTime);
             
             if(nextFireTime == null)
-              break;
+                break;
             
             //avoid infinite loop
             java.util.Calendar c = java.util.Calendar.getInstance();
@@ -687,7 +686,7 @@ public class SimpleTriggerImpl extends AbstractTrigger<SimpleTrigger> implements
      * has been added to the scheduler.
      * </p>
      *
-     * @see TriggerUtils#computeFireTimesBetween(Trigger, Calendar, Date, Date)
+     * @see TriggerUtils#computeFireTimesBetween(org.quartz.spi.OperableTrigger, org.quartz.Calendar, java.util.Date, java.util.Date)
      */
     @Override
     public Date getNextFireTime() {
@@ -773,7 +772,7 @@ public class SimpleTriggerImpl extends AbstractTrigger<SimpleTrigger> implements
         long numberOfTimesExecuted = ((afterMillis - startMillis) / repeatInterval) + 1;
 
         if ((numberOfTimesExecuted > repeatCount) && 
-            (repeatCount != REPEAT_INDEFINITELY)) {        
+            (repeatCount != REPEAT_INDEFINITELY)) {
             return null;
         }
 

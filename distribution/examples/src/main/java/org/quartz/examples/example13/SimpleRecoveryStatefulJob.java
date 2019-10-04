@@ -1,5 +1,5 @@
 /* 
- * Copyright 2005 - 2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved. 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -14,28 +14,24 @@
  * under the License.
  * 
  */
-
+ 
 package org.quartz.examples.example13;
 
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.PersistJobDataAfterExecution;
-import org.quartz.DisallowConcurrentExecution;;
 
 /**
- * This job has the same functionality of SimpleRecoveryJob
- * except that this job implements is 'stateful', in that it
- * will have it's data (JobDataMap) automatically re-persisted 
- * after each execution, and only one instance of the JobDetail
- * can be executed at a time.
+ * This job has the same functionality of SimpleRecoveryJob except that this job implements is 'stateful', in that it
+ * will have it's data (JobDataMap) automatically re-persisted after each execution, and only one instance of the
+ * JobDetail can be executed at a time.
  * 
  * @author Bill Kratzer
  */
 @PersistJobDataAfterExecution
 @DisallowConcurrentExecution
-public class SimpleRecoveryStatefulJob
-    extends SimpleRecoveryJob
-{
+public class SimpleRecoveryStatefulJob extends SimpleRecoveryJob {
 
-    public SimpleRecoveryStatefulJob() {
-        super();
-    }
+  public SimpleRecoveryStatefulJob() {
+    super();
+  }
 }

@@ -23,6 +23,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import javax.transaction.UserTransaction;
+
 /**
  * An annotation that marks a {@link Job} class as one that will have its 
  * execution wrapped by a JTA Transaction. 
@@ -47,4 +49,14 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface ExecuteInJTATransaction {
 
+  /**
+   * The JTA transaction timeout.
+   * <p>
+   * If set then the {@code UserTransaction} timeout will be set to this
+   * value before beginning the transaction.
+   * 
+   * @see UserTransaction#setTransactionTimeout(int) 
+   * @return the transaction timeout.
+   */
+  int timeout() default -1;
 }

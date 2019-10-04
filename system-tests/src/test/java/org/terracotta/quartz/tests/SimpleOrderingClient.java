@@ -1,3 +1,19 @@
+/*
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy
+ * of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ *
+ */
 package org.terracotta.quartz.tests;
 
 import org.quartz.Job;
@@ -11,8 +27,8 @@ import org.quartz.impl.JobDetailImpl;
 import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.impl.matchers.EverythingMatcher;
 import org.quartz.impl.triggers.SimpleTriggerImpl;
-import org.terracotta.coordination.Barrier;
-import org.terracotta.util.ClusteredAtomicLong;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
+import org.terracotta.toolkit.concurrent.atomic.ToolkitAtomicLong;
 
 import com.tc.util.concurrent.ThreadUtil;
 
@@ -24,19 +40,24 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class SimpleOrderingClient extends ClientBase {
-  public static final int           NODE_COUNT = 5;
-  public static ClusteredAtomicLong count;
-  private final Barrier             barrier;
+  public static final int         NODE_COUNT = 5;
+  public static ToolkitAtomicLong count;
+  private final ToolkitBarrier    barrier;
 
   public SimpleOrderingClient(String[] args) {
     super(args);
-    count = getTerracottaClient().getToolkit().getAtomicLong("count");
-    barrier = getTerracottaClient().getToolkit().getBarrier("barrier", NODE_COUNT);
+    count = getClusteringToolkit().getAtomicLong("count");
+    barrier = getClusteringToolkit().getBarrier("barrier", NODE_COUNT);
   }
 
   @Override
   public void addSchedulerProperties(Properties properties) {
     properties.setProperty(StdSchedulerFactory.PROP_SCHED_IDLE_WAIT_TIME, "1000");
+  }
+
+  @Override
+  protected boolean isStartingScheduler() {
+    return false;
   }
 
   @Override

@@ -25,6 +25,8 @@ import org.quartz.utils.Key;
  * @author jhouse
  */
 public class KeyMatcher<T extends Key<?>> implements Matcher<T> {
+  
+    private static final long serialVersionUID = 1230009869074992437L;
 
     protected T compareTo;
     

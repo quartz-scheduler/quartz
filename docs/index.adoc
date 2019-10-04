@@ -1,0 +1,46 @@
+= Quartz Documentation
+:toc:
+:quartz-version: latest-x.y.z
+
+This documentation is for Quartz {quartz-version}.
+
+Project Home: https://github.com/quartz-scheduler/quartz/
+
+== Downloads
+
+Get Quartz from <<downloads.adoc#,Downloads>>
+
+== Release and General Information
+
+* <<changelog.adoc#,Change Log>>
+* <<license.adoc#,License (Apache 2.0)>>
+* https://documentation.softwareag.com/legal/[Legal Notices, role="external", window="_blank"]
+* https://confluence.terracotta.org/display/release/Home[Terracotta Platform and Release Compatibility Tables, role="external", window="_blank"]
+
+== User's Guide
+
+* <<introduction.adoc#,Introduction>>
+* <<quick-start-guide.adoc#,Quartz Quick Start Guide>>
+* <<configuration.adoc#,Configuration Reference>>
+* http://www.quartz-scheduler.org/api/{quartz-version}/[JavaDoc, role="external", window="_blank"]
+* <<tutorials/index.adoc#,Tutorial>>
+* <<examples/index.adoc#,Examples>>
+* <<cookbook/index.adoc#,Cookbook>>
+* <<faq.adoc#,FAQ>>
+* <<best-practices.adoc#,Best Practices>>
+* <<migration-guide.adoc#,Migration Guide>>
+
+== Quartz Developer's Guide
+
+* <<community.adoc#,Community & Dev Team>>
+* <<contribute.adoc#,Contribution Guide>>
+* <<build.adoc#,Build Instructions>>
+* https://github.com/quartz-scheduler/quartz/wiki[WIKI, role="external", window="_blank"]
+
+== More Help?
+
+If you don't find what you’re looking for in the docs, post a question to the Quartz support forums.
+
+* https://groups.google.com/forum/#!categories/quartz-scheduler[Quartz User Support Forum, role="external", window="_blank"]
+* https://groups.google.com/forum/#!forum/quartz-scheduler-dev[Quartz Development Forum, role="external", window="_blank"]
+

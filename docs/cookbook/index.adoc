@@ -1,0 +1,54 @@
+= Quartz Job Scheduler Cookbook
+:title: Cookbook
+:visible_title: "Quartz Cookbook"
+:active_sub_menu_id: site_mnu_docs_cookbook
+
+The Quartz cookbook is a collection of succinct code examples of doing specific things with Quartz.
+
+The examples assume you have used static imports of Quartz's DSL classes such as these:
+
+[source]
+----
+import static org.quartz.JobBuilder.*;
+import static org.quartz.TriggerBuilder.*;
+import static org.quartz.SimpleScheduleBuilder.*;
+import static org.quartz.CronScheduleBuilder.*;
+import static org.quartz.CalendarIntervalScheduleBuilder.*;
+import static org.quartz.JobKey.*;
+import static org.quartz.TriggerKey.*;
+import static org.quartz.DateBuilder.*;
+import static org.quartz.impl.matchers.KeyMatcher.*;
+import static org.quartz.impl.matchers.GroupMatcher.*;
+import static org.quartz.impl.matchers.AndMatcher.*;
+import static org.quartz.impl.matchers.OrMatcher.*;
+import static org.quartz.impl.matchers.EverythingMatcher.*;
+----
+
+Choose from the following menu of How-Tos:
+
+* link:CreateScheduler.html[Instantiating a Scheduler]
+* link:SchedulerStandby.html[Placing a Scheduler in Stand-by Mode]
+* link:ShutdownScheduler.html[Shutting Down a Scheduler]
+* link:ServletInitScheduler.html[Initializing a Scheduler Within a Servlet Container]
+* link:ServletInitScheduler.html[Utilizing Multiple (Non-Clustered) Scheduler Instances]
+* link:DefineJobWithData.html[Defining a Job]
+* link:ScheduleJob.html[Defining and Scheduling a Job]
+* link:UnscheduleJob.html[Unscheduling a Job]
+* link:StoreJob.html[Storing a Job For Later Scheduling]
+* link:ScheduleStoreJob.html[Scheduling an already stored Job]
+* link:UpdateJob.html[Updating an existing Job]
+* link:UpdateTrigger.html[Updating an existing Trigger]
+* link:JobInitPlugin.html[Initializing a Scheduler With Job And Triggers Defined in an XML file]
+* link:ListJobs.html[Listing Jobs in the Scheduler]
+* link:ListTriggers.html[Listing Triggers in the Scheduler]
+* link:JobTriggers.html[Finding Triggers of a Job]
+* link:JobListeners.html[Using JobListeners]
+* link:TriggerListeners.html[Using TriggerListeners]
+* link:SchedulerListeners.html[Using SchedulerListeners]
+* link:TenSecTrigger.html[Trigger That Fires Every 10 Seconds]
+* link:NintyMinTrigger.html[Trigger That Fires Every 90 Minutes]
+* link:DailyTrigger.html[Trigger That Fires Every Day]
+* link:BiDailyTrigger.html[Trigger That Fires Every 2 Days]
+* link:WeeklyTrigger.html[Trigger That Fires Every Week]
+* link:BiWeeklyTrigger.html[Trigger That Fires Every 2 Weeks]
+* link:MonthlyTrigger.html[Trigger That Fires Every Month]

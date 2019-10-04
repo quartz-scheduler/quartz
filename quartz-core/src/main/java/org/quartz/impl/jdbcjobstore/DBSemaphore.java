@@ -1,5 +1,5 @@
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -103,14 +103,12 @@ public abstract class DBSemaphore implements Semaphore, Constants,
     public boolean obtainLock(Connection conn, String lockName)
         throws LockException {
 
-        lockName = lockName.intern();
-
         if(log.isDebugEnabled()) {
             log.debug(
                 "Lock '" + lockName + "' is desired by: "
                         + Thread.currentThread().getName());
         }
-        if (!isLockOwner(conn, lockName)) {
+        if (!isLockOwner(lockName)) {
 
             executeSQL(conn, lockName, expandedSQL, expandedInsertSQL);
             
@@ -136,11 +134,9 @@ public abstract class DBSemaphore implements Semaphore, Constants,
      * Release the lock on the identified resource if it is held by the calling
      * thread.
      */
-    public void releaseLock(Connection conn, String lockName) {
+    public void releaseLock(String lockName) {
 
-        lockName = lockName.intern();
-
-        if (isLockOwner(conn, lockName)) {
+        if (isLockOwner(lockName)) {
             if(getLog().isDebugEnabled()) {
                 getLog().debug(
                     "Lock '" + lockName + "' returned by: "
@@ -161,9 +157,7 @@ public abstract class DBSemaphore implements Semaphore, Constants,
      * Determine whether the calling thread owns a lock on the identified
      * resource.
      */
-    public boolean isLockOwner(Connection conn, String lockName) {
-        lockName = lockName.intern();
-
+    public boolean isLockOwner(String lockName) {
         return getThreadLocks().contains(lockName);
     }
 

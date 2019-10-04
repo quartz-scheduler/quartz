@@ -55,21 +55,21 @@ public class BroadcastSchedulerListener implements SchedulerListener {
         return java.util.Collections.unmodifiableList(listeners);
     }
 
-  public void jobAdded(JobDetail jobDetail) {
+    public void jobAdded(JobDetail jobDetail) {
         Iterator<SchedulerListener> itr = listeners.iterator();
         while(itr.hasNext()) {
             SchedulerListener l = itr.next();
             l.jobAdded(jobDetail);
         }
-  }
+    }
 
-  public void jobDeleted(JobKey jobKey) {
+    public void jobDeleted(JobKey jobKey) {
         Iterator<SchedulerListener> itr = listeners.iterator();
         while(itr.hasNext()) {
             SchedulerListener l = itr.next();
             l.jobDeleted(jobKey);
         }
-  }
+    }
     
     public void jobScheduled(Trigger trigger) {
         Iterator<SchedulerListener> itr = listeners.iterator();
@@ -184,6 +184,14 @@ public class BroadcastSchedulerListener implements SchedulerListener {
         }
     }
     
+    public void schedulerStarting() {
+        Iterator<SchedulerListener> itr = listeners.iterator();
+        while (itr.hasNext()) {
+            SchedulerListener l = itr.next();
+            l.schedulerStarting();
+        }
+    }
+
     public void schedulerInStandbyMode() {
         Iterator<SchedulerListener> itr = listeners.iterator();
         while(itr.hasNext()) {

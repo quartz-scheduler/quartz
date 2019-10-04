@@ -1,5 +1,5 @@
 /* 
- * Copyright 2005 - 2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved. 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -14,10 +14,8 @@
  * under the License.
  * 
  */
-
+ 
 package org.quartz.examples.example5;
-
-import java.util.Date;
 
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
@@ -25,6 +23,8 @@ import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.PersistJobDataAfterExecution;
+
+import java.util.Date;
 
 /**
  * <p>
@@ -37,75 +37,63 @@ import org.quartz.PersistJobDataAfterExecution;
 @DisallowConcurrentExecution
 public class StatefulDumbJob implements Job {
 
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     * 
-     * Constants.
-     * 
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
+  /*
+   * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Constants.
+   * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   */
 
-    public static final String NUM_EXECUTIONS = "NumExecutions";
+  public static final String NUM_EXECUTIONS  = "NumExecutions";
 
-    public static final String EXECUTION_DELAY = "ExecutionDelay";
+  public static final String EXECUTION_DELAY = "ExecutionDelay";
 
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     * 
-     * Constructors.
-     * 
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
+  /*
+   * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Constructors.
+   * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   */
 
-    public StatefulDumbJob() {
+  public StatefulDumbJob() {
+  }
+
+  /*
+   * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Interface.
+   * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   */
+
+  /**
+   * <p>
+   * Called by the <code>{@link org.quartz.Scheduler}</code> when a <code>{@link org.quartz.Trigger}</code> fires that
+   * is associated with the <code>Job</code>.
+   * </p>
+   * 
+   * @throws JobExecutionException if there is an exception while executing the job.
+   */
+  public void execute(JobExecutionContext context) throws JobExecutionException {
+    System.err.println("---" + context.getJobDetail().getKey() + " executing.[" + new Date() + "]");
+
+    JobDataMap map = context.getJobDetail().getJobDataMap();
+
+    int executeCount = 0;
+    if (map.containsKey(NUM_EXECUTIONS)) {
+      executeCount = map.getInt(NUM_EXECUTIONS);
     }
 
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     * 
-     * Interface.
-     * 
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
+    executeCount++;
 
-    /**
-     * <p>
-     * Called by the <code>{@link org.quartz.Scheduler}</code> when a <code>{@link org.quartz.Trigger}</code>
-     * fires that is associated with the <code>Job</code>.
-     * </p>
-     * 
-     * @throws JobExecutionException
-     *           if there is an exception while executing the job.
-     */
-    public void execute(JobExecutionContext context)
-        throws JobExecutionException {
-        System.err.println("---" + context.getJobDetail().getKey()
-                + " executing.[" + new Date() + "]");
+    map.put(NUM_EXECUTIONS, executeCount);
 
-        JobDataMap map = context.getJobDetail().getJobDataMap();
-
-        int executeCount = 0;
-        if (map.containsKey(NUM_EXECUTIONS)) {
-            executeCount = map.getInt(NUM_EXECUTIONS);
-        }
-
-        executeCount++;
-
-        map.put(NUM_EXECUTIONS, executeCount);
-
-        long delay = 5000l;
-        if (map.containsKey(EXECUTION_DELAY)) {
-            delay = map.getLong(EXECUTION_DELAY);
-        }
-
-        try {
-            Thread.sleep(delay);
-        } catch (Exception ignore) {
-        }
-
-        System.err.println("  -" + context.getJobDetail().getKey()
-                + " complete (" + executeCount + ").");
-
+    long delay = 5000l;
+    if (map.containsKey(EXECUTION_DELAY)) {
+      delay = map.getLong(EXECUTION_DELAY);
     }
+
+    try {
+      Thread.sleep(delay);
+    } catch (Exception ignore) {
+      //
+    }
+
+    System.err.println("  -" + context.getJobDetail().getKey() + " complete (" + executeCount + ").");
+
+  }
 
 }

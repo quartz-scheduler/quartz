@@ -1,5 +1,5 @@
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -29,6 +29,8 @@ import org.quartz.TriggerKey;
  */
 public class FiredTriggerRecord implements java.io.Serializable {
 
+    private static final long serialVersionUID = -7183096398865657533L;
+
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      * 
@@ -41,6 +43,8 @@ public class FiredTriggerRecord implements java.io.Serializable {
 
     private long fireTimestamp;
 
+    private long scheduleTimestamp;
+    
     private String schedulerInstanceId;
 
     private TriggerKey triggerKey;
@@ -71,6 +75,10 @@ public class FiredTriggerRecord implements java.io.Serializable {
         return fireTimestamp;
     }
 
+    public long getScheduleTimestamp() {
+        return scheduleTimestamp;
+    }
+
     public boolean isJobDisallowsConcurrentExecution() {
         return jobDisallowsConcurrentExecution;
     }
@@ -97,6 +105,10 @@ public class FiredTriggerRecord implements java.io.Serializable {
 
     public void setFireTimestamp(long l) {
         fireTimestamp = l;
+    }
+
+    public void setScheduleTimestamp(long l) {
+        scheduleTimestamp = l;
     }
 
     public void setJobDisallowsConcurrentExecution(boolean b) {

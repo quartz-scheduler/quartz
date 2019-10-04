@@ -1,6 +1,6 @@
 
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -61,8 +61,11 @@ import org.quartz.utils.ClassUtils;
  * @author James House
  * @author Sharada Jambula
  */
+@SuppressWarnings("deprecation")
 public class JobDetailImpl implements Cloneable, java.io.Serializable, JobDetail {
 
+    private static final long serialVersionUID = -6069784757781506897L;
+    
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      * 
@@ -116,8 +119,6 @@ public class JobDetailImpl implements Cloneable, java.io.Serializable, JobDetail
      * Create a <code>JobDetail</code> with the given name, given class, default group, 
      * and the default settings of all the other properties.
      * </p>
-     * 
-     * @param group if <code>null</code>, Scheduler.DEFAULT_GROUP will be used.
      * 
      * @exception IllegalArgumentException
      *              if name is null or empty, or the group is an empty string.
@@ -422,13 +423,14 @@ public class JobDetailImpl implements Cloneable, java.io.Serializable, JobDetail
         if (!other.getKey().equals(getKey())) {
             return false;
         }
-          
+            
         return true;
     }
 
     @Override
     public int hashCode() {
-        return getKey().hashCode();
+        JobKey key = getKey();
+        return key == null ? 0 : getKey().hashCode();
     }
     
     @Override

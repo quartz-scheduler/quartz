@@ -49,8 +49,8 @@ import org.quartz.spi.MutableTrigger;
  *         scheduler.scheduleJob(job, trigger);
  * <pre>
  *
- * @see SimpleTrigger 
- * @see CalenderIntervalScheduleBuilder
+ * @see SimpleTrigger
+ * @see CalendarIntervalScheduleBuilder
  * @see CronScheduleBuilder
  * @see ScheduleBuilder
  * @see TriggerBuilder
@@ -79,11 +79,10 @@ public class SimpleScheduleBuilder extends ScheduleBuilder<SimpleTrigger> {
      * @return the new SimpleScheduleBuilder
      */
     public static SimpleScheduleBuilder repeatMinutelyForever() {
-        SimpleScheduleBuilder sb = simpleSchedule()
+
+        return simpleSchedule()
             .withIntervalInMinutes(1)
             .repeatForever();
-        
-        return sb;
     }
 
     /**
@@ -93,11 +92,10 @@ public class SimpleScheduleBuilder extends ScheduleBuilder<SimpleTrigger> {
      * @return the new SimpleScheduleBuilder
      */
     public static SimpleScheduleBuilder repeatMinutelyForever(int minutes) {
-        SimpleScheduleBuilder sb = simpleSchedule()
+
+        return simpleSchedule()
             .withIntervalInMinutes(minutes)
             .repeatForever();
-        
-        return sb;
     }
 
     /**
@@ -106,11 +104,10 @@ public class SimpleScheduleBuilder extends ScheduleBuilder<SimpleTrigger> {
      * @return the new SimpleScheduleBuilder
      */
     public static SimpleScheduleBuilder repeatSecondlyForever() {
-        SimpleScheduleBuilder sb = simpleSchedule()
+
+        return simpleSchedule()
             .withIntervalInSeconds(1)
             .repeatForever();
-        
-        return sb;
     }
 
     /**
@@ -120,11 +117,10 @@ public class SimpleScheduleBuilder extends ScheduleBuilder<SimpleTrigger> {
      * @return the new SimpleScheduleBuilder
      */
     public static SimpleScheduleBuilder repeatSecondlyForever(int seconds) {
-        SimpleScheduleBuilder sb = simpleSchedule()
+
+        return simpleSchedule()
             .withIntervalInSeconds(seconds)
             .repeatForever();
-        
-        return sb;
     }
     
     /**
@@ -133,11 +129,10 @@ public class SimpleScheduleBuilder extends ScheduleBuilder<SimpleTrigger> {
      * @return the new SimpleScheduleBuilder
      */
     public static SimpleScheduleBuilder repeatHourlyForever() {
-        SimpleScheduleBuilder sb = simpleSchedule()
+
+        return simpleSchedule()
             .withIntervalInHours(1)
             .repeatForever();
-        
-        return sb;
     }
 
     /**
@@ -147,11 +142,10 @@ public class SimpleScheduleBuilder extends ScheduleBuilder<SimpleTrigger> {
      * @return the new SimpleScheduleBuilder
      */
     public static SimpleScheduleBuilder repeatHourlyForever(int hours) {
-        SimpleScheduleBuilder sb = simpleSchedule()
+
+        return simpleSchedule()
             .withIntervalInHours(hours)
             .repeatForever();
-        
-        return sb;
     }
 
     /**
@@ -165,12 +159,10 @@ public class SimpleScheduleBuilder extends ScheduleBuilder<SimpleTrigger> {
     public static SimpleScheduleBuilder repeatMinutelyForTotalCount(int count) {
         if(count < 1)
             throw new IllegalArgumentException("Total count of firings must be at least one! Given count: " + count);
-        
-        SimpleScheduleBuilder sb = simpleSchedule()
+
+        return simpleSchedule()
             .withIntervalInMinutes(1)
             .withRepeatCount(count - 1);
-        
-        return sb;
     }
 
     /**
@@ -184,12 +176,10 @@ public class SimpleScheduleBuilder extends ScheduleBuilder<SimpleTrigger> {
     public static SimpleScheduleBuilder repeatMinutelyForTotalCount(int count, int minutes) {
         if(count < 1)
             throw new IllegalArgumentException("Total count of firings must be at least one! Given count: " + count);
-        
-        SimpleScheduleBuilder sb = simpleSchedule()
+
+        return simpleSchedule()
             .withIntervalInMinutes(minutes)
             .withRepeatCount(count - 1);
-        
-        return sb;
     }
     
     /**
@@ -203,12 +193,10 @@ public class SimpleScheduleBuilder extends ScheduleBuilder<SimpleTrigger> {
     public static SimpleScheduleBuilder repeatSecondlyForTotalCount(int count) {
         if(count < 1)
             throw new IllegalArgumentException("Total count of firings must be at least one! Given count: " + count);
-        
-        SimpleScheduleBuilder sb = simpleSchedule()
+
+        return simpleSchedule()
             .withIntervalInSeconds(1)
             .withRepeatCount(count - 1);
-        
-        return sb;
     }
 
     /**
@@ -222,12 +210,10 @@ public class SimpleScheduleBuilder extends ScheduleBuilder<SimpleTrigger> {
     public static SimpleScheduleBuilder repeatSecondlyForTotalCount(int count, int seconds) {
         if(count < 1)
             throw new IllegalArgumentException("Total count of firings must be at least one! Given count: " + count);
-        
-        SimpleScheduleBuilder sb = simpleSchedule()
+
+        return simpleSchedule()
             .withIntervalInSeconds(seconds)
             .withRepeatCount(count - 1);
-        
-        return sb;
     }
     
     /**
@@ -241,12 +227,10 @@ public class SimpleScheduleBuilder extends ScheduleBuilder<SimpleTrigger> {
     public static SimpleScheduleBuilder repeatHourlyForTotalCount(int count) {
         if(count < 1)
             throw new IllegalArgumentException("Total count of firings must be at least one! Given count: " + count);
-        
-        SimpleScheduleBuilder sb = simpleSchedule()
+
+        return simpleSchedule()
             .withIntervalInHours(1)
             .withRepeatCount(count - 1);
-        
-        return sb;
     }
 
     /**
@@ -260,12 +244,10 @@ public class SimpleScheduleBuilder extends ScheduleBuilder<SimpleTrigger> {
     public static SimpleScheduleBuilder repeatHourlyForTotalCount(int count, int hours) {
         if(count < 1)
             throw new IllegalArgumentException("Total count of firings must be at least one! Given count: " + count);
-        
-        SimpleScheduleBuilder sb = simpleSchedule()
+
+        return simpleSchedule()
             .withIntervalInHours(hours)
             .withRepeatCount(count - 1);
-        
-        return sb;
     }
     
     /**

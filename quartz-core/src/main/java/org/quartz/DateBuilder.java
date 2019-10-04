@@ -55,7 +55,7 @@ import java.util.TimeZone;
  */
 public class DateBuilder {
 
-    public enum IntervalUnit { MILLISECOND, SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, YEAR };
+    public enum IntervalUnit { MILLISECOND, SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, YEAR }
     
     public static final int SUNDAY = 1;
 
@@ -70,6 +70,30 @@ public class DateBuilder {
     public static final int FRIDAY = 6;
 
     public static final int SATURDAY = 7;
+    
+    public static final int JANUARY = 1;
+    
+    public static final int FEBRUARY = 2;
+
+    public static final int MARCH = 3;
+
+    public static final int APRIL = 4;
+
+    public static final int MAY = 5;
+
+    public static final int JUNE = 6;
+
+    public static final int JULY = 7;
+
+    public static final int AUGUST = 8;
+
+    public static final int SEPTEMBER = 9;
+
+    public static final int OCTOBER = 10;
+
+    public static final int NOVEMBER = 11;
+
+    public static final int DECEMBER = 12;
 
     public static final long MILLISECONDS_IN_MINUTE = 60l * 1000l;
 
@@ -94,7 +118,7 @@ public class DateBuilder {
     private DateBuilder() {
         Calendar cal = Calendar.getInstance();
         
-        month = cal.get(Calendar.MONTH);
+        month = cal.get(Calendar.MONTH) + 1;
         day = cal.get(Calendar.DAY_OF_MONTH);
         year = cal.get(Calendar.YEAR);
         hour = cal.get(Calendar.HOUR_OF_DAY);
@@ -109,7 +133,7 @@ public class DateBuilder {
         Calendar cal = Calendar.getInstance(tz);
         
         this.tz = tz;
-        month = cal.get(Calendar.MONTH);
+        month = cal.get(Calendar.MONTH) + 1;
         day = cal.get(Calendar.DAY_OF_MONTH);
         year = cal.get(Calendar.YEAR);
         hour = cal.get(Calendar.HOUR_OF_DAY);
@@ -124,7 +148,7 @@ public class DateBuilder {
         Calendar cal = Calendar.getInstance(lc);
         
         this.lc = lc;
-        month = cal.get(Calendar.MONTH);
+        month = cal.get(Calendar.MONTH) + 1;
         day = cal.get(Calendar.DAY_OF_MONTH);
         year = cal.get(Calendar.YEAR);
         hour = cal.get(Calendar.HOUR_OF_DAY);
@@ -140,7 +164,7 @@ public class DateBuilder {
         
         this.tz = tz;
         this.lc = lc;
-        month = cal.get(Calendar.MONTH);
+        month = cal.get(Calendar.MONTH) + 1;
         day = cal.get(Calendar.DAY_OF_MONTH);
         year = cal.get(Calendar.YEAR);
         hour = cal.get(Calendar.HOUR_OF_DAY);
@@ -180,7 +204,7 @@ public class DateBuilder {
      * Build the Date defined by this builder instance. 
      */
     public Date build() {
-        Calendar cal = null;
+        Calendar cal;
 
         if(tz != null && lc != null)
             cal = Calendar.getInstance(tz, lc);
@@ -192,7 +216,7 @@ public class DateBuilder {
           cal = Calendar.getInstance();
         
         cal.set(Calendar.YEAR, year);
-        cal.set(Calendar.MONTH, month);
+        cal.set(Calendar.MONTH, month - 1);
         cal.set(Calendar.DAY_OF_MONTH, day);
         cal.set(Calendar.HOUR_OF_DAY, hour);
         cal.set(Calendar.MINUTE, minute);
@@ -703,7 +727,7 @@ public class DateBuilder {
      * 
      * <p>
      * For example an input date with a time of 08:13:54.341 would result in a
-     * date with the time of 08:13:00.000.
+     * date with the time of 08:13:54.000.
      * </p>
      * 
      * @param date

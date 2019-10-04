@@ -1,5 +1,5 @@
 /*
- * Copyright 2001-2009 Terracotta, Inc.
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -144,7 +144,7 @@ public class DirtyFlagMap<K,V> implements Map<K,V>, Cloneable, java.io.Serializa
     }
 
     @Override
-  public boolean equals(final Object obj) {
+    public boolean equals(final Object obj) {
         if (obj == null || !(obj instanceof DirtyFlagMap)) {
             return false;
         }
@@ -153,9 +153,9 @@ public class DirtyFlagMap<K,V> implements Map<K,V>, Cloneable, java.io.Serializa
     }
 
     @Override
-  public int hashCode()
+    public int hashCode()
     {
-      return map.hashCode();
+        return map.hashCode();
     }
 
     public V get(final Object key) {
@@ -202,9 +202,9 @@ public class DirtyFlagMap<K,V> implements Map<K,V>, Cloneable, java.io.Serializa
         return new DirtyFlagCollection<V>(map.values());
     }
 
-  @Override
+    @Override
     @SuppressWarnings("unchecked") // suppress warnings on generic cast of super.clone() and map.clone() lines.
-  public Object clone() {
+    public Object clone() {
         DirtyFlagMap<K,V> copy;
         try {
             copy = (DirtyFlagMap<K,V>) super.clone();
@@ -326,25 +326,25 @@ public class DirtyFlagMap<K,V> implements Map<K,V>, Cloneable, java.io.Serializa
         }
 
         @Override
-    public Iterator<Map.Entry<K,V>> iterator() {
+        public Iterator<Map.Entry<K,V>> iterator() {
             return new DirtyFlagMapEntryIterator(getWrappedSet().iterator());
         }
 
         @Override
-    public Object[] toArray() {
+        public Object[] toArray() {
             return toArray(new Object[super.size()]);
         }
 
         @SuppressWarnings("unchecked") // suppress warnings on both U[] and U casting.
-    @Override
-    public <U> U[] toArray(final U[] array) {
+        @Override
+        public <U> U[] toArray(final U[] array) {
             if (array.getClass().getComponentType().isAssignableFrom(Map.Entry.class) == false) {
                 throw new IllegalArgumentException("Array must be of type assignable from Map.Entry");
             }
 
             int size = super.size();
 
-      U[] result =
+            U[] result =
                 array.length < size ?
                     (U[])Array.newInstance(array.getClass().getComponentType(), size) : array;
 
@@ -371,7 +371,7 @@ public class DirtyFlagMap<K,V> implements Map<K,V>, Cloneable, java.io.Serializa
         }
 
         @Override
-    public DirtyFlagMapEntry next() {
+        public DirtyFlagMapEntry next() {
             return new DirtyFlagMapEntry(super.next());
         }
     }
@@ -395,6 +395,7 @@ public class DirtyFlagMap<K,V> implements Map<K,V>, Cloneable, java.io.Serializa
         // Pure wrapper methods
         public K getKey() { return entry.getKey(); }
         public V getValue() { return entry.getValue(); }
+        public boolean equals(Object o) { return entry.equals(o); }
     }
 }
 

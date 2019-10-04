@@ -1,5 +1,5 @@
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -79,11 +79,14 @@ public interface SchedulerPlugin {
      *          The name by which the plugin is identified.
      * @param scheduler
      *          The scheduler to which the plugin is registered.
+     * @param loadHelper
+     *            The classLoadHelper the <code>SchedulerFactory</code> is
+     *            actually using
      * 
      * @throws org.quartz.SchedulerConfigException
      *           if there is an error initializing.
      */
-    void initialize(String name, Scheduler scheduler)
+    void initialize(String name, Scheduler scheduler, ClassLoadHelper loadHelper)
         throws SchedulerException;
 
     /**

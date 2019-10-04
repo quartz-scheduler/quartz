@@ -1,5 +1,5 @@
 /*
- * Copyright 2001-2009 Terracotta, Inc.
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -17,22 +17,6 @@
 
 package org.quartz.impl;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Method;
-import java.security.AccessControlException;
-import java.sql.SQLException;
-import java.util.Collection;
-import java.util.Locale;
-import java.util.Properties;
-
 import org.quartz.JobListener;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerConfigException;
@@ -49,6 +33,7 @@ import org.quartz.impl.jdbcjobstore.JobStoreSupport;
 import org.quartz.impl.jdbcjobstore.Semaphore;
 import org.quartz.impl.jdbcjobstore.TablePrefixAware;
 import org.quartz.impl.matchers.EverythingMatcher;
+import org.quartz.management.ManagementRESTServiceConfiguration;
 import org.quartz.simpl.RAMJobStore;
 import org.quartz.simpl.SimpleThreadPool;
 import org.quartz.spi.ClassLoadHelper;
@@ -61,10 +46,27 @@ import org.quartz.spi.ThreadPool;
 import org.quartz.utils.ConnectionProvider;
 import org.quartz.utils.DBConnectionManager;
 import org.quartz.utils.JNDIConnectionProvider;
+import org.quartz.utils.C3p0PoolingConnectionProvider;
 import org.quartz.utils.PoolingConnectionProvider;
 import org.quartz.utils.PropertiesParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.security.AccessControlException;
+import java.util.Collection;
+import java.util.Locale;
+import java.util.Properties;
 
 /**
  * <p>
@@ -90,7 +92,7 @@ import org.slf4j.LoggerFactory;
  * See the sample properties files that are distributed with Quartz for
  * information about the various settings available within the file.
  * Full configuration documentation can be found at
- * http://www.quartz-scheduler.org/docs/configuration/index.html
+ * http://www.quartz-scheduler.org/docs/index.html
  * </p>
  *
  * <p>
@@ -138,8 +140,6 @@ public class StdSchedulerFactory implements SchedulerFactory {
         PROP_SCHED_INSTANCE_ID_GENERATOR_PREFIX + ".class";
 
     public static final String PROP_SCHED_THREAD_NAME = "org.quartz.scheduler.threadName";
-
-    public static final String PROP_SCHED_SKIP_UPDATE_CHECK = "org.quartz.scheduler.skipUpdateCheck";
 
     public static final String PROP_SCHED_BATCH_TIME_WINDOW = "org.quartz.scheduler.batchTriggerAcquisitionFireAheadTimeWindow";
 
@@ -213,16 +213,40 @@ public class StdSchedulerFactory implements SchedulerFactory {
 
     public static final String PROP_CONNECTION_PROVIDER_CLASS = "connectionProvider.class";
 
+    /**
+     * @deprecated Replaced with {@link PoolingConnectionProvider#DB_DRIVER}
+     */
+    @Deprecated
     public static final String PROP_DATASOURCE_DRIVER = "driver";
 
+    /**
+     * @deprecated Replaced with {@link PoolingConnectionProvider#DB_URL}
+     */
+    @Deprecated
     public static final String PROP_DATASOURCE_URL = "URL";
 
+    /**
+     * @deprecated Replaced with {@link PoolingConnectionProvider#DB_USER}
+     */
+    @Deprecated
     public static final String PROP_DATASOURCE_USER = "user";
 
+    /**
+     * @deprecated Replaced with {@link PoolingConnectionProvider#DB_PASSWORD}
+     */
+    @Deprecated
     public static final String PROP_DATASOURCE_PASSWORD = "password";
 
+    /**
+     * @deprecated Replaced with {@link PoolingConnectionProvider#DB_MAX_CONNECTIONS}
+     */
+    @Deprecated
     public static final String PROP_DATASOURCE_MAX_CONNECTIONS = "maxConnections";
 
+    /**
+     * @deprecated Replaced with {@link PoolingConnectionProvider#DB_VALIDATION_QUERY}
+     */
+    @Deprecated
     public static final String PROP_DATASOURCE_VALIDATION_QUERY = "validationQuery";
 
     public static final String PROP_DATASOURCE_JNDI_URL = "jndiURL";
@@ -256,6 +280,10 @@ public class StdSchedulerFactory implements SchedulerFactory {
     public static final String PROP_THREAD_EXECUTOR_CLASS = "org.quartz.threadExecutor.class";
 
     public static final String SYSTEM_PROPERTY_AS_INSTANCE_ID = "SYS_PROP";
+    
+    public static final String MANAGEMENT_REST_SERVICE_ENABLED = "org.quartz.managementRESTService.enabled";
+
+    public static final String MANAGEMENT_REST_SERVICE_HOST_PORT = "org.quartz.managementRESTService.bind";
 
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -585,7 +613,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
         boolean wrapJobInTx = false;
         boolean autoId = false;
         long idleWaitTime = -1;
-        long dbFailureRetry = 15000L;  // 15 secs
+        long dbFailureRetry = 15000L; // 15 secs
         String classLoadHelperClass;
         String jobFactoryClass;
         ThreadExecutor threadExecutor;
@@ -649,7 +677,6 @@ public class StdSchedulerFactory implements SchedulerFactory {
         boolean threadsInheritInitalizersClassLoader =
             cfg.getBooleanProperty(PROP_SCHED_SCHEDULER_THREADS_INHERIT_CONTEXT_CLASS_LOADER_OF_INITIALIZING_THREAD);
 
-        boolean skipUpdateCheck = cfg.getBooleanProperty(PROP_SCHED_SKIP_UPDATE_CHECK, false);
         long batchTimeWindow = cfg.getLongProperty(PROP_SCHED_BATCH_TIME_WINDOW, 0L);
         int maxBatchSize = cfg.getIntProperty(PROP_SCHED_MAX_BATCH_SIZE, 1);
 
@@ -676,6 +703,9 @@ public class StdSchedulerFactory implements SchedulerFactory {
             throw new SchedulerConfigException("Cannot proxy both RMI and JMX.");
         }
         
+        boolean managementRESTServiceEnabled = cfg.getBooleanProperty(MANAGEMENT_REST_SERVICE_ENABLED, false);
+        String managementRESTServiceHostAndPort = cfg.getStringProperty(MANAGEMENT_REST_SERVICE_HOST_PORT, "0.0.0.0:9889");
+
         Properties schedCtxtProps = cfg.getPropertyGroup(PROP_SCHED_CONTEXT_PREFIX, true);
 
         // If Proxying to remote scheduler, short-circuit here...
@@ -913,7 +943,12 @@ public class StdSchedulerFactory implements SchedulerFactory {
                     pp.getUnderlyingProperties().remove(
                             PROP_CONNECTION_PROVIDER_CLASS);
 
-                    setBeanProps(cp, pp.getUnderlyingProperties());
+                    if (cp instanceof PoolingConnectionProvider) {
+                        populateProviderWithExtraProps((PoolingConnectionProvider)cp, pp.getUnderlyingProperties());
+                    } else {
+                        setBeanProps(cp, pp.getUnderlyingProperties());
+                    }
+                    cp.initialize();
                 } catch (Exception e) {
                     initException = new SchedulerException("ConnectionProvider class '" + cpClass
                             + "' props could not be configured.", e);
@@ -962,12 +997,9 @@ public class StdSchedulerFactory implements SchedulerFactory {
                     dbMgr = DBConnectionManager.getInstance();
                     dbMgr.addConnectionProvider(dsNames[i], cp);
                 } else {
-                    String dsDriver = pp.getStringProperty(PROP_DATASOURCE_DRIVER);
-                    String dsURL = pp.getStringProperty(PROP_DATASOURCE_URL);
-                    String dsUser = pp.getStringProperty(PROP_DATASOURCE_USER, "");
-                    String dsPass = pp.getStringProperty(PROP_DATASOURCE_PASSWORD, "");
-                    int dsCnt = pp.getIntProperty(PROP_DATASOURCE_MAX_CONNECTIONS, 10);
-                    String dsValidation = pp.getStringProperty(PROP_DATASOURCE_VALIDATION_QUERY);
+                    String poolingProvider = pp.getStringProperty(PoolingConnectionProvider.POOLING_PROVIDER);
+                    String dsDriver = pp.getStringProperty(PoolingConnectionProvider.DB_DRIVER);
+                    String dsURL = pp.getStringProperty(PoolingConnectionProvider.DB_URL);
 
                     if (dsDriver == null) {
                         initException = new SchedulerException(
@@ -981,13 +1013,32 @@ public class StdSchedulerFactory implements SchedulerFactory {
                                         + dsNames[i]);
                         throw initException;
                     }
+                    // we load even these "core" providers by class name in order to avoid a static dependency on
+                    // the c3p0 and hikaricp libraries
+                    if(poolingProvider != null && poolingProvider.equals(PoolingConnectionProvider.POOLING_PROVIDER_HIKARICP)) {
+                        cpClass = "org.quartz.utils.HikariCpPoolingConnectionProvider";
+                    }
+                    else {
+                        cpClass = "org.quartz.utils.C3p0PoolingConnectionProvider";
+                    }
+                    log.info("Using ConnectionProvider class '" + cpClass + "' for data source '" + dsNames[i] + "'");
+
                     try {
-                        PoolingConnectionProvider cp = new PoolingConnectionProvider(
-                                dsDriver, dsURL, dsUser, dsPass, dsCnt,
-                                dsValidation);
+                        ConnectionProvider cp = null;
+                        try {
+                            Constructor constructor = loadHelper.loadClass(cpClass).getConstructor(Properties.class);
+                            cp = (ConnectionProvider) constructor.newInstance(pp.getUnderlyingProperties());
+                        } catch (Exception e) {
+                            initException = new SchedulerException("ConnectionProvider class '" + cpClass
+                                    + "' could not be instantiated.", e);
+                            throw initException;
+                        }
                         dbMgr = DBConnectionManager.getInstance();
                         dbMgr.addConnectionProvider(dsNames[i], cp);
-                    } catch (SQLException sqle) {
+
+                        // Populate the underlying C3P0/HikariCP data source pool properties
+                        populateProviderWithExtraProps((PoolingConnectionProvider)cp, pp.getUnderlyingProperties());
+                    } catch (Exception sqle) {
                         initException = new SchedulerException(
                                 "Could not initialize DataSource: " + dsNames[i],
                                 sqle);
@@ -1225,13 +1276,19 @@ public class StdSchedulerFactory implements SchedulerFactory {
             rsrcs.setJobRunShellFactory(jrsf);
             rsrcs.setMakeSchedulerThreadDaemon(makeSchedulerThreadDaemon);
             rsrcs.setThreadsInheritInitializersClassLoadContext(threadsInheritInitalizersClassLoader);
-            rsrcs.setRunUpdateCheck(!skipUpdateCheck);
             rsrcs.setBatchTimeWindow(batchTimeWindow);
             rsrcs.setMaxBatchSize(maxBatchSize);
             rsrcs.setInterruptJobsOnShutdown(interruptJobsOnShutdown);
             rsrcs.setInterruptJobsOnShutdownWithWait(interruptJobsOnShutdownWithWait);
             rsrcs.setJMXExport(jmxExport);
             rsrcs.setJMXObjectName(jmxObjectName);
+
+            if (managementRESTServiceEnabled) {
+                ManagementRESTServiceConfiguration managementRESTServiceConfiguration = new ManagementRESTServiceConfiguration();
+                managementRESTServiceConfiguration.setBind(managementRESTServiceHostAndPort);
+                managementRESTServiceConfiguration.setEnabled(managementRESTServiceEnabled);
+                rsrcs.setManagementRESTServiceConfiguration(managementRESTServiceConfiguration);
+            }
     
             if (rmiExport) {
                 rsrcs.setRMIRegistryHost(rmiHost);
@@ -1248,7 +1305,6 @@ public class StdSchedulerFactory implements SchedulerFactory {
 
             rsrcs.setThreadPool(tp);
             if(tp instanceof SimpleThreadPool) {
-                ((SimpleThreadPool)tp).setThreadNamePrefix(schedName + "_Worker");
                 if(threadsInheritInitalizersClassLoader)
                     ((SimpleThreadPool)tp).setThreadsInheritContextClassLoaderOfInitializingThread(threadsInheritInitalizersClassLoader);
             }
@@ -1275,7 +1331,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
     
             // Initialize plugins now that we have a Scheduler instance.
             for (int i = 0; i < plugins.length; i++) {
-                plugins[i].initialize(pluginNames[i], scheduler);
+                plugins[i].initialize(pluginNames[i], scheduler, loadHelper);
             }
     
             // add listeners
@@ -1320,25 +1376,51 @@ public class StdSchedulerFactory implements SchedulerFactory {
             return scheduler;
         }
         catch(SchedulerException e) {
-            if(qsInited)
-                qs.shutdown(false);
-            else if(tpInited)
-                tp.shutdown(false);
+            shutdownFromInstantiateException(tp, qs, tpInited, qsInited);
             throw e;
         }
         catch(RuntimeException re) {
-            if(qsInited)
-                qs.shutdown(false);
-            else if(tpInited)
-                tp.shutdown(false);
+            shutdownFromInstantiateException(tp, qs, tpInited, qsInited);
             throw re;
         }
         catch(Error re) {
+            shutdownFromInstantiateException(tp, qs, tpInited, qsInited);
+            throw re;
+        }
+    }
+
+    private void populateProviderWithExtraProps(PoolingConnectionProvider cp, Properties props) throws Exception {
+        Properties copyProps = new Properties();
+        copyProps.putAll(props);
+
+        // Remove all the default properties first (they don't always match to setter name, and they are already
+        // been set!)
+        copyProps.remove(PoolingConnectionProvider.DB_DRIVER);
+        copyProps.remove(PoolingConnectionProvider.DB_URL);
+        copyProps.remove(PoolingConnectionProvider.DB_USER);
+        copyProps.remove(PoolingConnectionProvider.DB_PASSWORD);
+        copyProps.remove(PoolingConnectionProvider.DB_MAX_CONNECTIONS);
+        copyProps.remove(PoolingConnectionProvider.DB_VALIDATION_QUERY);
+        copyProps.remove(PoolingConnectionProvider.POOLING_PROVIDER);
+
+        if (cp instanceof C3p0PoolingConnectionProvider) {
+            copyProps.remove(C3p0PoolingConnectionProvider.DB_MAX_CACHED_STATEMENTS_PER_CONNECTION);
+            copyProps.remove(C3p0PoolingConnectionProvider.DB_VALIDATE_ON_CHECKOUT);
+            copyProps.remove(C3p0PoolingConnectionProvider.DB_IDLE_VALIDATION_SECONDS);
+            copyProps.remove(C3p0PoolingConnectionProvider.DB_DISCARD_IDLE_CONNECTIONS_SECONDS);
+        }
+
+        setBeanProps(cp.getDataSource(), copyProps);
+    }
+
+    private void shutdownFromInstantiateException(ThreadPool tp, QuartzScheduler qs, boolean tpInited, boolean qsInited) {
+        try {
             if(qsInited)
                 qs.shutdown(false);
             else if(tpInited)
                 tp.shutdown(false);
-            throw re;
+        } catch (Exception e) {
+            getLog().error("Got another exception while shutting down after instantiation exception", e);
         }
     }
 
@@ -1354,6 +1436,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
             java.lang.reflect.InvocationTargetException,
             IntrospectionException, SchedulerConfigException {
         props.remove("class");
+        props.remove(PoolingConnectionProvider.POOLING_PROVIDER);
 
         BeanInfo bi = Introspector.getBeanInfo(obj.getClass());
         PropertyDescriptor[] propDescs = bi.getPropertyDescriptors();

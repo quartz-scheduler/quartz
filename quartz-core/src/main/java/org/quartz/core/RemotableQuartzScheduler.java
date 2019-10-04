@@ -1,6 +1,6 @@
 
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -98,6 +98,8 @@ public interface RemotableQuartzScheduler extends Remote {
 
     void addJob(JobDetail jobDetail, boolean replace) throws SchedulerException, RemoteException;
 
+    void addJob(JobDetail jobDetail, boolean replace, boolean storeNonDurableWhileAwaitingScheduling) throws SchedulerException, RemoteException;
+
     boolean deleteJob(JobKey jobKey) throws SchedulerException, RemoteException;
 
     boolean unscheduleJob(TriggerKey triggerKey) throws SchedulerException, RemoteException;
@@ -146,6 +148,8 @@ public interface RemotableQuartzScheduler extends Remote {
 
     TriggerState getTriggerState(TriggerKey triggerKey) throws SchedulerException, RemoteException;
 
+    void resetTriggerFromErrorState(TriggerKey triggerKey) throws SchedulerException, RemoteException;
+
     void addCalendar(String calName, Calendar calendar, boolean replace, boolean updateTriggers) throws SchedulerException, RemoteException;
 
     boolean deleteCalendar(String calName) throws SchedulerException, RemoteException;
@@ -164,7 +168,9 @@ public interface RemotableQuartzScheduler extends Remote {
  
     public boolean deleteJobs(List<JobKey> jobKeys) throws SchedulerException,RemoteException;
 
-    public void scheduleJobs(Map<JobDetail, List<Trigger>> triggersAndJobs, boolean replace) throws SchedulerException,RemoteException;
+    public void scheduleJobs(Map<JobDetail, Set<? extends Trigger>> triggersAndJobs, boolean replace) throws SchedulerException,RemoteException;
+
+    public void scheduleJob(JobDetail jobDetail, Set<? extends Trigger> triggersForJob, boolean replace) throws SchedulerException,RemoteException;
 
     public boolean unscheduleJobs(List<TriggerKey> triggerKeys) throws SchedulerException,RemoteException;
     

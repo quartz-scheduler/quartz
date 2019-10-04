@@ -1,0 +1,35 @@
+= Quartz Community
+:toc:
+
+Quartz has been around for more than 15 years. As such, there is a large community of people helping each other make the most of Quartz. Please feel free to participate at whatever extent you wish!
+
+== Community Resources
+
+=== Find and Give Help
+
+* https://groups.google.com/forum/#!categories/quartz-scheduler[Quartz User Support Forum, role="external", window="_blank"] (via Google Groups)
+
+=== Report Issues, Request Features, Get Code
+
+* https://github.com/quartz-scheduler/quartz/issues[Quartz Issue Tracker]
+* https://github.com/quartz-scheduler/quartz[Quartz source code repository]
+
+=== Participate in the Development of Quartz
+
+* <<contribute.adoc#,How to Contribute>>
+* https://groups.google.com/forum/#!forum/quartz-scheduler-dev[Quartz Development Forum, role="external", window="_blank"] (via Google Groups)
+
+
+== Join the Team
+
+Got skills with coding, documenting, supporting or even art? We'd love to have you on the team!
+
+
+=== Significant Contributors, Past and Present
+
+James House, Alex Snaps, Ludovic Orban, Tim Eck, Anthony Dahanne, Chris Dennis, Zemian Deng, Aaron Craven, Jasper Rosenberg, Henri Yandell, Weston M. Price, Bill Kratzer, Brian Topping, Brooke Hedrick, Chris Bonham, Chuck Cavaness, Fernando Ribeiro, Dafydd James, Jeffrey Wescott, Matthew Payne, David White, Mike Curwen, Mohammad Rezaei, Srinivas Venkatarangaiah, PartNET Inc.
+
+
+== Tools Support
+
+YourKit is kindly supporting open source projects with its full-featured Java Profiler. YourKit, LLC is the creator of innovative and intelligent tools for profiling Java and .NET applications. Take a look at YourKit's leading software products: http://www.yourkit.com/java/profiler/index.jsp[YourKit Java Profiler].

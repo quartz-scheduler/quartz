@@ -1,5 +1,5 @@
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -26,6 +26,8 @@ package org.quartz.impl.jdbcjobstore;
  * @author <a href="mailto:jeff@binaryfeed.org">Jeffrey Wescott</a>
  */
 public class InvalidConfigurationException extends Exception {
+
+    private static final long serialVersionUID = 1836325935209404611L;
 
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

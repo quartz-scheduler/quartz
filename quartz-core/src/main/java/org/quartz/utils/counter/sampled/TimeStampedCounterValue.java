@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2009 Terracotta, Inc.
+ *  All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,6 +25,9 @@ import java.io.Serializable;
  * @since 1.8
  */
 public class TimeStampedCounterValue implements Serializable {
+  
+    private static final long serialVersionUID = 1931111347823687672L;
+    
     private final long counterValue;
     private final long timestamp;
 

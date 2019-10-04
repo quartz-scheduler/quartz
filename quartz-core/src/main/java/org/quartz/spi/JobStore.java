@@ -1,5 +1,5 @@
 /*
- * Copyright 2001-2009 Terracotta, Inc.
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -149,9 +149,7 @@ public interface JobStore {
     void storeJob(JobDetail newJob, boolean replaceExisting) 
         throws ObjectAlreadyExistsException, JobPersistenceException;
 
-    
-
-    public void storeJobsAndTriggers(Map<JobDetail, List<Trigger>> triggersAndJobs, boolean replace) 
+    public void storeJobsAndTriggers(Map<JobDetail, Set<? extends Trigger>> triggersAndJobs, boolean replace)
         throws ObjectAlreadyExistsException, JobPersistenceException;
 
     /**
@@ -427,6 +425,21 @@ public interface JobStore {
      */
     TriggerState getTriggerState(TriggerKey triggerKey) throws JobPersistenceException;
 
+    /**
+     * Reset the current state of the identified <code>{@link Trigger}</code>
+     * from {@link TriggerState#ERROR} to {@link TriggerState#NORMAL} or
+     * {@link TriggerState#PAUSED} as appropriate.
+     *
+     * <p>Only affects triggers that are in ERROR state - if identified trigger is not
+     * in that state then the result is a no-op.</p>
+     *
+     * <p>The result will be the trigger returning to the normal, waiting to
+     * be fired state, unless the trigger's group has been paused, in which
+     * case it will go into the PAUSED state.</p>
+     */
+    void resetTriggerFromErrorState(TriggerKey triggerKey) throws JobPersistenceException;
+
+
     /////////////////////////////////////////////////////////////////////////////
     //
     // Trigger State manipulation methods
@@ -451,7 +464,7 @@ public interface JobStore {
      * paused.
      * </p>
      *
-     * @see #resumeTriggerGroup(String)
+     * @see #resumeTriggers(GroupMatcher)
      */
     Collection<String> pauseTriggers(GroupMatcher<TriggerKey> matcher) throws JobPersistenceException;
 
@@ -473,7 +486,7 @@ public interface JobStore {
      * paused.
      * </p>
      *
-     * @see #resumeJobGroup(String)
+     * @see #resumeJobs(GroupMatcher)
      */
     Collection<String> pauseJobs(GroupMatcher<JobKey> groupMatcher)
         throws JobPersistenceException;
@@ -500,7 +513,7 @@ public interface JobStore {
      * <code>Trigger</code>'s misfire instruction will be applied.
      * </p>
      *
-     * @see #pauseTriggers(String)
+     * @see #pauseTriggers(GroupMatcher)
      */
     Collection<String> resumeTriggers(GroupMatcher<TriggerKey> matcher)
         throws JobPersistenceException;
@@ -532,7 +545,7 @@ public interface JobStore {
      * misfire instruction will be applied.
      * </p>
      *
-     * @see #pauseJobGroup(String)
+     * @see #pauseJobs(GroupMatcher)
      */
     Collection<String> resumeJobs(GroupMatcher<JobKey> matcher)
         throws JobPersistenceException;
@@ -547,7 +560,7 @@ public interface JobStore {
      * </p>
      *
      * @see #resumeAll()
-     * @see #pauseTriggers(String)
+     * @see #pauseTriggers(GroupMatcher)
      */
     void pauseAll() throws JobPersistenceException;
 
@@ -578,7 +591,7 @@ public interface JobStore {
      * @param noLaterThan If > 0, the JobStore should only return a Trigger
      * that will fire no later than the time represented in this value as
      * milliseconds.
-     * @see #releaseAcquiredTrigger(Trigger)
+     * @see #releaseAcquiredTrigger(OperableTrigger)
      */
     List<OperableTrigger> acquireNextTriggers(long noLaterThan, int maxCount, long timeWindow)
         throws JobPersistenceException;
@@ -588,8 +601,7 @@ public interface JobStore {
      * fire the given <code>Trigger</code>, that it had previously acquired
      * (reserved).
      */
-    void releaseAcquiredTrigger(OperableTrigger trigger)
-        throws JobPersistenceException;
+    void releaseAcquiredTrigger(OperableTrigger trigger);
 
     /**
      * Inform the <code>JobStore</code> that the scheduler is now firing the
@@ -611,8 +623,7 @@ public interface JobStore {
      * in the given <code>JobDetail</code> should be updated if the <code>Job</code>
      * is stateful.
      */
-    void triggeredJobComplete(OperableTrigger trigger, JobDetail jobDetail, CompletedExecutionInstruction triggerInstCode)
-        throws JobPersistenceException;
+    void triggeredJobComplete(OperableTrigger trigger, JobDetail jobDetail, CompletedExecutionInstruction triggerInstCode);
 
     /**
      * Inform the <code>JobStore</code> of the Scheduler instance's Id,
@@ -635,5 +646,23 @@ public interface JobStore {
      * @param poolSize amount of threads allocated for job execution
      * @since 2.0
      */
-  void setThreadPoolSize(int poolSize);
+    void setThreadPoolSize(int poolSize);
+
+    /**
+     * Get the amount of time (in ms) to wait when accessing this job store
+     * repeatedly fails.
+     *
+     * Called by the executor thread(s) when calls to
+     * {@link #acquireNextTriggers} fail more than once in succession, and the
+     * thread thus wants to wait a bit before trying again, to not consume
+     * 100% CPU, write huge amounts of errors into logs, etc. in cases like
+     * the DB being offline/restarting.
+     *
+     * The delay returned by implementations should be between 20 and
+     * 600000 milliseconds.
+     *
+     * @param failureCount the number of successive failures seen so far
+     * @return the time (in milliseconds) to wait before trying again
+     */
+    long getAcquireRetryDelay(int failureCount);
 }

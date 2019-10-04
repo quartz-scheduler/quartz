@@ -583,7 +583,11 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
     public void pauseJobsContaining(String jobGroupToken) throws Exception {
         pauseJobs(GroupMatcher.<JobKey>groupContains(jobGroupToken));
     }
-    
+
+    public void pauseJobsAll() throws Exception {
+        pauseJobs(GroupMatcher.anyJobGroup());
+    }
+
     public void pauseAllTriggers() throws Exception {
         try {
             scheduler.pauseAll();
@@ -615,7 +619,11 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
     public void pauseTriggersContaining(String triggerGroupToken) throws Exception {
         pauseTriggers(GroupMatcher.<TriggerKey>groupContains(triggerGroupToken));
     }
-    
+
+    public void pauseTriggersAll() throws Exception {
+        pauseTriggers(GroupMatcher.anyTriggerGroup());
+    }
+
     public void pauseTrigger(String triggerName, String triggerGroup) throws Exception {
         try {
             scheduler.pauseTrigger(triggerKey(triggerName, triggerGroup));
@@ -663,7 +671,11 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
     public void resumeJobsContaining(String jobGroupToken) throws Exception {
         resumeJobs(GroupMatcher.<JobKey>groupContains(jobGroupToken));
     }
-    
+
+    public void resumeJobsAll() throws Exception {
+        resumeJobs(GroupMatcher.anyJobGroup());
+    }
+
     public void resumeTrigger(String triggerName, String triggerGroup) throws Exception {
         try {
             scheduler.resumeTrigger(triggerKey(triggerName, triggerGroup));
@@ -695,7 +707,11 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
     public void resumeTriggersContaining(String triggerGroupToken) throws Exception {
         resumeTriggers(GroupMatcher.<TriggerKey>groupContains(triggerGroupToken));
     }
-    
+
+    public void resumeTriggersAll() throws Exception {
+        resumeTriggers(GroupMatcher.anyTriggerGroup());
+    }
+
     public void triggerJob(String jobName, String jobGroup, Map<String, String> jobDataMap)
             throws Exception {
         try {
@@ -775,6 +791,10 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
 
     public void schedulerStarted() {
         sendNotification(SCHEDULER_STARTED);
+    }
+    
+    //not doing anything, just like schedulerShuttingdown
+    public void schedulerStarting() {
     }
 
     public void schedulerInStandbyMode() {

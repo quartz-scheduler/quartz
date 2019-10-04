@@ -1,5 +1,5 @@
 /*
- * Copyright 2001-2009 Terracotta, Inc.
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -172,7 +172,6 @@ public class DirectSchedulerFactory implements SchedulerFactory {
         throws SchedulerException {
         SimpleThreadPool threadPool = new SimpleThreadPool(maxThreads,
                 Thread.NORM_PRIORITY);
-        threadPool.initialize();
         JobStore jobStore = new RAMJobStore();
         this.createScheduler(threadPool, jobStore);
     }
@@ -464,7 +463,7 @@ public class DirectSchedulerFactory implements SchedulerFactory {
 
         // Fire everything up
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+        threadPool.setInstanceName(schedulerName);
         threadPool.initialize();
         
         QuartzSchedulerResources qrs = new QuartzSchedulerResources();
@@ -513,7 +512,7 @@ public class DirectSchedulerFactory implements SchedulerFactory {
             for (Iterator<Entry<String, SchedulerPlugin>> pluginEntryIter = schedulerPluginMap.entrySet().iterator(); pluginEntryIter.hasNext();) {
                 Entry<String, SchedulerPlugin> pluginEntry = pluginEntryIter.next();
 
-                pluginEntry.getValue().initialize(pluginEntry.getKey(), scheduler);
+                pluginEntry.getValue().initialize(pluginEntry.getKey(), scheduler, cch);
             }
         }
 

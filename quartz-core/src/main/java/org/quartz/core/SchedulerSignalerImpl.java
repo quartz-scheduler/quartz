@@ -1,6 +1,6 @@
 
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -34,7 +34,7 @@ import org.quartz.spi.SchedulerSignaler;
 public class SchedulerSignalerImpl implements SchedulerSignaler {
 
     Logger log = LoggerFactory.getLogger(SchedulerSignalerImpl.class);
-  
+    
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      * 
@@ -43,7 +43,7 @@ public class SchedulerSignalerImpl implements SchedulerSignaler {
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      */
 
-  protected QuartzScheduler sched;
+    protected QuartzScheduler sched;
     protected QuartzSchedulerThread schedThread;
 
     /*
@@ -58,7 +58,7 @@ public class SchedulerSignalerImpl implements SchedulerSignaler {
         this.sched = sched;
         this.schedThread = schedThread;
         
-    log.info("Initialized Scheduler Signaller of type: " + getClass());
+        log.info("Initialized Scheduler Signaller of type: " + getClass());
     }
 
     /*
@@ -90,5 +90,9 @@ public class SchedulerSignalerImpl implements SchedulerSignaler {
 
     public void notifySchedulerListenersJobDeleted(JobKey jobKey) {
         sched.notifySchedulerListenersJobDeleted(jobKey);
+    }
+
+    public void notifySchedulerListenersError(String string, SchedulerException jpe) {
+        sched.notifySchedulerListenersError(string, jpe);
     }
 }

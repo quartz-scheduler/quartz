@@ -1,5 +1,5 @@
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -15,13 +15,20 @@
  */
 package org.quartz;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertThat;
+
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import org.junit.Test;
 import org.quartz.DateBuilder.IntervalUnit;
+import org.quartz.impl.calendar.BaseCalendar;
 import org.quartz.impl.triggers.CalendarIntervalTriggerImpl;
 
 /**
@@ -31,7 +38,48 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
     
     private static final String[] VERSIONS = new String[] {"2.0"};
 
-    
+    @Test
+    public void testQTZ331FireTimeAfterBoundary() {
+        Calendar start = Calendar.getInstance();
+        start.clear();
+        start.set(2013, Calendar.FEBRUARY, 15);
+
+        Date startTime = start.getTime();
+        start.add(Calendar.DAY_OF_MONTH, 1);
+        Date triggerTime = start.getTime();
+
+        CalendarIntervalTriggerImpl trigger = new CalendarIntervalTriggerImpl("test", startTime, null, IntervalUnit.DAY, 1);
+        assertThat(trigger.getFireTimeAfter(startTime), equalTo(triggerTime));
+
+
+        Date after = new Date(start.getTimeInMillis() - 500);
+        assertThat(trigger.getFireTimeAfter(after), equalTo(triggerTime));
+    }
+
+    public void testQTZ330DaylightSavingsCornerCase() {
+        TimeZone edt = TimeZone.getTimeZone("America/New_York");
+
+        Calendar start = Calendar.getInstance();
+        start.clear();
+        start.setTimeZone(edt);
+        start.set(2012, Calendar.MARCH, 16, 2, 30, 0);
+
+        Calendar after = Calendar.getInstance();
+        after.clear();
+        after.setTimeZone(edt);
+        after.set(2013, Calendar.APRIL, 19, 2, 30, 0);
+
+        BaseCalendar baseCalendar = new BaseCalendar(edt);
+
+        CalendarIntervalTriggerImpl intervalTrigger = new CalendarIntervalTriggerImpl("QTZ-330", start.getTime(), null, DateBuilder.IntervalUnit.DAY, 1);
+        intervalTrigger.setTimeZone(edt);
+        intervalTrigger.setPreserveHourOfDayAcrossDaylightSavings(true);
+        intervalTrigger.computeFirstFireTime(baseCalendar);
+
+        Date fireTime = intervalTrigger.getFireTimeAfter(after.getTime());
+        assertThat(fireTime.after(after.getTime()), is(true));
+    }
+
     public void testYearlyIntervalGetFireTimeAfter() {
 
         Calendar startCalendar = Calendar.getInstance();
@@ -249,6 +297,7 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
         dailyTrigger.setStartTime(startCalendar.getTime());
         dailyTrigger.setRepeatIntervalUnit(DateBuilder.IntervalUnit.DAY);
         dailyTrigger.setRepeatInterval(1); // every day
+        dailyTrigger.setTimeZone(TimeZone.getTimeZone("EST"));
         
         targetCalendar = Calendar.getInstance();
         targetCalendar.setTimeZone(TimeZone.getTimeZone("CET"));
@@ -259,7 +308,7 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
 
         fireTimes = TriggerUtils.computeFireTimes(dailyTrigger, null, 6);
 
-    testTime = fireTimes.get(2); // get the third fire time
+		testTime = fireTimes.get(2); // get the third fire time
 
         Calendar testCal = Calendar.getInstance(TimeZone.getTimeZone("CET"));
         testCal.setTimeInMillis(testTime.getTime());
@@ -289,7 +338,7 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
 
         fireTimes = TriggerUtils.computeFireTimes(dailyTrigger, null, 6);
 
-    testTime = fireTimes.get(2); // get the third fire time
+		testTime = fireTimes.get(2); // get the third fire time
 
         testCal = Calendar.getInstance(TimeZone.getTimeZone("CET"));
         testCal.setTimeInMillis(testTime.getTime());
@@ -329,7 +378,8 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
         dailyTrigger.setStartTime(startCalendar.getTime());
         dailyTrigger.setRepeatIntervalUnit(DateBuilder.IntervalUnit.DAY);
         dailyTrigger.setRepeatInterval(1); // every day
-        
+        dailyTrigger.setTimeZone(TimeZone.getTimeZone("EST"));
+
         targetCalendar = Calendar.getInstance();
         targetCalendar.setTimeZone(TimeZone.getTimeZone("CEST"));
         targetCalendar.setTime(startCalendar.getTime());

@@ -1,5 +1,5 @@
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -25,9 +25,6 @@ import org.quartz.impl.calendar.MonthlyCalendar;
  * Unit test for MonthlyCalendar
  */
 public class MonthlyCalendarTest extends TestCase {
-    
-    // TODO: Copy the Serialization test code over from AnnualCalenderTest and 
-    //       generate a .ser
 
     /**
      * Tests whether greater than the 7th of the month causes infinite looping. 

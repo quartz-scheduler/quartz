@@ -18,7 +18,7 @@
 			<simple>
 				<name>job1</name>
 				<group>DEFAULT</group>
-				<job-name>my_job1</job-name>
+				<job-name>job1</job-name>
 				<job-group>DEFAULT</job-group>
 				<repeat-count>-1</repeat-count>
 				<repeat-interval>1500</repeat-interval>

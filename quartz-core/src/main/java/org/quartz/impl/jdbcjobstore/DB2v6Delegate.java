@@ -1,5 +1,5 @@
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -59,16 +59,7 @@ public class DB2v6Delegate extends StdJDBCDelegate {
             + TABLE_PREFIX_SUBST + TABLE_CALENDARS
             + " WHERE " + COL_SCHEDULER_NAME + " = " + SCHED_NAME_SUBST;
 
-    public DB2v6Delegate(Logger logger, String tablePrefix, String schedName, String instanceId, ClassLoadHelper classLoadHelper) {
-        super(logger, tablePrefix, schedName, instanceId, classLoadHelper);
-    }
-
-    public DB2v6Delegate(Logger logger, String tablePrefix, String schedName, String instanceId, ClassLoadHelper classLoadHelper,
-            Boolean useProperties) {
-        super(logger, tablePrefix, schedName, instanceId, classLoadHelper, useProperties);
-    }
-
-    @Override           
+    @Override
     public int selectNumJobs(Connection conn) throws SQLException {
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -84,7 +75,7 @@ public class DB2v6Delegate extends StdJDBCDelegate {
 
             return count;
         } finally {
-          closeResultSet(rs);
+            closeResultSet(rs);
             closeStatement(ps);
         }
     }
@@ -106,7 +97,7 @@ public class DB2v6Delegate extends StdJDBCDelegate {
                 return 0;
             }
         } finally {
-          closeResultSet(rs);
+            closeResultSet(rs);
             closeStatement(ps);
         }
     }
@@ -127,7 +118,7 @@ public class DB2v6Delegate extends StdJDBCDelegate {
 
             return count;
         } finally {
-          closeResultSet(rs);
+            closeResultSet(rs);
             closeStatement(ps);
         }
     }
@@ -148,7 +139,7 @@ public class DB2v6Delegate extends StdJDBCDelegate {
 
             return count;
         } finally {
-          closeResultSet(rs);
+            closeResultSet(rs);
             closeStatement(ps);
         }
     }

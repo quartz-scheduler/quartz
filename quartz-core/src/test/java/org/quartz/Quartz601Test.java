@@ -1,5 +1,5 @@
 /* 
- * Copyright 2007-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -58,9 +58,9 @@ public class Quartz601Test extends TestCase {
 
     private Set<Integer> assertParsesForField(String expression, int constant) {
         try {
-            SimpleCronExpression cronExpression = new SimpleCronExpression(expression);
-            Set<Integer> set = cronExpression.getSetPublic(constant);
-            if(set.size() == 0) {
+            CronExpression cronExpression = new CronExpression(expression);
+            Set<Integer> set = cronExpression.getSet(constant);
+            if(set.isEmpty()) {
                 fail("Empty field ["+constant+"] returned for " + expression);
             }
             return set;
@@ -71,15 +71,3 @@ public class Quartz601Test extends TestCase {
     }
 
 }
-
-class SimpleCronExpression extends CronExpression {
-
-    public SimpleCronExpression(String cronExpression) throws ParseException {
-        super(cronExpression);
-    }
-
-    public Set<Integer> getSetPublic(int constant) {
-        return super.getSet(constant);
-    }
-
-} 

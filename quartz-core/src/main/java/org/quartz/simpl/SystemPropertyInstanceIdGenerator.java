@@ -39,9 +39,9 @@ public class SystemPropertyInstanceIdGenerator implements InstanceIdGenerator {
                                    + "' system property found, please configure your environment accordingly!");
     }
     if(getPrepend() != null)
-      property = getPrepend() + property;
+        property = getPrepend() + property;
     if(getPostpend() != null)
-      property = property + getPostpend();
+        property = property + getPostpend();
     
     return property;
   }
@@ -63,7 +63,7 @@ public class SystemPropertyInstanceIdGenerator implements InstanceIdGenerator {
   public void setPrepend(String prepend) {
     this.prepend = prepend == null ?  null  : prepend.trim();
   }
-  
+    
   /**
    * A String of text to postpend (add to the end) to the instanceId 
    * found in the system property.

@@ -203,5 +203,5 @@ public interface CronTrigger extends Trigger {
 
     public String getExpressionSummary();
 
-  TriggerBuilder<CronTrigger> getTriggerBuilder();
+    TriggerBuilder<CronTrigger> getTriggerBuilder();
 }

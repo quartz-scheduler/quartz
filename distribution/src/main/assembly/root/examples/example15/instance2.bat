@@ -27,21 +27,17 @@ rem Set the location and name of the quartz.properties file
 @SET QUARTZ_PROPS="-Dorg.quartz.properties=%WD%instance2.properties"
 
 rem Set the path to your Terracotta server home here
-@SET TC_HOME=%WD%..\..\..
+@SET INSTALL_DIR=%WD%..\..\..
 
-IF NOT EXIST "%TC_HOME%\bin\start-tc-server.bat" (
-echo "Modify the script to set TC_HOME"
+IF NOT EXIST "%INSTALL_DIR%\server\bin\start-tc-server.bat" (
+echo "Modify the script to set INSTALL_DIR"
 exit /B
 )
 
-dir /b "%TC_HOME%\common\terracotta-toolkit*.jar" > temp.tmp
-FOR /F %%I IN (temp.tmp) DO SET TC_CP="%TC_HOME%\common\%%I";%TC_CP%
+dir /b "%INSTALL_DIR%\apis\toolkit\lib\terracotta-toolkit*.jar" > temp.tmp
+FOR /F %%I IN (temp.tmp) DO SET TC_CP="%INSTALL_DIR%\apis\toolkit\lib\%%I";%TC_CP%
 del temp.tmp
 
-dir /b "%TC_HOME%\quartz\quartz-terracotta*.jar" > temp.tmp
-FOR /F %%I IN (temp.tmp) DO SET TC_CP="%TC_HOME%\quartz\%%I";%TC_CP%
-del temp.tmp
-
-"%JAVA_HOME%\bin\java.exe" -cp %QUARTZ_CP%;%TC_CP% %QUARTZ_PROPS% %LOG4J_PROPS% -Dtc.install-root=%TC_HOME% org.quartz.examples.example15.ClusterExample dontScheduleJobs
+"%JAVA_HOME%\bin\java.exe" -cp %QUARTZ_CP%;%TC_CP% %QUARTZ_PROPS% %LOG4J_PROPS% -Dtc.install-root=%INSTALL_DIR% org.quartz.examples.example15.ClusterExample dontScheduleJobs
 
 endlocal

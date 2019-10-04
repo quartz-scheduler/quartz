@@ -31,7 +31,8 @@ import org.quartz.spi.OperableTrigger;
  * Persist a DailyTimeIntervalTrigger by converting internal fields to and from
  * SimplePropertiesTriggerProperties.
  * 
- * @see DailyTimeIntervalScheduleBuilder, {@link DailyTimeIntervalTrigger}
+ * @see DailyTimeIntervalScheduleBuilder
+ * @see DailyTimeIntervalTrigger
  * 
  * @since 2.1.0
  * 
@@ -49,7 +50,7 @@ public class DailyTimeIntervalTriggerPersistenceDelegate extends SimplePropertie
 
     @Override
     protected SimplePropertiesTriggerProperties getTriggerProperties(OperableTrigger trigger) {
-      DailyTimeIntervalTriggerImpl dailyTrigger = (DailyTimeIntervalTriggerImpl)trigger;
+        DailyTimeIntervalTriggerImpl dailyTrigger = (DailyTimeIntervalTriggerImpl)trigger;
         SimplePropertiesTriggerProperties props = new SimplePropertiesTriggerProperties();
         
         props.setInt1(dailyTrigger.getRepeatInterval());
@@ -63,19 +64,19 @@ public class DailyTimeIntervalTriggerPersistenceDelegate extends SimplePropertie
         StringBuilder timeOfDayBuffer = new StringBuilder();
         TimeOfDay startTimeOfDay = dailyTrigger.getStartTimeOfDay();
         if (startTimeOfDay != null) {
-          timeOfDayBuffer.append(startTimeOfDay.getHour()).append(",");
-          timeOfDayBuffer.append(startTimeOfDay.getMinute()).append(",");
-          timeOfDayBuffer.append(startTimeOfDay.getSecond()).append(",");
+            timeOfDayBuffer.append(startTimeOfDay.getHour()).append(",");
+            timeOfDayBuffer.append(startTimeOfDay.getMinute()).append(",");
+            timeOfDayBuffer.append(startTimeOfDay.getSecond()).append(",");
         } else {
-          timeOfDayBuffer.append(",,,");
+            timeOfDayBuffer.append(",,,");
         }
         TimeOfDay endTimeOfDay = dailyTrigger.getEndTimeOfDay();
         if (endTimeOfDay != null) {
-          timeOfDayBuffer.append(endTimeOfDay.getHour()).append(",");
-          timeOfDayBuffer.append(endTimeOfDay.getMinute()).append(",");
-          timeOfDayBuffer.append(endTimeOfDay.getSecond());
+            timeOfDayBuffer.append(endTimeOfDay.getHour()).append(",");
+            timeOfDayBuffer.append(endTimeOfDay.getMinute()).append(",");
+            timeOfDayBuffer.append(endTimeOfDay.getSecond());
         } else {
-          timeOfDayBuffer.append(",,,");
+            timeOfDayBuffer.append(",,,");
         }
         props.setString3(timeOfDayBuffer.toString());
         
@@ -85,72 +86,72 @@ public class DailyTimeIntervalTriggerPersistenceDelegate extends SimplePropertie
     }
 
     private String join(Set<Integer> days, String sep) {
-      StringBuilder sb = new StringBuilder();
-      if (days == null || days.size() <= 0)
-        return "";
-      
-      Iterator<Integer> itr = days.iterator();
-      sb.append(itr.next());
-      while(itr.hasNext()) {
-        sb.append(sep).append(itr.next());
-      }
-    return sb.toString();
-  }
+        StringBuilder sb = new StringBuilder();
+        if (days == null || days.size() <= 0)
+            return "";
+        
+        Iterator<Integer> itr = days.iterator();
+        sb.append(itr.next());
+        while(itr.hasNext()) {
+            sb.append(sep).append(itr.next());
+        }
+        return sb.toString();
+    }
 
-  @Override
+    @Override
     protected TriggerPropertyBundle getTriggerPropertyBundle(SimplePropertiesTriggerProperties props) {
-    int repeatCount = (int)props.getLong1();
-    int interval = props.getInt1();
-    String intervalUnitStr = props.getString1();
-    String daysOfWeekStr = props.getString2();
-    String timeOfDayStr = props.getString3();
+        int repeatCount = (int)props.getLong1();
+        int interval = props.getInt1();
+        String intervalUnitStr = props.getString1();
+        String daysOfWeekStr = props.getString2();
+        String timeOfDayStr = props.getString3();
 
-    IntervalUnit intervalUnit = IntervalUnit.valueOf(intervalUnitStr);
-    DailyTimeIntervalScheduleBuilder scheduleBuilder = DailyTimeIntervalScheduleBuilder
-            .dailyTimeIntervalSchedule()
-            .withInterval(interval, intervalUnit)
-            .withRepeatCount(repeatCount);
-            
-    if (daysOfWeekStr != null) {
-          Set<Integer> daysOfWeek = new HashSet<Integer>();
-          String[] nums = daysOfWeekStr.split(",");
-          if (nums.length > 0) {
-            for (String num : nums) {
-              daysOfWeek.add(Integer.parseInt(num));
+        IntervalUnit intervalUnit = IntervalUnit.valueOf(intervalUnitStr);
+        DailyTimeIntervalScheduleBuilder scheduleBuilder = DailyTimeIntervalScheduleBuilder
+                .dailyTimeIntervalSchedule()
+                .withInterval(interval, intervalUnit)
+                .withRepeatCount(repeatCount);
+                
+        if (daysOfWeekStr != null) {
+            Set<Integer> daysOfWeek = new HashSet<Integer>();
+            String[] nums = daysOfWeekStr.split(",");
+            if (nums.length > 0) {
+                for (String num : nums) {
+                    daysOfWeek.add(Integer.parseInt(num));
+                }
+                scheduleBuilder.onDaysOfTheWeek(daysOfWeek);
             }
-            scheduleBuilder.onDaysOfTheWeek(daysOfWeek);
-          }
-    } else {
-      scheduleBuilder.onDaysOfTheWeek(DailyTimeIntervalScheduleBuilder.ALL_DAYS_OF_THE_WEEK);
-    }
-    
-    if (timeOfDayStr != null) {
-          String[] nums = timeOfDayStr.split(",");
-      TimeOfDay startTimeOfDay = null;
-          if (nums.length >= 3) {
-            int hour = Integer.parseInt(nums[0]);
-            int min = Integer.parseInt(nums[1]);
-            int sec = Integer.parseInt(nums[2]);
-        startTimeOfDay = new TimeOfDay(hour, min, sec);
-          } else {
-            startTimeOfDay = TimeOfDay.hourMinuteAndSecondOfDay(0, 0, 0);
-          }
-          scheduleBuilder.startingDailyAt(startTimeOfDay);
+        } else {
+            scheduleBuilder.onDaysOfTheWeek(DailyTimeIntervalScheduleBuilder.ALL_DAYS_OF_THE_WEEK);
+        }
+        
+        if (timeOfDayStr != null) {
+            String[] nums = timeOfDayStr.split(",");
+            TimeOfDay startTimeOfDay;
+            if (nums.length >= 3) {
+                int hour = Integer.parseInt(nums[0]);
+                int min = Integer.parseInt(nums[1]);
+                int sec = Integer.parseInt(nums[2]);
+                startTimeOfDay = new TimeOfDay(hour, min, sec);
+            } else {
+                startTimeOfDay = TimeOfDay.hourMinuteAndSecondOfDay(0, 0, 0);
+            }
+            scheduleBuilder.startingDailyAt(startTimeOfDay);
 
-      TimeOfDay endTimeOfDay = null;
-          if (nums.length >= 6) {
-            int hour = Integer.parseInt(nums[3]);
-            int min = Integer.parseInt(nums[4]);
-            int sec = Integer.parseInt(nums[5]);
-            endTimeOfDay = new TimeOfDay(hour, min, sec);
-          } else {
-            endTimeOfDay = TimeOfDay.hourMinuteAndSecondOfDay(23, 59, 59);
-          }
-          scheduleBuilder.endingDailyAt(endTimeOfDay);
-    } else {
-          scheduleBuilder.startingDailyAt(TimeOfDay.hourMinuteAndSecondOfDay(0, 0, 0));
-          scheduleBuilder.endingDailyAt(TimeOfDay.hourMinuteAndSecondOfDay(23, 59, 59));
-    }
+            TimeOfDay endTimeOfDay;
+            if (nums.length >= 6) {
+                int hour = Integer.parseInt(nums[3]);
+                int min = Integer.parseInt(nums[4]);
+                int sec = Integer.parseInt(nums[5]);
+                endTimeOfDay = new TimeOfDay(hour, min, sec);
+            } else {
+                endTimeOfDay = TimeOfDay.hourMinuteAndSecondOfDay(23, 59, 59);
+            }
+            scheduleBuilder.endingDailyAt(endTimeOfDay);
+        } else {
+            scheduleBuilder.startingDailyAt(TimeOfDay.hourMinuteAndSecondOfDay(0, 0, 0));
+            scheduleBuilder.endingDailyAt(TimeOfDay.hourMinuteAndSecondOfDay(23, 59, 59));
+        }
         
         int timesTriggered = props.getInt2();
         String[] statePropertyNames = { "timesTriggered" };

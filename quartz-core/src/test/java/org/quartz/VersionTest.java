@@ -1,5 +1,5 @@
 /* 
- * Copyright 2007-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -22,7 +22,9 @@ import junit.framework.TestCase;
 import org.quartz.core.QuartzScheduler;
 
 public class VersionTest extends TestCase {
+    @SuppressWarnings("unused")
     private static final String SNAPSHOT_SUFFIX = "-SNAPSHOT";
+    @SuppressWarnings("unused")
     private static final String PROTOTYPE_SUFFIX = "-PROTO";
 
     public void testVersionParsing() {

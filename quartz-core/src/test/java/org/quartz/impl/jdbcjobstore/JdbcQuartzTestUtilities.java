@@ -1,3 +1,18 @@
+/*
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.quartz.impl.jdbcjobstore;
 
 import java.io.BufferedReader;
@@ -34,7 +49,7 @@ public final class JdbcQuartzTestUtilities {
         String setupScript;
         try {
             InputStream setupStream = DerbyEmbeddedConnectionProvider.class
-                    .getClassLoader().getResourceAsStream("tables_derby.sql");
+                    .getClassLoader().getResourceAsStream("org/quartz/impl/jdbcjobstore/tables_derby.sql");
             try {
                 BufferedReader r = new BufferedReader(new InputStreamReader(setupStream, "US-ASCII"));
                 StringBuilder sb = new StringBuilder();
@@ -78,6 +93,25 @@ public final class JdbcQuartzTestUtilities {
         }
     }
 
+    public static void shutdownDatabase() throws SQLException {
+        try {
+            DriverManager.getConnection("jdbc:derby:;shutdown=true").close();
+        } catch (SQLException e) {
+            if (!("Derby system shutdown.").equals(e.getMessage())) {
+                throw e;
+            }
+        }
+        try {
+            Class.forName(DATABASE_DRIVER_CLASS).newInstance();
+        } catch (ClassNotFoundException e) {
+            throw new AssertionError(e);
+        } catch (InstantiationException e) {
+            throw new AssertionError(e);
+        } catch (IllegalAccessException e) {
+            throw new AssertionError(e);
+        }
+    }
+    
     static class DerbyEmbeddedConnectionProvider implements ConnectionProvider {
 
         private final String databaseName;
@@ -101,6 +135,10 @@ public final class JdbcQuartzTestUtilities {
         }
 
         public void shutdown() throws SQLException {
+            // nothing to do
+        }
+        
+        public void initialize() throws SQLException {
             // nothing to do
         }
     }

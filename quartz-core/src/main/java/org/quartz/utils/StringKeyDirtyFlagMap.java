@@ -1,5 +1,5 @@
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -253,9 +253,9 @@ public class StringKeyDirtyFlagMap extends DirtyFlagMap<String, Object> {
         Object obj = get(key);
     
         try {
-          if(obj instanceof Integer)
-            return ((Integer) obj).intValue();
-          return Integer.parseInt((String)obj);
+            if(obj instanceof Integer)
+                return ((Integer) obj).intValue();
+            return Integer.parseInt((String)obj);
         } catch (Exception e) {
             throw new ClassCastException("Identified object is not an Integer.");
         }
@@ -273,9 +273,9 @@ public class StringKeyDirtyFlagMap extends DirtyFlagMap<String, Object> {
         Object obj = get(key);
     
         try {
-          if(obj instanceof Long)
-            return ((Long) obj).longValue();
-          return Long.parseLong((String)obj);
+            if(obj instanceof Long)
+                return ((Long) obj).longValue();
+            return Long.parseLong((String)obj);
         } catch (Exception e) {
             throw new ClassCastException("Identified object is not a Long.");
         }
@@ -293,9 +293,9 @@ public class StringKeyDirtyFlagMap extends DirtyFlagMap<String, Object> {
         Object obj = get(key);
     
         try {
-          if(obj instanceof Float)
-            return ((Float) obj).floatValue();
-          return Float.parseFloat((String)obj);
+            if(obj instanceof Float)
+                return ((Float) obj).floatValue();
+            return Float.parseFloat((String)obj);
         } catch (Exception e) {
             throw new ClassCastException("Identified object is not a Float.");
         }
@@ -313,9 +313,9 @@ public class StringKeyDirtyFlagMap extends DirtyFlagMap<String, Object> {
         Object obj = get(key);
     
         try {
-          if(obj instanceof Double)
-            return ((Double) obj).doubleValue();
-          return Double.parseDouble((String)obj);
+            if(obj instanceof Double)
+                return ((Double) obj).doubleValue();
+            return Double.parseDouble((String)obj);
         } catch (Exception e) {
             throw new ClassCastException("Identified object is not a Double.");
         }
@@ -333,9 +333,9 @@ public class StringKeyDirtyFlagMap extends DirtyFlagMap<String, Object> {
         Object obj = get(key);
     
         try {
-          if(obj instanceof Boolean)
-            return ((Boolean) obj).booleanValue();
-          return Boolean.parseBoolean((String)obj);
+            if(obj instanceof Boolean)
+                return ((Boolean) obj).booleanValue();
+            return Boolean.parseBoolean((String)obj);
         } catch (Exception e) {
             throw new ClassCastException("Identified object is not a Boolean.");
         }
@@ -353,9 +353,9 @@ public class StringKeyDirtyFlagMap extends DirtyFlagMap<String, Object> {
         Object obj = get(key);
     
         try {
-          if(obj instanceof Character)
-            return ((Character) obj).charValue();
-          return ((String)obj).charAt(0);
+            if(obj instanceof Character)
+                return ((Character) obj).charValue();
+            return ((String)obj).charAt(0);
         } catch (Exception e) {
             throw new ClassCastException("Identified object is not a Character.");
         }

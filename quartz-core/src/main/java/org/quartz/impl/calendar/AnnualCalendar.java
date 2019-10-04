@@ -1,5 +1,5 @@
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -85,12 +85,12 @@ public class AnnualCalendar extends BaseCalendar implements Calendar,
      */
     public boolean isDayExcluded(java.util.Calendar day) {
 
-      if (day == null) {
+        if (day == null) {
             throw new IllegalArgumentException(
                     "Parameter day must not be null");
         }
 
-       // Check baseCalendar first
+         // Check baseCalendar first
         if (! super.isTimeIncluded(day.getTime().getTime())) {
          return true;
         } 
@@ -167,8 +167,7 @@ public class AnnualCalendar extends BaseCalendar implements Calendar,
     /**
      * Remove the given day from the list of excluded days
      *  
-     * @param day
-     * @return
+     * @param day the day to exclude
      */
     public void removeExcludedDay(java.util.Calendar day) {
         removeExcludedDay(day, false);
@@ -176,13 +175,13 @@ public class AnnualCalendar extends BaseCalendar implements Calendar,
     
     private void removeExcludedDay(java.util.Calendar day, boolean isChecked) {
         if (! isChecked &&
-          ! isDayExcluded(day)) {
+            ! isDayExcluded(day)) {
             return;
         }
-      
+        
         // Fast way, see if exact day object was already in list
         if (this.excludeDays.remove(day)) {
-          return;
+            return;
         }
         
         int dmonth = day.get(java.util.Calendar.MONTH);
@@ -265,6 +264,8 @@ public class AnnualCalendar extends BaseCalendar implements Calendar,
 }
 
 class CalendarComparator implements Comparator<java.util.Calendar>, Serializable {
+  
+    private static final long serialVersionUID = 7346867105876610961L;
     
     public CalendarComparator() {
     }

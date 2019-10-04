@@ -1,6 +1,6 @@
 
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -100,7 +100,6 @@ import org.quartz.utils.Key;
  * @see JobBuilder
  * @see Trigger
  * @see TriggerBuilder
- * @see 
  * @see JobListener
  * @see TriggerListener
  * @see SchedulerListener
@@ -165,14 +164,31 @@ public interface Scheduler {
 
     /**
      * A constant <code>JobDataMap</code> key that can be used to retrieve the
-     * scheduled fire time of the original <code>Trigger</code> from a recovery
+     * fire time of the original <code>Trigger</code> from a recovery
      * trigger's data map in the case of a job recovering after a failed scheduler
-     * instance.
+     * instance.  
+     * 
+     * <p>Note that this is the time the original firing actually occurred,
+     * which may be different from the scheduled fire time - as a trigger doesn't
+     * always fire exactly on time.</p>
      *
      * @see org.quartz.JobDetail#requestsRecovery()
      */
     String FAILED_JOB_ORIGINAL_TRIGGER_FIRETIME_IN_MILLISECONDS =  "QRTZ_FAILED_JOB_ORIG_TRIGGER_FIRETIME_IN_MILLISECONDS_AS_STRING";
 
+    /**
+     * A constant <code>JobDataMap</code> key that can be used to retrieve the
+     * scheduled fire time of the original <code>Trigger</code> from a recovery
+     * trigger's data map in the case of a job recovering after a failed scheduler
+     * instance.  
+     * 
+     * <p>Note that this is the time the original firing was scheduled for,
+     * which may be different from the actual firing time - as a trigger doesn't
+     * always fire exactly on time.</p>
+     *
+     * @see org.quartz.JobDetail#requestsRecovery()
+     */
+    String FAILED_JOB_ORIGINAL_TRIGGER_SCHEDULED_FIRETIME_IN_MILLISECONDS =  "QRTZ_FAILED_JOB_ORIG_TRIGGER_SCHEDULED_FIRETIME_IN_MILLISECONDS_AS_STRING";
 
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -423,7 +439,19 @@ public interface Scheduler {
      * @throws ObjectAlreadyExistsException if the job/trigger keys
      * are not unique and the replace flag is not set to true. 
      */
-    void scheduleJobs(Map<JobDetail, List<Trigger>> triggersAndJobs, boolean replace) throws SchedulerException; 
+    void scheduleJobs(Map<JobDetail, Set<? extends Trigger>> triggersAndJobs, boolean replace) throws SchedulerException;
+    
+    /**
+     * Schedule the given job with the related set of triggers.
+     * 
+     * <p>If any of the given job or triggers already exist (or more
+     * specifically, if the keys are not unique) and the replace 
+     * parameter is not set to true then an exception will be thrown.</p>
+     * 
+     * @throws ObjectAlreadyExistsException if the job/trigger keys
+     * are not unique and the replace flag is not set to true. 
+     */
+    void scheduleJob(JobDetail jobDetail, Set<? extends Trigger> triggersForJob, boolean replace) throws SchedulerException;
     
     /**
      * Remove the indicated <code>{@link Trigger}</code> from the scheduler.
@@ -477,7 +505,9 @@ public interface Scheduler {
      * The <code>Job</code> must by definition be 'durable', if it is not,
      * SchedulerException will be thrown.
      * </p>
-     * 
+     *
+     * @see #addJob(JobDetail, boolean, boolean)
+     *
      * @throws SchedulerException
      *           if there is an internal Scheduler error, or if the Job is not
      *           durable, or a Job with the same name already exists, and
@@ -485,6 +515,27 @@ public interface Scheduler {
      */
     void addJob(JobDetail jobDetail, boolean replace)
         throws SchedulerException;
+
+    /**
+     * Add the given <code>Job</code> to the Scheduler - with no associated
+     * <code>Trigger</code>. The <code>Job</code> will be 'dormant' until
+     * it is scheduled with a <code>Trigger</code>, or <code>Scheduler.triggerJob()</code>
+     * is called for it.
+     *
+     * <p>
+     * With the <code>storeNonDurableWhileAwaitingScheduling</code> parameter
+     * set to <code>true</code>, a non-durable job can be stored.  Once it is
+     * scheduled, it will resume normal non-durable behavior (i.e. be deleted
+     * once there are no remaining associated triggers).
+     * </p>
+     *
+     * @throws SchedulerException
+     *           if there is an internal Scheduler error, or if the Job is not
+     *           durable, or a Job with the same name already exists, and
+     *           <code>replace</code> is <code>false</code>.
+     */
+    void addJob(JobDetail jobDetail, boolean replace, boolean storeNonDurableWhileAwaitingScheduling)
+            throws SchedulerException;
 
     /**
      * Delete the identified <code>Job</code> from the Scheduler - and any
@@ -774,6 +825,22 @@ public interface Scheduler {
     TriggerState getTriggerState(TriggerKey triggerKey)
         throws SchedulerException;
 
+    /**
+     * Reset the current state of the identified <code>{@link Trigger}</code>
+     * from {@link TriggerState#ERROR} to {@link TriggerState#NORMAL} or
+     * {@link TriggerState#PAUSED} as appropriate.
+     *
+     * <p>Only affects triggers that are in ERROR state - if identified trigger is not
+     * in that state then the result is a no-op.</p>
+     *
+     * <p>The result will be the trigger returning to the normal, waiting to
+     * be fired state, unless the trigger's group has been paused, in which
+     * case it will go into the PAUSED state.</p>
+     *
+     * @see Trigger.TriggerState
+     */
+    void resetTriggerFromErrorState(TriggerKey triggerKey)
+        throws SchedulerException;
     /**
      * Add (register) the given <code>Calendar</code> to the Scheduler.
      * 

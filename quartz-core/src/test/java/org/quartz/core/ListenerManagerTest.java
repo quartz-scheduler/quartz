@@ -1,5 +1,5 @@
 /*
- * Copyright 2001-2009 Terracotta, Inc.
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -101,22 +101,22 @@ public class ListenerManagerTest extends TestCase {
         manager = new ListenerManagerImpl();
         JobListener[] lstners = new JobListener[numListenersToTestOrderOf];
         for(int i=0; i < numListenersToTestOrderOf; i++) {
-          // use random name, to help test that order isn't based on naming or coincidental hashing
-          lstners[i] = new TestJobListener(UUID.randomUUID().toString());
-          manager.addJobListener(lstners[i]);
+        	// use random name, to help test that order isn't based on naming or coincidental hashing
+        	lstners[i] = new TestJobListener(UUID.randomUUID().toString());
+        	manager.addJobListener(lstners[i]);
         }
         List<JobListener> mls = manager.getJobListeners();
         int i = 0;
         for(JobListener lsnr: mls) {
-          assertSame("Unexpected order of listeners", lstners[i], lsnr);
-          i++;
+        	assertSame("Unexpected order of listeners", lstners[i], lsnr);
+        	i++;
         }        
     }
 
     public void testManagementOfTriggerListeners() throws Exception {
         
-      TriggerListener tl1 = new TestTriggerListener("tl1");
-      TriggerListener tl2 = new TestTriggerListener("tl2");
+    	TriggerListener tl1 = new TestTriggerListener("tl1");
+    	TriggerListener tl2 = new TestTriggerListener("tl2");
         
         ListenerManagerImpl manager = new ListenerManagerImpl();
 
@@ -141,15 +141,15 @@ public class ListenerManagerTest extends TestCase {
         manager = new ListenerManagerImpl();
         TriggerListener[] lstners = new TriggerListener[numListenersToTestOrderOf];
         for(int i=0; i < numListenersToTestOrderOf; i++) {
-          // use random name, to help test that order isn't based on naming or coincidental hashing
-          lstners[i] = new TestTriggerListener(UUID.randomUUID().toString());
-          manager.addTriggerListener(lstners[i]);
+        	// use random name, to help test that order isn't based on naming or coincidental hashing
+        	lstners[i] = new TestTriggerListener(UUID.randomUUID().toString());
+        	manager.addTriggerListener(lstners[i]);
         }
         List<TriggerListener> mls = manager.getTriggerListeners();
         int i = 0;
         for(TriggerListener lsnr: mls) {
-          assertSame("Unexpected order of listeners", lstners[i], lsnr);
-          i++;
+        	assertSame("Unexpected order of listeners", lstners[i], lsnr);
+        	i++;
         }
     }
 
@@ -179,14 +179,14 @@ public class ListenerManagerTest extends TestCase {
         manager = new ListenerManagerImpl();
         SchedulerListener[] lstners = new SchedulerListener[numListenersToTestOrderOf];
         for(int i=0; i < numListenersToTestOrderOf; i++) {
-          lstners[i] = new TestSchedulerListener();
-          manager.addSchedulerListener(lstners[i]);
+        	lstners[i] = new TestSchedulerListener();
+        	manager.addSchedulerListener(lstners[i]);
         }
         List<SchedulerListener> mls = manager.getSchedulerListeners();
         int i = 0;
         for(SchedulerListener lsnr: mls) {
-          assertSame("Unexpected order of listeners", lstners[i], lsnr);
-          i++;
+        	assertSame("Unexpected order of listeners", lstners[i], lsnr);
+        	i++;
         } 
     }
 

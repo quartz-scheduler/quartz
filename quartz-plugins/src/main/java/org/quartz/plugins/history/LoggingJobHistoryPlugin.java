@@ -1,5 +1,5 @@
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -26,6 +26,7 @@ import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.JobListener;
 import org.quartz.impl.matchers.EverythingMatcher;
+import org.quartz.spi.ClassLoadHelper;
 import org.quartz.spi.SchedulerPlugin;
 
 import java.text.MessageFormat;
@@ -406,7 +407,7 @@ public class LoggingJobHistoryPlugin implements SchedulerPlugin, JobListener {
      * @throws SchedulerConfigException
      *           if there is an error initializing.
      */
-    public void initialize(String pname, Scheduler scheduler)
+    public void initialize(String pname, Scheduler scheduler,ClassLoadHelper classLoadHelper)
         throws SchedulerException {
         this.name = pname;
         scheduler.getListenerManager().addJobListener(this, EverythingMatcher.allJobs());

@@ -14,8 +14,8 @@ the examples.
 Running examples with Maven:
 - All examples except 13 and 15 can be run with Maven command:
 
-%> mvn install ( run at least once to compile the examples )
-%> mvn exec:exec -P exampleX   (where X is 1 to 15)
+%> ./mvnw install ( run at least once to compile the examples )
+%> ./mvnw exec:exec -P exampleX   (where X is 1 to 15)
 
 Examples Listing
 ================

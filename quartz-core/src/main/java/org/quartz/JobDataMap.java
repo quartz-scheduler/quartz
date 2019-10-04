@@ -1,6 +1,6 @@
 
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -29,7 +29,7 @@ import org.quartz.utils.StringKeyDirtyFlagMap;
  * <p>
  * <code>JobDataMap</code> instances are stored once when the <code>Job</code>
  * is added to a scheduler. They are also re-persisted after every execution of
- * <code>StatefulJob</code> instances.
+ * jobs annotated with <code>@PersistJobDataAfterExecution</code>.
  * </p>
  * 
  * <p>
@@ -46,9 +46,15 @@ import org.quartz.utils.StringKeyDirtyFlagMap;
  * of merging the contents of the trigger's JobDataMap (if any) over the
  * Job's JobDataMap (if any).  
  * </p>
+ *
+ * <p>
+ * Update since 2.2.4 - We keep an dirty flag for this map so that whenever you modify(add/delete) any of the entries,
+ * it will set to "true". However if you create new instance using an exising map with {@link #JobDataMap(Map)}, then
+ * the dirty flag will NOT be set to "true" until you modify the instance.
+ * </p>
  * 
  * @see Job
- * @see StatefulJob
+ * @see PersistJobDataAfterExecution
  * @see Trigger
  * @see JobExecutionContext
  * 
@@ -83,8 +89,12 @@ public class JobDataMap extends StringKeyDirtyFlagMap implements Serializable {
     public JobDataMap(Map<?, ?> map) {
         this();
         @SuppressWarnings("unchecked") // casting to keep API compatible and avoid compiler errors/warnings.
-    Map<String, Object> mapTyped = (Map<String, Object>)map;
+        Map<String, Object> mapTyped = (Map<String, Object>)map;
         putAll(mapTyped);
+
+        // When constructing a new data map from another existing map, we should NOT mark dirty flag as true
+        // Use case: loading JobDataMap from DB
+        clearDirtyFlag();
     }
 
     /*
@@ -150,7 +160,7 @@ public class JobDataMap extends StringKeyDirtyFlagMap implements Serializable {
      * </p>
      */
     public void putAsString(String key, double value) {
-        String strValue = new Double(value).toString();
+        String strValue = Double.toString(value);
 
         super.put(key, strValue);
     }
@@ -174,7 +184,7 @@ public class JobDataMap extends StringKeyDirtyFlagMap implements Serializable {
      * </p>
      */
     public void putAsString(String key, float value) {
-        String strValue = new Float(value).toString();
+        String strValue = Float.toString(value);
 
         super.put(key, strValue);
     }
@@ -250,7 +260,7 @@ public class JobDataMap extends StringKeyDirtyFlagMap implements Serializable {
     public int getIntFromString(String key) {
         Object obj = get(key);
 
-        return new Integer((String) obj).intValue();
+        return new Integer((String) obj);
     }
 
     /**
@@ -296,7 +306,7 @@ public class JobDataMap extends StringKeyDirtyFlagMap implements Serializable {
     public boolean getBooleanValueFromString(String key) {
         Object obj = get(key);
 
-        return Boolean.valueOf((String) obj).booleanValue();
+        return Boolean.valueOf((String) obj);
     }
 
     /**
@@ -357,7 +367,7 @@ public class JobDataMap extends StringKeyDirtyFlagMap implements Serializable {
     public Character getCharacterFromString(String key) {
         Object obj = get(key);
 
-        return Character.valueOf(((String) obj).charAt(0));
+        return ((String) obj).charAt(0);
     }
 
     /**
@@ -371,7 +381,7 @@ public class JobDataMap extends StringKeyDirtyFlagMap implements Serializable {
     public double getDoubleValueFromString(String key) {
         Object obj = get(key);
 
-        return Double.valueOf((String) obj).doubleValue();
+        return Double.valueOf((String) obj);
     }
 
     /**
@@ -417,7 +427,7 @@ public class JobDataMap extends StringKeyDirtyFlagMap implements Serializable {
     public float getFloatValueFromString(String key) {
         Object obj = get(key);
 
-        return new Float((String) obj).floatValue();
+        return new Float((String) obj);
     }
 
     /**
@@ -463,7 +473,7 @@ public class JobDataMap extends StringKeyDirtyFlagMap implements Serializable {
     public long getLongValueFromString(String key) {
         Object obj = get(key);
 
-        return new Long((String) obj).longValue();
+        return new Long((String) obj);
     }
 
     /**

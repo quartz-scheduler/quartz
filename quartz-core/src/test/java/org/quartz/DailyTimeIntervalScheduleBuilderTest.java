@@ -1,5 +1,5 @@
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -23,6 +23,7 @@ import static org.quartz.TimeOfDay.hourMinuteAndSecondOfDay;
 import static org.quartz.TriggerBuilder.newTrigger;
 
 import java.util.Date;
+import java.util.Calendar;
 import java.util.List;
 
 import junit.framework.Assert;
@@ -51,6 +52,57 @@ public class DailyTimeIntervalScheduleBuilderTest extends TestCase {
     scheduler.shutdown();
   }
   
+  public void testScheduleInMiddleOfDailyInterval() throws Exception {
+    
+    java.util.Calendar currTime = java.util.Calendar.getInstance();
+    
+    int currHour = currTime.get(java.util.Calendar.HOUR);
+    
+    // this test won't work out well in the early hours, where 'backing up' would give previous day,
+    // or where daylight savings transitions could occur and confuse the assertions...
+    if(currHour < 3)
+      return;
+    
+    Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
+    JobDetail job = newJob(MyJob.class).build();
+    Trigger trigger = newTrigger().withIdentity("test")
+        .withSchedule(dailyTimeIntervalSchedule()
+            .startingDailyAt(TimeOfDay.hourAndMinuteOfDay(2, 15))
+            .withIntervalInMinutes(5))
+            .startAt(currTime.getTime())
+            .build();
+    scheduler.scheduleJob(job, trigger); 
+    
+    trigger = scheduler.getTrigger(trigger.getKey());
+    
+    System.out.println("testScheduleInMiddleOfDailyInterval: currTime = " + currTime.getTime());
+    System.out.println("testScheduleInMiddleOfDailyInterval: computed first fire time = " + trigger.getNextFireTime());
+        
+    Assert.assertTrue("First fire time is not after now!", trigger.getNextFireTime().after(currTime.getTime()));
+    
+    
+    Date startTime = DateBuilder.todayAt(2, 15, 0);
+    
+    job = newJob(MyJob.class).build();
+    trigger = newTrigger().withIdentity("test2")
+        .withSchedule(dailyTimeIntervalSchedule()
+            .startingDailyAt(TimeOfDay.hourAndMinuteOfDay(2, 15))
+            .withIntervalInMinutes(5))
+            .startAt(startTime)
+            .build();
+    scheduler.scheduleJob(job, trigger); 
+    
+    trigger = scheduler.getTrigger(trigger.getKey());
+    
+    System.out.println("testScheduleInMiddleOfDailyInterval: startTime = " + startTime);
+    System.out.println("testScheduleInMiddleOfDailyInterval: computed first fire time = " + trigger.getNextFireTime());
+        
+    Assert.assertTrue("First fire time is not after now!", trigger.getNextFireTime().equals(startTime));
+ 
+    
+    scheduler.shutdown();
+  }
+
   public void testHourlyTrigger() {
     DailyTimeIntervalTrigger trigger = newTrigger().withIdentity("test")
         .withSchedule(dailyTimeIntervalSchedule()
@@ -155,17 +207,27 @@ public class DailyTimeIntervalScheduleBuilderTest extends TestCase {
             .startingDailyAt(TimeOfDay.hourAndMinuteOfDay(8, 0))
             .endingDailyAfterCount(1))
         .startAt(startTime)
+        .forJob("testJob", "testJobGroup")
         .build();
     Assert.assertEquals("test", trigger.getKey().getName());
     Assert.assertEquals("DEFAULT", trigger.getKey().getGroup());
     Assert.assertEquals(IntervalUnit.MINUTE, trigger.getRepeatIntervalUnit());
+    validateTrigger(trigger);
     List<Date> fireTimes = TriggerUtils.computeFireTimes((OperableTrigger)trigger, null, 48);
     Assert.assertEquals(48, fireTimes.size());
     Assert.assertEquals(dateOf(8, 0, 0, 1, 1, 2011), fireTimes.get(0));
     Assert.assertEquals(dateOf(8, 0, 0, 17, 2, 2011), fireTimes.get(47));
     Assert.assertEquals(new TimeOfDay(8, 0), trigger.getEndTimeOfDay());
   }
-  
+
+  private void validateTrigger(DailyTimeIntervalTrigger trigger) {
+    try {
+      ((OperableTrigger) trigger).validate();
+    } catch (SchedulerException e) {
+      throw new RuntimeException("Trigger " + trigger.getKey() + " failed to validate", e);
+    }
+  }
+
   public void testEndingAtAfterCountOf0() {
     try {
       Date startTime = DateBuilder.dateOf(0,  0, 0, 1, 1, 2011);
@@ -199,9 +261,10 @@ public class DailyTimeIntervalScheduleBuilderTest extends TestCase {
     }
   }
   
-  /** An empty job for testing purpose. */
-  public static class MyJob implements Job {
-    public void execute(JobExecutionContext context) throws JobExecutionException {
-    }    
-  }
+    /** An empty job for testing purpose. */
+    public static class MyJob implements Job {
+      public void execute(JobExecutionContext context) throws JobExecutionException {
+        //
+      }
+    }
 }

@@ -1,6 +1,5 @@
-
-/* 
- * Copyright 2001-2009 Terracotta, Inc. 
+/*
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -38,6 +37,8 @@ package org.quartz;
  */
 public class JobExecutionException extends SchedulerException {
 
+    private static final long serialVersionUID = 1326342535829043325L;
+    
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      * 

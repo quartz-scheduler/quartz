@@ -1,6 +1,6 @@
 
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -97,12 +97,17 @@ public class JTAAnnotationAwareJobRunShellFactory implements JobRunShellFactory 
      */
     public JobRunShell createJobRunShell(TriggerFiredBundle bundle)
             throws SchedulerException {
-        boolean needsJTA = ClassUtils.isAnnotationPresent(bundle.getJobDetail().getJobClass(), ExecuteInJTATransaction.class);
-        
-        if(needsJTA)
-            return new JTAJobRunShell(scheduler, bundle);
-        else
+        ExecuteInJTATransaction jtaAnnotation = ClassUtils.getAnnotation(bundle.getJobDetail().getJobClass(), ExecuteInJTATransaction.class);
+        if(jtaAnnotation == null)
             return new JobRunShell(scheduler, bundle);
+        else {
+            int timeout = jtaAnnotation.timeout();
+            if (timeout >= 0) {
+                return new JTAJobRunShell(scheduler, bundle, timeout);
+            } else {
+                return new JTAJobRunShell(scheduler, bundle);
+            }
+        }
     }
 
 

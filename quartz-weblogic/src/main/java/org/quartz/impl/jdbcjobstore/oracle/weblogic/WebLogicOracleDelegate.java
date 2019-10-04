@@ -1,5 +1,5 @@
 /* 
- * Copyright 2001-2009 Terracotta, Inc. Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -35,38 +35,6 @@ import java.sql.SQLException;
  * @author Igor Fedulov <a href="mailto:igor@fedulov.com">igor@fedulov.com</a>
  */
 public class WebLogicOracleDelegate extends OracleDelegate {
-
-    /**
-     * <p>
-     * Create new WebLogicOracleDelegate instance.
-     * </p>
-     * 
-     * @param logger
-     *            the logger to use during execution
-     * @param tablePrefix
-     *            the prefix of all table names
-     */
-    public WebLogicOracleDelegate(Logger logger, String tablePrefix,
-            String schedName, String instanceId, ClassLoadHelper classLoadHelper) {
-        super(logger, tablePrefix, schedName, instanceId, classLoadHelper);
-    }
-
-    /**
-     * <p>
-     * Create new WebLogicOracleDelegate instance.
-     * </p>
-     * 
-     * @param logger
-     *            the logger to use during execution
-     * @param tablePrefix
-     *            the prefix of all table names
-     * @param useProperties
-     *            use java.util.Properties for storage
-     */
-    public WebLogicOracleDelegate(Logger logger, String tablePrefix,
-            String schedName, String instanceId, ClassLoadHelper classLoadHelper, Boolean useProperties) {
-        super(logger, tablePrefix, schedName, instanceId, classLoadHelper, useProperties);
-    }
 
     /**
      * Check for the Weblogic Blob wrapper, and handle accordingly...

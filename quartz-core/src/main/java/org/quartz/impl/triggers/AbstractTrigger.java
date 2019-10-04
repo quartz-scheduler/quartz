@@ -1,6 +1,6 @@
 
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -57,14 +57,7 @@ import org.quartz.spi.OperableTrigger;
  * Triggers can 'send' parameters/data to <code>Job</code>s by placing contents
  * into the <code>JobDataMap</code> on the <code>Trigger</code>.
  * </p>
- * 
- * @see SimpleTrigger
- * @see CronTrigger
- * @see NthIncludedDayTrigger
- * @see TriggerUtils
- * @see JobDataMap
- * @see JobExecutionContext
- * 
+ *
  * @author James House
  * @author Sharada Jambula
  */
@@ -92,6 +85,7 @@ public abstract class AbstractTrigger<T extends Trigger> implements OperableTrig
 
     private JobDataMap jobDataMap;
 
+    @SuppressWarnings("unused")
     private boolean volatility = false; // still here for serialization backward compatibility
 
     private String calendarName = null;
@@ -140,8 +134,6 @@ public abstract class AbstractTrigger<T extends Trigger> implements OperableTrig
      * {@link #setJobGroup(String)}methods must be called before the <code>Trigger</code>
      * can be placed into a {@link Scheduler}.
      * </p>
-     * 
-     * @param group if <code>null</code>, Scheduler.DEFAULT_GROUP will be used.
      * 
      * @exception IllegalArgumentException
      *              if name is null or empty, or the group is an empty string.
@@ -534,7 +526,7 @@ public abstract class AbstractTrigger<T extends Trigger> implements OperableTrig
      *          <code>Job</code>, if any (may be null).
      * @return one of the CompletedExecutionInstruction constants.
      * 
-     * @see CompletedExecutionInstruction
+     * @see org.quartz.Trigger.CompletedExecutionInstruction
      * @see #triggered(Calendar)
      */
     public CompletedExecutionInstruction executionComplete(JobExecutionContext context,
@@ -601,7 +593,7 @@ public abstract class AbstractTrigger<T extends Trigger> implements OperableTrig
      * repeat settings). 
      * </p>
      * 
-     * @see TriggerUtils#computeEndTimeToAllowParticularNumberOfFirings(AbstractTrigger, Calendar, int)
+     * @see TriggerUtils#computeEndTimeToAllowParticularNumberOfFirings(org.quartz.spi.OperableTrigger, org.quartz.Calendar, int)
      */ 
     public abstract void setEndTime(Date endTime);
 
@@ -630,7 +622,7 @@ public abstract class AbstractTrigger<T extends Trigger> implements OperableTrig
      * has been added to the scheduler.
      * </p>
      *
-     * @see TriggerUtils#computeFireTimesBetween(AbstractTrigger, Calendar, Date, Date)
+     * @see TriggerUtils#computeFireTimesBetween(org.quartz.spi.OperableTrigger, org.quartz.Calendar, java.util.Date, java.util.Date)
      */
     public abstract Date getNextFireTime();
 
@@ -745,7 +737,7 @@ public abstract class AbstractTrigger<T extends Trigger> implements OperableTrig
      * given the Calendar's new settings). 
      * </p>
      * 
-     * @param cal
+     * @param cal the modifying calendar
      */
     public abstract void updateWithNewCalendar(Calendar cal, long misfireThreshold);
 
@@ -848,11 +840,8 @@ public abstract class AbstractTrigger<T extends Trigger> implements OperableTrig
         
         Trigger other = (Trigger)o;
 
-        if (other.getKey() == null || getKey() == null) {
-            return false;
-        }
-        
-        return getKey().equals(other.getKey());
+        return !(other.getKey() == null || getKey() == null) && getKey().equals(other.getKey());
+
     }
 
 
@@ -884,18 +873,17 @@ public abstract class AbstractTrigger<T extends Trigger> implements OperableTrig
     }
     
     public TriggerBuilder<T> getTriggerBuilder() {
-    TriggerBuilder<T> b = TriggerBuilder.newTrigger()
-      .forJob(getJobKey())
-      .modifiedByCalendar(getCalendarName())
-      .usingJobData(getJobDataMap())
-      .withDescription(getDescription())
-      .endAt(getEndTime())
-      .withIdentity(getKey())
-      .withPriority(getPriority())
-      .startAt(getStartTime())
-      .withSchedule(getScheduleBuilder());
-        return b;
+        return TriggerBuilder.newTrigger()
+            .forJob(getJobKey())
+            .modifiedByCalendar(getCalendarName())
+            .usingJobData(getJobDataMap())
+            .withDescription(getDescription())
+            .endAt(getEndTime())
+            .withIdentity(getKey())
+            .withPriority(getPriority())
+            .startAt(getStartTime())
+            .withSchedule(getScheduleBuilder());
     }
 
-  public abstract ScheduleBuilder<T> getScheduleBuilder();
+    public abstract ScheduleBuilder<T> getScheduleBuilder();
 }

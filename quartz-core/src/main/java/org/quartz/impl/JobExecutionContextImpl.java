@@ -1,6 +1,6 @@
 
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -28,12 +28,15 @@ import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.Scheduler;
 import org.quartz.Trigger;
+import org.quartz.TriggerKey;
 import org.quartz.spi.OperableTrigger;
 import org.quartz.spi.TriggerFiredBundle;
 
 
 public class JobExecutionContextImpl implements java.io.Serializable, JobExecutionContext {
 
+    private static final long serialVersionUID = -8139417614523942021L;
+    
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      * 
@@ -139,6 +142,15 @@ public class JobExecutionContextImpl implements java.io.Serializable, JobExecuti
         return recovering;
     }
 
+    public TriggerKey getRecoveringTriggerKey() {
+        if (isRecovering()) {
+            return new TriggerKey(jobDataMap.getString(Scheduler.FAILED_JOB_ORIGINAL_TRIGGER_NAME),
+                                  jobDataMap.getString(Scheduler.FAILED_JOB_ORIGINAL_TRIGGER_GROUP));
+        } else {
+            throw new IllegalStateException("Not a recovering job");
+        }
+    }
+    
     public void incrementRefireCount() {
         numRefires++;
     }

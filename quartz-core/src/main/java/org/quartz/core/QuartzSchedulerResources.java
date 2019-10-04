@@ -1,6 +1,6 @@
 
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -21,6 +21,7 @@ package org.quartz.core;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.quartz.management.ManagementRESTServiceConfiguration;
 import org.quartz.spi.JobStore;
 import org.quartz.spi.SchedulerPlugin;
 import org.quartz.spi.ThreadExecutor;
@@ -84,9 +85,9 @@ public class QuartzSchedulerResources {
     
     private String jmxObjectName;
 
-    private ThreadExecutor threadExecutor;
+    private ManagementRESTServiceConfiguration managementRESTServiceConfiguration;
 
-    private boolean runUpdateCheck = true;
+    private ThreadExecutor threadExecutor;
 
     private long batchTimeWindow = 0;
 
@@ -441,19 +442,19 @@ public class QuartzSchedulerResources {
      * of the initializing thread.
      */
     public boolean isThreadsInheritInitializersClassLoadContext() {
-    return threadsInheritInitializersClassLoadContext;
-  }
+        return threadsInheritInitializersClassLoadContext;
+    }
 
     /**
      * Set whether to set the class load context of spawned threads to that
      * of the initializing thread.
      */
-  public void setThreadsInheritInitializersClassLoadContext(
-      boolean threadsInheritInitializersClassLoadContext) {
-    this.threadsInheritInitializersClassLoadContext = threadsInheritInitializersClassLoadContext;
-  }
+    public void setThreadsInheritInitializersClassLoadContext(
+            boolean threadsInheritInitializersClassLoadContext) {
+        this.threadsInheritInitializersClassLoadContext = threadsInheritInitializersClassLoadContext;
+    }
 
-  /**
+    /**
      * Get the name under which to bind the QuartzScheduler in RMI.  Will 
      * return the value of the uniqueIdentifier property if explict RMI bind 
      * name was never set.
@@ -514,8 +515,6 @@ public class QuartzSchedulerResources {
 
     /**
      * Get the ThreadExecutor which runs the QuartzSchedulerThread
-     *
-     * @return
      */
     public ThreadExecutor getThreadExecutor() {
         return threadExecutor;
@@ -523,8 +522,6 @@ public class QuartzSchedulerResources {
 
     /**
      * Set the ThreadExecutor which runs the QuartzSchedulerThread
-     *
-     * @param threadExecutor
      */
     public void setThreadExecutor(ThreadExecutor threadExecutor) {
         this.threadExecutor = threadExecutor;
@@ -541,14 +538,6 @@ public class QuartzSchedulerResources {
         return "quartz:type=QuartzScheduler" + ",name="
             + schedName.replaceAll(":|=|\n", ".")
             + ",instance=" + schedInstId;
-    }
-
-    public boolean isRunUpdateCheck() {
-        return runUpdateCheck;
-    }
-
-    public void setRunUpdateCheck(boolean runUpdateCheck) {
-        this.runUpdateCheck = runUpdateCheck;
     }
 
     public long getBatchTimeWindow() {
@@ -582,6 +571,15 @@ public class QuartzSchedulerResources {
     public void setInterruptJobsOnShutdownWithWait(
             boolean interruptJobsOnShutdownWithWait) {
         this.interruptJobsOnShutdownWithWait = interruptJobsOnShutdownWithWait;
+    }
+
+
+    public ManagementRESTServiceConfiguration getManagementRESTServiceConfiguration() {
+        return managementRESTServiceConfiguration;
+    }
+
+    public void setManagementRESTServiceConfiguration(ManagementRESTServiceConfiguration managementRESTServiceConfiguration) {
+        this.managementRESTServiceConfiguration = managementRESTServiceConfiguration;
     }
 
 }

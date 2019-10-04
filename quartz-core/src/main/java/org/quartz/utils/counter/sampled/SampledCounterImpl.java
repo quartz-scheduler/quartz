@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2009 Terracotta, Inc.
+ *  All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -29,6 +29,9 @@ import org.quartz.utils.counter.CounterImpl;
  * 
  */
 public class SampledCounterImpl extends CounterImpl implements SampledCounter {
+  
+    private static final long serialVersionUID = -3605369302464131521L;
+    
     private static final int MILLIS_PER_SEC = 1000;
 
     /**
@@ -44,7 +47,6 @@ public class SampledCounterImpl extends CounterImpl implements SampledCounter {
     private final long intervalMillis;
 
     /**
-     * todo GL how many threads is this creating?
      * Constructor accepting a {@link SampledCounterConfig}
      * 
      * @param config

@@ -1,5 +1,5 @@
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -34,23 +34,6 @@ import org.slf4j.Logger;
  * @author <a href="mailto:jeff@binaryfeed.org">Jeffrey Wescott</a>
  */
 public class MSSQLDelegate extends StdJDBCDelegate {
-    /**
-     * <p>
-     * Create new MSSQLDelegate instance.
-     * </p>
-     * 
-     * @param log
-     *          the logger to use during execution
-     * @param tablePrefix
-     *          the prefix of all table names
-     */
-    public MSSQLDelegate(Logger log, String tablePrefix, String schedName, String instanceId, ClassLoadHelper classLoadHelper) {
-        super(log, tablePrefix, schedName, instanceId, classLoadHelper);
-    }
-
-    public MSSQLDelegate(Logger log, String tablePrefix, String schedName, String instanceId, ClassLoadHelper classLoadHelper, Boolean useProperties) {
-        super(log, tablePrefix, schedName, instanceId, classLoadHelper, useProperties);
-    }
 
     //---------------------------------------------------------------------------
     // protected methods that can be overridden by subclasses

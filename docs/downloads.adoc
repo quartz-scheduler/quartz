@@ -1,0 +1,42 @@
+= Download Quartz
+:toc:
+:quartz-version: latest-x.y.z
+
+== Manual Downloads
+
+You may download our standalone distribution packages from http://www.quartz-scheduler.org/downloads
+
+== Using Maven as Dependency
+
+If you are a Maven user you can add the dependencies to your existing project.
+
+Add the following into your project `pom.xml` file under `<dependencies>` element section:
+
+[source,xml,subs="verbatim,attributes"]
+----
+<!-- Quartz Core -->
+<dependency>
+  <groupId>org.quartz-scheduler</groupId>
+  <artifactId>quartz</artifactId>
+  <version>{quartz-version}</version>
+</dependency>
+----
+
+Additional, you may include these optional dependencies if you choose use them
+
+[source,xml,subs="verbatim,attributes"]
+----
+<!-- Quartz uses SLF4J, so we need an actual logger -->
+<dependency>
+    <groupId>ch.qos.logback</groupId>
+    <artifactId>logback-classic</artifactId>
+    <version>1.2.3</version>
+</dependency>
+
+<!-- DB Driver if you choose to use PostgreSQL as Quartz JDBCStore -->
+<dependency>
+    <groupId>org.postgresql</groupId>
+    <artifactId>postgresql</artifactId>
+    <version>42.2.5</version>
+</dependency>
+----

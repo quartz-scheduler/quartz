@@ -1,5 +1,5 @@
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -83,7 +83,7 @@ public class SimpleSemaphore implements Semaphore {
                         + Thread.currentThread().getName());
         }
 
-        if (!isLockOwner(conn, lockName)) {
+        if (!isLockOwner(lockName)) {
             if(log.isDebugEnabled()) {
                 log.debug(
                     "Lock '" + lockName + "' is being obtained: "
@@ -123,11 +123,11 @@ public class SimpleSemaphore implements Semaphore {
      * Release the lock on the identified resource if it is held by the calling
      * thread.
      */
-    public synchronized void releaseLock(Connection conn, String lockName) {
+    public synchronized void releaseLock(String lockName) {
 
         lockName = lockName.intern();
 
-        if (isLockOwner(conn, lockName)) {
+        if (isLockOwner(lockName)) {
             if(getLog().isDebugEnabled()) {
                 getLog().debug(
                     "Lock '" + lockName + "' retuned by: "
@@ -149,7 +149,7 @@ public class SimpleSemaphore implements Semaphore {
      * Determine whether the calling thread owns a lock on the identified
      * resource.
      */
-    public synchronized boolean isLockOwner(Connection conn, String lockName) {
+    public synchronized boolean isLockOwner(String lockName) {
 
         lockName = lockName.intern();
 

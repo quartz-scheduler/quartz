@@ -1,6 +1,6 @@
 
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -25,7 +25,7 @@ import org.quartz.Trigger.CompletedExecutionInstruction;
  * <code>{@link Trigger}</code> fires. In general, applications that use a
  * <code>Scheduler</code> will not have use for this mechanism.
  * 
- * @see Scheduler#addTriggerListener(TriggerListener, Matcher)
+ * @see ListenerManager#addTriggerListener(TriggerListener, Matcher)
  * @see Matcher
  * @see Trigger
  * @see JobListener

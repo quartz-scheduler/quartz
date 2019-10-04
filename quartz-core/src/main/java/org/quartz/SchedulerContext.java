@@ -1,6 +1,6 @@
 
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -39,6 +39,9 @@ import org.quartz.utils.StringKeyDirtyFlagMap;
  * @author James House
  */
 public class SchedulerContext extends StringKeyDirtyFlagMap implements Serializable {
+  
+    private static final long serialVersionUID = -6659641334616491764L;
+  
     /**
      * Create an empty <code>SchedulerContext</code>.
      */
@@ -52,7 +55,7 @@ public class SchedulerContext extends StringKeyDirtyFlagMap implements Serializa
     public SchedulerContext(Map<?, ?> map) {
         this();
         @SuppressWarnings("unchecked") // param must be a String key map.
-    Map<String, ?> mapTyped = (Map<String, ?>)map;
+        Map<String, ?> mapTyped = (Map<String, ?>)map;
         putAll(mapTyped);
     }
 }

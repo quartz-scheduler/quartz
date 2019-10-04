@@ -1,5 +1,5 @@
 /* 
- * Copyright 2001-2010 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -34,10 +34,7 @@ import java.util.StringTokenizer;
 
 import javax.transaction.UserTransaction;
 
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.SimpleTrigger;
-import org.quartz.TriggerKey;
+import org.quartz.*;
 import org.quartz.impl.JobDetailImpl;
 import org.quartz.impl.triggers.SimpleTriggerImpl;
 import org.quartz.jobs.FileScanJob;
@@ -47,13 +44,17 @@ import org.quartz.simpl.CascadingClassLoadHelper;
 import org.quartz.spi.ClassLoadHelper;
 import org.quartz.xml.XMLSchedulingDataProcessor;
 
+import static org.quartz.JobBuilder.newJob;
+import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
+import static org.quartz.TriggerBuilder.newTrigger;
+
 /**
  * This plugin loads XML file(s) to add jobs and schedule them with triggers
  * as the scheduler is initialized, and can optionally periodically scan the
  * file for changes.
  * 
  * <p>The XML schema definition can be found here: 
- * http://www.quartz-scheduler.org/xml/job_scheduling_data_1_8.xsd</p>
+ * http://www.quartz-scheduler.org/xml/job_scheduling_data_2_0.xsd</p>
  * 
  * <p>
  * The periodically scanning of files for changes is not currently supported in a 
@@ -191,13 +192,10 @@ public class XMLSchedulingDataProcessorPlugin
      * @throws org.quartz.SchedulerConfigException
      *           if there is an error initializing.
      */
-    @Override
-    public void initialize(String name, final Scheduler scheduler)
+    public void initialize(String name, final Scheduler scheduler, ClassLoadHelper schedulerFactoryClassLoadHelper)
         throws SchedulerException {
         super.initialize(name, scheduler);
-        
-        classLoadHelper = new CascadingClassLoadHelper();
-        classLoadHelper.initialize();
+        this.classLoadHelper = schedulerFactoryClassLoadHelper;
         
         getLog().info("Registering Quartz Job Initialization Plug-in.");
         
@@ -230,25 +228,17 @@ public class XMLSchedulingDataProcessorPlugin
                         
                         // remove pre-existing job/trigger, if any
                         getScheduler().unscheduleJob(tKey);
-                        
-                        // TODO: convert to use builder
-                        SimpleTriggerImpl trig = (SimpleTriggerImpl) getScheduler().getTrigger(tKey);
-                        trig = new SimpleTriggerImpl();
-                        trig.setName(jobTriggerName);
-                        trig.setGroup(JOB_INITIALIZATION_PLUGIN_NAME);
-                        trig.setStartTime(new Date());
-                        trig.setEndTime(null);
-                        trig.setRepeatCount(SimpleTrigger.REPEAT_INDEFINITELY);
-                        trig.setRepeatInterval(scanInterval);
-                        
-                        // TODO: convert to use builder
-                        JobDetailImpl job = new JobDetailImpl(
-                                jobTriggerName, 
-                                JOB_INITIALIZATION_PLUGIN_NAME,
-                                FileScanJob.class);
-                        job.getJobDataMap().put(FileScanJob.FILE_NAME, jobFile.getFileName());
-                        job.getJobDataMap().put(FileScanJob.FILE_SCAN_LISTENER_NAME, JOB_INITIALIZATION_PLUGIN_NAME + '_' + getName());
-                        
+
+                        JobDetail job = newJob().withIdentity(jobTriggerName, JOB_INITIALIZATION_PLUGIN_NAME).ofType(FileScanJob.class)
+                            .usingJobData(FileScanJob.FILE_NAME, jobFile.getFileName())
+                            .usingJobData(FileScanJob.FILE_SCAN_LISTENER_NAME, JOB_INITIALIZATION_PLUGIN_NAME + '_' + getName())
+                            .build();
+
+                        SimpleTrigger trig = newTrigger().withIdentity(tKey).withSchedule(
+                                simpleSchedule().repeatForever().withIntervalInMilliseconds(scanInterval))
+                                .forJob(job)
+                                .build();
+
                         getScheduler().scheduleJob(job, trig);
                         getLog().debug("Scheduled file scan job for data file: {}, at interval: {}", jobFile.getFileName(), scanInterval);
                     }

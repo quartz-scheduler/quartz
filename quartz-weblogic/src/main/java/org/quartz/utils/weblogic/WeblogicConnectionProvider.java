@@ -1,5 +1,5 @@
 /* 
- * Copyright 2001-2009 Terracotta, Inc. Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -14,7 +14,6 @@
  * under the License.
  * 
  */
-
 
 package org.quartz.utils.weblogic;
 
@@ -36,6 +35,7 @@ import weblogic.jdbc.jts.Driver;
  * @author Mohammad Rezaei
  * @author James House
  */
+@SuppressWarnings("deprecation")
 public class WeblogicConnectionProvider implements ConnectionProvider {
 
     /*
@@ -71,16 +71,13 @@ public class WeblogicConnectionProvider implements ConnectionProvider {
      */
 
     public Connection getConnection() throws SQLException {
+        return driver.connect("jdbc:weblogic:jts:" + poolName,
+                (java.util.Properties) null);
+    }
+
+    public void initialize() throws SQLException {
         try {
-            if (driver == null) {
-                driver = (Driver)weblogic.jdbc.jts.Driver.class.newInstance();
-            }
-
-            java.sql.Connection con = null;
-            con = driver.connect("jdbc:weblogic:jts:" + poolName,
-                    (java.util.Properties) null);
-
-            return con;
+            driver = (Driver) weblogic.jdbc.jts.Driver.class.newInstance();
         } catch (Exception e) {
             throw new SQLException(
                     "Could not get weblogic pool connection with name '"
@@ -92,4 +89,5 @@ public class WeblogicConnectionProvider implements ConnectionProvider {
     public void shutdown() throws SQLException {
         // do nothing
     }    
+
 }

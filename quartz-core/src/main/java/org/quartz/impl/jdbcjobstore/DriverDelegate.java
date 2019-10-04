@@ -1,5 +1,5 @@
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -35,6 +35,7 @@ import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.spi.ClassLoadHelper;
 import org.quartz.spi.OperableTrigger;
 import org.quartz.utils.Key;
+import org.slf4j.Logger;
 
 /**
  * <p>
@@ -66,8 +67,12 @@ public interface DriverDelegate {
      * 
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      */
-    
-    void initialize(String initString) throws NoSuchDelegateException;
+
+    /**
+     * @param initString of the format: settingName=settingValue|otherSettingName=otherSettingValue|...
+     * @throws NoSuchDelegateException
+     */
+    public void initialize(Logger logger, String tablePrefix, String schedName, String instanceId, ClassLoadHelper classLoadHelper, boolean useProperties, String initString) throws NoSuchDelegateException;
 
     //---------------------------------------------------------------------------
     // startup / recovery
@@ -593,6 +598,15 @@ public interface DriverDelegate {
     JobDetail selectJobForTrigger(Connection conn, ClassLoadHelper loadHelper,
         TriggerKey triggerKey) 
         throws ClassNotFoundException, SQLException;
+
+    /**
+     * <p>
+     * Select the job to which the trigger is associated. Allow option to load actual job class or not. When case of
+     * remove, we do not need to load the class, which in many cases, it's no longer exists.
+     * </p>
+     */
+    public JobDetail selectJobForTrigger(Connection conn, ClassLoadHelper loadHelper,
+        TriggerKey triggerKey, boolean loadJobClass) throws ClassNotFoundException, SQLException;
 
     /**
      * <p>

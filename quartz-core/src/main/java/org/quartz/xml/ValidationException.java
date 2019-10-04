@@ -1,5 +1,5 @@
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -28,6 +28,9 @@ import java.util.Iterator;
  * @author <a href="mailto:bonhamcm@thirdeyeconsulting.com">Chris Bonham</a>
  */
 public class ValidationException extends Exception {
+
+    private static final long serialVersionUID = -1697832087051681357L;
+
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      * 

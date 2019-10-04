@@ -1,5 +1,5 @@
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -42,37 +42,6 @@ import org.slf4j.Logger;
  * @author Gregg Freeman
  */
 public class PointbaseDelegate extends StdJDBCDelegate {
-
-    //private static Category log =
-    // Category.getInstance(PointbaseJDBCDelegate.class);
-    /**
-     * <p>
-     * Create new PointbaseJDBCDelegate instance.
-     * </p>
-     * 
-     * @param logger
-     *          the logger to use during execution
-     * @param tablePrefix
-     *          the prefix of all table names
-     */
-    public PointbaseDelegate(Logger logger, String tablePrefix, String schedName, String instanceId, ClassLoadHelper classLoadHelper) {
-        super(logger, tablePrefix, schedName, instanceId, classLoadHelper);
-    }
-
-    /**
-     * <p>
-     * Create new PointbaseJDBCDelegate instance.
-     * </p>
-     * 
-     * @param logger
-     *          the logger to use during execution
-     * @param tablePrefix
-     *          the prefix of all table names
-     */
-    public PointbaseDelegate(Logger logger, String tablePrefix, String schedName, String instanceId, ClassLoadHelper classLoadHelper,
-            Boolean useProperties) {
-        super(logger, tablePrefix, schedName, instanceId, classLoadHelper, useProperties);
-    }
 
     //---------------------------------------------------------------------------
     // jobs

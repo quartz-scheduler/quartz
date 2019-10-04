@@ -66,7 +66,7 @@ public class JobBuilder {
     
     private JobDataMap jobDataMap = new JobDataMap();
     
-    private JobBuilder() {
+    protected JobBuilder() {
     }
     
     /**
@@ -198,6 +198,7 @@ public class JobBuilder {
      * 
      * <p>
      * If not explicitly set, the default value is <code>false</code>.
+     * - this method sets the value to <code>true</code>.
      * </p>
      * 
      * @return the updated JobBuilder
@@ -217,7 +218,7 @@ public class JobBuilder {
      * If not explicitly set, the default value is <code>false</code>.
      * </p>
      * 
-     * @param jobShouldRecover
+     * @param jobShouldRecover the desired setting
      * @return the updated JobBuilder
      */
     public JobBuilder requestRecovery(boolean jobShouldRecover) {
@@ -230,15 +231,15 @@ public class JobBuilder {
      * orphaned (no <code>{@link Trigger}s</code> point to it).
      * 
      * <p>
-     * If not explicitly set, the default value is <code>false</code>.
+     * If not explicitly set, the default value is <code>false</code> 
+     * - this method sets the value to <code>true</code>.
      * </p>
      * 
      * @return the updated JobBuilder
      * @see JobDetail#isDurable()
      */
     public JobBuilder storeDurably() {
-        this.durability = true;
-        return this;
+        return storeDurably(true);
     }
     
     /**
@@ -325,20 +326,26 @@ public class JobBuilder {
     }
     
     /**
-     * Set the JobDetail's {@link JobDataMap}, adding any values to it
-     * that were already set on this JobBuilder using any of the
-     * other 'usingJobData' methods. 
+     * Add all the data from the given {@link JobDataMap} to the
+     * {@code JobDetail}'s {@code JobDataMap}.
      * 
      * @return the updated JobBuilder
      * @see JobDetail#getJobDataMap()
      */
     public JobBuilder usingJobData(JobDataMap newJobDataMap) {
-        // add any existing data to this new map
-        for(String dataKey: jobDataMap.keySet()) {
-            newJobDataMap.put(dataKey, jobDataMap.get(dataKey));
-        }
-        jobDataMap = newJobDataMap; // set new map as the map to use
+        jobDataMap.putAll(newJobDataMap);
         return this;
     }
-    
+
+    /**
+     * Replace the {@code JobDetail}'s {@link JobDataMap} with the
+     * given {@code JobDataMap}.
+     * 
+     * @return the updated JobBuilder
+     * @see JobDetail#getJobDataMap() 
+     */
+    public JobBuilder setJobData(JobDataMap newJobDataMap) {
+        jobDataMap = newJobDataMap;
+        return this;
+    }
 }

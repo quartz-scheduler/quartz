@@ -26,6 +26,8 @@ import org.quartz.utils.Key;
  * @author jhouse
  */
 public class NameMatcher<T extends Key<?>> extends StringMatcher<T> {
+  
+    private static final long serialVersionUID = -33104959459613480L;
 
     protected NameMatcher(String compareTo, StringOperatorName compareWith) {
         super(compareTo, compareWith);

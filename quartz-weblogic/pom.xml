@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.quartz-scheduler</groupId>
     <artifactId>quartz-parent</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>${revision}</version>
   </parent>
 
   <groupId>org.quartz-scheduler.internal</groupId>
@@ -26,11 +24,19 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.bea.core</groupId>
-      <artifactId>datasource</artifactId>
-      <version>1.6.0</version>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>quartz-stubs</artifactId>
+      <version>${project.version}</version>
       <scope>provided</scope>
-    </dependency>
+    </dependency>    
   </dependencies>
-   
+
+  <profiles>
+    <profile>
+      <id>deploy-sonatype</id>
+      <properties>
+        <skipDeploy>true</skipDeploy>
+      </properties>
+    </profile>
+  </profiles>  
 </project>

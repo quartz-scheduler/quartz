@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2009 Terracotta, Inc.
+ *  All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ package org.quartz.utils.counter.sampled;
  * 
  */
 public class SampledRateCounterImpl extends SampledCounterImpl implements SampledRateCounter {
+  
+    private static final long serialVersionUID = 6531350452676920607L;
 
     private static final String OPERATION_NOT_SUPPORTED_MSG = "This operation is not supported. Use SampledCounter Or Counter instead";
 

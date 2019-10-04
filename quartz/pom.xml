@@ -5,97 +5,67 @@
   <parent>
     <groupId>org.quartz-scheduler</groupId>
     <artifactId>quartz-parent</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>${revision}</version>
   </parent>
 
   <artifactId>quartz</artifactId>
   <packaging>jar</packaging>
   <name>quartz</name>
+  <description>Enterprise Job Scheduler</description>
 
   <properties>
+    <gmaven-plugin.version>1.4</gmaven-plugin.version>
   </properties>
 
   <dependencies>  
-    <!--Compile scope. If you add something to compile scope, you have to do the same thing in quartz-core/pom.xml -->
-    <dependency>
-      <groupId>c3p0</groupId>
-      <artifactId>c3p0</artifactId>
-      <version>${c3p0.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>${slf4j.version}</version>
-    </dependency>
-  
-    <!-- provided scope, used for packaging purpose only -->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>${slf4j.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>${log4j.version}</version>
-      <scope>provided</scope>
-    </dependency>   
+    <!-- internal components used for shading which will be removed in final pom -->
     <dependency>
       <groupId>org.quartz-scheduler.internal</groupId>
       <artifactId>quartz-terracotta-bootstrap</artifactId>
       <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.terracotta.modules</groupId>
-      <artifactId>tim-quartz</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.quartz-scheduler.internal</groupId>
       <artifactId>quartz-core</artifactId>
       <version>${project.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.quartz-scheduler.internal</groupId>
       <artifactId>quartz-commonj</artifactId>
       <version>${project.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.quartz-scheduler.internal</groupId>
       <artifactId>quartz-jboss</artifactId>
       <version>${project.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.quartz-scheduler.internal</groupId>
       <artifactId>quartz-oracle</artifactId>
       <version>${project.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.quartz-scheduler.internal</groupId>
       <artifactId>quartz-weblogic</artifactId>
       <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.quartz-scheduler.internal</groupId>
-      <artifactId>quartz-jobs</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.quartz-scheduler.internal</groupId>
       <artifactId>quartz-plugins</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.quartz-scheduler</groupId>
+      <artifactId>quartz-jobs</artifactId>
+      <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>    
+    <dependency>
+      <groupId>org.terracotta</groupId>
+      <artifactId>product-upgradability-testing-utils</artifactId>
+      <version>0.9.0</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
   
   <build>
@@ -109,171 +79,175 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>2.4</version>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <License>Apache Software License, Version 2.0</License>
+              <Terracotta-ProjectStatus>Supported</Terracotta-ProjectStatus>
+              <Terracotta-Name>${project.artifactId}</Terracotta-Name>
+              <Terracotta-Description>${project.description}</Terracotta-Description>
+            </manifestEntries>
+          </archive>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.9</version>
+        <configuration>
+          <skip>${skipJavadoc}</skip>
+          <quiet>true</quiet>
+          <doctitle>Quartz Enterprise Job Scheduler ${project.version} API</doctitle>
+          <windowtitle>Quartz Enterprise Job Scheduler ${project.version} API</windowtitle>
+          <bottom>Copyright 2001-{currentYear}, Terracotta, Inc.</bottom>
+          <includeDependencySources>true</includeDependencySources>      
+          <dependencySourceIncludes>
+            <dependencySourceInclude>org.quartz-scheduler.internal:*</dependencySourceInclude>
+            <dependencySourceInclude>org.quartz-scheduler:quartz-jobs</dependencySourceInclude>
+          </dependencySourceIncludes>
+        </configuration>
         <executions>
           <execution>
-            <id>copy-dep</id>
-            <phase>process-resources</phase>
+            <id>create-javadoc</id>
+            <phase>package</phase>
             <goals>
-              <goal>copy</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>org.terracotta.modules</groupId>
-                  <artifactId>tim-quartz</artifactId>
-                  <version>${project.version}</version>
-                  <type>jar</type>
-                  <overWrite>true</overWrite>
-                  <outputDirectory>${project.build.directory}</outputDirectory>
-                  <destFileName>tim-quartz.jar</destFileName>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
-          
-          <execution>
-            <id>unpack-standalone-and-terracotta</id>
-            <configuration>
-              <includeGroupIds>org.quartz-scheduler.internal</includeGroupIds>
-              <outputDirectory>${project.build.outputDirectory}</outputDirectory>
-              <excludes>**/META-INF/maven/**,**/license.txt,**/thirdpartylicenses.txt</excludes>
-            </configuration>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>unpack-dependencies</goal>
+              <goal>jar</goal>
             </goals>
           </execution>
-          
+        </executions>
+      </plugin>      
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>2.1</version>
+        <configuration>
+          <artifactSet>
+            <includes>
+              <include>org.quartz-scheduler.internal:*</include>
+            </includes>
+            <excludes>
+              <exclude>*:quartz-stubs:*</exclude>
+            </excludes>
+          </artifactSet>       
+          <filters>
+            <filter>
+              <artifact>*:*</artifact>
+              <excludes>
+                <exclude>**/META-INF/maven/org.quartz-scheduler.internal/**</exclude>
+                <exclude>**/license.txt</exclude>
+                <exclude>**/thirdpartylicenses.txt</exclude>
+              </excludes>
+            </filter>		  
+          </filters>    
+          <createSourcesJar>true</createSourcesJar>
+          <useBaseVersion>true</useBaseVersion>
+          <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
+          <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>           
+          <transformers>
+            <transformer implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
+              <resource>MANIFEST.MF</resource>
+            </transformer>          
+            <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+              <resource>META-INF/MANIFEST.MF</resource>
+              <file>${project.build.directory}/MANIFEST.MF</file>
+            </transformer>          
+          </transformers>            
+        </configuration>
+        <executions>
           <execution>
-            <id>copy-TIMs</id>
-            <configuration>
-              <includeGroupIds>org.terracotta.modules</includeGroupIds>
-              <outputDirectory>${project.build.outputDirectory}/META-INF/terracotta/TIMs</outputDirectory>
-              <excludes>**/META-INF/maven/**,**/license.txt,**/thirdpartylicenses.txt</excludes>
-            </configuration>
-            <phase>process-resources</phase>
+            <id>shade-jar</id>
+            <phase>package</phase>
             <goals>
-              <goal>copy-dependencies</goal>
+              <goal>shade</goal>
             </goals>
           </execution>
-
-          <execution>
-            <id>copy-javadoc-sources</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>copy</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>org.quartz-scheduler</groupId>
-                  <artifactId>quartz-parent</artifactId>
-                  <version>${project.version}</version>
-                  <classifier>sources</classifier>
-                  <overWrite>true</overWrite>
-                  <destFileName>${project.artifactId}-${project.version}-sources.jar</destFileName>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>org.quartz-scheduler</groupId>
-                  <artifactId>quartz-parent</artifactId>
-                  <version>${project.version}</version>
-                  <classifier>javadoc</classifier>
-                  <overWrite>true</overWrite>
-                  <destFileName>${project.artifactId}-${project.version}-javadoc.jar</destFileName>
-                </artifactItem>
-              </artifactItems>
-              <outputDirectory>${project.build.directory}</outputDirectory>
-            </configuration>
-          </execution>          
         </executions>
       </plugin>      
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.3</version>
-        <configuration>
-          <tasks>
-            <unzip src="${project.build.directory}/tim-quartz.jar" dest="${project.build.directory}/classes">
-              <patternset>
-                <includesfile name="src/main/resources/META-INF/terracotta/public-api-types"/>
-              </patternset>
-            </unzip>
-          </tasks>
-        </configuration>
+        <version>1.7</version>
         <executions>
           <execution>
-            <id>unjar-classes</id>
-            <phase>process-resources</phase>
+            <id>unpack-jar-for-bundling</id>
+            <phase>package</phase>
             <goals>
               <goal>run</goal>
             </goals>
+            <configuration>
+              <target>
+                <unzip src="${project.build.directory}/${project.artifactId}-${project.version}.jar" dest="${project.build.outputDirectory}" />
+              </target>
+            </configuration>
           </execution>
         </executions>
-      </plugin>
+      </plugin>           
       <plugin>
-        <groupId>org.terracotta</groupId>
-        <artifactId>maven-forge-plugin</artifactId>
-        <version>${maven-forge-plugin.version}</version>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <version>2.3.7</version>
         <configuration>
-          <rootPath>${basedir}/..</rootPath>
-          <manifestFile>${project.build.directory}/MANIFEST.MF</manifestFile>
-          <manifestEntries>
-            <License>Apache Software License, Version 2.0</License>
-            <Terracotta-ProjectStatus>Supported</Terracotta-ProjectStatus>
-            <Terracotta-Name>${project.artifactId}</Terracotta-Name>
-            <Terracotta-Description>${project.description}</Terracotta-Description>
-          </manifestEntries>
+          <manifestLocation>${project.build.directory}</manifestLocation>
+          <instructions>
+            <Import-Package>
+            javax.servlet;resolution:=optional,
+            javax.servlet.http;resolution:=optional,
+            javax.sql;resolution:=optional,
+            javax.mail;resolution:=optional,
+            javax.mail.internet;resolution:=optional,
+            javax.transaction;resolution:=optional,
+            javax.ejb;resolution:=optional,
+            javax.jms;resolution:=optional,
+            org.terracotta.toolkit.*;resolution:=optional,
+            weblogic.jdbc.*;resolution:=optional,
+            oracle.sql;resolution:=optional,
+            org.jboss.logging;resolution:=optional,
+            org.jboss.naming;resolution:=optional,
+            org.jboss.system;resolution:=optional,
+            commonj.work;resolution:=optional,
+            org.quartz.jobs;resolution:=optional,*</Import-Package>
+            <Export-Package>org.quartz.*</Export-Package>
+            <Private-Package>org.terracotta.quartz.*</Private-Package>
+            <Bundle-RequiredExecutionEnvironment>JavaSE-1.6</Bundle-RequiredExecutionEnvironment>
+          </instructions>
+          <excludeDependencies>*;scope=provided|runtime</excludeDependencies>
         </configuration>
         <executions>
           <execution>
-            <id>create-manifest</id>
-            <phase>process-resources</phase>
+            <id>generate-osgi-headers</id>
+            <phase>package</phase>
             <goals>
               <goal>manifest</goal>
             </goals>
           </execution>
         </executions>
-      </plugin>
+      </plugin> 
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>2.3.2</version>
-        <configuration>
-          <archive>
-            <manifestFile>${project.build.directory}/MANIFEST.MF</manifestFile>
-          </archive>
-        </configuration>  
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <version>1.5</version>
+        <groupId>org.codehaus.gmaven</groupId>
+        <artifactId>gmaven-plugin</artifactId>
+        <version>${gmaven-plugin.version}</version>
         <executions>
           <execution>
-            <id>attach-javadoc-sources</id>
+            <id>repackage-jar</id>
             <phase>package</phase>
             <goals>
-              <goal>attach-artifact</goal>
+              <goal>execute</goal>
             </goals>
             <configuration>
-              <artifacts>
-                <artifact>
-                  <file>${project.build.directory}/${project.artifactId}-${project.version}-sources.jar</file>
-                  <type>jar</type>
-                  <classifier>sources</classifier>
-                </artifact>
-                <artifact>
-                  <file>${project.build.directory}/${project.artifactId}-${project.version}-javadoc.jar</file>
-                  <type>jar</type>
-                  <classifier>javadoc</classifier>
-                </artifact>               
-              </artifacts>
+              <source>
+                println "repackaging the jar"
+                def jarFile = new File(project.build.directory, "${project.artifactId}-${project.version}.jar")
+                ant.copy(file: new File(project.build.directory, "dependency-reduced-pom.xml"),
+                         tofile: new File(project.build.outputDirectory, "META-INF/maven/${project.groupId}/${project.artifactId}/pom.xml"))
+                ant.jar(destfile: jarFile, basedir: new File(project.build.outputDirectory).getAbsolutePath(), manifest: new File(project.build.directory, "MANIFEST.MF"))
+              </source>
             </configuration>
           </execution>
         </executions>
-      </plugin>      
+      </plugin>       
     </plugins>
   </build>
   

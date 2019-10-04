@@ -1,6 +1,6 @@
 
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -178,8 +178,6 @@ public class TriggerUtils {
             t.computeFirstFireTime(cal);
         }
 
-        // TODO: this method could be more efficient by using logic specific
-        //        to the type of trigger ...
         while (true) {
             Date d = t.getNextFireTime();
             if (d != null) {

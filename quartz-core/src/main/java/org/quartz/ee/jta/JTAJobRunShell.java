@@ -1,6 +1,6 @@
 
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -47,6 +47,7 @@ public class JTAJobRunShell extends JobRunShell {
      * 
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      */
+    private final Integer transactionTimeout;
 
     private UserTransaction ut;
 
@@ -65,8 +66,19 @@ public class JTAJobRunShell extends JobRunShell {
      */
     public JTAJobRunShell(Scheduler scheduler, TriggerFiredBundle bndle) {
         super(scheduler, bndle);
+        this.transactionTimeout = null;
     }
 
+    /**
+     * <p>
+     * Create a JTAJobRunShell instance with the given settings.
+     * </p>
+     */
+    public JTAJobRunShell(Scheduler scheduler, TriggerFiredBundle bndle, int timeout) {
+        super(scheduler, bndle);
+        this.transactionTimeout = timeout;
+    }
+    
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      * 
@@ -87,6 +99,9 @@ public class JTAJobRunShell extends JobRunShell {
         try {
             getLog().debug("Looking up UserTransaction.");
             ut = UserTransactionHelper.lookupUserTransaction();
+            if (transactionTimeout != null) {
+                ut.setTransactionTimeout(transactionTimeout);
+            }
 
             getLog().debug("Beginning UserTransaction.");
             ut.begin();

@@ -1,5 +1,5 @@
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -28,11 +28,13 @@ import org.quartz.JobDetail;
  * JobStore to the <code>QuartzSchedulerThread</code>.
  * </p>
  * 
- * @see org.quartz.core.QuartzScheduler
+ * @see org.quartz.core.QuartzSchedulerThread
  * 
  * @author James House
  */
 public class TriggerFiredBundle implements java.io.Serializable {
+  
+    private static final long serialVersionUID = -6414106108306999265L;
 
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

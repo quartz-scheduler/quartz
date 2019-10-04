@@ -1,3 +1,19 @@
+/*
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy
+ * of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ *
+ */
 package org.terracotta.quartz.tests;
 
 import org.quartz.Job;
@@ -8,7 +24,7 @@ import org.quartz.SimpleTrigger;
 import org.quartz.impl.JobDetailImpl;
 import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.impl.triggers.SimpleTriggerImpl;
-import org.terracotta.coordination.Barrier;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
 import com.tc.util.concurrent.ThreadUtil;
 
@@ -19,17 +35,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 import junit.framework.Assert;
 
 public class PendingApplyDGCClient extends ClientBase {
-  public static final int     DGC_SECONDS       = 1;
+  public static final int      DGC_SECONDS       = 1;
 
-  private final Barrier       barrier;
-  private final AtomicInteger index             = new AtomicInteger();
+  private final ToolkitBarrier barrier;
+  private final AtomicInteger  index             = new AtomicInteger();
 
-  static final CyclicBarrier  localBarrier      = new CyclicBarrier(2);
-  static final AtomicInteger  fastJobsCompleted = new AtomicInteger();
+  static final CyclicBarrier   localBarrier      = new CyclicBarrier(2);
+  static final AtomicInteger   fastJobsCompleted = new AtomicInteger();
 
   public PendingApplyDGCClient(String[] args) {
     super(args);
-    barrier = getTerracottaClient().getToolkit().getBarrier("barrier", 2);
+    barrier = getClusteringToolkit().getBarrier("barrier", 2);
   }
 
   @Override
@@ -43,6 +59,11 @@ public class PendingApplyDGCClient extends ClientBase {
     }
 
     properties.setProperty("org.quartz.threadPool.threadCount", index.get() == 0 ? "1" : "10");
+  }
+
+  @Override
+  protected boolean isStartingScheduler() {
+    return false;
   }
 
   @Override

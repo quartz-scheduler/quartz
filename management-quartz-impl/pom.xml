@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.quartz-scheduler</groupId>
+    <artifactId>quartz-parent</artifactId>
+    <version>2.3.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>management-quartz-impl</artifactId>
+  <name>management-quartz-impl</name>
+  
+  <dependencies>
+    <dependency>
+      <groupId>org.quartz-scheduler</groupId>
+      <artifactId>management-quartz</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.quartz-scheduler.internal</groupId>
+      <artifactId>quartz-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId> org.eclipse.jetty</groupId>
+      <artifactId>jetty-servlet</artifactId>
+      <version>8.1.7.v20120910</version>
+      <scope>provided</scope>
+    </dependency>
+     <dependency>
+      <groupId> org.eclipse.jetty.orbit</groupId>
+      <artifactId>javax.servlet</artifactId>
+      <version>3.0.0.v201112011016</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.3.2</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

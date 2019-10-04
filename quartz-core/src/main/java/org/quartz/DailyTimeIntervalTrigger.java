@@ -25,8 +25,8 @@ import org.quartz.DateBuilder.IntervalUnit;
  * A <code>{@link Trigger}</code> that is used to fire a <code>{@link org.quartz.JobDetail}</code>
  * based upon daily repeating time intervals.
  * 
- * <p>The trigger will fire every N (see {@link #setRepeatInterval(int)} ) seconds, minutes or hours
- * (see {@link #setRepeatIntervalUnit(IntervalUnit)}) during a given time window on specified days of the week.</p>
+ * <p>The trigger will fire every N (see {@link #getRepeatInterval()} ) seconds, minutes or hours
+ * (see {@link #getRepeatIntervalUnit()}) during a given time window on specified days of the week.</p>
  * 
  * <p>For example#1, a trigger can be set to fire every 72 minutes between 8:00 and 11:00 everyday. It's fire times would 
  * be 8:00, 9:12, 10:24, then next day would repeat: 8:00, 9:12, 10:24 again.</p>
@@ -43,7 +43,7 @@ import org.quartz.DateBuilder.IntervalUnit;
  * for that day will be normal startTimeOfDay incremental values after startTime value. Same reversal logic is applied to endTime 
  * with endTimeOfDay.</p>
  *   
- * @see DailyTimeIntervalTriggerImpl, DailyTimeIntervalScheduleBuilder
+ * @see DailyTimeIntervalScheduleBuilder
  * 
  * @since 2.1.0
  * 
@@ -52,19 +52,19 @@ import org.quartz.DateBuilder.IntervalUnit;
  */
 public interface DailyTimeIntervalTrigger extends Trigger {
 
-  /**
+    /**
      * <p>
      * Used to indicate the 'repeat count' of the trigger is indefinite. Or in
      * other words, the trigger should repeat continually until the trigger's
      * ending timestamp.
      * </p>
      */
-  public static final int REPEAT_INDEFINITELY = -1;
+    public static final int REPEAT_INDEFINITELY = -1;
     
     /**
      * <p>
      * Instructs the <code>{@link Scheduler}</code> that upon a mis-fire
-     * situation, the <code>{@link DailyIntervaledTimeRangeTrigger}</code> wants to be 
+     * situation, the <code>{@link DailyTimeIntervalTrigger}</code> wants to be
      * fired now by <code>Scheduler</code>.
      * </p>
      */
@@ -73,7 +73,7 @@ public interface DailyTimeIntervalTrigger extends Trigger {
     /**
      * <p>
      * Instructs the <code>{@link Scheduler}</code> that upon a mis-fire
-     * situation, the <code>{@link DailyIntervaledTimeRangeTrigger}</code> wants to have it's
+     * situation, the <code>{@link DailyTimeIntervalTrigger}</code> wants to have it's
      * next-fire-time updated to the next time in the schedule after the
      * current time (taking into account any associated <code>{@link Calendar}</code>,
      * but it does not want to be fired now.
@@ -134,5 +134,5 @@ public interface DailyTimeIntervalTrigger extends Trigger {
      */
     public int getTimesTriggered();
 
-  public TriggerBuilder<DailyTimeIntervalTrigger> getTriggerBuilder();
+    public TriggerBuilder<DailyTimeIntervalTrigger> getTriggerBuilder();
 }

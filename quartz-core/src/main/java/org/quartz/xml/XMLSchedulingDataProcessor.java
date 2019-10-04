@@ -1,5 +1,5 @@
 /* 
- * Copyright 2001-2010 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -33,7 +33,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -56,19 +55,7 @@ import javax.xml.xpath.XPathException;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.quartz.CalendarIntervalScheduleBuilder;
-import org.quartz.CronScheduleBuilder;
-import org.quartz.Job;
-import org.quartz.JobDetail;
-import org.quartz.JobKey;
-import org.quartz.ObjectAlreadyExistsException;
-import org.quartz.ScheduleBuilder;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.SimpleScheduleBuilder;
-import org.quartz.SimpleTrigger;
-import org.quartz.Trigger;
-import org.quartz.TriggerKey;
+import org.quartz.*;
 import org.quartz.DateBuilder.IntervalUnit;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.spi.ClassLoadHelper;
@@ -82,6 +69,7 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
+import javax.xml.bind.DatatypeConverter;
 
 
 /**
@@ -117,17 +105,6 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
 
     public static final String QUARTZ_SYSTEM_ID_JAR_PREFIX = "jar:";
     
-    /**
-     * XML Schema dateTime datatype format.
-     * <p>
-     * See <a
-     * href="http://www.w3.org/TR/2001/REC-xmlschema-2-20010502/#dateTime">
-     * http://www.w3.org/TR/2001/REC-xmlschema-2-20010502/#dateTime</a>
-     */
-    protected static final String XSD_DATE_FORMAT = "yyyy-MM-dd'T'hh:mm:ss";
-
-    protected static final SimpleDateFormat dateFormat = new SimpleDateFormat(XSD_DATE_FORMAT);
-
 
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -244,7 +221,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
     }
     
     protected Object resolveSchemaSource() {
-        InputSource inputSource = null;
+        InputSource inputSource;
 
         InputStream is = null;
 
@@ -320,8 +297,6 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
      * Add the given group to the list of job groups that will never be
      * deleted by this processor, even if a pre-processing-command to
      * delete the group is encountered.
-     * 
-     * @param group
      */
     public void addJobGroupToNeverDelete(String group) {
         if(group != null)
@@ -332,21 +307,15 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
      * Remove the given group to the list of job groups that will never be
      * deleted by this processor, even if a pre-processing-command to
      * delete the group is encountered.
-     * 
-     * @param group
      */
     public boolean removeJobGroupToNeverDelete(String group) {
-        if(group != null)
-            return jobGroupsToNeverDelete.remove(group);
-        return false;
+        return group != null && jobGroupsToNeverDelete.remove(group);
     }
 
     /**
      * Get the (unmodifiable) list of job groups that will never be
      * deleted by this processor, even if a pre-processing-command to
      * delete the group is encountered.
-     * 
-     * @param group
      */
     public List<String> getJobGroupsToNeverDelete() {
         return Collections.unmodifiableList(jobGroupsToDelete);
@@ -356,8 +325,6 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
      * Add the given group to the list of trigger groups that will never be
      * deleted by this processor, even if a pre-processing-command to
      * delete the group is encountered.
-     * 
-     * @param group
      */
     public void addTriggerGroupToNeverDelete(String group) {
         if(group != null)
@@ -368,8 +335,6 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
      * Remove the given group to the list of trigger groups that will never be
      * deleted by this processor, even if a pre-processing-command to
      * delete the group is encountered.
-     * 
-     * @param group
      */
     public boolean removeTriggerGroupToNeverDelete(String group) {
         if(group != null)
@@ -381,8 +346,6 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
      * Get the (unmodifiable) list of trigger groups that will never be
      * deleted by this processor, even if a pre-processing-command to
      * delete the group is encountered.
-     * 
-     * @param group
      */
     public List<String> getTriggerGroupsToNeverDelete() {
         return Collections.unmodifiableList(triggerGroupsToDelete);
@@ -424,49 +387,29 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
      * @see #processFile()
      * @see #processFile(String)
      * @see #processFileAndScheduleJobs(Scheduler, boolean)
-     * @see #processFileAndScheduleJobs(String, Scheduler, boolean)
+     * @see #processFileAndScheduleJobs(String, org.quartz.Scheduler)
      */
     protected String getSystemIdForFileName(String fileName) {
-        InputStream fileInputStream = null;
-        try {
-            String urlPath = null;
-            
-            File file = new File(fileName); // files in filesystem
-            if (!file.exists()) {
-                URL url = getURL(fileName);
-                if (url != null) {
-                    try {
-                        urlPath = URLDecoder.decode(url.getPath(), "UTF-8");
-                    } catch (UnsupportedEncodingException e) {
-                        log.warn("Unable to decode file path URL", e);
-                    } 
-                    try {
-                        if(url != null)
-                            fileInputStream = url.openStream();
-                    } catch (IOException ignore) {
-                    }
-                }        
-            } else {
-                try {              
-                    fileInputStream = new FileInputStream(file);
-                }catch (FileNotFoundException ignore) {
-                }
+        File file = new File(fileName); // files in filesystem
+        if (file.exists()) {
+            try {
+                new FileInputStream(file).close();
+                return file.toURI().toString();
+            }catch (IOException ignore) {
+                return fileName;
             }
-            
-            if (fileInputStream == null) {
-                log.debug("Unable to resolve '" + fileName + "' to full path, so using it as is for system id.");
+        } else {
+            URL url = getURL(fileName);
+            if (url == null) {
                 return fileName;
             } else {
-                return (urlPath != null) ? urlPath : file.getAbsolutePath();
-            }
-        } finally {
-            try {
-                if (fileInputStream != null) {
-                    fileInputStream.close();
+                try {
+                    url.openStream().close();
+                    return url.toString();
+                } catch (IOException ignore) {
+                    return fileName;
                 }
-            } catch (IOException ioe) {
-                log.warn("Error closing jobs file: " + fileName, ioe);
-            }
+            }      
         }
     }
 
@@ -551,6 +494,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
         maybeThrowValidationException();
     }
     
+    @SuppressWarnings("ConstantConditions")
     protected void process(InputSource is) throws SAXException, IOException, ParseException, XPathException, ClassNotFoundException {
         
         // load the document 
@@ -722,22 +666,23 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
             String startTimeFutureSecsString = getTrimmedToNullString(xpath, "q:start-time-seconds-in-future", triggerNode);
             String endTimeString = getTrimmedToNullString(xpath, "q:end-time", triggerNode);
 
-            Date triggerStartTime = null;
+            //QTZ-273 : use of DatatypeConverter.parseDateTime() instead of SimpleDateFormat
+            Date triggerStartTime;
             if(startTimeFutureSecsString != null)
                 triggerStartTime = new Date(System.currentTimeMillis() + (Long.valueOf(startTimeFutureSecsString) * 1000L));
             else 
-                triggerStartTime = (startTimeString == null || startTimeString.length() == 0 ? new Date() : dateFormat.parse(startTimeString));
-            Date triggerEndTime = endTimeString == null || endTimeString.length() == 0 ? null : dateFormat.parse(endTimeString);
+                triggerStartTime = (startTimeString == null || startTimeString.length() == 0 ? new Date() : DatatypeConverter.parseDateTime(startTimeString).getTime());
+            Date triggerEndTime = endTimeString == null || endTimeString.length() == 0 ? null : DatatypeConverter.parseDateTime(endTimeString).getTime();
 
             TriggerKey triggerKey = triggerKey(triggerName, triggerGroup);
             
-            ScheduleBuilder<?> sched = null;
+            ScheduleBuilder<?> sched;
             
             if (triggerNode.getNodeName().equals("simple")) {
                 String repeatCountString = getTrimmedToNullString(xpath, "q:repeat-count", triggerNode);
                 String repeatIntervalString = getTrimmedToNullString(xpath, "q:repeat-interval", triggerNode);
 
-                int repeatCount = repeatCountString == null ? SimpleTrigger.REPEAT_INDEFINITELY : Integer.parseInt(repeatCountString);
+                int repeatCount = repeatCountString == null ? 0 : Integer.parseInt(repeatCountString);
                 long repeatInterval = repeatIntervalString == null ? 0 : Long.parseLong(repeatIntervalString);
 
                 sched = simpleSchedule()
@@ -871,8 +816,8 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
      * <p>Note that we will set overWriteExistingJobs after the default xml is parsed. 
      */
     public void processFileAndScheduleJobs(Scheduler sched,
-            boolean overWriteExistingJobs) throws SchedulerException, Exception {
-      String fileName = QUARTZ_XML_DEFAULT_FILE_NAME;
+            boolean overWriteExistingJobs) throws Exception {
+        String fileName = QUARTZ_XML_DEFAULT_FILE_NAME;
         processFile(fileName, getSystemIdForFileName(fileName));
         // The overWriteExistingJobs flag was set by processFile() -> prepForProcessing(), then by xml parsing, and then now
         // we need to reset it again here by this method parameter to override it.
@@ -1029,6 +974,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
      *              if the Job or Trigger cannot be added to the Scheduler, or
      *              there is an internal Scheduler error.
      */
+    @SuppressWarnings("ConstantConditions")
     protected void scheduleJobs(Scheduler sched)
         throws SchedulerException {
         
@@ -1044,8 +990,21 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
         while(itr.hasNext()) {
             JobDetail detail = itr.next();
             itr.remove(); // remove jobs as we handle them...
-            
-            JobDetail dupeJ = sched.getJobDetail(detail.getKey());
+
+            JobDetail dupeJ = null;
+            try {
+                // The existing job could have been deleted, and Quartz API doesn't allow us to query this without
+                // loading the job class, so use try/catch to handle it.
+                dupeJ = sched.getJobDetail(detail.getKey());
+            } catch (JobPersistenceException e) {
+                if (e.getCause() instanceof ClassNotFoundException && isOverWriteExistingData()) {
+                    // We are going to replace jobDetail anyway, so just delete it first.
+                    log.info("Removing job: " + detail.getKey());
+                    sched.deleteJob(detail.getKey());
+                } else {
+                    throw e;
+                }
+            }
 
             if ((dupeJ != null)) {
                 if(!isOverWriteExistingData() && isIgnoreDuplicates()) {
@@ -1083,65 +1042,63 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
             
             
             if(dupeJ != null || detail.isDurable()) {
-                sched.addJob(detail, true); // add the job if a replacement or durable
+                if (triggersOfJob != null && triggersOfJob.size() > 0)
+                    sched.addJob(detail, true, true);  // add the job regardless is durable or not b/c we have trigger to add
+                else
+                    sched.addJob(detail, true, false); // add the job only if a replacement or durable, else exception will throw!
             }
             else {
                 boolean addJobWithFirstSchedule = true;
 
                 // Add triggers related to the job...
-                Iterator<MutableTrigger> titr = triggersOfJob.iterator();
-                while(titr.hasNext()) {
-                    MutableTrigger trigger = titr.next(); 
+                for (MutableTrigger trigger : triggersOfJob) {
                     triggers.remove(trigger);  // remove triggers as we handle them...
-    
-                    if(trigger.getStartTime() == null) {
+
+                    if (trigger.getStartTime() == null) {
                         trigger.setStartTime(new Date());
                     }
-                    
+
                     Trigger dupeT = sched.getTrigger(trigger.getKey());
                     if (dupeT != null) {
-                        if(isOverWriteExistingData()) {
+                        if (isOverWriteExistingData()) {
                             if (log.isDebugEnabled()) {
                                 log.debug(
-                                    "Rescheduling job: " + trigger.getJobKey() + " with updated trigger: " + trigger.getKey());
+                                        "Rescheduling job: " + trigger.getJobKey() + " with updated trigger: " + trigger.getKey());
                             }
-                        }
-                        else if(isIgnoreDuplicates()) {
+                        } else if (isIgnoreDuplicates()) {
                             log.info("Not overwriting existing trigger: " + dupeT.getKey());
                             continue; // just ignore the trigger (and possibly job)
-                        }
-                        else {
+                        } else {
                             throw new ObjectAlreadyExistsException(trigger);
                         }
-                        
-                        if(!dupeT.getJobKey().equals(trigger.getJobKey())) {
+
+                        if (!dupeT.getJobKey().equals(trigger.getJobKey())) {
                             log.warn("Possibly duplicately named ({}) triggers in jobs xml file! ", trigger.getKey());
                         }
-                        
+
                         sched.rescheduleJob(trigger.getKey(), trigger);
                     } else {
                         if (log.isDebugEnabled()) {
                             log.debug(
-                                "Scheduling job: " + trigger.getJobKey() + " with trigger: " + trigger.getKey());
+                                    "Scheduling job: " + trigger.getJobKey() + " with trigger: " + trigger.getKey());
                         }
-    
+
                         try {
-                            if(addJobWithFirstSchedule) {
+                            if (addJobWithFirstSchedule) {
                                 sched.scheduleJob(detail, trigger); // add the job if it's not in yet...
                                 addJobWithFirstSchedule = false;
-                            }
-                            else {
+                            } else {
                                 sched.scheduleJob(trigger);
                             }
                         } catch (ObjectAlreadyExistsException e) {
                             if (log.isDebugEnabled()) {
                                 log.debug(
-                                    "Adding trigger: " + trigger.getKey() + " for job: " + detail.getKey() + 
-                                    " failed because the trigger already existed.  " +
-                                    "This is likely due to a race condition between multiple instances " + 
-                                    "in the cluster.  Will try to reschedule instead.");
+                                        "Adding trigger: " + trigger.getKey() + " for job: " + detail.getKey() +
+                                                " failed because the trigger already existed.  " +
+                                                "This is likely due to a race condition between multiple instances " +
+                                                "in the cluster.  Will try to reschedule instead.");
                             }
-                            
+
                             // Let's try one more time as reschedule.
                             sched.rescheduleJob(trigger.getKey(), trigger);
                         }

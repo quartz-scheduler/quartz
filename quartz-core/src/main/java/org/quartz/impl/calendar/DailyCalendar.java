@@ -322,7 +322,7 @@ public class DailyCalendar extends BaseCalendar {
      * <b>Note:</b> This <CODE>DailyCalendar</CODE> will use the 
      * <code>{@link TimeZone#getDefault()}</code> time zone unless an explicit 
      * time zone is set via <code>{@link BaseCalendar#setTimeZone(TimeZone)}</code>.
-     * You should use <code>{@link #DailyCalendar(String, TimeZone, long, long)}</code>
+     * You should use <code>{@link #DailyCalendar(org.quartz.Calendar, java.util.TimeZone, long, long)}</code>
      * if you don't want the given <code>rangeStartingTimeInMillis</code> and
      * <code>rangeEndingTimeInMillis</code> to be evaluated in the default 
      * time zone.
@@ -358,7 +358,7 @@ public class DailyCalendar extends BaseCalendar {
      * <b>Note:</b> This <CODE>DailyCalendar</CODE> will use the 
      * <code>{@link TimeZone#getDefault()}</code> time zone unless an explicit 
      * time zone is set via <code>{@link BaseCalendar#setTimeZone(TimeZone)}</code>.
-     * You should use <code>{@link #DailyCalendar(String, Calendar, TimeZone, long, long)}</code>
+     * You should use <code>{@link #DailyCalendar(org.quartz.Calendar, java.util.TimeZone, long, long)} </code>
      * if you don't want the given <code>rangeStartingTimeInMillis</code> and
      * <code>rangeEndingTimeInMillis</code> to be evaluated in the default 
      * time zone.

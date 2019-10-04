@@ -1,6 +1,6 @@
 
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -27,6 +27,8 @@ import java.util.Date;
  * @author James House
  */
 public class SchedulerMetaData implements java.io.Serializable {
+  
+    private static final long serialVersionUID = 4203690002633917647L;
 
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -201,18 +203,6 @@ public class SchedulerMetaData implements java.io.Serializable {
     public Class<?> getJobStoreClass() {
         return jsClass;
     }
-
-    /**
-     * <p>
-     * Returns whether or not the <code>Scheduler</code>'s<code>JobStore</code>
-     * instance supports persistence.
-     * </p>
-     * @deprecated s
-     * @see #isJobStoreSupportsPersistence()
-     */
-    public boolean jobStoreSupportsPersistence() {
-        return isJobStoreSupportsPersistence();
-    }
     
     /**
      * <p>
@@ -295,7 +285,7 @@ public class SchedulerMetaData implements java.io.Serializable {
      * </p>
      */
     public String getSummary() throws SchedulerException {
-        StringBuffer str = new StringBuffer("Quartz Scheduler (v");
+        StringBuilder str = new StringBuilder("Quartz Scheduler (v");
         str.append(getVersion());
         str.append(") '");
 

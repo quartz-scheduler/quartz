@@ -1,5 +1,5 @@
 /* 
- * Copyright 2001-2009 Terracotta, Inc. 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -21,8 +21,10 @@ import java.util.Date;
 import java.util.Properties;
 
 import javax.mail.Address;
+import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
@@ -39,6 +41,9 @@ import org.quartz.JobExecutionException;
  * <p>
  * A Job which sends an e-mail with the configured content to the configured
  * recipient.
+ * 
+ * Arbitrary mail.smtp.xxx settings can be added to job data and they will be
+ * passed along the mail session
  * </p>
  * 
  * @author James House
@@ -94,6 +99,16 @@ public class SendMailJob implements Job {
      * The message content type. For example, "text/html". Optional.
      */
     public static final String PROP_CONTENT_TYPE = "content_type";
+    
+    /**
+     * Username for authenticated session. Password must also be set if username is used. Optional.
+     */
+    public static final String PROP_USERNAME = "username";
+    
+    /**
+     * Password for authenticated session. Optional.
+     */
+    public static final String PROP_PASSWORD = "password";    
 
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -168,11 +183,27 @@ public class SendMailJob implements Job {
         }
     }
 
-    protected Session getMailSession(MailInfo mailInfo) throws MessagingException {
+    protected Session getMailSession(final MailInfo mailInfo) throws MessagingException {
         Properties properties = new Properties();
         properties.put("mail.smtp.host", mailInfo.getSmtpHost());
         
-        return Session.getDefaultInstance(properties, null);
+        // pass along extra smtp settings from users
+        Properties extraSettings = mailInfo.getSmtpProperties();
+        if (extraSettings != null) {
+            properties.putAll(extraSettings);
+        }
+        
+        Authenticator authenticator = null;
+        if (mailInfo.getUsername() != null && mailInfo.getPassword() != null) {
+            log.info("using username '{}' and password 'xxx'", mailInfo.getUsername());
+            authenticator = new Authenticator() { 
+                protected PasswordAuthentication getPasswordAuthentication() { 
+                    return new PasswordAuthentication(mailInfo.getUsername(), mailInfo.getPassword()); 
+                }
+            };
+        }
+        log.debug("Sending mail with properties: {}", properties);
+        return Session.getDefaultInstance(properties, authenticator);
     }
     
     protected MailInfo createMailInfo() {
@@ -191,6 +222,22 @@ public class SendMailJob implements Job {
         mailInfo.setReplyTo(getOptionalParm(data, PROP_REPLY_TO));
         mailInfo.setCc(getOptionalParm(data, PROP_CC_RECIPIENT));
         mailInfo.setContentType(getOptionalParm(data, PROP_CONTENT_TYPE));
+        mailInfo.setUsername(getOptionalParm(data, PROP_USERNAME));
+        mailInfo.setPassword(getOptionalParm(data, PROP_PASSWORD));
+        
+        // extra mail.smtp. properties from user
+        Properties smtpProperties = new Properties();
+        for (String key : data.keySet()) {
+            if (key.startsWith("mail.smtp.")) {
+                smtpProperties.put(key, data.getString(key));
+            }
+        }
+        if (mailInfo.getSmtpProperties() == null) {
+            mailInfo.setSmtpProperties(smtpProperties);
+        } else {
+            mailInfo.getSmtpProperties().putAll(smtpProperties);
+        }
+
         
         return mailInfo;
     }
@@ -225,6 +272,9 @@ public class SendMailJob implements Job {
         private String replyTo;
         private String cc;
         private String contentType;
+        private String username;
+        private String password;
+        private Properties smtpProperties;
 
         @Override
         public String toString() {
@@ -293,6 +343,30 @@ public class SendMailJob implements Job {
 
         public void setTo(String to) {
             this.to = to;
+        }
+        
+        public Properties getSmtpProperties() {
+            return smtpProperties;
+        }
+        
+        public void setSmtpProperties(Properties smtpProperties) {
+            this.smtpProperties = smtpProperties;
+        }
+        
+        public String getUsername() {
+            return username;
+        }
+        
+        public void setUsername(String username) {
+            this.username = username;
+        }
+        
+        public String getPassword() {
+            return password;
+        }
+        
+        public void setPassword(String password) {
+            this.password = password;
         }
     }
 }

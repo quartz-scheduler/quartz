@@ -205,9 +205,9 @@
 		</trigger>	
 		<trigger>
 			<cron>
-				<name>every_4th_TUE_of_month_at_12AM_in_2014</name>
+				<name>every_4th_TUE_of_month_at_12AM_in_2050</name>
 				<job-name>job1</job-name>
-				<cron-expression>0 0 0 ? * WED#4 2014</cron-expression>
+				<cron-expression>0 0 0 ? * WED#4 2050</cron-expression>
 			</cron>
 		</trigger>
 		
@@ -235,9 +235,9 @@
 		</trigger>
 		<trigger>
 			<cron>
-				<name>1st_and_15th_of_JAN_JUN_DEC_at_12AM_year_13_n_14</name>
+				<name>1st_and_15th_of_JAN_JUN_DEC_at_12AM_year_50_n_51</name>
 				<job-name>job1</job-name>
-				<cron-expression>0 0 0 1,15 JAN,JUN,DEC ? 2013,2014</cron-expression>
+				<cron-expression>0 0 0 1,15 JAN,JUN,DEC ? 2050,2051</cron-expression>
 			</cron>
 		</trigger>
 		
@@ -270,7 +270,14 @@
 				<cron-expression>*/15 5/50 5/15 1/3 7/6 ?</cron-expression>
 			</cron>
 		</trigger>
-		
+    <trigger>
+  			<cron>
+  				<name>QTZ-329</name>
+  				<job-name>job1</job-name>
+          <cron-expression>0 0/30 0-6,12,19-21,22 * * ?</cron-expression>
+  			</cron>
+  		</trigger>
+
 	</schedule>
 	
 </job-scheduling-data>

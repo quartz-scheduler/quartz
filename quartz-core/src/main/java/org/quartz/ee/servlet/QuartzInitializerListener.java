@@ -1,5 +1,5 @@
 /*
- * Copyright 2001-2010 Terracotta, Inc.
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -160,7 +160,7 @@ public class QuartzInitializerListener implements ServletContextListener {
                 performShutdown = Boolean.valueOf(shutdownPref).booleanValue();
             }
             String shutdownWaitPref = servletContext.getInitParameter("quartz:wait-on-shutdown");
-            if (shutdownPref != null) {
+            if (shutdownWaitPref != null) {
                 waitOnShutdown = Boolean.valueOf(shutdownWaitPref).booleanValue();
             }
 
@@ -234,17 +234,17 @@ public class QuartzInitializerListener implements ServletContextListener {
         }
     }
 
-  protected StdSchedulerFactory getSchedulerFactory(String configFile)
-      throws SchedulerException {
-    StdSchedulerFactory factory;
-    // get Properties
-    if (configFile != null) {
-        factory = new StdSchedulerFactory(configFile);
-    } else {
-        factory = new StdSchedulerFactory();
+    protected StdSchedulerFactory getSchedulerFactory(String configFile)
+            throws SchedulerException {
+        StdSchedulerFactory factory;
+        // get Properties
+        if (configFile != null) {
+            factory = new StdSchedulerFactory(configFile);
+        } else {
+            factory = new StdSchedulerFactory();
+        }
+        return factory;
     }
-    return factory;
-  }
 
     public void contextDestroyed(ServletContextEvent sce) {
 

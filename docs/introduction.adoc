@@ -1,0 +1,82 @@
+== Quartz Enterprise Job Scheduler
+
+=== What is the Quartz Job Scheduling Library?
+
+Quartz is a richly featured, open source job scheduling library that can be integrated within virtually any Java application - from the smallest stand-alone application to the largest e-commerce system. Quartz can be used to create simple or complex schedules for executing tens, hundreds, or even tens-of-thousands of jobs; jobs whose tasks are defined as standard Java components that may execute virtually anything you may program them to do. The Quartz Scheduler includes many enterprise-class features, such as support for JTA transactions and clustering.</p>
+
+Quartz is freely usable, licensed under the http://www.apache.org/licenses/LICENSE-2.0[Apache 2.0 license]
+
+=== What Can Quartz Do For You?
+
+If your application has tasks that need to occur at given moments in time, or if your system has recurring maintenance jobs then Quartz may be your ideal solution.
+
+Sample uses of job scheduling with Quartz:
+
+* Driving Process Workflow: As a new order is initially placed, schedule a Job to fire in exactly 2 hours, that will check the status of that order, and trigger a warning notification if an order confirmation message has not yet been received for the order, as well as changing the order's status to 'awaiting intervention'.
+* System Maintenance: Schedule a job to dump the contents of a database into an XML file every business day (all weekdays except holidays) at 11:30 PM.
+* Providing reminder services within an application.
+
+=== Features
+
+==== Runtime Environments
+
+* Quartz can run embedded within another free standing application
+* Quartz can be instantiated within an application server (or servlet container), and participate in XA transactions
+* Quartz can run as a stand-alone program (within its own Java Virtual Machine), to be used via RMI
+* Quartz can be instantiated as a cluster of stand-alone programs (with load-balance and fail-over capabilities) for the execution of jobs
+
+
+==== Job Scheduling
+
+Jobs are scheduled to run when a given Trigger occurs. Triggers can be created with nearly any combination of
+the following directives:
+
+* at a certain time of day (to the millisecond)
+* on certain days of the week
+* on certain days of the month
+* on certain days of the year
+* not on certain days listed within a registered Calendar (such as business holidays)
+* repeated a specific number of times
+* repeated until a specific time/date
+* repeated indefinitely
+* repeated with a delay interval
+
+Jobs are given names by their creator and can also be organized into named groups. Triggers may also be given
+names and placed into groups, in order to easily organize them within the scheduler. Jobs can be added to the
+scheduler once, but registered with multiple Triggers. Within an enterprise Java environment, Jobs can perform their work
+as part of a distributed (XA) transaction.
+
+
+==== Job Execution
+
+* Jobs can be any Java class that implements the simple Job interface, leaving infinite possibilities for the work your Jobs can perform.
+* Job class instances can be instantiated by Quartz, or by your application's framework.
+* When a Trigger occurs, the scheduler notifies zero or more Java objects implementing the JobListener and TriggerListener interfaces (listeners can be simple Java objects, or EJBs, or JMS publishers, etc.). These listeners are also notified after the Job has executed.
+* As Jobs are completed, they return a JobCompletionCode which informs the scheduler of success or failure. The JobCompletionCode can also instruct the scheduler of any actions it should take based on the success/fail code - such as immediate re-execution of the Job.
+
+
+==== Job Persistence
+
+* The design of Quartz includes a JobStore interface that can be implemented to provide various mechanisms for the storage of jobs.
+* With the use of the included JDBCJobStore, all Jobs and Triggers configured as "non-volatile" are stored in a relational database via JDBC.
+* With the use of the included RAMJobStore, all Jobs and Triggers are stored in RAM and therefore do not persist between program executions - but this has the advantage of not requiring an external database.
+
+
+==== Transactions
+
+* Quartz can participate in JTA transactions, via the use of JobStoreCMT (a subclass of JDBCJobStore).
+* Quartz can manage JTA transactions (begin and commit them) around the execution of a Job, so that the work performed by the Job automatically happens within a JTA transaction.
+
+
+==== Clustering
+
+* Fail-over.
+* Load balancing.
+* Quartz's built-in clustering features rely upon database persistence via JDBCJobStore (described above).
+* Terracotta extensions to Quartz provide clustering capabilities without the need for a backing database.
+
+==== Listeners & Plug-Ins
+
+* Applications can catch scheduling events to monitor or control job/trigger behavior by implementing one or more listener interfaces.
+* The Plug-In mechanism can be used add functionality to Quartz, such keeping a history of job executions, or loading job and trigger definitions from a file.
+* Quartz ships with a number of "factory built" plug-ins and listeners.
