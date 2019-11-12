@@ -4,7 +4,7 @@
 
   <groupId>org.quartz-scheduler</groupId>
   <artifactId>quartz-parent</artifactId>
-  <version>2.3.2-SNAPSHOT</version>
+  <version>${revision}</version>
   <name>quartz-parent</name>
   <packaging>pom</packaging>
   
