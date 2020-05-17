@@ -11,7 +11,7 @@ active_sub_menu_id: site_mnu_docs_cookbook
 
 # How-To: Trigger That Executes Every 2 Weeks
 
-As with a trigger meant to fire every two days, CronTrigger won't work for this schedule. For more details, see <a href="BiDailyTrigger">Trigger That Fires Every 2 Days</a>. We'll need to use a SimpleTrigger or CalendarIntervalTrigger:
+As with a trigger meant to fire every two days, CronTrigger won't work for this schedule. For more details, see <a href="BiDailyTrigger.md">Trigger That Fires Every 2 Days</a>. We'll need to use a SimpleTrigger or CalendarIntervalTrigger:
 
 
 ### Using SimpleTrigger
