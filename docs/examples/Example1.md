@@ -11,7 +11,7 @@ active_sub_menu_id: site_mnu_docs_examples
 ## [Example 1 - Your First Quartz Program](#Example1-Overview)
 This example is designed to demonstrate how to get up and running with Quartz.   This example will fire off a simple job that says "Hello World".
 
-The program will perform the following actions:
+The program will perform the following actions: 
 
 
 + Start up the Quartz Scheduler
