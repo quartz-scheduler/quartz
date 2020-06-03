@@ -7,6 +7,7 @@ import java.io.InputStream;
 
 import junit.framework.TestCase;
 
+import org.xml.sax.SAXParseException;
 import org.quartz.JobDetail;
 import org.quartz.ObjectAlreadyExistsException;
 import org.quartz.Scheduler;
