@@ -86,8 +86,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>2.0.2</version>
         <configuration>
-          <source>1.5</source>
-          <target>1.5</target>
+          <source>1.8</source>
+          <target>1.8</target>
         </configuration>
       </plugin>
       <plugin>
@@ -160,7 +160,7 @@
           <version>2.5</version>
           <configuration>
             <aggregate>true</aggregate>
-            <targetJdk>1.5</targetJdk>
+            <targetJdk>1.8</targetJdk>
           </configuration>
         </plugin>
     </plugins>
