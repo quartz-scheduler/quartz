@@ -21,7 +21,7 @@ import junit.framework.TestCase;
 import org.quartz.core.QuartzScheduler;
 
 public class VersionTest extends TestCase {
-    private static final String SNAPSHOT_SUFFIX = "-SNAPSHOT";
+    private static final String SNAPSHOT_SUFFIX = "-atlassian-1-SNAPSHOT";
 
     public void testVersionParsing() {
         assertNonNegativeInteger(QuartzScheduler.getVersionMajor());
