@@ -17,37 +17,10 @@
   <url>http://quartz-scheduler.org/</url>
 
   <scm>
-    <connection>scm:svn:http://svn.terracotta.org/svn/quartz</connection>
-    <developerConnection>scm:svn:https://svn.terracotta.org/repo/quartz</developerConnection>
-    <url>http://svn.terracotta.org/svn/quartz</url>
+    <connection>scm:git:git@github.com:atlassian-forks/quartz.git</connection>
+    <developerConnection>scm:git:https://github.com/atlassian-forks/quartz</developerConnection>
+    <url>https://github.com/atlassian-forks/quartz</url>
   </scm>
-
-  <developers>
-    <developer>
-      <id>jhouse</id>
-      <name>James House</name>
-      <email>jhouse@terracotta.org</email>
-      <organization>Terracotta</organization>
-      <organizationUrl>http://terracotta.org</organizationUrl>
-      <roles>
-        <role>Primary Developer</role>
-      </roles>
-      <timezone>-6</timezone>
-    </developer>
-    <developer>
-      <id>jvoegele</id>
-      <name>Jason Voegele</name>
-      <email>jvoegele@terracotta.org</email>
-      <organization>Terracotta</organization>
-      <organizationUrl>http://terracotta.org</organizationUrl>
-      <roles>
-        <role>Build Engineer</role>
-        <role>Release Engineer</role>
-      </roles>
-      <timezone>-5</timezone>
-    </developer>
-  </developers>
-
 
   <licenses>
     <license>
@@ -74,7 +47,7 @@
 
   <build>
     <plugins>
-      <plugin>    
+      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>findbugs-maven-plugin</artifactId>
         <configuration>
