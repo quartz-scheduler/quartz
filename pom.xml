@@ -175,56 +175,6 @@
     </profile>
 
     <profile>
-      <!--
-        Profile used to prepare the distribution, including generating JavaDocs and invoking the assembly
-        plugin to create the distribution archive files.  To create the distribution, invoke the package phase
-        and the assembly:assembly plugin goal with this profile enabled, i.e.:
-
-          mvn -Pprepare-distribution package assembly:assembly
-
-        To include the quartz-oracle and quartz-weblogic artifacts in the distribution, make sure to enable the
-        respective profiles when assembling the package, i.e.:
-
-          mvn -Pprepare-distribution -Poracle,weblogic,all package assembly:assembly
-      -->
-      <id>prepare-distribution</id>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.7</version>
-            <executions>
-              <execution>
-                <id>aggregate-javadocs</id>
-                <phase>prepare-package</phase>
-                <goals>
-                  <goal>aggregate</goal>
-                  <goal>jar</goal>
-                </goals>
-                <configuration>
-                  <bottom><![CDATA[Copyright 2001-{currentYear}, <a href="http://www.terracotta.org">Terracotta, Inc.<a>]]></bottom>
-                  <doctitle>Quartz Enterprise Job Scheduler ${project.version} API</doctitle>
-                  <excludePackageNames>org.quartz.examples</excludePackageNames>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <artifactId>maven-assembly-plugin</artifactId>
-            <version>2.2.2</version>
-            <configuration>
-              <finalName>quartz-${project.version}</finalName>
-              <appendAssemblyId>false</appendAssemblyId>
-              <descriptors>
-                <descriptor>src/main/assembly/dist.xml</descriptor>
-              </descriptors>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
       <!-- Profile to sign artifacts with a PGP key (using GPG). -->
       <id>sign-artifacts</id>
       <activation>
@@ -258,16 +208,14 @@
   </profiles>
 
   <distributionManagement>
-    <snapshotRepository>
-      <id>quartz-snapshots</id>
-      <name>Quartz snapshots at Sonatype Nexus</name>
-      <url>http://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
     <repository>
-      <id>quartz-staging</id>
-      <name>Quartz release staging at Sonatype Nexus</name>
-      <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+      <id>atlassian-3rdparty</id>
+      <url>https://packages.atlassian.com/maven/3rdparty</url>
     </repository>
+    <snapshotRepository>
+      <id>atlassian-3rdparty-snapshot</id>
+      <url>https://packages.atlassian.com/maven/3rdparty-snapshot</url>
+    </snapshotRepository>
   </distributionManagement>
 
 </project>
