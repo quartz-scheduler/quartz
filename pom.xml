@@ -140,6 +140,15 @@
             <excludeFilterFile>${basedir}/../src/findbugs/excludeFilter.xml</excludeFilterFile>
           </configuration>
         </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-pmd-plugin</artifactId>
+          <version>2.5</version>
+          <configuration>
+            <aggregate>true</aggregate>
+            <targetJdk>1.8</targetJdk>
+          </configuration>
+        </plugin>
     </plugins>
   </build>
 
@@ -176,6 +185,37 @@
       <modules>
         <module>quartz-all</module>
       </modules>
+    </profile>
+
+    <profile>
+      <!-- Profile to sign artifacts with a PGP key (using GPG). -->
+      <id>sign-artifacts</id>
+      <activation>
+        <property>
+          <name>performRelease</name>
+          <value>true</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <configuration>
+                  <keyname>Terracotta Release Engineer</keyname>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
 
   </profiles>
