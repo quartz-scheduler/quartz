@@ -18,7 +18,7 @@
 
   <scm>
     <connection>scm:git:git@github.com:atlassian-forks/quartz.git</connection>
-    <developerConnection>scm:git:https://github.com/atlassian-forks/quartz</developerConnection>
+    <developerConnection>scm:git:git@github.com:atlassian-forks/quartz.git</developerConnection>
     <url>https://github.com/atlassian-forks/quartz</url>
   </scm>
 
