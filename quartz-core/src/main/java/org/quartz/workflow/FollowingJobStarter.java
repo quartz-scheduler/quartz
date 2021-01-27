@@ -30,12 +30,9 @@ class FollowingJobStarter implements JobListener{
     public void jobExecutionVetoed(JobExecutionContext context) {/**/}
 
     @Override
-    public void jobWasExecuted(JobExecutionContext context, JobExecutionException jobException) {
-        try {
-            startFollowingJobs(context);
-        } catch (SchedulerException e) {
-            throw new RuntimeException(e);
-        }
+    public void jobWasExecuted(JobExecutionContext context, JobExecutionException jobException) 
+            throws SchedulerException {
+        startFollowingJobs(context);
     }
     
     private void startFollowingJobs(JobExecutionContext context) throws SchedulerException {
