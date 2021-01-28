@@ -1,7 +1,7 @@
 /*
  * Created on Jan 26, 2021
  *
- * author dimitry
+ * author Dimitry Polivaev
  */
 package org.quartz.workflow;
 
@@ -16,7 +16,7 @@ import org.quartz.impl.matchers.GroupMatcher;
 
 public class Workflow {
     
-    static final String FOLLOWING_JOB_STARTER = FollowingJobStarter.class.getName();
+    static final String WORKFLOW_RULE = WorkflowRule.class.getName();
     
     private final Scheduler scheduler;
 
@@ -34,7 +34,7 @@ public class Workflow {
 
     public void addJob(JobDetail job, final WorkflowRule workflowRule) throws SchedulerException {
         final JobDataMap data = job.getJobDataMap();
-        data.put(FOLLOWING_JOB_STARTER, workflowRule);
+        data.put(WORKFLOW_RULE, workflowRule);
         addJob(job);
     }
 

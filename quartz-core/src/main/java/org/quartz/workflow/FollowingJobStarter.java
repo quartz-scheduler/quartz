@@ -38,7 +38,7 @@ class FollowingJobStarter implements JobListener{
     private void startFollowingJobs(JobExecutionContext context) throws SchedulerException {
         final JobDetail jobDetail = context.getJobDetail();
         final JobDataMap data = jobDetail.getJobDataMap();
-        WorkflowRule followingJobStarter = (WorkflowRule) data.get(Workflow.FOLLOWING_JOB_STARTER);
+        WorkflowRule followingJobStarter = (WorkflowRule) data.get(Workflow.WORKFLOW_RULE);
         if(followingJobStarter == null)
             return;
         final Scheduler scheduler = context.getScheduler();
