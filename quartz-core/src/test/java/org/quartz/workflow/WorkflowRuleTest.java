@@ -44,7 +44,7 @@ public class WorkflowRuleTest {
         final JobKey job = new JobKey("name", "group");
 
         final WorkflowRule uut = new SingleJobRule(job);
-        uut.startJobsIfReady(scheduler);
+        uut.apply(x -> scheduler);
 
         verify(scheduler).scheduleJob(triggerCaptor.capture());
         final Trigger trigger = triggerCaptor.getValue();
@@ -61,8 +61,8 @@ public class WorkflowRuleTest {
         when(scheduler.getJobKeys(currentGroup)).thenReturn(Collections.emptySet());
         when(scheduler.getJobKeys(followingGroup)).thenReturn(Collections.singleton(job));
 
-        final WorkflowRule uut = new GroupRule(currentGroup, followingGroup);
-        uut.startJobsIfReady(scheduler);
+        final WorkflowRule uut = new ConditionalRule(currentGroup, followingGroup);
+        uut.apply(x -> scheduler);
 
         verify(scheduler).scheduleJob(triggerCaptor.capture());
         final Trigger trigger = triggerCaptor.getValue();
@@ -76,8 +76,8 @@ public class WorkflowRuleTest {
         when(scheduler.getJobKeys(currentGroup)).thenReturn(Collections.singleton(new JobKey("other", "group")));
         GroupMatcher<JobKey> followingGroup = GroupMatcher.groupEquals("following");
 
-        final SingleJobRule uut = new SingleJobRule(currentGroup, job);
-        uut.startJobsIfReady(scheduler);
+        final WorkflowRule uut = new ConditionalRule(currentGroup, job);
+        uut.apply(x -> scheduler);
 
         verify(scheduler, never()).getJobKeys(followingGroup);
         verify(scheduler, never()).scheduleJob(any());
@@ -90,8 +90,8 @@ public class WorkflowRuleTest {
         when(scheduler.getJobKeys(currentGroup)).thenReturn(Collections.singleton(new JobKey("other", "group")));
         GroupMatcher<JobKey> followingGroup = GroupMatcher.groupEquals("following");
 
-        final GroupRule uut = new GroupRule(currentGroup, followingGroup);
-        uut.startJobsIfReady(scheduler);
+        final WorkflowRule uut = new ConditionalRule(currentGroup, followingGroup);
+        uut.apply(x -> scheduler);
 
         verify(scheduler, never()).getJobKeys(followingGroup);
         verify(scheduler, never()).scheduleJob(any());
@@ -102,7 +102,7 @@ public class WorkflowRuleTest {
         final JobKey job = new JobKey("name", "group");
 
         final WorkflowRule uut = new SingleJobRule(job);
-        uut.startJobs(scheduler);
+        uut.apply(x -> scheduler);
 
         verify(scheduler).scheduleJob(triggerCaptor.capture());
         final Trigger trigger = triggerCaptor.getValue();
@@ -115,7 +115,7 @@ public class WorkflowRuleTest {
         final int priority = Trigger.DEFAULT_PRIORITY + 1;
 
         final WorkflowRule uut = new SingleJobRule(job).setTriggerPriority(priority);
-        uut.startJobs(scheduler);
+        uut.apply(x -> scheduler);
 
         verify(scheduler).scheduleJob(triggerCaptor.capture());
         final Trigger trigger = triggerCaptor.getValue();
@@ -127,8 +127,8 @@ public class WorkflowRuleTest {
         final JobKey job = new JobKey("name", "group");
 
         final WorkflowRule uut = new SingleJobRule(job).setTriggerPriority(32);
-        uut.startJobs(scheduler);
-        uut.startJobs(scheduler);
+        uut.apply(x -> scheduler);
+        uut.apply(x -> scheduler);
 
         verify(scheduler, times(2)).scheduleJob(triggerCaptor.capture());
         final List<Trigger> triggers = triggerCaptor.getAllValues();
@@ -138,8 +138,8 @@ public class WorkflowRuleTest {
 
     @Test
     public void usesDifferentTriggerKeysForDifferentJobKeys() throws Exception {
-        new SingleJobRule(new JobKey("name1", "group")).startJobs(scheduler);
-        new SingleJobRule(new JobKey("name2", "group")).startJobs(scheduler);
+        new SingleJobRule(new JobKey("name1", "group")).apply(x -> scheduler);
+        new SingleJobRule(new JobKey("name2", "group")).apply(x -> scheduler);
 
         verify(scheduler, times(2)).scheduleJob(triggerCaptor.capture());
         final List<Trigger> triggers = triggerCaptor.getAllValues();
@@ -154,7 +154,7 @@ public class WorkflowRuleTest {
         final WorkflowRule uut = new SingleJobRule(job);
         when(scheduler.scheduleJob(any())).thenThrow(ObjectAlreadyExistsException.class);
 
-        uut.startJobs(scheduler);
+        uut.apply(x -> scheduler);
     }
 
     @SuppressWarnings("unchecked")
@@ -164,7 +164,7 @@ public class WorkflowRuleTest {
         final WorkflowRule uut = new SingleJobRule(job);
         when(scheduler.scheduleJob(any())).thenThrow(JobPersistenceException.class);
 
-        uut.startJobs(scheduler);
+        uut.apply(x -> scheduler);
     }
 
     @SuppressWarnings("unchecked")
@@ -175,6 +175,6 @@ public class WorkflowRuleTest {
         when(scheduler.checkExists(job)).thenReturn(true);
 
         final WorkflowRule uut = new SingleJobRule(job);
-        uut.startJobs(scheduler);
+        uut.apply(x -> scheduler);
     }
 }

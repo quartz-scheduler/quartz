@@ -15,9 +15,16 @@ import org.quartz.SchedulerException;
 
 class FollowingJobStarter implements JobListener{
     
-    static final String LISTENER_NAME = FollowingJobStarter.class.getName();
-    static final FollowingJobStarter INSTANCE = new FollowingJobStarter();
+    private final Schedulers schedulers;
+    
 
+    public FollowingJobStarter(Schedulers schedulers) {
+        super();
+        this.schedulers = schedulers;
+    }
+
+    private static final String LISTENER_NAME = FollowingJobStarter.class.getName();
+    
     @Override
     public String getName() {
         return LISTENER_NAME;
@@ -30,19 +37,28 @@ class FollowingJobStarter implements JobListener{
     public void jobExecutionVetoed(JobExecutionContext context) {/**/}
 
     @Override
-    public void jobWasExecuted(JobExecutionContext context, JobExecutionException jobException) 
-            throws SchedulerException {
-        startFollowingJobs(context);
+    public void jobWasExecuted(JobExecutionContext context, JobExecutionException jobException) {
+        try {
+            startFollowingJobs(context);
+        } catch (SchedulerException e) {
+            throw new RuntimeException(e);
+        }
     }
     
     private void startFollowingJobs(JobExecutionContext context) throws SchedulerException {
         final JobDetail jobDetail = context.getJobDetail();
         final JobDataMap data = jobDetail.getJobDataMap();
-        WorkflowRule followingJobStarter = (WorkflowRule) data.get(Workflow.WORKFLOW_RULE);
-        if(followingJobStarter == null)
+        WorkflowRule rule = (WorkflowRule) data.get(Workflow.WORKFLOW_RULE);
+        if(rule == null)
             return;
         final Scheduler scheduler = context.getScheduler();
         scheduler.deleteJob(jobDetail.getKey());
-        followingJobStarter.startJobsIfReady(scheduler);
+        rule.apply(schedulerName -> byNameOrDefault(schedulerName, scheduler));
     }
+
+    private Scheduler byNameOrDefault(String schedulerName, final Scheduler fallback)
+            throws SchedulerException {
+        return schedulerName != null ? schedulers.byNameOrDefault(schedulerName) : fallback;
+    }
+
 }
