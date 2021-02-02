@@ -8,10 +8,11 @@ package org.quartz.workflow;
 
 import static junit.framework.Assert.assertEquals;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -107,7 +109,7 @@ public class WorkflowTest {
     }
 
     private void waitUntilJobsAreDone(final int jobCount) throws InterruptedException {
-        semaphore.acquire(jobCount);
+        assertTrue("jobs done", semaphore.tryAcquire(jobCount, 5, TimeUnit.SECONDS));
     }
     
     @Test
@@ -242,6 +244,27 @@ public class WorkflowTest {
         assertThat(schedulerA.getJobGroupNames(), not(contains("jobGroup1")));
     }
 
+    @Test
+    public void changesSchedulers() throws Exception {
+        JobDetail job1 = JobBuilder.newJob().ofType(ConnectedTestJob.class)
+        .withIdentity("job1", "jobGroup1").build();
+        JobDetail followingJob1 = JobBuilder.newJob().ofType(ConnectedTestJob.class)
+        .withIdentity("followingJob1", "jobGroup2").build();
+        
+        final WorkflowRule rule =  new ConditionalRule(
+                WorkflowCondition.with("A", job1.getKey()),
+                WorkflowRule.with("B", followingJob1.getKey()));
+        
+        workflow.addJob(schedulerA, job1, rule);
+        workflow.addJob(schedulerB, followingJob1);
+        
+        workflow.startJob(schedulerA, job1.getKey());
+        
+        waitUntilJobsAreDone(2);
+        assertThat(capturedDetails, contains(job1, followingJob1));
+        assertThat(schedulerA.getJobGroupNames(), not(contains("jobGroup1")));
+    }
+    
     @Test
     public void runsGroupJobsInMultipleSchedulers() throws Exception {
         JobDetail job1 = JobBuilder.newJob().ofType(ConnectedTestJob.class)

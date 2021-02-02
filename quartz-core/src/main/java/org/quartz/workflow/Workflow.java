@@ -61,13 +61,13 @@ public class Workflow {
     public void addJob(Scheduler scheduler, JobDetail job, final WorkflowRule workflowRule) throws SchedulerException {
         final JobDataMap data = job.getJobDataMap();
         data.put(WORKFLOW_RULE, workflowRule);
-        register(scheduler);
         addJob(scheduler, job);
     }
 
     public void addJob(Scheduler scheduler, JobDetail job) throws SchedulerException {
         if(job.isDurable())
             throw new IllegalArgumentException("Durable jobs are not allowed in workflow");
+        register(scheduler);
         scheduler.addJob(job, false, true);
     }
     
