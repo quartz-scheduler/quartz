@@ -44,7 +44,7 @@ The code in this example is made up of the following classes:
 </thead>
 <tbody>
 <tr>
-<td> SimpleExample </td>
+<td> SimpleExample </td> 
 <td> The main program</td>
 </tr>
 <tr>
