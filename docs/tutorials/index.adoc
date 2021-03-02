@@ -7,7 +7,7 @@ Before starting the tutorial, you may first want to review the <<../quick-start-
 
 == Choose a Lesson:
 
-link:tutorial-lesson-01.html[Lesson 1: Using Quartz]
+link:tutorial-lesson-01.md[Lesson 1: Using Quartz]
 
 link:tutorial-lesson-02.html[Lesson 2: The Quartz API, and Introduction to Jobs And Triggers]
 
