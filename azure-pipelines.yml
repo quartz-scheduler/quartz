@@ -26,7 +26,7 @@ resources:
 jobs:
   - template: build-templates/maven-common.yml@templates
     parameters:
-      jobName: 2 total
+      jobName: TwoTotal
       #options: -X -B -Dtest.databasePort=1527  # fails
       options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxTotal=2
       #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
@@ -34,7 +34,7 @@ jobs:
       enableCache: false
   - template: build-templates/maven-common.yml@templates
     parameters:
-      jobName: 3 total
+      jobName: ThreeTotal
       #options: -X -B -Dtest.databasePort=1527  # fails
       options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxTotal=2
       #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
@@ -42,7 +42,7 @@ jobs:
       enableCache: false
   - template: build-templates/maven-common.yml@templates
     parameters:
-      jobName: 1 per route
+      jobName: OnePerRoute
       #options: -X -B -Dtest.databasePort=1527  # fails
       options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxPerRoute=1
       #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
@@ -50,7 +50,7 @@ jobs:
       enableCache: false
   - template: build-templates/maven-common.yml@templates
     parameters:
-      jobName: 2 per route
+      jobName: TwoPerRoute
       #options: -X -B -Dtest.databasePort=1527  # fails
       options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxPerRoute=2
       #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
