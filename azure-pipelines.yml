@@ -26,11 +26,33 @@ resources:
 jobs:
   - template: build-templates/maven-common.yml@templates
     parameters:
-      jdkVersion: '1.8'
-      #jvmOptions: '-Xmx3072m'
-      timeoutInMinutes: 180
+      jobName: 2 total
       #options: -X -B -Dtest.databasePort=1527  # fails
       options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxTotal=2
+      #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
+      #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false -Dmaven.wagon.rto=30000 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
+      enableCache: false
+  - template: build-templates/maven-common.yml@templates
+    parameters:
+      jobName: 3 total
+      #options: -X -B -Dtest.databasePort=1527  # fails
+      options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxTotal=2
+      #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
+      #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false -Dmaven.wagon.rto=30000 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
+      enableCache: false
+  - template: build-templates/maven-common.yml@templates
+    parameters:
+      jobName: 1 per route
+      #options: -X -B -Dtest.databasePort=1527  # fails
+      options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxPerRoute=1
+      #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
+      #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false -Dmaven.wagon.rto=30000 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
+      enableCache: false
+  - template: build-templates/maven-common.yml@templates
+    parameters:
+      jobName: 2 per route
+      #options: -X -B -Dtest.databasePort=1527  # fails
+      options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxPerRoute=2
       #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
       #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false -Dmaven.wagon.rto=30000 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
       enableCache: false
