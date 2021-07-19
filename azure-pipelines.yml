@@ -23,6 +23,8 @@ resources:
       type: git
       name: terracotta/terracotta
 
+       -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient=DEBUG -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient.wire=ERROR -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient.impl.conn=DEBUG -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient.impl.client=DEBUG -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient.client=DEBUG 
+      #
       # -Dmaven.wagon.httpconnectionManager.ttlSeconds=120 
       # -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient=DEBUG 
       # -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient.wire=ERROR 
@@ -34,7 +36,7 @@ jobs:
     parameters:
       jobName: Vanilla
       #options: -X -B -Dtest.databasePort=1527  # fails
-      options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.ttlSeconds=60 
+      options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.ttlSeconds=60  -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient=DEBUG -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient.wire=ERROR -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient.impl.conn=DEBUG -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient.impl.client=DEBUG -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient.client=DEBUG 
       #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
       #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false -Dmaven.wagon.rto=30000 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
       enableCache: false
@@ -42,7 +44,7 @@ jobs:
     parameters:
       jobName: TwoTotal
       #options: -X -B -Dtest.databasePort=1527  # fails
-      options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxTotal=2 -Dmaven.wagon.httpconnectionManager.ttlSeconds=60 
+      options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxTotal=2 -Dmaven.wagon.httpconnectionManager.ttlSeconds=60  -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient=DEBUG -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient.wire=ERROR -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient.impl.conn=DEBUG -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient.impl.client=DEBUG -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient.client=DEBUG 
       #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
       #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false -Dmaven.wagon.rto=30000 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
       enableCache: false
@@ -52,13 +54,13 @@ jobs:
       #options: -X -B -Dtest.databasePort=1527  # fails
       #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxTotal=3 -Dmaven.wagon.httpconnectionManager.ttlSeconds=60 
       #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
-      options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=60 
+      options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=60  -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient=DEBUG -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient.wire=ERROR -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient.impl.conn=DEBUG -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient.impl.client=DEBUG -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient.client=DEBUG 
       enableCache: false
   - template: build-templates/maven-common.yml@templates
     parameters:
       jobName: OnePerRoute
       #options: -X -B -Dtest.databasePort=1527  # fails
-      options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxPerRoute=1 -Dmaven.wagon.httpconnectionManager.ttlSeconds=60 
+      options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxPerRoute=1 -Dmaven.wagon.httpconnectionManager.ttlSeconds=60  -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient=DEBUG -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient.wire=ERROR -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient.impl.conn=DEBUG -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient.impl.client=DEBUG -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient.client=DEBUG 
       #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
       #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false -Dmaven.wagon.rto=30000 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
       enableCache: false
