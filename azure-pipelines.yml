@@ -38,6 +38,7 @@ jobs:
       vmImage: 'ubuntu-latest'
       options: -X -B -Dtest.databasePort=1526 
       commonOptions: -B
+      timeoutInMinutes: 5
       #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
       #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false -Dmaven.wagon.rto=30000 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
       enableCache: false
@@ -47,6 +48,7 @@ jobs:
       vmImage: 'windows-latest'
       options: -X -B -Dtest.databasePort=1527 
       commonOptions: -B
+      timeoutInMinutes: 5
       #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
       #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false -Dmaven.wagon.rto=30000 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
       enableCache: false
@@ -56,6 +58,7 @@ jobs:
       pool: 'tc_linux_pool'
       options: -X -B -Dtest.databasePort=1527 
       commonOptions: -B
+      timeoutInMinutes: 5
       #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
       #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false -Dmaven.wagon.rto=30000 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
       enableCache: false
@@ -65,6 +68,7 @@ jobs:
       pool: 'tc_windows_pool'
       options: -X -B -Dtest.databasePort=1527 
       commonOptions: -B
+      timeoutInMinutes: 5
       #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
       #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false -Dmaven.wagon.rto=30000 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
       enableCache: false
