@@ -23,8 +23,52 @@ resources:
       type: git
       name: terracotta/terracotta
 
+      # -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient=DEBUG -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient.wire=ERROR -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient.impl.conn=DEBUG -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient.impl.client=DEBUG -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient.client=DEBUG 
+      #
+      # -Dmaven.wagon.httpconnectionManager.ttlSeconds=120 
+      # -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient=DEBUG 
+      # -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient.wire=ERROR 
+      # -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient.impl.conn=DEBUG 
+      # -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient.impl.client=DEBUG 
+      # -Dorg.slf4j.simpleLogger.log.org.apache.maven.wagon.providers.http.httpclient.client=DEBUG 
 jobs:
   - template: build-templates/maven-common.yml@templates
     parameters:
-      jdkVersion: '1.8'
-      options: '-Dtest.databasePort=1527'
+      jobName: AzureLinux
+      vmImage: 'ubuntu-latest'
+      options: -X -B -Dtest.databasePort=1526 
+      commonOptions: -B
+      timeoutInMinutes: 5
+      #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
+      #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false -Dmaven.wagon.rto=30000 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
+      enableCache: false
+  - template: build-templates/maven-common.yml@templates
+    parameters:
+      jobName: AzureWindows
+      vmImage: 'windows-latest'
+      options: -X -B -Dtest.databasePort=1527 
+      commonOptions: -B
+      timeoutInMinutes: 5
+      #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
+      #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false -Dmaven.wagon.rto=30000 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
+      enableCache: false
+  - template: build-templates/maven-common.yml@templates
+    parameters:
+      jobName: TCLinux
+      pool: 'tc_linux_pool'
+      options: -X -B -Dtest.databasePort=1527 
+      commonOptions: -B
+      timeoutInMinutes: 5
+      #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
+      #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false -Dmaven.wagon.rto=30000 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
+      enableCache: false
+  - template: build-templates/maven-common.yml@templates
+    parameters:
+      jobName: TCWindows
+      pool: 'tc_windows_pool'
+      options: -X -B -Dtest.databasePort=1527 
+      commonOptions: -B
+      timeoutInMinutes: 5
+      #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
+      #options: -X -B -Dtest.databasePort=1527 -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false -Dmaven.wagon.rto=30000 -Dmaven.wagon.httpconnectionManager.maxTotal=1 # works
+      enableCache: false
