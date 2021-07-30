@@ -19,3 +19,4 @@ image::https://dev.azure.com/TerracottaCI/quartz/_apis/build/status/quartz-sched
 * <<docs/configuration.adoc#>>
 * <<docs/contribute.adoc#>>
 * <<docs/build.adoc#>>
+
