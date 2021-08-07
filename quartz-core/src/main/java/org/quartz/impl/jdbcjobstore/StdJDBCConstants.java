@@ -396,6 +396,8 @@ public interface StdJDBCConstants extends Constants {
             + COL_SCHEDULER_NAME + " = " + SCHED_NAME_SUBST
             + " AND " + COL_TRIGGER_NAME + " = ? AND " + COL_TRIGGER_GROUP + " = ?";
 
+    String SELECT_TRIGGER_IN_STATE = SELECT_TRIGGER + " AND " + COL_TRIGGER_STATE + " = ?";
+
     String SELECT_TRIGGER_DATA = "SELECT " + 
             COL_JOB_DATAMAP + " FROM "
             + TABLE_PREFIX_SUBST + TABLE_TRIGGERS + " WHERE "

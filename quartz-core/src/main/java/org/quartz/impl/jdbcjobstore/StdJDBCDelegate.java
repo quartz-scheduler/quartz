@@ -1741,23 +1741,48 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
      * <p>
      * Select a trigger.
      * </p>
-     * 
+     *
      * @param conn
      *          the DB Connection
      * @return the <code>{@link org.quartz.Trigger}</code> object
-     * @throws JobPersistenceException 
+     * @throws JobPersistenceException
      */
     public OperableTrigger selectTrigger(Connection conn, TriggerKey triggerKey) throws SQLException, ClassNotFoundException,
             IOException, JobPersistenceException {
+
+        return selectTriggerInState(conn, triggerKey, null);
+    }
+
+    /**
+     * <p>
+     * Select a trigger in a given state.
+     * </p>
+     * 
+     * @param conn
+     *          the DB Connection
+     * @param state
+     *          the state the trigger must be in or null if state does not matter
+     * @return the <code>{@link org.quartz.Trigger}</code> object
+     * @throws JobPersistenceException 
+     */
+    public OperableTrigger selectTriggerInState(Connection conn, TriggerKey triggerKey, String state) throws SQLException,
+            ClassNotFoundException, IOException, JobPersistenceException {
         PreparedStatement ps = null;
         ResultSet rs = null;
 
         try {
             OperableTrigger trigger = null;
 
-            ps = conn.prepareStatement(rtp(SELECT_TRIGGER));
-            ps.setString(1, triggerKey.getName());
-            ps.setString(2, triggerKey.getGroup());
+            if (state == null) {
+                ps = conn.prepareStatement(rtp(SELECT_TRIGGER));
+                ps.setString(1, triggerKey.getName());
+                ps.setString(2, triggerKey.getGroup());
+            } else {
+                ps = conn.prepareStatement(rtp(SELECT_TRIGGER_IN_STATE));
+                ps.setString(1, triggerKey.getName());
+                ps.setString(2, triggerKey.getGroup());
+                ps.setString(3, state);
+            }
             rs = ps.executeQuery();
 
             if (rs.next()) {

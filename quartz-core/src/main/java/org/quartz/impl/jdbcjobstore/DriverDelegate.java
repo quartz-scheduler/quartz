@@ -640,6 +640,7 @@ public interface DriverDelegate {
      */
     List<OperableTrigger> selectTriggersForCalendar(Connection conn, String calName)
         throws SQLException, ClassNotFoundException, IOException, JobPersistenceException;
+
     /**
      * <p>
      * Select a trigger.
@@ -653,6 +654,22 @@ public interface DriverDelegate {
      */
     OperableTrigger selectTrigger(Connection conn, TriggerKey triggerKey) throws SQLException, ClassNotFoundException,
         IOException, JobPersistenceException;
+
+    /**
+     * <p>
+     * Select a trigger in a given state.
+     * </p>
+     *
+     * @param conn
+     *          the DB Connection
+     * @param state
+     *          the state the trigger must be in or null if state does not matter
+     *
+     * @return the <code>{@link org.quartz.Trigger}</code> object
+     * @throws JobPersistenceException
+     */
+    OperableTrigger selectTriggerInState(Connection conn, TriggerKey triggerKey, String state) throws SQLException,
+            ClassNotFoundException, IOException, JobPersistenceException;
 
     /**
      * <p>

@@ -2850,8 +2850,13 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                 long batchEnd = noLaterThan;
 
                 for(TriggerKey triggerKey: keys) {
-                    // If our trigger is no longer available, try a new one.
-                    OperableTrigger nextTrigger = retrieveTrigger(conn, triggerKey);
+                    // If our trigger is no longer available or no longer waiting, try a new one.
+                    OperableTrigger nextTrigger;
+                    try {
+                        nextTrigger = getDelegate().selectTriggerInState(conn, triggerKey, STATE_WAITING);
+                    } catch (Exception e) {
+                        throw new JobPersistenceException("Couldn't retrieve next trigger: " + e.getMessage(), e);
+                    }
                     if(nextTrigger == null) {
                         continue; // next trigger
                     }
