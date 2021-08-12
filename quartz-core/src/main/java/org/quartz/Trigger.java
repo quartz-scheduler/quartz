@@ -29,7 +29,7 @@ import java.util.Date;
  * use {@link TriggerBuilder} to instantiate an actual Trigger.
  * 
  * <p>
- * <code>Triggers</code>s have a {@link TriggerKey} associated with them, which
+ * <code>Trigger</code>s have a {@link TriggerKey} associated with them, which
  * should uniquely identify them within a single <code>{@link Scheduler}</code>.
  * </p>
  * 
