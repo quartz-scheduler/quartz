@@ -85,7 +85,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.9</version>
+        <version>3.3.0</version>
         <configuration>
           <skip>${skipJavadoc}</skip>
           <quiet>true</quiet>
