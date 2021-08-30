@@ -95,14 +95,14 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.9</version>
+        <version>3.3.0</version>
         <configuration>
           <skip>${skipJavadoc}</skip>
           <quiet>true</quiet>
           <doctitle>Quartz Enterprise Job Scheduler ${project.version} API</doctitle>
           <windowtitle>Quartz Enterprise Job Scheduler ${project.version} API</windowtitle>
           <bottom>Copyright 2001-{currentYear}, Terracotta, Inc.</bottom>
-          <includeDependencySources>true</includeDependencySources>      
+          <includeDependencySources>false</includeDependencySources>
           <dependencySourceIncludes>
             <dependencySourceInclude>org.quartz-scheduler.internal:*</dependencySourceInclude>
             <dependencySourceInclude>org.quartz-scheduler:quartz-jobs</dependencySourceInclude>
