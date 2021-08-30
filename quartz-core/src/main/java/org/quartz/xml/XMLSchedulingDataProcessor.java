@@ -202,7 +202,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
               return XMLConstants.NULL_NS_URI;
           }
         
-          public Iterator<?> getPrefixes(String namespaceURI)
+          public Iterator<String> getPrefixes(String namespaceURI)
           {
               // This method isn't necessary for XPath processing.
               throw new UnsupportedOperationException();

@@ -73,6 +73,11 @@
       <version>2.7</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.glassfish.corba</groupId>
+      <artifactId>rmic</artifactId>
+      <version>4.2.4</version>
+    </dependency>
   </dependencies>
   
   <build>
