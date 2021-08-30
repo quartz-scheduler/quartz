@@ -37,6 +37,22 @@
       <version>${slf4j.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>javax.xml.bind</groupId>
+      <artifactId>jaxb-api</artifactId>
+      <version>2.3.1</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Runtime, com.sun.xml.bind module -->
+    <!-- 
+    <dependency>
+      <groupId>org.glassfish.jaxb</groupId>
+      <artifactId>jaxb-runtime</artifactId>
+      <version>2.3.5</version>
+    </dependency>
+	-->
+
     <!-- provided scope -->
     <dependency>
       <groupId>org.apache.openejb</groupId>
@@ -139,9 +155,10 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.10</version>
+        <version>2.22.2</version>
         <configuration>
-          <forkMode>always</forkMode>
+          <forkCount>1</forkCount>
+          <reuseForks>false</reuseForks>
           <systemProperties>  
             <property>
               <name>buildDirectory</name>
