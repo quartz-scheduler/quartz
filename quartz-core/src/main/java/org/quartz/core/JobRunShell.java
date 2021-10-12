@@ -204,7 +204,7 @@ public class JobRunShell extends SchedulerListenerSupport implements Runnable {
                 } catch (JobExecutionException jee) {
                     endTime = System.currentTimeMillis();
                     jobExEx = jee;
-                    getLog().info("Job " + jobDetail.getKey() +
+                    getLog().warn("Job " + jobDetail.getKey() +
                             " threw a JobExecutionException: ", jobExEx);
                 } catch (Throwable e) {
                     endTime = System.currentTimeMillis();
