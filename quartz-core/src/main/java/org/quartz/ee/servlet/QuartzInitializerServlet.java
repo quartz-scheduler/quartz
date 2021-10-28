@@ -161,7 +161,7 @@ public class QuartzInitializerServlet extends HttpServlet {
      */
 
     @Override
-    public void init(ServletConfig cfg) throws javax.servlet.ServletException {
+    public void init(ServletConfig cfg) throws ServletException {
         super.init(cfg);
 
         log("Quartz Initializer Servlet loaded, initializing Scheduler...");
