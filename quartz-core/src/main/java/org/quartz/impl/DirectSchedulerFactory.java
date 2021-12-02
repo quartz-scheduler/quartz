@@ -412,7 +412,7 @@ public class DirectSchedulerFactory implements SchedulerFactory {
             boolean jmxExport, String jmxObjectName)
         throws SchedulerException {
         createScheduler(schedulerName, schedulerInstanceId, threadPool,
-                DEFAULT_THREAD_EXECUTOR, jobStore, schedulerPluginMap,
+                threadExecutor, jobStore, schedulerPluginMap,
                 rmiRegistryHost, rmiRegistryPort, idleWaitTime,
                 dbFailureRetryInterval, jmxExport, jmxObjectName, DEFAULT_BATCH_MAX_SIZE, DEFAULT_BATCH_TIME_WINDOW);
     }
