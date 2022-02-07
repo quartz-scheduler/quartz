@@ -37,7 +37,11 @@ import org.terracotta.toolkit.builder.ToolkitStoreConfigBuilder;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.store.ToolkitConfigFields;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.refEq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.terracotta.upgradability.interaction.MockToolkitFactoryService.allowNonPersistentInteractions;
 import static org.terracotta.upgradability.interaction.MockToolkitFactoryService.mockToolkitFor;
 
@@ -72,16 +76,16 @@ public class BasicUpgradabilityTest {
 
     verify(mock).getStore(eq("_tc_quartz_jobs|DefaultQuartzScheduler"),
             refEq(new ToolkitStoreConfigBuilder().consistency(ToolkitConfigFields.Consistency.STRONG).concurrency(1).build()),
-            isNull(Class.class));
+            isNull());
     verify(mock).getStore(eq("_tc_quartz_triggers|DefaultQuartzScheduler"),
             refEq(new ToolkitStoreConfigBuilder().consistency(ToolkitConfigFields.Consistency.STRONG).concurrency(1).build()),
-            isNull(Class.class));
+            isNull());
     verify(mock).getStore(eq("_tc_quartz_fired_trigger|DefaultQuartzScheduler"),
             refEq(new ToolkitStoreConfigBuilder().consistency(ToolkitConfigFields.Consistency.STRONG).concurrency(1).build()),
-            isNull(Class.class));
+            isNull());
     verify(mock).getStore(eq("_tc_quartz_calendar_wrapper|DefaultQuartzScheduler"),
             refEq(new ToolkitStoreConfigBuilder().consistency(ToolkitConfigFields.Consistency.STRONG).concurrency(1).build()),
-            isNull(Class.class));
+            isNull());
     
     verify(mock).getSet("_tc_quartz_grp_names|DefaultQuartzScheduler", String.class);
     verify(mock).getSet("_tc_quartz_grp_paused_names|DefaultQuartzScheduler", String.class);

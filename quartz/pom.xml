@@ -14,7 +14,6 @@
   <description>Enterprise Job Scheduler</description>
 
   <properties>
-    <gmaven-plugin.version>1.4</gmaven-plugin.version>
   </properties>
 
   <dependencies>  
@@ -66,6 +65,14 @@
       <version>0.9.0</version>
       <scope>test</scope>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
+    <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>4.3.1</version>
+        <scope>test</scope>
+    </dependency>
+
   </dependencies>
   
   <build>
@@ -231,8 +238,7 @@
       </plugin> 
       <plugin>
         <groupId>org.codehaus.gmaven</groupId>
-        <artifactId>gmaven-plugin</artifactId>
-        <version>${gmaven-plugin.version}</version>
+        <artifactId>groovy-maven-plugin</artifactId>
         <executions>
           <execution>
             <id>repackage-jar</id>

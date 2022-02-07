@@ -143,26 +143,6 @@
         </executions>
       </plugin>
 
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.22.2</version>
-        <configuration>
-          <forkCount>1</forkCount>
-          <reuseForks>false</reuseForks>
-          <systemProperties>  
-            <property>
-              <name>buildDirectory</name>
-              <value>${project.build.directory}</value>            
-            </property>
-            <property>
-              <!-- skip update check in tests -->
-              <name>org.quartz.scheduler.skipUpdateCheck</name>
-              <value>true</value>
-            </property>
-          </systemProperties>
-        </configuration>      
-      </plugin>
     </plugins>
 
     <pluginManagement>
@@ -203,6 +183,72 @@
         <skipDeploy>true</skipDeploy>
       </properties>
     </profile>
-  </profiles>   
+        <profile>
+            <id>surefire</id>
+            <activation>
+                <jdk>(,17)</jdk>
+            </activation>
+            <build>
+              <plugins>
+                <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-surefire-plugin</artifactId>
+                  <version>2.22.2</version>
+                  <!-- <version>3.0.0-M5</version> -->
+                  <configuration>
+                    <forkCount>1</forkCount>
+                    <reuseForks>false</reuseForks>
+                    <systemProperties>  
+                      <property>
+                        <name>buildDirectory</name>
+                        <value>${project.build.directory}</value>            
+                      </property>
+                      <property>
+                        <!-- skip update check in tests -->
+                        <name>org.quartz.scheduler.skipUpdateCheck</name>
+                        <value>true</value>
+                      </property>
+                    </systemProperties>
+                  </configuration>      
+                </plugin>
+              </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>surefire-java17</id>
+            <activation>
+                <jdk>17</jdk>
+            </activation>
+            <build>
+              <plugins>
+                <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-surefire-plugin</artifactId>
+                  <version>2.22.2</version>
+                  <!-- <version>3.0.0-M5</version> -->
+                  <configuration>
+                    <forkCount>1</forkCount>
+                    <reuseForks>false</reuseForks>
+                    <systemProperties>  
+                      <property>
+                        <name>buildDirectory</name>
+                        <value>${project.build.directory}</value>
+                      </property>
+                      <property>
+                        <!-- skip update check in tests -->
+                        <name>org.quartz.scheduler.skipUpdateCheck</name>
+                        <value>true</value>
+                      </property>
+                    </systemProperties>
+                    <argLine>
+                      --add-opens java.base/java.lang=ALL-UNNAMED
+                      --add-opens java.base/java.lang.reflect=ALL-UNNAMED
+                    </argLine>
+                  </configuration>      
+                </plugin>
+              </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
