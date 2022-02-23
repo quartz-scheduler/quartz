@@ -581,16 +581,28 @@ public interface StdJDBCConstants extends Constants {
             + " AND " + COL_NEXT_FIRE_TIME + " = ? ";
 
     String SELECT_NEXT_TRIGGER_TO_ACQUIRE =
-            "SELECT " + COL_TRIGGER_NAME + ", "
-            + COL_TRIGGER_GROUP + ", "
-            + COL_NEXT_FIRE_TIME + ", "
-            + COL_PRIORITY
-            + " FROM " + TABLE_PREFIX_SUBST + TABLE_TRIGGERS
-            + " WHERE " + COL_SCHEDULER_NAME + " = " + SCHED_NAME_SUBST
-            + " AND " + COL_TRIGGER_STATE + " = ? AND " + COL_NEXT_FIRE_TIME + " <= ? "
-            + "AND ( " + COL_MISFIRE_INSTRUCTION + " = -1 "
-            + " OR ( " + COL_MISFIRE_INSTRUCTION + " <> -1 AND " + COL_NEXT_FIRE_TIME + " >= ?)"
-            + ") "
+            "SELECT " 
+            + "  T." + COL_TRIGGER_NAME + ", "
+            + "  T." + COL_TRIGGER_GROUP + ", "
+            + "  T." + COL_NEXT_FIRE_TIME + ", "
+            + "  T." + COL_PRIORITY + ", "
+            + "  J." + COL_IS_NONCONCURRENT
+            + " FROM " + TABLE_PREFIX_SUBST + TABLE_TRIGGERS + " T "
+            + " INNER JOIN " + TABLE_PREFIX_SUBST + TABLE_JOB_DETAILS + " J ON ( "
+            + "  T." + COL_SCHEDULER_NAME + " = J." + COL_SCHEDULER_NAME 
+            + "  AND T." + COL_JOB_NAME + " = J." + COL_JOB_NAME
+            + "  AND T." + COL_JOB_GROUP + " = J." + COL_JOB_GROUP
+            + " ) "
+            + " WHERE T." + COL_SCHEDULER_NAME + " = " + SCHED_NAME_SUBST
+            + " AND T." + COL_TRIGGER_STATE + " = ? "
+            + " AND T." + COL_NEXT_FIRE_TIME + " <= ? "
+            + " AND ( "
+            + "   T." + COL_MISFIRE_INSTRUCTION + " = -1 "
+            + "   OR ( "
+            + "     T." + COL_MISFIRE_INSTRUCTION + " <> -1 "
+            + "     AND T." + COL_NEXT_FIRE_TIME + " >= ?"
+            + "   ) "
+            + " ) "
             + "ORDER BY "+ COL_NEXT_FIRE_TIME + " ASC, " + COL_PRIORITY + " DESC";
 
     String INSERT_FIRED_TRIGGER =

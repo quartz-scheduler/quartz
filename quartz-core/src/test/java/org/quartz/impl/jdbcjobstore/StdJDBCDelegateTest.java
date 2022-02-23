@@ -153,7 +153,8 @@ public class StdJDBCDelegateTest extends TestCase {
         when(resultSet.next()).thenReturn(true);
         when(resultSet.getString(anyString())).thenReturn("test");
 
-        List<TriggerKey> triggerKeys = jdbcDelegate.selectTriggerToAcquire(conn, Long.MAX_VALUE, Long.MIN_VALUE, 10);
+        List<TriggerToAcquireDTO> triggerKeys = 
+                jdbcDelegate.selectTriggerToAcquire(conn, Long.MAX_VALUE, Long.MIN_VALUE, 10);
 
         assertThat(triggerKeys, iterableWithSize(10));
     }

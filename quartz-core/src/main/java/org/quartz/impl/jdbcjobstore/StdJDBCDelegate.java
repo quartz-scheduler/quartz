@@ -2567,7 +2567,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
      * 
      * @deprecated - This remained for compatibility reason. Use {@link #selectTriggerToAcquire(Connection, long, long, int)} instead. 
      */
-    public List<TriggerKey> selectTriggerToAcquire(Connection conn, long noLaterThan, long noEarlierThan)
+    public List<TriggerToAcquireDTO> selectTriggerToAcquire(Connection conn, long noLaterThan, long noEarlierThan)
             throws SQLException {
         // This old API used to always return 1 trigger.
         return selectTriggerToAcquire(conn, noLaterThan, noEarlierThan, 1);
@@ -2590,11 +2590,11 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
      *          
      * @return A (never null, possibly empty) list of the identifiers (Key objects) of the next triggers to be fired.
      */
-    public List<TriggerKey> selectTriggerToAcquire(Connection conn, long noLaterThan, long noEarlierThan, int maxCount)
+    public List<TriggerToAcquireDTO> selectTriggerToAcquire(Connection conn, long noLaterThan, long noEarlierThan, int maxCount)
         throws SQLException {
         PreparedStatement ps = null;
         ResultSet rs = null;
-        List<TriggerKey> nextTriggers = new LinkedList<TriggerKey>();
+        List<TriggerToAcquireDTO> nextTriggers = new LinkedList<>();
         try {
             ps = conn.prepareStatement(rtp(SELECT_NEXT_TRIGGER_TO_ACQUIRE));
             
@@ -2613,9 +2613,10 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             rs = ps.executeQuery();
             
             while (rs.next() && nextTriggers.size() < maxCount) {
-                nextTriggers.add(triggerKey(
+                nextTriggers.add(new TriggerToAcquireDTO(
                         rs.getString(COL_TRIGGER_NAME),
-                        rs.getString(COL_TRIGGER_GROUP)));
+                        rs.getString(COL_TRIGGER_GROUP),
+                        rs.getBoolean(COL_IS_NONCONCURRENT)));
             }
             
             return nextTriggers;

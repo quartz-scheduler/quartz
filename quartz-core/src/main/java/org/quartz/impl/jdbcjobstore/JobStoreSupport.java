@@ -2841,7 +2841,8 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         do {
             currentLoopCount ++;
             try {
-                List<TriggerKey> keys = getDelegate().selectTriggerToAcquire(conn, noLaterThan + timeWindow, getMisfireTime(), maxCount);
+                List<TriggerToAcquireDTO> keys = 
+                        getDelegate().selectTriggerToAcquire(conn, noLaterThan + timeWindow, getMisfireTime(), maxCount);
                 
                 // No trigger is ready to fire yet.
                 if (keys == null || keys.size() == 0)
@@ -2849,7 +2850,8 @@ public abstract class JobStoreSupport implements JobStore, Constants {
 
                 long batchEnd = noLaterThan;
 
-                for(TriggerKey triggerKey: keys) {
+                for (TriggerToAcquireDTO triggerDto : keys) { 
+                    TriggerKey triggerKey = new TriggerKey(triggerDto.getName(), triggerDto.getGroup());
                     // If our trigger is no longer available, try a new one.
                     OperableTrigger nextTrigger = retrieveTrigger(conn, triggerKey);
                     if(nextTrigger == null) {
@@ -2859,20 +2861,8 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                     // If trigger's job is set as @DisallowConcurrentExecution, and it has already been added to result, then
                     // put it back into the timeTriggers set and continue to search for next trigger.
                     JobKey jobKey = nextTrigger.getJobKey();
-                    JobDetail job;
-                    try {
-                        job = retrieveJob(conn, jobKey);
-                    } catch (JobPersistenceException jpe) {
-                        try {
-                            getLog().error("Error retrieving job, setting trigger state to ERROR.", jpe);
-                            getDelegate().updateTriggerState(conn, triggerKey, STATE_ERROR);
-                        } catch (SQLException sqle) {
-                            getLog().error("Unable to set trigger state to ERROR.", sqle);
-                        }
-                        continue;
-                    }
-                    
-                    if (job.isConcurrentExectionDisallowed()) {
+
+                    if (triggerDto.getConcurrentExecutionDisallowed()) {
                         if (acquiredJobKeysForNoConcurrentExec.contains(jobKey)) {
                             continue; // next trigger
                         } else {

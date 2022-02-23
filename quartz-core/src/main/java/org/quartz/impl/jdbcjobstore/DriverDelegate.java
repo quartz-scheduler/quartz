@@ -943,7 +943,7 @@ public interface DriverDelegate {
      * 
      * @deprecated - This remained for compatibility reason. Use {@link #selectTriggerToAcquire(Connection, long, long, int)} instead. 
      */
-    public List<TriggerKey> selectTriggerToAcquire(Connection conn, long noLaterThan, long noEarlierThan)
+    public List<TriggerToAcquireDTO> selectTriggerToAcquire(Connection conn, long noLaterThan, long noEarlierThan)
         throws SQLException;
     
     /**
@@ -963,7 +963,11 @@ public interface DriverDelegate {
      *          
      * @return A (never null, possibly empty) list of the identifiers (Key objects) of the next triggers to be fired.
      */
-    public List<TriggerKey> selectTriggerToAcquire(Connection conn, long noLaterThan, long noEarlierThan, int maxCount)
+    public List<TriggerToAcquireDTO> selectTriggerToAcquire(
+            Connection conn, 
+            long noLaterThan, 
+            long noEarlierThan, 
+            int maxCount)
         throws SQLException;
 
     /**
