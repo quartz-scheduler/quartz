@@ -72,7 +72,7 @@
     <skipCheckstyle>false</skipCheckstyle>
     <slf4j.version>1.7.7</slf4j.version>
     <c3p0.version>0.9.5.4</c3p0.version>
-    <hikaricp.version>3.2.0</hikaricp.version>
+    <hikaricp.version>3.4.5</hikaricp.version>
     <log4j.version>1.2.17</log4j.version>
     <gmaven-plugin.version>1.4</gmaven-plugin.version>
     <checkstyle-suppressions-file>${user.dir}/checkstyle/src/main/resources/suppressions.xml</checkstyle-suppressions-file>
