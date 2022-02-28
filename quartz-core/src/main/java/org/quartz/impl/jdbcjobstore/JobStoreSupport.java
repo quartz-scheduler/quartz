@@ -2871,17 +2871,6 @@ public abstract class JobStoreSupport implements JobStore, Constants {
 
                     Date nextFireTime = nextTrigger.getNextFireTime();
 
-                    // A trigger should not return NULL on nextFireTime when fetched from DB.
-                    // But for whatever reason if we do have this (BAD trigger implementation or
-                    // data?), we then should log a warning and continue to next trigger.
-                    // User would need to manually fix these triggers from DB as they will not
-                    // able to be clean up by Quartz since we are not returning it to be processed.
-                    if (nextFireTime == null) {
-                        log.warn("Trigger {} returned null on nextFireTime and yet still exists in DB!",
-                            nextTrigger.getKey());
-                        continue;
-                    }
-                    
                     if (nextFireTime.getTime() > batchEnd) {
                       break;
                     }
