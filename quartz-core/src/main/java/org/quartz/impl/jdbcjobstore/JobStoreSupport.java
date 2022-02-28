@@ -2841,19 +2841,18 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         do {
             currentLoopCount ++;
             try {
-                List<TriggerToAcquireDTO> keys = 
+                List<TriggerToAcquireDTO> triggersToAcquire = 
                         getDelegate().selectTriggerToAcquire(conn, noLaterThan + timeWindow, getMisfireTime(), maxCount);
                 
                 // No trigger is ready to fire yet.
-                if (keys == null || keys.size() == 0)
+                if (triggersToAcquire == null || triggersToAcquire.isEmpty())
                     return acquiredTriggers;
 
                 long batchEnd = noLaterThan;
 
-                for (TriggerToAcquireDTO triggerDto : keys) { 
-                    TriggerKey triggerKey = new TriggerKey(triggerDto.getName(), triggerDto.getGroup());
+                for (TriggerToAcquireDTO triggerDto : triggersToAcquire) { 
                     // If our trigger is no longer available, try a new one.
-                    OperableTrigger nextTrigger = retrieveTrigger(conn, triggerKey);
+                    OperableTrigger nextTrigger = triggerDto.getTrigger();
                     if(nextTrigger == null) {
                         continue; // next trigger
                     }
@@ -2888,7 +2887,12 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                     }
                     // We now have a acquired trigger, let's add to return list.
                     // If our trigger was no longer in the expected state, try a new one.
-                    int rowsUpdated = getDelegate().updateTriggerStateFromOtherState(conn, triggerKey, STATE_ACQUIRED, STATE_WAITING);
+                    int rowsUpdated = getDelegate().updateTriggerStateFromOtherState(
+                            conn, 
+                            nextTrigger.getKey(),
+                            STATE_ACQUIRED, 
+                            STATE_WAITING);
+
                     if (rowsUpdated <= 0) {
                         continue; // next trigger
                     }

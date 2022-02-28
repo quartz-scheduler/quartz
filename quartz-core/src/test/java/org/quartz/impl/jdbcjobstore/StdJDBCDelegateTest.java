@@ -151,7 +151,7 @@ public class StdJDBCDelegateTest extends TestCase {
         when(preparedStatement.executeQuery()).thenReturn(resultSet);
 
         when(resultSet.next()).thenReturn(true);
-        when(resultSet.getString(anyString())).thenReturn("test");
+        when(resultSet.getString(anyString())).thenReturn("BLOB");
 
         List<TriggerToAcquireDTO> triggerKeys = 
                 jdbcDelegate.selectTriggerToAcquire(conn, Long.MAX_VALUE, Long.MIN_VALUE, 10);

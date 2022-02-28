@@ -1,26 +1,23 @@
 package org.quartz.impl.jdbcjobstore;
 
+import org.quartz.spi.OperableTrigger;
+
 public class TriggerToAcquireDTO {
 
-    private final String name;
-    private final String group;
+    private final OperableTrigger trigger;
     private final boolean concurrentExecutionDisallowed;
-    
-    public TriggerToAcquireDTO(String name, String group, boolean concurrentExecutionDisallowed) {
-        this.name = name;
-        this.group = group;
+
+    public TriggerToAcquireDTO(OperableTrigger trigger, boolean concurrentExecutionDisallowed) {
+        this.trigger = trigger;
         this.concurrentExecutionDisallowed = concurrentExecutionDisallowed;
     }
-    
-    public String getName() {
-        return name;
+
+    public OperableTrigger getTrigger() {
+        return trigger;
     }
-    
-    public String getGroup() {
-        return group;
-    }
-    
+
     public boolean getConcurrentExecutionDisallowed() {
         return concurrentExecutionDisallowed;
     }
+
 }

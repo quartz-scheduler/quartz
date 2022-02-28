@@ -582,10 +582,7 @@ public interface StdJDBCConstants extends Constants {
 
     String SELECT_NEXT_TRIGGER_TO_ACQUIRE =
             "SELECT " 
-            + "  T." + COL_TRIGGER_NAME + ", "
-            + "  T." + COL_TRIGGER_GROUP + ", "
-            + "  T." + COL_NEXT_FIRE_TIME + ", "
-            + "  T." + COL_PRIORITY + ", "
+            + "  T.*, "
             + "  J." + COL_IS_NONCONCURRENT
             + " FROM " + TABLE_PREFIX_SUBST + TABLE_TRIGGERS + " T "
             + " INNER JOIN " + TABLE_PREFIX_SUBST + TABLE_JOB_DETAILS + " J ON ( "
