@@ -166,6 +166,7 @@ public class QuartzSchedulerThread extends Thread {
     void halt(boolean wait) {
         synchronized (sigLock) {
             halted.set(true);
+            this.interrupt();
 
             if (paused) {
                 sigLock.notifyAll();
@@ -276,6 +277,11 @@ public class QuartzSchedulerThread extends Thread {
                 }
 
                 int availThreadCount = qsRsrcs.getThreadPool().blockForAvailableThreads();
+                synchronized (sigLock) {
+                    if (halted.get()) {
+                        break;
+                    }
+                }
                 if(availThreadCount > 0) { // will always be true, due to semantics of blockForAvailableThreads...
 
                     List<OperableTrigger> triggers;
