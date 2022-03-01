@@ -26,5 +26,16 @@ resources:
 jobs:
   - template: build-templates/maven-common.yml@templates
     parameters:
+      jobName: Java8
       jdkVersion: '1.8'
+      options: '-Dtest.databasePort=1527'
+  - template: build-templates/maven-common.yml@templates
+    parameters:
+      jobName: Java11
+      jdkVersion: '1.11'
+      options: '-Dtest.databasePort=1527'
+  - template: build-templates/maven-common.yml@templates
+    parameters:
+      jobName: Java17
+      jdkVersion: '1.17'
       options: '-Dtest.databasePort=1527'
