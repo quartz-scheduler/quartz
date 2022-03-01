@@ -458,6 +458,63 @@ public class DirectSchedulerFactory implements SchedulerFactory {
             long idleWaitTime, long dbFailureRetryInterval,
             boolean jmxExport, String jmxObjectName, int maxBatchSize, long batchTimeWindow)
         throws SchedulerException {
+
+        createScheduler(schedulerName, schedulerInstanceId,
+                threadPool, threadExecutor,
+                jobStore, schedulerPluginMap,
+                rmiRegistryHost, rmiRegistryPort,
+                idleWaitTime, dbFailureRetryInterval,
+                jmxExport, jmxObjectName,
+                maxBatchSize, batchTimeWindow,
+                false);
+    }
+
+    /**
+     * Creates a scheduler using the specified thread pool, job store, and
+     * plugins, and binds it to RMI.
+     *
+     * @param schedulerName
+     *          The name for the scheduler.
+     * @param schedulerInstanceId
+     *          The instance ID for the scheduler.
+     * @param threadPool
+     *          The thread pool for executing jobs
+     * @param threadExecutor
+     *          The thread executor for executing jobs
+     * @param jobStore
+     *          The type of job store
+     * @param schedulerPluginMap
+     *          Map from a <code>String</code> plugin names to
+     *          <code>{@link org.quartz.spi.SchedulerPlugin}</code>s.  Can use
+     *          "null" if no plugins are required.
+     * @param rmiRegistryHost
+     *          The hostname to register this scheduler with for RMI. Can use
+     *          "null" if no RMI is required.
+     * @param rmiRegistryPort
+     *          The port for RMI. Typically 1099.
+     * @param idleWaitTime
+     *          The idle wait time in milliseconds. You can specify "-1" for
+     *          the default value, which is currently 30000 ms.
+     * @param maxBatchSize
+     *          The maximum batch size of triggers, when acquiring them
+     * @param batchTimeWindow
+     *          The time window for which it is allowed to "pre-acquire" triggers to fire
+     * @param makeSchedThreadDaemon
+     *          Make the SchedulerThread a daemon thread.
+     * @throws SchedulerException
+     *           if initialization failed
+     */
+    public void createScheduler(String schedulerName,
+                                String schedulerInstanceId, ThreadPool threadPool,
+                                ThreadExecutor threadExecutor,
+                                JobStore jobStore, Map<String, SchedulerPlugin> schedulerPluginMap,
+                                String rmiRegistryHost, int rmiRegistryPort,
+                                long idleWaitTime, long dbFailureRetryInterval,
+                                boolean jmxExport, String jmxObjectName,
+                                int maxBatchSize, long batchTimeWindow,
+                                boolean makeSchedThreadDaemon)
+            throws SchedulerException {
+
         // Currently only one run-shell factory is available...
         JobRunShellFactory jrsf = new StdJobRunShellFactory();
 
@@ -470,6 +527,7 @@ public class DirectSchedulerFactory implements SchedulerFactory {
 
         qrs.setName(schedulerName);
         qrs.setInstanceId(schedulerInstanceId);
+        qrs.setMakeSchedulerThreadDaemon(makeSchedThreadDaemon);
         SchedulerDetailsSetter.setDetails(threadPool, schedulerName, schedulerInstanceId);
         qrs.setJobRunShellFactory(jrsf);
         qrs.setThreadPool(threadPool);
