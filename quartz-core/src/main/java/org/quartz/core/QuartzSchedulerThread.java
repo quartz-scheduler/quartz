@@ -166,7 +166,6 @@ public class QuartzSchedulerThread extends Thread {
     void halt(boolean wait) {
         synchronized (sigLock) {
             halted.set(true);
-            this.interrupt();
 
             if (paused) {
                 sigLock.notifyAll();
@@ -174,7 +173,8 @@ public class QuartzSchedulerThread extends Thread {
                 signalSchedulingChange(0);
             }
         }
-        
+        this.interrupt();
+
         if (wait) {
             boolean interrupted = false;
             try {
@@ -334,6 +334,11 @@ public class QuartzSchedulerThread extends Thread {
                                             sigLock.wait(timeUntilTrigger);
                                     } catch (InterruptedException ignore) {
                                     }
+                                }
+                            }
+                            synchronized (sigLock) {
+                                if (halted.get()) {
+                                    break;
                                 }
                             }
                             if(releaseIfScheduleChangedSignificantly(triggers, triggerTime)) {
