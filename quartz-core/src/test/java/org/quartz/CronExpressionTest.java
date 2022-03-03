@@ -477,6 +477,43 @@ public class CronExpressionTest extends SerializationTestSupport {
             assertEquals(e.getMessage(), "'/' must be followed by an integer.");
         }
     }
+
+    public void testGetTimeBefore() throws ParseException {
+        long now = System.currentTimeMillis();
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(now);
+        int year = cal.get(Calendar.YEAR);
+
+        Object[][] tests = {
+            { "* * * * * ? *", 1000L },
+            { "0 * * * * ? *", 60 * 1000L },
+            { "0/15 * * * * ? *", 15 * 1000L },
+            { "0 0 5 * * ? *", 24 * 60 * 60 * 1000L },
+            { "0 0 0 * * ? *", 24 * 60 * 60 * 1000L },
+            { "0/30 1 2 * * ? *", 24 * 60 * 60 * 1000L - 30000L, 30000L },
+            { "* * * * * ? " + (year + 2) },
+            { "* * * * * ? " + (year - 2), 24 * 60 * 60 * 1000L - 30000L, 30000L },
+        };
+        for (Object[] test : tests) {
+            String expression = (String)test[0];
+            long interval1 = test.length > 1 ? (long)test[1] : -1;
+            long interval2 = test.length > 2 ? (long)test[2] : interval1;
+            CronExpression exp = new CronExpression(expression);
+            Date after = exp.getTimeAfter(new Date(now));
+            if (after == null) { // matches only in the past
+                Date before = exp.getTimeBefore(new Date(now));
+                assertNotNull("expression " + expression, before);
+            } else if (interval1 < 0) { // matches only in the future
+                Date before = exp.getTimeBefore(after);
+                assertNull("expression " + expression, before);
+            } else { // matches at fixed intervals
+                Date before = exp.getTimeBefore(after);
+                Date after2 = exp.getTimeAfter(after);
+                assertEquals("expression " + expression, interval1, after.getTime() - before.getTime());
+                assertEquals("expression " + expression, interval2, after2.getTime() - after.getTime());
+            }
+        }
+    }
     
     // execute with version number to generate a new version's serialized form
     public static void main(String[] args) throws Exception {
