@@ -1539,12 +1539,53 @@ public final class CronExpression implements Serializable, Cloneable {
     }
 
     /**
-     * NOT YET IMPLEMENTED: Returns the time before the given time
+     * Returns the time before the given time
      * that the <code>CronExpression</code> matches.
+     *
+     * @param endTime a time for which the previous
+     *        matching time is returned
+     * @return the previous matching time before the given end time,
+     *         or null if there are no previous matching times
      */ 
-    public Date getTimeBefore(Date endTime) { 
-        // FUTURE_TODO: implement QUARTZ-423
-        return null;
+    public Date getTimeBefore(Date endTime) {
+        // the current implementation is not a direct calculation, but rather
+        // uses getTimeAfter with a binary search to find the previous match time
+        long end = endTime.getTime();
+        long min = 0; // the epoch date is the minimum supported by this class
+        long max = end;
+        // check if it's satisfiable at all
+        Date date = new Date(min);
+        Date after = getTimeAfter(date);
+        if (after == null || after.getTime() >= end)
+            return null; // there are no after-times before end
+        // from this point forward min's time-after is always less than end,
+        // and max's time-after is always equal to or greater than end
+        // so we just need to shrink the interval until they meet.
+        // optimization - perform inverse binary search to find a tighter lower bound
+        long interval = 60 * 60 * 1000; // start with a reasonable interval
+        while (interval < max) {
+            date.setTime(max - interval);
+            after = getTimeAfter(date);
+            if (after != null && after.getTime() < max) {
+                min = date.getTime(); // found a closer min
+                break;
+            }
+            interval *= 2;
+        }
+        // perform a regular binary search to find the earliest moment
+        // whose time-after is equal to or greater than the end time -
+        // this moment is the previous match time itself
+        while (max - min > 1000) { // we can stop at 1 second resolution
+            long mid = (min + max) >>> 1;
+            date.setTime(mid);
+            after = getTimeAfter(date);
+            if (after != null && after.getTime() < end)
+                min = mid;
+            else
+                max = mid;
+        }
+        date.setTime(max - max % 1000); // round to second
+        return date;
     }
 
     /**
