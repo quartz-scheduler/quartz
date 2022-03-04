@@ -15,11 +15,13 @@
  */
 package org.quartz.simpl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.sql.SQLException;
 import java.util.Properties;
 
-import junit.framework.TestCase;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.quartz.Scheduler;
 import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.impl.jdbcjobstore.JdbcQuartzTestUtilities;
@@ -27,9 +29,9 @@ import org.quartz.impl.jdbcjobstore.JdbcQuartzTestUtilities;
 /**
  * Unit test for SystemPropertyInstanceIdGenerator.
  */
-public class SystemPropertyInstanceIdGeneratorTest extends TestCase {
+class SystemPropertyInstanceIdGeneratorTest {
 
-  @Override
+  @BeforeEach
   protected void setUp() throws Exception {
     System.setProperty(SystemPropertyInstanceIdGenerator.SYSTEM_PROPERTY,
         "foo");
@@ -37,7 +39,8 @@ public class SystemPropertyInstanceIdGeneratorTest extends TestCase {
     "goo");
   }
 
-  public void testGetInstanceId() throws Exception {
+  @Test
+  void testGetInstanceId() throws Exception {
     SystemPropertyInstanceIdGenerator gen = new SystemPropertyInstanceIdGenerator();
 
     String instId = gen.generateInstanceId();
@@ -45,7 +48,8 @@ public class SystemPropertyInstanceIdGeneratorTest extends TestCase {
     assertEquals("foo", instId);
   }
 
-  public void testGetInstanceIdWithPrepend() throws Exception {
+  @Test
+  void testGetInstanceIdWithPrepend() throws Exception {
     SystemPropertyInstanceIdGenerator gen = new SystemPropertyInstanceIdGenerator();
     gen.setPrepend("1");
 
@@ -54,7 +58,8 @@ public class SystemPropertyInstanceIdGeneratorTest extends TestCase {
     assertEquals("1foo", instId);
   }
 
-  public void testGetInstanceIdWithPostpend() throws Exception {
+  @Test
+  void testGetInstanceIdWithPostpend() throws Exception {
     SystemPropertyInstanceIdGenerator gen = new SystemPropertyInstanceIdGenerator();
     gen.setPostpend("2");
 
@@ -63,7 +68,8 @@ public class SystemPropertyInstanceIdGeneratorTest extends TestCase {
     assertEquals("foo2", instId);
   }
 
-  public void testGetInstanceIdWithPrependAndPostpend() throws Exception {
+  @Test
+  void testGetInstanceIdWithPrependAndPostpend() throws Exception {
     SystemPropertyInstanceIdGenerator gen = new SystemPropertyInstanceIdGenerator();
     gen.setPrepend("1");
     gen.setPostpend("2");
@@ -73,7 +79,8 @@ public class SystemPropertyInstanceIdGeneratorTest extends TestCase {
     assertEquals("1foo2", instId);
   }
 
-  public void testGetInstanceIdFromCustomSystemProperty() throws Exception {
+  @Test
+  void testGetInstanceIdFromCustomSystemProperty() throws Exception {
     SystemPropertyInstanceIdGenerator gen = new SystemPropertyInstanceIdGenerator();
     gen.setSystemPropertyName("blah.blah");
 
@@ -82,7 +89,8 @@ public class SystemPropertyInstanceIdGeneratorTest extends TestCase {
     assertEquals("goo", instId);
   }
 
-  public void testGeneratorThroughSchedulerInstatiation() throws Exception {
+  @Test
+  void testGeneratorThroughSchedulerInstatiation() throws Exception {
     try {
       JdbcQuartzTestUtilities.createDatabase("MeSchedulerDatabase");
     } catch (SQLException e) {

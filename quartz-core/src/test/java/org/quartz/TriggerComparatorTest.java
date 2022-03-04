@@ -15,6 +15,7 @@
  */
 package org.quartz;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.quartz.DateBuilder.futureDate;
 import static org.quartz.DateBuilder.IntervalUnit.MINUTE;
 import static org.quartz.TriggerBuilder.newTrigger;
@@ -23,13 +24,13 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import junit.framework.TestCase;
-
+import org.junit.jupiter.api.Test;
 import org.quartz.spi.OperableTrigger;
 
-public class TriggerComparatorTest extends TestCase {
+class TriggerComparatorTest {
 
-    public void testTriggerSort() {
+    @Test
+    void testTriggerSort() {
         
         // build trigger in expected sort order
         Trigger t1 = newTrigger().withIdentity("a").build();
@@ -59,8 +60,9 @@ public class TriggerComparatorTest extends TestCase {
         assertEquals(t5, ts.get(4));
         assertEquals(t6, ts.get(5));
     }
-    
-    public void testTriggerTimeSort() {
+
+    @Test
+    void testTriggerTimeSort() {
         
         
         // build trigger in expected sort order

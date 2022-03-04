@@ -63,8 +63,8 @@ public class JobSchedulingRejoinTest extends AbstractRejoinTest {
 
       for (int i = 0; i < 100; i++) {
         if (successes.contains(i)) {
-          Assert.assertTrue("Job " + i, scheduler.checkExists(new JobKey("job" + i)));
-          Assert.assertTrue("Trigger " + i, scheduler.checkExists(new TriggerKey("trigger" + i)));
+          Assertions.assertTrue("Job " + i, scheduler.checkExists(new JobKey("job" + i)));
+          Assertions.assertTrue("Trigger " + i, scheduler.checkExists(new TriggerKey("trigger" + i)));
         }
       }
     }

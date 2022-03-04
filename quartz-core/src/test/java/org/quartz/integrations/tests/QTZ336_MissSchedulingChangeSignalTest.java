@@ -17,8 +17,8 @@
 
 package org.quartz.integrations.tests;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import static org.quartz.TriggerBuilder.newTrigger;
@@ -30,7 +30,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobDetail;
@@ -48,11 +48,11 @@ import org.slf4j.LoggerFactory;
 /**
  * Integration test for reproducing QTZ-336 where we don't check for the scheduling change signal.
  */
-public class QTZ336_MissSchedulingChangeSignalTest {
+class QTZ336_MissSchedulingChangeSignalTest {
     private static final Logger LOG = LoggerFactory.getLogger(QTZ336_MissSchedulingChangeSignalTest.class);
 	
     @Test
-    public void simpleScheduleAlwaysFiredUnder20s() throws Exception {
+    void simpleScheduleAlwaysFiredUnder20s() throws Exception {
         Properties properties = new Properties();
         InputStream propertiesIs = getClass().getResourceAsStream("/org/quartz/quartz.properties");
         try {
@@ -99,13 +99,13 @@ public class QTZ336_MissSchedulingChangeSignalTest {
 		
         List<Long> durationBetweenFireTimesInMillis = CollectDuractionBetweenFireTimesJob.getDurations();
         
-        assertFalse("Job was not executed once!", durationBetweenFireTimesInMillis.isEmpty());
+        assertFalse(durationBetweenFireTimesInMillis.isEmpty(), "Job was not executed once!");
         
         // Let's check that every call for around 1 second and not between 23 and 30 seconds
         // which would be the case if the scheduling change signal were not checked
         for (long durationInMillis : durationBetweenFireTimesInMillis) {
-            assertTrue("Missed an execution with one duration being between two fires: " + durationInMillis + " (all: "
-                    + durationBetweenFireTimesInMillis + ")", durationInMillis < 20000);
+            assertTrue(durationInMillis < 20000, "Missed an execution with one duration being between two fires: " + durationInMillis + " (all: "
+                    + durationBetweenFireTimesInMillis + ")");
         }
 	}
 

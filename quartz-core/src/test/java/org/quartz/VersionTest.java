@@ -16,18 +16,23 @@
 package org.quartz;
 
 import java.util.regex.Pattern;
-import java.util.regex.Matcher;
-import junit.framework.TestCase;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.regex.Matcher;
+
+import org.junit.jupiter.api.Test;
 import org.quartz.core.QuartzScheduler;
 
-public class VersionTest extends TestCase {
+class VersionTest {
     @SuppressWarnings("unused")
     private static final String SNAPSHOT_SUFFIX = "-SNAPSHOT";
     @SuppressWarnings("unused")
     private static final String PROTOTYPE_SUFFIX = "-PROTO";
 
-    public void testVersionParsing() {
+    @Test
+    void testVersionParsing() {
         assertNonNegativeInteger(QuartzScheduler.getVersionMajor());
         assertNonNegativeInteger(QuartzScheduler.getVersionMinor());
 

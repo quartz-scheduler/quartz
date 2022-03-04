@@ -15,6 +15,11 @@
  */
 package org.quartz;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.JobKey.jobKey;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
@@ -31,16 +36,9 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.junit.Test;
-
+import org.junit.jupiter.api.Test;
 import org.quartz.Trigger.TriggerState;
 import org.quartz.impl.matchers.GroupMatcher;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Test High Level Scheduler functionality (implicitly tests the underlying jobstore (RAMJobStore))
@@ -93,11 +91,12 @@ public abstract class AbstractSchedulerTest {
         }
     }
     
-    protected abstract Scheduler createScheduler(String name, int threadPoolSize) throws SchedulerException;
+    protected abstract Scheduler createScheduler(String name, int threadPoolSize, float createFailureProb,
+            float preCommitFailureProb, float postCommitFailureProb) throws SchedulerException;
 
     @Test
-    public void testBasicStorageFunctions() throws Exception {
-        Scheduler sched = createScheduler("testBasicStorageFunctions", 2);
+    void testBasicStorageFunctions() throws Exception {
+        Scheduler sched = createScheduler("testBasicStorageFunctions", 2, 0f, 0f, 0f);
 
         // test basic storage functions of scheduler...
         
@@ -107,15 +106,15 @@ public abstract class AbstractSchedulerTest {
             .storeDurably()
             .build();
 
-        assertFalse("Unexpected existence of job named 'j1'.", sched.checkExists(jobKey("j1")));
+        assertFalse(sched.checkExists(jobKey("j1")), "Unexpected existence of job named 'j1'.");
 
         sched.addJob(job, false); 
 
-        assertTrue("Expected existence of job named 'j1' but checkExists return false.", sched.checkExists(jobKey("j1")));
+        assertTrue(sched.checkExists(jobKey("j1")), "Expected existence of job named 'j1' but checkExists return false.");
 
         job = sched.getJobDetail(jobKey("j1"));
 
-        assertNotNull("Stored job not found!", job);
+        assertNotNull(job, "Stored job not found!");
         
         sched.deleteJob(jobKey("j1"));
         
@@ -128,19 +127,19 @@ public abstract class AbstractSchedulerTest {
                     .withIntervalInSeconds(5))
              .build();
 
-        assertFalse("Unexpected existence of trigger named '11'.", sched.checkExists(triggerKey("t1")));
+        assertFalse(sched.checkExists(triggerKey("t1")), "Unexpected existence of trigger named '11'.");
 
         sched.scheduleJob(job, trigger);
         
-        assertTrue("Expected existence of trigger named 't1' but checkExists return false.", sched.checkExists(triggerKey("t1")));
+        assertTrue(sched.checkExists(triggerKey("t1")), "Expected existence of trigger named 't1' but checkExists return false.");
 
         job = sched.getJobDetail(jobKey("j1"));
 
-        assertNotNull("Stored job not found!", job);
+        assertNotNull(job, "Stored job not found!");
         
         trigger = sched.getTrigger(triggerKey("t1"));
 
-        assertNotNull("Stored trigger not found!", trigger);
+        assertNotNull(trigger, "Stored trigger not found!");
 
         job = newJob()
             .ofType(TestJob.class)
@@ -178,35 +177,35 @@ public abstract class AbstractSchedulerTest {
         List<String> jobGroups = sched.getJobGroupNames();
         List<String> triggerGroups = sched.getTriggerGroupNames();
         
-        assertTrue("Job group list size expected to be = 2 ", jobGroups.size() == 2);
-        assertTrue("Trigger group list size expected to be = 2 ", triggerGroups.size() == 2);
+        assertEquals(2, jobGroups.size(), "Job group list size expected to be = 2 ");
+        assertEquals(2, triggerGroups.size(), "Trigger group list size expected to be = 2 ");
         
         Set<JobKey> jobKeys = sched.getJobKeys(GroupMatcher.jobGroupEquals(JobKey.DEFAULT_GROUP));
         Set<TriggerKey> triggerKeys = sched.getTriggerKeys(GroupMatcher.triggerGroupEquals(TriggerKey.DEFAULT_GROUP));
 
-        assertTrue("Number of jobs expected in default group was 1 ", jobKeys.size() == 1);
-        assertTrue("Number of triggers expected in default group was 1 ", triggerKeys.size() == 1);
+        assertTrue(jobKeys.size() == 1, "Number of jobs expected in default group was 1 ");
+        assertTrue(triggerKeys.size() == 1, "Number of triggers expected in default group was 1 ");
 
         jobKeys = sched.getJobKeys(GroupMatcher.jobGroupEquals("g1"));
         triggerKeys = sched.getTriggerKeys(GroupMatcher.triggerGroupEquals("g1"));
 
-        assertTrue("Number of jobs expected in 'g1' group was 2 ", jobKeys.size() == 2);
-        assertTrue("Number of triggers expected in 'g1' group was 2 ", triggerKeys.size() == 2);
+        assertTrue(jobKeys.size() == 2, "Number of jobs expected in 'g1' group was 2 ");
+        assertTrue(triggerKeys.size() == 2, "Number of triggers expected in 'g1' group was 2 ");
 
         
         TriggerState s = sched.getTriggerState(triggerKey("t2", "g1"));
-        assertTrue("State of trigger t2 expected to be NORMAL ", s.equals(TriggerState.NORMAL));
+        assertTrue(s.equals(TriggerState.NORMAL), "State of trigger t2 expected to be NORMAL ");
         
         sched.pauseTrigger(triggerKey("t2", "g1"));
         s = sched.getTriggerState(triggerKey("t2", "g1"));
-        assertTrue("State of trigger t2 expected to be PAUSED ", s.equals(TriggerState.PAUSED));
+        assertTrue(s.equals(TriggerState.PAUSED), "State of trigger t2 expected to be PAUSED ");
 
         sched.resumeTrigger(triggerKey("t2", "g1"));
         s = sched.getTriggerState(triggerKey("t2", "g1"));
-        assertTrue("State of trigger t2 expected to be NORMAL ", s.equals(TriggerState.NORMAL));
+        assertTrue(s.equals(TriggerState.NORMAL), "State of trigger t2 expected to be NORMAL ");
 
         Set<String> pausedGroups = sched.getPausedTriggerGroups();
-        assertTrue("Size of paused trigger groups list expected to be 0 ", pausedGroups.size() == 0);
+        assertEquals(0, pausedGroups.size(), "Size of paused trigger groups list expected to be 0 ");
         
         sched.pauseTriggers(GroupMatcher.triggerGroupEquals("g1"));
         
@@ -228,47 +227,47 @@ public abstract class AbstractSchedulerTest {
         sched.scheduleJob(job, trigger);
 
         pausedGroups = sched.getPausedTriggerGroups();
-        assertTrue("Size of paused trigger groups list expected to be 1 ", pausedGroups.size() == 1);
+        assertEquals(1, pausedGroups.size(), "Size of paused trigger groups list expected to be 1 ");
 
         s = sched.getTriggerState(triggerKey("t2", "g1"));
-        assertTrue("State of trigger t2 expected to be PAUSED ", s.equals(TriggerState.PAUSED));
+        assertTrue(s.equals(TriggerState.PAUSED), "State of trigger t2 expected to be PAUSED ");
 
         s = sched.getTriggerState(triggerKey("t4", "g1"));
-        assertTrue("State of trigger t4 expected to be PAUSED ", s.equals(TriggerState.PAUSED));
+        assertTrue(s.equals(TriggerState.PAUSED), "State of trigger t4 expected to be PAUSED ");
         
         sched.resumeTriggers(GroupMatcher.triggerGroupEquals("g1"));
         s = sched.getTriggerState(triggerKey("t2", "g1"));
-        assertTrue("State of trigger t2 expected to be NORMAL ", s.equals(TriggerState.NORMAL));
+        assertTrue(s.equals(TriggerState.NORMAL), "State of trigger t2 expected to be NORMAL ");
         s = sched.getTriggerState(triggerKey("t4", "g1"));
-        assertTrue("State of trigger t4 expected to be NORMAL ", s.equals(TriggerState.NORMAL));
+        assertTrue(s.equals(TriggerState.NORMAL), "State of trigger t4 expected to be NORMAL ");
         pausedGroups = sched.getPausedTriggerGroups();
-        assertTrue("Size of paused trigger groups list expected to be 0 ", pausedGroups.size() == 0);
+        assertEquals(0, pausedGroups.size(), "Size of paused trigger groups list expected to be 0 ");
 
         
-        assertFalse("Scheduler should have returned 'false' from attempt to unschedule non-existing trigger. ", sched.unscheduleJob(triggerKey("foasldfksajdflk")));
+        assertFalse(sched.unscheduleJob(triggerKey("foasldfksajdflk")), "Scheduler should have returned 'false' from attempt to unschedule non-existing trigger. ");
 
-        assertTrue("Scheduler should have returned 'true' from attempt to unschedule existing trigger. ", sched.unscheduleJob(triggerKey("t3", "g1")));
+        assertTrue(sched.unscheduleJob(triggerKey("t3", "g1")), "Scheduler should have returned 'true' from attempt to unschedule existing trigger. ");
         
         jobKeys = sched.getJobKeys(GroupMatcher.jobGroupEquals("g1"));
         triggerKeys = sched.getTriggerKeys(GroupMatcher.triggerGroupEquals("g1"));
 
-        assertTrue("Number of jobs expected in 'g1' group was 1 ", jobKeys.size() == 2); // job should have been deleted also, because it is non-durable
-        assertTrue("Number of triggers expected in 'g1' group was 1 ", triggerKeys.size() == 2);
+        assertTrue(jobKeys.size() == 2, "Number of jobs expected in 'g1' group was 1 "); // job should have been deleted also, because it is non-durable
+        assertTrue(triggerKeys.size() == 2, "Number of triggers expected in 'g1' group was 1 ");
 
-        assertTrue("Scheduler should have returned 'true' from attempt to unschedule existing trigger. ", sched.unscheduleJob(triggerKey("t1")));
+        assertTrue(sched.unscheduleJob(triggerKey("t1")), "Scheduler should have returned 'true' from attempt to unschedule existing trigger. ");
         
         jobKeys = sched.getJobKeys(GroupMatcher.jobGroupEquals(JobKey.DEFAULT_GROUP));
         triggerKeys = sched.getTriggerKeys(GroupMatcher.triggerGroupEquals(TriggerKey.DEFAULT_GROUP));
 
-        assertTrue("Number of jobs expected in default group was 1 ", jobKeys.size() == 1); // job should have been left in place, because it is non-durable
-        assertTrue("Number of triggers expected in default group was 0 ", triggerKeys.size() == 0);
+        assertTrue(jobKeys.size() == 1, "Number of jobs expected in default group was 1 "); // job should have been left in place, because it is non-durable
+        assertTrue(triggerKeys.size() == 0, "Number of triggers expected in default group was 0 ");
 
         sched.shutdown(true);
     }
 
     @Test
-    public void testDurableStorageFunctions() throws Exception {
-        Scheduler sched = createScheduler("testDurableStorageFunctions", 2);
+    void testDurableStorageFunctions() throws Exception {
+        Scheduler sched = createScheduler("testDurableStorageFunctions", 2, 0f, 0f, 0f);
         try {
             // test basic storage functions of scheduler...
 
@@ -278,11 +277,11 @@ public abstract class AbstractSchedulerTest {
                     .storeDurably()
                     .build();
 
-            assertFalse("Unexpected existence of job named 'j1'.", sched.checkExists(jobKey("j1")));
+            assertFalse(sched.checkExists(jobKey("j1")), "Unexpected existence of job named 'j1'.");
 
             sched.addJob(job, false);
 
-            assertTrue("Unexpected non-existence of job named 'j1'.", sched.checkExists(jobKey("j1")));
+            assertTrue(sched.checkExists(jobKey("j1")), "Unexpected non-existence of job named 'j1'.");
 
             JobDetail nonDurableJob = newJob()
                     .ofType(TestJob.class)
@@ -294,22 +293,22 @@ public abstract class AbstractSchedulerTest {
                 fail("Storage of non-durable job should not have succeeded.");
             }
             catch(SchedulerException expected) {
-                assertFalse("Unexpected existence of job named 'j2'.", sched.checkExists(jobKey("j2")));
+                assertFalse(sched.checkExists(jobKey("j2")), "Unexpected existence of job named 'j2'.");
             }
 
             sched.addJob(nonDurableJob, false, true);
 
-            assertTrue("Unexpected non-existence of job named 'j2'.", sched.checkExists(jobKey("j2")));
+            assertTrue(sched.checkExists(jobKey("j2")), "Unexpected non-existence of job named 'j2'.");
         } finally {
             sched.shutdown(true);
         }
     }
 
     @Test
-    public void testShutdownWithSleepReturnsAfterAllThreadsAreStopped() throws Exception {
+    void testShutdownWithSleepReturnsAfterAllThreadsAreStopped() throws Exception {
       Map<Thread, StackTraceElement[]> allThreadsStart = Thread.getAllStackTraces();
       int threadPoolSize = 5;
-      Scheduler scheduler = createScheduler("testShutdownWithSleepReturnsAfterAllThreadsAreStopped", threadPoolSize);
+      Scheduler scheduler = createScheduler("testShutdownWithSleepReturnsAfterAllThreadsAreStopped", threadPoolSize, 0f, 0f, 0f);
       
       Thread.sleep(500L);
       
@@ -348,16 +347,16 @@ public abstract class AbstractSchedulerTest {
           System.out.println("- Test runtime thread: " + t.getName() + " (of type " + t.getClass().getName() +")  in group: " + (t.getThreadGroup() == null ? "-none-" : (t.getThreadGroup().getName() + " with parent group: " + (t.getThreadGroup().getParent() == null ? "-none-" : t.getThreadGroup().getParent().getName()))));
         }          
       }
-      assertTrue( "Found unexpected new threads (see console output for listing)", allThreadsEnd.size() == 0  );
+      assertEquals(0, allThreadsEnd.size(), "Found unexpected new threads (see console output for listing)");
     }
     
     @Test
-    public void testAbilityToFireImmediatelyWhenStartedBefore() throws Exception {
+    void testAbilityToFireImmediatelyWhenStartedBefore() throws Exception {
     	
 		List<Long> jobExecTimestamps = Collections.synchronizedList(new ArrayList<Long>());
 		CyclicBarrier barrier = new CyclicBarrier(2);
     	
-        Scheduler sched = createScheduler("testAbilityToFireImmediatelyWhenStartedBefore", 5);
+        Scheduler sched = createScheduler("testAbilityToFireImmediatelyWhenStartedBefore", 5, 0f, 0f, 0f);
         sched.getContext().put(BARRIER, barrier);
         sched.getContext().put(DATE_STAMPS, jobExecTimestamps);
         sched.start();
@@ -377,16 +376,16 @@ public abstract class AbstractSchedulerTest {
 
 		long fTime = jobExecTimestamps.get(0);
 		
-		assertTrue("Immediate trigger did not fire within a reasonable amount of time.", (fTime - sTime  < 7000L));  // This is dangerously subjective!  but what else to do?
+		assertTrue((fTime - sTime  < 7000L), "Immediate trigger did not fire within a reasonable amount of time.");  // This is dangerously subjective!  but what else to do?
     }
     
     @Test
-    public void testAbilityToFireImmediatelyWhenStartedBeforeWithTriggerJob() throws Exception {
+    void testAbilityToFireImmediatelyWhenStartedBeforeWithTriggerJob() throws Exception {
     	
 		List<Long> jobExecTimestamps = Collections.synchronizedList(new ArrayList<Long>());
 		CyclicBarrier barrier = new CyclicBarrier(2);
     	
-        Scheduler sched = createScheduler("testAbilityToFireImmediatelyWhenStartedBeforeWithTriggerJob", 5);
+        Scheduler sched = createScheduler("testAbilityToFireImmediatelyWhenStartedBeforeWithTriggerJob", 5, 0f, 0f, 0f);
         sched.getContext().put(BARRIER, barrier);
         sched.getContext().put(DATE_STAMPS, jobExecTimestamps);
 
@@ -407,16 +406,16 @@ public abstract class AbstractSchedulerTest {
 
 		long fTime = jobExecTimestamps.get(0);
 		
-		assertTrue("Immediate trigger did not fire within a reasonable amount of time.", (fTime - sTime  < 7000L));  // This is dangerously subjective!  but what else to do?
+		assertTrue((fTime - sTime  < 7000L), "Immediate trigger did not fire within a reasonable amount of time.");  // This is dangerously subjective!  but what else to do?
     }
     
     @Test
-    public void testAbilityToFireImmediatelyWhenStartedAfter() throws Exception {
+    void testAbilityToFireImmediatelyWhenStartedAfter() throws Exception {
     	
 		List<Long> jobExecTimestamps = Collections.synchronizedList(new ArrayList<Long>());
 		CyclicBarrier barrier = new CyclicBarrier(2);
     	
-        Scheduler sched = createScheduler("testAbilityToFireImmediatelyWhenStartedAfter", 5);
+        Scheduler sched = createScheduler("testAbilityToFireImmediatelyWhenStartedAfter", 5, 0f, 0f, 0f);
         sched.getContext().put(BARRIER, barrier);
         sched.getContext().put(DATE_STAMPS, jobExecTimestamps);
         
@@ -434,11 +433,11 @@ public abstract class AbstractSchedulerTest {
 
 		long fTime = jobExecTimestamps.get(0);
 		
-		assertTrue("Immediate trigger did not fire within a reasonable amount of time.", (fTime - sTime  < 7000L));  // This is dangerously subjective!  but what else to do?
+		assertTrue((fTime - sTime  < 7000L), "Immediate trigger did not fire within a reasonable amount of time.");  // This is dangerously subjective!  but what else to do?
     }
     
     @Test
-	public void testScheduleMultipleTriggersForAJob() throws SchedulerException {
+	void testScheduleMultipleTriggersForAJob() throws SchedulerException {
 
 		
 		JobDetail job = newJob(TestJob.class).withIdentity("job1", "group1").build();
@@ -460,7 +459,7 @@ public abstract class AbstractSchedulerTest {
 		triggersForJob.add(trigger1);
 		triggersForJob.add(trigger2);
 		
-		Scheduler sched = createScheduler("testScheduleMultipleTriggersForAJob", 5);
+		Scheduler sched = createScheduler("testScheduleMultipleTriggersForAJob", 5, 0f, 0f, 0f);
 		sched.scheduleJob(job,triggersForJob, true);
 		
 		List<? extends Trigger> triggersOfJob = sched.getTriggersOfJob(job.getKey());
@@ -472,9 +471,9 @@ public abstract class AbstractSchedulerTest {
 	}
     
     @Test
-    public void testShutdownWithoutWaitIsUnclean() throws Exception {
+    void testShutdownWithoutWaitIsUnclean() throws Exception {
         CyclicBarrier barrier = new CyclicBarrier(2);
-        Scheduler scheduler = createScheduler("testShutdownWithoutWaitIsUnclean", 8);
+        Scheduler scheduler = createScheduler("testShutdownWithoutWaitIsUnclean", 8, 0f, 0f, 0f);
         try {
             scheduler.getContext().put(BARRIER, barrier);
             scheduler.start();
@@ -509,11 +508,11 @@ public abstract class AbstractSchedulerTest {
     }
 
     @Test
-    public void testShutdownWithWaitIsClean() throws Exception {
+    void testShutdownWithWaitIsClean() throws Exception {
         final AtomicBoolean shutdown = new AtomicBoolean(false);
         List<Long> jobExecTimestamps = Collections.synchronizedList(new ArrayList<Long>());
         CyclicBarrier barrier = new CyclicBarrier(2);
-        final Scheduler scheduler = createScheduler("testShutdownWithWaitIsClean", 8);
+        final Scheduler scheduler = createScheduler("testShutdownWithWaitIsClean", 8, 0f, 0f, 0f);
         try {
             scheduler.getContext().put(BARRIER, barrier);
             scheduler.getContext().put(DATE_STAMPS, jobExecTimestamps);

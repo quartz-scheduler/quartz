@@ -15,9 +15,9 @@
  */
 package org.quartz.impl;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 
@@ -28,10 +28,10 @@ import org.quartz.SchedulerException;
  *
  */
 
-public class StdSchedulerFactoryCustomConnectionProviderTest {
+class StdSchedulerFactoryCustomConnectionProviderTest {
 
 	@Test
-	public void loadAndInitializeCustomConnectionProviderTest() throws SchedulerException, InterruptedException {
+	void loadAndInitializeCustomConnectionProviderTest() throws SchedulerException, InterruptedException {
 		StdSchedulerFactory factory = new StdSchedulerFactory("org/quartz/properties/quartzCustomConnectionProvider.properties");
 		Scheduler scheduler = factory.getScheduler();
 		try{

@@ -25,8 +25,8 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.quartz.JobBuilder;
 import org.quartz.JobExecutionContext;
 import org.quartz.Scheduler;
@@ -45,7 +45,7 @@ import org.quartz.spi.JobStore;
  *
  * @author cdennis
  */
-public class QTZ385Test {
+class QTZ385Test {
   
   private static final Method TRIGGERS_FIRED;
   static {
@@ -57,7 +57,7 @@ public class QTZ385Test {
   }
 
   @Test
-  public void testShutdownOrdering() throws SchedulerException, SQLException, InterruptedException, BrokenBarrierException {
+  void testShutdownOrdering() throws SchedulerException, SQLException, InterruptedException, BrokenBarrierException {
     JdbcQuartzTestUtilities.createDatabase("testShutdownOrdering");
     try {
       final CyclicBarrier barrier = new CyclicBarrier(2);
@@ -123,7 +123,7 @@ public class QTZ385Test {
         });
         recovery.start();
         Thread.sleep(1000);
-        Assert.assertFalse(recoveredJob.get());
+        Assertions.assertFalse(recoveredJob.get());
       } finally {
         recovery.shutdown(true);
       }

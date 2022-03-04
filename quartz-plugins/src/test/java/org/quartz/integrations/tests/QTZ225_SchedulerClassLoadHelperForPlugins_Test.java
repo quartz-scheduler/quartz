@@ -15,11 +15,10 @@
  */
 package org.quartz.integrations.tests;
 
-import static org.junit.Assert.fail;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -44,12 +43,12 @@ import org.slf4j.LoggerFactory;
  * @author adahanne
  * 
  */
-public class QTZ225_SchedulerClassLoadHelperForPlugins_Test {
+class QTZ225_SchedulerClassLoadHelperForPlugins_Test {
 
     private Scheduler sched;
     Logger log = LoggerFactory.getLogger(QTZ225_SchedulerClassLoadHelperForPlugins_Test.class);
 
-    @Before
+    @BeforeEach
     public void setUp() throws SchedulerException {
 
         // First we must get a reference to a scheduler
@@ -67,13 +66,13 @@ public class QTZ225_SchedulerClassLoadHelperForPlugins_Test {
     }
 
     @Test
-    public void dummyClassLoadHelperSuccessfullyLoadedImagninaryJobClassTest() throws SchedulerException {
+    void dummyClassLoadHelperSuccessfullyLoadedImagninaryJobClassTest() throws SchedulerException {
         if (!sched.checkExists(new JobKey("ImaginaryJob"))) {
-            fail("The dummy job was not added to the scheduler, certainly because the dummy classloadhelper was not used by the plugin");
+            Assertions.fail("The dummy job was not added to the scheduler, certainly because the dummy classloadhelper was not used by the plugin");
         }
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws SchedulerException {
         log.info("------- Shutting down Scheduler ----------------");
         sched.shutdown();

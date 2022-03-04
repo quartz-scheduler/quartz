@@ -1,8 +1,8 @@
 package org.quartz.jobs;
 
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
 
+import org.hamcrest.MatcherAssert;
 import org.subethamail.smtp.auth.LoginFailedException;
 import org.subethamail.smtp.auth.UsernamePasswordValidator;
 
@@ -15,8 +15,8 @@ class SimpleValidator implements UsernamePasswordValidator {
         System.out.println("UsernamePasswordValidator: login username '"
                 + username + "' password '" + password + "'");
         try {
-            assertThat(username, equalTo("realusername"));
-            assertThat(password, equalTo("realpassword"));
+            MatcherAssert.assertThat(username, equalTo("realusername"));
+            MatcherAssert.assertThat(password, equalTo("realpassword"));
         } catch (Throwable e) {
             error = new LoginFailedException(e.getMessage());
             throw error;

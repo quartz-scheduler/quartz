@@ -15,24 +15,28 @@
  */
 package org.quartz.utils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.quartz.utils.DirtyFlagMap;
+import org.junit.jupiter.api.Test;
 
-import junit.framework.TestCase;
 
 /**
  * Unit test for DirtyFlagMap.  These tests focus on making
  * sure the isDirty flag is set correctly.
  */
-public class DirtyFlagMapTest extends TestCase {
+class DirtyFlagMapTest {
 
-    public void testClear() {
-        DirtyFlagMap<String, String> dirtyFlagMap = new DirtyFlagMap<String, String>();
+    @Test
+    void testClear() {
+        DirtyFlagMap<String, String> dirtyFlagMap = new DirtyFlagMap<>();
         assertFalse(dirtyFlagMap.isDirty());
         
         dirtyFlagMap.clear();
@@ -43,14 +47,16 @@ public class DirtyFlagMapTest extends TestCase {
         assertTrue(dirtyFlagMap.isDirty());
     }
     
-    public void testPut() {
-        DirtyFlagMap<String, String> dirtyFlagMap = new DirtyFlagMap<String, String>();
+    @Test
+    void testPut() {
+        DirtyFlagMap<String, String> dirtyFlagMap = new DirtyFlagMap<>();
         dirtyFlagMap.put("a", "Y");
         assertTrue(dirtyFlagMap.isDirty());
     }
     
-    public void testRemove() {
-        DirtyFlagMap<String, String> dirtyFlagMap = new DirtyFlagMap<String, String>();
+    @Test
+    void testRemove() {
+        DirtyFlagMap<String, String> dirtyFlagMap = new DirtyFlagMap<>();
         dirtyFlagMap.put("a", "Y");
         dirtyFlagMap.clearDirtyFlag();
         
@@ -60,9 +66,10 @@ public class DirtyFlagMapTest extends TestCase {
         dirtyFlagMap.remove("a");
         assertTrue(dirtyFlagMap.isDirty());
     }
-    
-    public void testEntrySetRemove() {
-        DirtyFlagMap<String, String> dirtyFlagMap = new DirtyFlagMap<String, String>();
+
+    @Test
+    void testEntrySetRemove() {
+        DirtyFlagMap<String, String> dirtyFlagMap = new DirtyFlagMap<>();
         Set<Map.Entry<String, String>> entrySet = dirtyFlagMap.entrySet();
         dirtyFlagMap.remove("a");
         assertFalse(dirtyFlagMap.isDirty());
@@ -74,8 +81,9 @@ public class DirtyFlagMapTest extends TestCase {
         assertTrue(dirtyFlagMap.isDirty());
     }
 
-    public void testEntrySetRetainAll() {
-        DirtyFlagMap<String, String> dirtyFlagMap = new DirtyFlagMap<String, String>();
+    @Test
+    void testEntrySetRetainAll() {
+        DirtyFlagMap<String, String> dirtyFlagMap = new DirtyFlagMap<>();
         Set<Map.Entry<String, String>> entrySet = dirtyFlagMap.entrySet();
         entrySet.retainAll(Collections.EMPTY_LIST);
         assertFalse(dirtyFlagMap.isDirty());
@@ -86,9 +94,10 @@ public class DirtyFlagMapTest extends TestCase {
         entrySet.retainAll(Collections.EMPTY_LIST);
         assertTrue(dirtyFlagMap.isDirty());
     }
-    
-    public void testEntrySetRemoveAll() {
-        DirtyFlagMap<String, String> dirtyFlagMap = new DirtyFlagMap<String, String>();
+
+    @Test
+    void testEntrySetRemoveAll() {
+        DirtyFlagMap<String, String> dirtyFlagMap = new DirtyFlagMap<>();
         Set<Map.Entry<String, String>> entrySet = dirtyFlagMap.entrySet();
         entrySet.removeAll(Collections.EMPTY_LIST);
         assertFalse(dirtyFlagMap.isDirty());
@@ -99,9 +108,10 @@ public class DirtyFlagMapTest extends TestCase {
         entrySet.removeAll(Collections.singletonList(entrySet.iterator().next()));
         assertTrue(dirtyFlagMap.isDirty());
     }
-    
-    public void testEntrySetClear() {
-        DirtyFlagMap<String, String> dirtyFlagMap = new DirtyFlagMap<String, String>();
+
+    @Test
+    void testEntrySetClear() {
+        DirtyFlagMap<String, String> dirtyFlagMap = new DirtyFlagMap<>();
         Set<Map.Entry<String, String>> entrySet = dirtyFlagMap.entrySet();
         entrySet.clear();
         assertFalse(dirtyFlagMap.isDirty());
@@ -111,8 +121,9 @@ public class DirtyFlagMapTest extends TestCase {
         assertTrue(dirtyFlagMap.isDirty());
     }        
 
+    @Test
     @SuppressWarnings("unchecked")
-    public void testEntrySetIterator() {
+    void testEntrySetIterator() {
         DirtyFlagMap<String, String> dirtyFlagMap = new DirtyFlagMap<String, String>();
         Set<Map.Entry<String, String>> entrySet = dirtyFlagMap.entrySet();
         dirtyFlagMap.put("a", "A");
@@ -133,8 +144,9 @@ public class DirtyFlagMapTest extends TestCase {
         assertTrue(dirtyFlagMap.containsValue("BB"));
     }
 
+    @Test
     @SuppressWarnings("unchecked")
-    public void testEntrySetToArray() {
+    void testEntrySetToArray() {
         DirtyFlagMap<String, String> dirtyFlagMap = new DirtyFlagMap<String, String>();
         Set<Map.Entry<String, String>> entrySet = dirtyFlagMap.entrySet();
         dirtyFlagMap.put("a", "A");
@@ -149,8 +161,9 @@ public class DirtyFlagMapTest extends TestCase {
         assertTrue(dirtyFlagMap.containsValue("BB"));
     }
 
+    @Test
     @SuppressWarnings("unchecked")
-    public void testEntrySetToArrayWithArg() {
+    void testEntrySetToArrayWithArg() {
         DirtyFlagMap<String, String> dirtyFlagMap = new DirtyFlagMap<String, String>();
         Set<Map.Entry<String, String>> entrySet = dirtyFlagMap.entrySet();
         dirtyFlagMap.put("a", "A");
@@ -164,9 +177,10 @@ public class DirtyFlagMapTest extends TestCase {
         assertTrue(dirtyFlagMap.isDirty());
         assertTrue(dirtyFlagMap.containsValue("BB"));
     }
-    
-    public void testKeySetClear() {
-        DirtyFlagMap<String, String> dirtyFlagMap = new DirtyFlagMap<String, String>();
+
+    @Test
+    void testKeySetClear() {
+        DirtyFlagMap<String, String> dirtyFlagMap = new DirtyFlagMap<>();
         Set<?> keySet = dirtyFlagMap.keySet();
         keySet.clear();
         assertFalse(dirtyFlagMap.isDirty());
@@ -176,9 +190,10 @@ public class DirtyFlagMapTest extends TestCase {
         assertTrue(dirtyFlagMap.isDirty());
         assertEquals(0, dirtyFlagMap.size());
     }    
-        
-    public void testValuesClear() {
-        DirtyFlagMap<String, String> dirtyFlagMap = new DirtyFlagMap<String, String>();
+
+    @Test
+    void testValuesClear() {
+        DirtyFlagMap<String, String> dirtyFlagMap = new DirtyFlagMap<>();
         Collection<?> values = dirtyFlagMap.values();
         values.clear();
         assertFalse(dirtyFlagMap.isDirty());

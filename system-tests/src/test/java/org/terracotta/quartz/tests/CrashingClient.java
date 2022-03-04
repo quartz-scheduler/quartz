@@ -85,7 +85,7 @@ public class CrashingClient extends ClientBase {
     @Override
     public boolean isConcurrentExectionDisallowed() {
       try {
-        Assert.assertTrue(SCHEDULER.get().checkExists(new JobKey("job-name", "job-group")));
+        Assertions.assertTrue(SCHEDULER.get().checkExists(new JobKey("job-name", "job-group")));
       } catch (SchedulerException e) {
         throw new AssertionError(e);
       }

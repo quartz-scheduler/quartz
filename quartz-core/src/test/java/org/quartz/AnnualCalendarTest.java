@@ -15,17 +15,23 @@
  */
 package org.quartz;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import org.junit.jupiter.api.Test;
 import org.quartz.impl.calendar.AnnualCalendar;
 
 
 /**
  * Unit test for AnnualCalendar serialization backwards compatibility.
  */
-public class AnnualCalendarTest extends SerializationTestSupport {
+class AnnualCalendarTest extends SerializationTestSupport {
     private static final String[] VERSIONS = new String[] {"1.5.1"};
     
     private static final TimeZone EST_TIME_ZONE = TimeZone.getTimeZone("America/New_York"); 
@@ -77,19 +83,23 @@ public class AnnualCalendarTest extends SerializationTestSupport {
      * Tests if method <code>setDaysExcluded</code> protects the property daysExcluded against nulling.
      * See: QUARTZ-590
      */
-    public void testDaysExcluded() {
+    @Test
+    void testDaysExcluded() {
 		AnnualCalendar annualCalendar = new AnnualCalendar();
 		
 		annualCalendar.setDaysExcluded(null);
-		
-		assertNotNull("Annual calendar daysExcluded property should have been set to empty ArrayList, not null.",annualCalendar.getDaysExcluded());
+
+        assertNotNull(
+                annualCalendar.getDaysExcluded(),
+                "Annual calendar daysExcluded property should have been set to empty ArrayList, not null.");
     }
 
     /**
      * Tests the parameter <code>exclude</code> in a method <code>setDaysExcluded</code>
      * of class <code>org.quartz.impl.calendar.AnnualCalendar</code>
      */
-    public void testExclude() {
+    @Test
+    void testExclude() {
         AnnualCalendar annualCalendar = new AnnualCalendar();
         Calendar day = Calendar.getInstance();
 
@@ -97,7 +107,7 @@ public class AnnualCalendarTest extends SerializationTestSupport {
         day.set(Calendar.DAY_OF_MONTH, 15);
         annualCalendar.setDayExcluded(day, false);
 
-        assertTrue("The day 15 October is not expected to be excluded but it is", !annualCalendar.isDayExcluded(day));
+        assertTrue(!annualCalendar.isDayExcluded(day), "The day 15 October is not expected to be excluded but it is");
 
         day.set(Calendar.MONTH, 9);
         day.set(Calendar.DAY_OF_MONTH, 15);
@@ -111,19 +121,20 @@ public class AnnualCalendarTest extends SerializationTestSupport {
         day.set(Calendar.DAY_OF_MONTH, 1);
         annualCalendar.setDayExcluded((Calendar) day.clone(), true);
 
-        assertTrue("The day 15 October is expected to be excluded but it is not", annualCalendar.isDayExcluded(day));
+        assertTrue(annualCalendar.isDayExcluded(day), "The day 15 October is expected to be excluded but it is not");
 
         day.set(Calendar.MONTH, 9);
         day.set(Calendar.DAY_OF_MONTH, 15);
         annualCalendar.setDayExcluded((Calendar) day.clone(), false);
 
-        assertTrue("The day 15 October is not expected to be excluded but it is", !annualCalendar.isDayExcluded(day));
+        assertTrue(!annualCalendar.isDayExcluded(day), "The day 15 October is not expected to be excluded but it is");
     }
 
     /**
      * QUARTZ-679 Test if the annualCalendar works over years
      */
-    public void testDaysExcludedOverTime() {
+    @Test
+    void testDaysExcludedOverTime() {
         AnnualCalendar annualCalendar = new AnnualCalendar();
         Calendar day = Calendar.getInstance();
         
@@ -138,13 +149,14 @@ public class AnnualCalendarTest extends SerializationTestSupport {
     	day.set(Calendar.DAY_OF_MONTH, 1);
     	annualCalendar.setDayExcluded((Calendar) day.clone(), true);
  
-    	assertTrue("The day 1 February is expected to be excluded but it is not", annualCalendar.isDayExcluded(day));    	
+    	assertTrue(annualCalendar.isDayExcluded(day), "The day 1 February is expected to be excluded but it is not");
     }
 
     /**
      * Part 2 of the tests of QUARTZ-679
      */
-    public void testRemoveInTheFuture() {
+    @Test
+    void testRemoveInTheFuture() {
         AnnualCalendar annualCalendar = new AnnualCalendar();
         Calendar day = Calendar.getInstance();
         
@@ -160,7 +172,7 @@ public class AnnualCalendarTest extends SerializationTestSupport {
         day.set(Calendar.DAY_OF_MONTH, 23);
         annualCalendar.setDayExcluded((Calendar) day.clone(), false);
         
-        assertTrue("The day 23 June is not expected to be excluded but it is", ! annualCalendar.isDayExcluded(day));
+        assertTrue(!annualCalendar.isDayExcluded(day), "The day 23 June is not expected to be excluded but it is");
     }
 
 }

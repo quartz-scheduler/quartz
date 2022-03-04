@@ -21,7 +21,7 @@ import java.util.HashMap;
 import org.quartz.AbstractJobStoreTest;
 import org.quartz.spi.JobStore;
 
-public class JdbcJobStoreTest extends AbstractJobStoreTest {
+class JdbcJobStoreTest extends AbstractJobStoreTest {
 
 	private HashMap<String, JobStoreSupport> stores = new HashMap<String, JobStoreSupport>();
 	

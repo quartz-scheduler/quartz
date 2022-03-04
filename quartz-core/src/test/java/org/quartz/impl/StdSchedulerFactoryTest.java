@@ -15,17 +15,17 @@
  */
 package org.quartz.impl;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Properties;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.helpers.NOPLogger;
 
-public class StdSchedulerFactoryTest {
+class StdSchedulerFactoryTest {
 
 	@Test
-	public void testOverrideSystemProperties() {
+	void testOverrideSystemProperties() {
 	    Properties p = new Properties();
 	    p.setProperty("nonsense1", "hello1");
 	    p.setProperty("nonsense2", "hello2");

@@ -15,28 +15,36 @@
  */
 package org.quartz.simpl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.Collections;
 import java.util.Map;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.quartz.JobDataMap;
 import org.quartz.SchedulerException;
 
-import junit.framework.TestCase;
+
 
 /**
  * Unit test for PropertySettingJobFactory.
  */
-public class PropertySettingJobFactoryTest extends TestCase {
+class PropertySettingJobFactoryTest {
     
     private PropertySettingJobFactory factory;
     
-    @Override
+    @BeforeEach
     protected void setUp() throws Exception {
         factory = new PropertySettingJobFactory();
         factory.setThrowIfPropertyNotFound(true);    
     }
     
-    public void testSetBeanPropsPrimatives() throws SchedulerException {
+    @Test
+    void testSetBeanPropsPrimatives() throws SchedulerException {
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put("intValue", Integer.valueOf(1));
         jobDataMap.put("longValue", Long.valueOf(2l));
@@ -63,8 +71,9 @@ public class PropertySettingJobFactoryTest extends TestCase {
         assertEquals("S1", myBean.getStringValue());
         assertTrue(myBean.getMapValue().containsKey("A"));
     }
-    
-    public void testSetBeanPropsUnknownProperty() {
+
+    @Test
+    void testSetBeanPropsUnknownProperty() {
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put("bogusValue", Integer.valueOf(1));
         try {
@@ -73,8 +82,9 @@ public class PropertySettingJobFactoryTest extends TestCase {
         } catch (SchedulerException ignore) { // ignore 
         }
     }
-    
-    public void testSetBeanPropsNullPrimative() {
+
+    @Test
+    void testSetBeanPropsNullPrimative() {
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put("intValue", null);
         try {
@@ -84,8 +94,9 @@ public class PropertySettingJobFactoryTest extends TestCase {
             // ignore
         }
     }
-    
-    public void testSetBeanPropsNullNonPrimative() throws SchedulerException {
+
+    @Test
+    void testSetBeanPropsNullNonPrimative() throws SchedulerException {
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put("mapValue", null);
         TestBean testBean = new TestBean();
@@ -93,8 +104,9 @@ public class PropertySettingJobFactoryTest extends TestCase {
         factory.setBeanProps(testBean, jobDataMap);
         assertNull(testBean.getMapValue());
     }
-    
-    public void testSetBeanPropsWrongPrimativeType() {
+
+    @Test
+    void testSetBeanPropsWrongPrimativeType() {
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put("intValue", new Float(7));
         try {
@@ -105,7 +117,8 @@ public class PropertySettingJobFactoryTest extends TestCase {
         }
     }
 
-    public void testSetBeanPropsWrongNonPrimativeType() {
+    @Test
+    void testSetBeanPropsWrongNonPrimativeType() {
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put("mapValue", new Float(7));
         try {
@@ -116,7 +129,8 @@ public class PropertySettingJobFactoryTest extends TestCase {
         }
     }
 
-    public void testSetBeanPropsCharStringTooShort() {
+    @Test
+    void testSetBeanPropsCharStringTooShort() {
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put("charValue", "");
         try {
@@ -127,7 +141,8 @@ public class PropertySettingJobFactoryTest extends TestCase {
         }
     }
 
-    public void testSetBeanPropsCharStringTooLong() {
+    @Test
+    void testSetBeanPropsCharStringTooLong() {
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put("charValue", "abba");
         try {
@@ -138,7 +153,8 @@ public class PropertySettingJobFactoryTest extends TestCase {
         }
     }
 
-    public void testSetBeanPropsFromStrings() throws SchedulerException {
+    @Test
+    void testSetBeanPropsFromStrings() throws SchedulerException {
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put("intValue", "1");
         jobDataMap.put("longValue", "2");

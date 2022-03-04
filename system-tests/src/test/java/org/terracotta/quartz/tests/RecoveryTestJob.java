@@ -22,7 +22,7 @@ import org.quartz.JobExecutionException;
 import org.quartz.Scheduler;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assertions.assertThat;
 
 public class RecoveryTestJob implements Job {
 

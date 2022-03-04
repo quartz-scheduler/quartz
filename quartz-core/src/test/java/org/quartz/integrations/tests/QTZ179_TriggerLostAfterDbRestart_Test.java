@@ -15,7 +15,7 @@
  */
 package org.quartz.integrations.tests;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.quartz.JobDetail;
 import org.quartz.SimpleScheduleBuilder;
 import org.quartz.Trigger;
@@ -24,12 +24,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
 
-public class QTZ179_TriggerLostAfterDbRestart_Test extends QuartzDatabaseTestSupport {
+class QTZ179_TriggerLostAfterDbRestart_Test extends QuartzDatabaseTestSupport {
 
   private static final long DURATION_OF_FIRST_SCHEDULING = 9L;
 	private static final long DURATION_OF_NETWORK_FAILURE = 10L;
@@ -123,7 +123,7 @@ public class QTZ179_TriggerLostAfterDbRestart_Test extends QuartzDatabaseTestSup
 	}
 
 	@Test
-	public void checkAll4TriggersStillRunningTest() throws Exception {
+	void checkAll4TriggersStillRunningTest() throws Exception {
 
 		LOG.info("------- Scheduler Started -----------------");
 
@@ -153,7 +153,7 @@ public class QTZ179_TriggerLostAfterDbRestart_Test extends QuartzDatabaseTestSup
 		}
 
 		int triggersInAcquiredState = JdbcQuartzDerbyUtilities.triggersInAcquiredState();
-		assertFalse("There should not be more than 1 trigger in ACQUIRED state in the DB, but found "+triggersInAcquiredState,triggersInAcquiredState > 1);
+		assertFalse(triggersInAcquiredState > 1, "There should not be more than 1 trigger in ACQUIRED state in the DB, but found " + triggersInAcquiredState);
 	}
 
 }

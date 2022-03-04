@@ -1,7 +1,6 @@
 package org.quartz.jobs;
 
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import static org.quartz.TriggerBuilder.newTrigger;
@@ -18,10 +17,11 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.hamcrest.MatcherAssert;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
@@ -31,12 +31,12 @@ import org.quartz.jobs.ee.mail.SendMailJob;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 
-public class SendMailJobTest {
+class SendMailJobTest {
     private Wiser wiser;
     private Scheduler scheduler;
     private MyJobListener jobListener;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         wiser = new Wiser();
         wiser.setPort(2500);
@@ -46,14 +46,14 @@ public class SendMailJobTest {
         scheduler.getListenerManager().addJobListener(jobListener);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         scheduler.shutdown();
         wiser.stop();
     }
 
     @Test
-    public void testSendMailJobNoAuthentication() throws Exception {
+    void testSendMailJobNoAuthentication() throws Exception {
         JobDetail job = newJob(SendMailJob.class)
                 .withIdentity("job1", "group1").build();
 
@@ -77,15 +77,15 @@ public class SendMailJobTest {
         
         jobListener.barrier.await(30, TimeUnit.SECONDS);
 
-        assertThat(wiser.getMessages().size(), equalTo(1));
+        MatcherAssert.assertThat(wiser.getMessages().size(), equalTo(1));
 
         WiserMessage message = wiser.getMessages().get(0);
         System.out.println(message);
         System.out.println(message.getMimeMessage().getSubject());
-        assertThat(message.getEnvelopeSender(), equalTo("sender@host.com"));
-        assertThat(message.getEnvelopeReceiver(), equalTo("receiver@host.com"));
-        assertThat(message.getMimeMessage().getSubject(), equalTo("test subject"));
-        assertThat(IOUtils.toString(message.getMimeMessage().getInputStream())
+        MatcherAssert.assertThat(message.getEnvelopeSender(), equalTo("sender@host.com"));
+        MatcherAssert.assertThat(message.getEnvelopeReceiver(), equalTo("receiver@host.com"));
+        MatcherAssert.assertThat(message.getMimeMessage().getSubject(), equalTo("test subject"));
+        MatcherAssert.assertThat(IOUtils.toString(message.getMimeMessage().getInputStream())
                 .trim(), equalTo("do not reply"));
     }
 
@@ -94,9 +94,9 @@ public class SendMailJobTest {
      * 
      * @throws Exception
      */
-    @Ignore
+    @Disabled
     @Test
-    public void testRealAccountSendMail() throws Exception {
+    void testRealAccountSendMail() throws Exception {
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.port", "465");

@@ -1,5 +1,9 @@
 package org.quartz.xml;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.SimpleScheduleBuilder.repeatHourlyForever;
 import static org.quartz.TriggerBuilder.newTrigger;
@@ -15,10 +19,11 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
-import junit.framework.TestCase;
 
+
+import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
-import org.junit.Assert;
+import org.junit.jupiter.api.Test;
 import org.quartz.*;
 import org.quartz.impl.DirectSchedulerFactory;
 import org.quartz.impl.SchedulerRepository;
@@ -38,7 +43,7 @@ import org.xml.sax.SAXParseException;
  * @author Zemian Deng
  * @author Tomasz Nurkiewicz (QTZ-273)
  */
-public class XMLSchedulingDataProcessorTest extends TestCase {
+class XMLSchedulingDataProcessorTest {
 
 	/** QTZ-185
 	 * <p>The default XMLSchedulingDataProcessor will setOverWriteExistingData(true), and we want to
@@ -48,7 +53,8 @@ public class XMLSchedulingDataProcessorTest extends TestCase {
 	 * read default "quartz_data.xml" in current working directory. So to test this, we must create
 	 * this file. If this file already exist, it will be overwritten! 
 	 */
-	public void testOverwriteFlag() throws Exception {
+    @Test
+	void testOverwriteFlag() throws Exception {
 		//Prepare a quartz_data.xml in current working directory by copy a test case file.
 		File file = new File(XMLSchedulingDataProcessor.QUARTZ_XML_DEFAULT_FILE_NAME);
 		copyResourceToFile("/org/quartz/xml/simple-job-trigger.xml", file);
@@ -115,7 +121,8 @@ public class XMLSchedulingDataProcessorTest extends TestCase {
 	}
 	
 	/** QTZ-187 */
-	public void testDirectivesNoOverwriteWithIgnoreDups() throws Exception {
+	@Test
+	void testDirectivesNoOverwriteWithIgnoreDups() throws Exception {
 		Scheduler scheduler = null;
 		try {
 			StdSchedulerFactory factory = new StdSchedulerFactory("org/quartz/xml/quartz-test.properties");
@@ -142,7 +149,9 @@ public class XMLSchedulingDataProcessorTest extends TestCase {
 				scheduler.shutdown();
 		}
 	}
-    public void testDirectivesOverwriteWithNoIgnoreDups() throws Exception {
+	
+	@Test
+    void testDirectivesOverwriteWithNoIgnoreDups() throws Exception {
         Scheduler scheduler = null;
         try {
             StdSchedulerFactory factory = new StdSchedulerFactory("org/quartz/xml/quartz-test.properties");
@@ -171,7 +180,8 @@ public class XMLSchedulingDataProcessorTest extends TestCase {
     }
 	
 	/** QTZ-180 */
-	public void testXsdSchemaValidationOnVariousTriggers() throws Exception {
+	@Test
+	void testXsdSchemaValidationOnVariousTriggers() throws Exception {
 		Scheduler scheduler = null;
 		try {
 			StdSchedulerFactory factory = new StdSchedulerFactory("org/quartz/xml/quartz-test.properties");
@@ -188,7 +198,8 @@ public class XMLSchedulingDataProcessorTest extends TestCase {
 		}
 	}
 
-   	public void testQTZ327SimpleTriggerNoRepeat() throws Exception {
+	@Test
+   	void testQTZ327SimpleTriggerNoRepeat() throws Exception {
    		Scheduler scheduler = null;
    		try {
    			StdSchedulerFactory factory = new StdSchedulerFactory("org/quartz/xml/quartz-test.properties");
@@ -221,7 +232,8 @@ public class XMLSchedulingDataProcessorTest extends TestCase {
 	}
 
 	/** QTZ-273 */
-	public void testTimeZones() throws Exception {
+	@Test
+	void testTimeZones() throws Exception {
 		Scheduler scheduler = null;
 		try {
 			// given
@@ -261,7 +273,8 @@ public class XMLSchedulingDataProcessorTest extends TestCase {
 	}
 
     /** Test for QTZ-353, where it requires a JDBC storage */
-	public void testRemoveJobClassNotFound() throws Exception {
+	@Test
+	void testRemoveJobClassNotFound() throws Exception {
         String DB_NAME = "XmlDeleteNonExistsJobTestDatasase";
         String SCHEDULER_NAME = "XmlDeleteNonExistsJobTestScheduler";
         JdbcQuartzTestUtilities.createDatabase(DB_NAME);
@@ -285,8 +298,8 @@ public class XMLSchedulingDataProcessorTest extends TestCase {
 
             JobDetail jobDetail2 = scheduler.getJobDetail(jobDetail.getKey());
             Trigger trigger2 = scheduler.getTrigger(trigger.getKey());
-            Assert.assertThat(jobDetail2.getJobDataMap().getString("foo"), Matchers.is("foo"));
-            Assert.assertThat(trigger2, Matchers.instanceOf(CronTrigger.class));
+            MatcherAssert.assertThat(jobDetail2.getJobDataMap().getString("foo"), Matchers.is("foo"));
+            MatcherAssert.assertThat(trigger2, Matchers.instanceOf(CronTrigger.class));
 
             modifyStoredJobClassName();
 
@@ -298,21 +311,21 @@ public class XMLSchedulingDataProcessorTest extends TestCase {
 
             jobDetail2 = scheduler.getJobDetail(jobDetail.getKey());
             trigger2 = scheduler.getTrigger(trigger.getKey());
-            Assert.assertThat(trigger2, Matchers.nullValue());
-            Assert.assertThat(jobDetail2, Matchers.nullValue());
+            MatcherAssert.assertThat(trigger2, Matchers.nullValue());
+            MatcherAssert.assertThat(jobDetail2, Matchers.nullValue());
 
             jobDetail2 = scheduler.getJobDetail(new JobKey("job1", "DEFAULT"));
             trigger2 = scheduler.getTrigger(new TriggerKey("job1", "DEFAULT"));
-            Assert.assertThat(jobDetail2.getJobDataMap().getString("foo"), Matchers.is("bar"));
-            Assert.assertThat(trigger2, Matchers.instanceOf(SimpleTrigger.class));
+            MatcherAssert.assertThat(jobDetail2.getJobDataMap().getString("foo"), Matchers.is("bar"));
+            MatcherAssert.assertThat(trigger2, Matchers.instanceOf(SimpleTrigger.class));
         } finally {
             scheduler.shutdown(false);
             JdbcQuartzTestUtilities.destroyDatabase(DB_NAME);
         }
     }
 
-
-    public void testOverwriteJobClassNotFound() throws Exception {
+	@Test
+    void testOverwriteJobClassNotFound() throws Exception {
         String DB_NAME = "XmlDeleteNonExistsJobTestDatasase";
         String SCHEDULER_NAME = "XmlDeleteNonExistsJobTestScheduler";
         JdbcQuartzTestUtilities.createDatabase(DB_NAME);
@@ -336,8 +349,8 @@ public class XMLSchedulingDataProcessorTest extends TestCase {
 
             JobDetail jobDetail2 = scheduler.getJobDetail(jobDetail.getKey());
             Trigger trigger2 = scheduler.getTrigger(trigger.getKey());
-            Assert.assertThat(jobDetail2.getJobDataMap().getString("foo"), Matchers.is("foo"));
-            Assert.assertThat(trigger2, Matchers.instanceOf(CronTrigger.class));
+            MatcherAssert.assertThat(jobDetail2.getJobDataMap().getString("foo"), Matchers.is("foo"));
+            MatcherAssert.assertThat(trigger2, Matchers.instanceOf(CronTrigger.class));
 
             modifyStoredJobClassName();
 
@@ -349,15 +362,16 @@ public class XMLSchedulingDataProcessorTest extends TestCase {
 
             jobDetail2 = scheduler.getJobDetail(jobDetail.getKey());
             trigger2 = scheduler.getTrigger(trigger.getKey());
-            Assert.assertThat(jobDetail2.getJobDataMap().getString("foo"), Matchers.is("bar"));
-            Assert.assertThat(trigger2, Matchers.instanceOf(SimpleTrigger.class));
+            MatcherAssert.assertThat(jobDetail2.getJobDataMap().getString("foo"), Matchers.is("bar"));
+            MatcherAssert.assertThat(trigger2, Matchers.instanceOf(SimpleTrigger.class));
         } finally {
             scheduler.shutdown(false);
             JdbcQuartzTestUtilities.destroyDatabase(DB_NAME);
         }
     }
 
-	public void testXmlParserConfiguration() throws Exception {
+	@Test
+	void testXmlParserConfiguration() throws Exception {
 		Scheduler scheduler = null;
 		try {
 			StdSchedulerFactory factory = new StdSchedulerFactory("org/quartz/xml/quartz-test.properties");

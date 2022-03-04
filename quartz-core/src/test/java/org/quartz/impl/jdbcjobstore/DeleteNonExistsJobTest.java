@@ -15,7 +15,10 @@
  */
 package org.quartz.impl.jdbcjobstore;
 
-import org.junit.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.quartz.*;
 import org.quartz.impl.DirectSchedulerFactory;
 import org.quartz.impl.SchedulerRepository;
@@ -38,12 +41,12 @@ public class DeleteNonExistsJobTest {
     private static String SCHEDULER_NAME = "DeleteNonExistsJobTestScheduler";
     private static Scheduler scheduler;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() throws Exception {
         JdbcQuartzTestUtilities.createDatabase(DB_NAME);
     }
 
-    @Before
+    @BeforeEach
     public void beforeTest() throws Exception {
         resetDatabaseData();
         JobStoreTX jobStore = new JobStoreTX();
@@ -74,13 +77,13 @@ public class DeleteNonExistsJobTest {
         conn.close();
     }
 
-    @After
+    @AfterEach
     public void afterTest() throws Exception {
         scheduler.shutdown(true);
     }
 
     @Test
-    public void deleteJobDetailOnly() throws Exception {
+    void deleteJobDetailOnly() throws Exception {
         JobDetail jobDetail = JobBuilder.newJob(TestJob.class).withIdentity("testjob").storeDurably().build();
         scheduler.addJob(jobDetail, true);
         modifyStoredJobClassName();
@@ -89,7 +92,7 @@ public class DeleteNonExistsJobTest {
     }
 
     @Test
-    public void deleteJobDetailWithTrigger() throws Exception {
+    void deleteJobDetailWithTrigger() throws Exception {
         JobDetail jobDetail = JobBuilder.newJob(TestJob.class).withIdentity("testjob2").storeDurably().build();
         Trigger trigger = TriggerBuilder.newTrigger().withIdentity("testjob2")
                 .withSchedule(CronScheduleBuilder.cronSchedule("* * * * * ?"))
@@ -101,7 +104,7 @@ public class DeleteNonExistsJobTest {
     }
 
     @Test
-    public void deleteTrigger() throws Exception {
+    void deleteTrigger() throws Exception {
         JobDetail jobDetail = JobBuilder.newJob(TestJob.class).withIdentity("testjob3").storeDurably().build();
         Trigger trigger = TriggerBuilder.newTrigger().withIdentity("testjob3")
                 .withSchedule(CronScheduleBuilder.cronSchedule("* * * * * ?"))
@@ -113,7 +116,7 @@ public class DeleteNonExistsJobTest {
     }
 
     @Test
-    public void replaceJobDetail() throws Exception {
+    void replaceJobDetail() throws Exception {
         JobDetail jobDetail = JobBuilder.newJob(TestJob.class).withIdentity("testjob3").storeDurably().build();
         Trigger trigger = TriggerBuilder.newTrigger().withIdentity("testjob3")
                 .withSchedule(CronScheduleBuilder.cronSchedule("* * * * * ?"))

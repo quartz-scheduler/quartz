@@ -15,7 +15,8 @@
  */
 package org.quartz.integrations.tests;
 
-import org.junit.Test;
+import org.hamcrest.MatcherAssert;
+import org.junit.jupiter.api.Test;
 import org.quartz.DateBuilder;
 import org.quartz.JobDetail;
 import org.quartz.SimpleTrigger;
@@ -29,12 +30,11 @@ import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import static org.quartz.TriggerBuilder.newTrigger;
 
-public class QTZ283_IgnoreMisfirePolicyJdbcStore_Test extends QuartzDatabaseTestSupport {
+class QTZ283_IgnoreMisfirePolicyJdbcStore_Test extends QuartzDatabaseTestSupport {
 
   private static final long DURATION_OF_FIRST_SCHEDULING = 10L;
   private static final Logger LOG = LoggerFactory.getLogger(QTZ283_IgnoreMisfirePolicyJdbcStore_Test.class);
@@ -108,9 +108,9 @@ public class QTZ283_IgnoreMisfirePolicyJdbcStore_Test extends QuartzDatabaseTest
   }
 
   @Test
-  public void checkOldTriggerGetsFired() throws SQLException {
+  void checkOldTriggerGetsFired() throws SQLException {
     BigDecimal misfirePolicyIgnoreTimesTriggered = JdbcQuartzDerbyUtilities.timesTriggered("trigger1", "group1");
-    assertThat("The old trigger has never been fired, even if the policy is ignore", misfirePolicyIgnoreTimesTriggered,
+    MatcherAssert.assertThat("The old trigger has never been fired, even if the policy is ignore", misfirePolicyIgnoreTimesTriggered,
         not(equalTo(BigDecimal.ZERO)));
   }
 }

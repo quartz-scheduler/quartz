@@ -26,7 +26,8 @@ import org.quartz.simpl.SimpleThreadPool;
 public class JdbcSchedulerTest extends AbstractSchedulerTest {
 
     @Override
-    protected Scheduler createScheduler(String name, int threadPoolSize) throws SchedulerException {
+    protected Scheduler createScheduler(String name, int threadPoolSize, float createFailureProb,
+            float preCommitFailureProb, float postCommitFailureProb) throws SchedulerException {
         try {
             JdbcQuartzTestUtilities.createDatabase(name + "Database");
         } catch (SQLException e) {

@@ -15,12 +15,14 @@
  */
 package org.quartz.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import junit.framework.TestCase;
-
+import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -29,9 +31,10 @@ import org.quartz.simpl.RAMJobStore;
 import org.quartz.simpl.SimpleThreadPool;
 import org.quartz.spi.ThreadPool;
 
-public class SchedulerDetailsSetterTest extends TestCase {
+class SchedulerDetailsSetterTest {
 
-    public void testSetter() throws SchedulerException, IOException {
+    @Test
+    void testSetter() throws SchedulerException, IOException {
         Properties props = new Properties();
         props.load(getClass().getResourceAsStream("/org/quartz/quartz.properties"));
         props.setProperty(StdSchedulerFactory.PROP_THREAD_POOL_CLASS, MyThreadPool.class.getName());
@@ -50,11 +53,13 @@ public class SchedulerDetailsSetterTest extends TestCase {
         assertEquals(6, instanceNameCalls.get());
     }
 
-    public void testMissingSetterMethods() throws SchedulerException  {
+    @Test
+    void testMissingSetterMethods() throws SchedulerException  {
         SchedulerDetailsSetter.setDetails(new Object(), "name", "id");
     }
 
-    public void testUnimplementedMethods() throws Exception {
+    @Test
+    void testUnimplementedMethods() throws Exception {
         ThreadPool tp = makeIncompleteThreadPool();
         try {
             tp.setInstanceName("name");

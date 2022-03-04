@@ -20,17 +20,22 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.quartz.DateBuilder.*;
 import static org.quartz.DateBuilder.MILLISECONDS_IN_DAY;
 
-import junit.framework.TestCase;
+
 
 /**
  * Unit test for JobDetail.
  */
-public class DateBuilderTest extends TestCase {
+class DateBuilderTest {
     
-    public void testBasicBuilding() {
+    @Test
+    void testBasicBuilding() {
     	
     	
     	Date t = dateOf(10, 30, 0, 1, 7, 2013);  // july 1 10:30:00 am
@@ -46,10 +51,11 @@ public class DateBuilderTest extends TestCase {
     	
     	Date v = vc.getTime();
     	
-        assertEquals("DateBuilder-produced date is not as expected.", t, v);
+        assertEquals(t, v);
     }
 
-    public void testBuilder() {
+    @Test
+    void testBuilder() {
 
         Calendar vc = Calendar.getInstance();
         vc.set(Calendar.YEAR, 2013);
@@ -61,10 +67,10 @@ public class DateBuilderTest extends TestCase {
         vc.set(Calendar.MILLISECOND, 0);
 
         Date bd = newDate().inYear(2013).inMonth(JULY).onDay(1).atHourOfDay(10).atMinute(30).atSecond(0).build();
-        assertEquals("DateBuilder-produced date is not as expected.", vc.getTime(), bd);
+        assertEquals(vc.getTime(), bd);
 
         bd = newDate().inYear(2013).inMonthOnDay(JULY, 1).atHourMinuteAndSecond(10, 30, 0).build();
-        assertEquals("DateBuilder-produced date is not as expected.", vc.getTime(), bd);
+        assertEquals(vc.getTime(), bd);
 
 
         TimeZone tz = TimeZone.getTimeZone("GMT-4:00");
@@ -79,20 +85,21 @@ public class DateBuilderTest extends TestCase {
         vc.set(Calendar.MILLISECOND, 0);
 
         bd = newDate().inYear(2013).inMonth(JUNE).onDay(1).atHourOfDay(10).atMinute(33).atSecond(12).inTimeZone(tz).inLocale(lz).build();
-        assertEquals("DateBuilder-produced date is not as expected.", vc.getTime(), bd);
+        assertEquals(vc.getTime(), bd);
 
         bd = newDateInLocale(lz).inYear(2013).inMonth(JUNE).onDay(1).atHourOfDay(10).atMinute(33).atSecond(12).inTimeZone(tz).build();
-        assertEquals("DateBuilder-produced date is not as expected.", vc.getTime(), bd);
+        assertEquals(vc.getTime(), bd);
 
         bd = newDateInTimezone(tz).inYear(2013).inMonth(JUNE).onDay(1).atHourOfDay(10).atMinute(33).atSecond(12).inLocale(lz).build();
-        assertEquals("DateBuilder-produced date is not as expected.", vc.getTime(), bd);
+        assertEquals(vc.getTime(), bd);
 
         bd = newDateInTimeZoneAndLocale(tz, lz).inYear(2013).inMonth(JUNE).onDay(1).atHourOfDay(10).atMinute(33).atSecond(12).build();
-        assertEquals("DateBuilder-produced date is not as expected.", vc.getTime(), bd);
+        assertEquals(vc.getTime(), bd);
 
     }
 
-    public void testEvensBuilders() {
+    @Test
+    void testEvensBuilders() {
 
         Calendar vc = Calendar.getInstance();
         vc.set(Calendar.YEAR, 2013);
@@ -106,52 +113,52 @@ public class DateBuilderTest extends TestCase {
         Calendar rd = (Calendar) vc.clone();
 
         Date bd = newDate().inYear(2013).inMonth(JUNE).onDay(1).atHourOfDay(10).atMinute(33).atSecond(12).build();
-        assertEquals("DateBuilder-produced date is not as expected.", vc.getTime(), bd);
+        assertEquals(vc.getTime(), bd);
 
 
         rd.set(Calendar.MILLISECOND, 13);
         bd = evenSecondDateBefore(rd.getTime());
-        assertEquals("DateBuilder-produced date is not as expected.", vc.getTime(), bd);
+        assertEquals(vc.getTime(), bd);
 
         vc.set(Calendar.SECOND, 13);
         rd.set(Calendar.MILLISECOND, 13);
         bd = evenSecondDate(rd.getTime());
-        assertEquals("DateBuilder-produced date is not as expected.", vc.getTime(), bd);
+        assertEquals(vc.getTime(), bd);
 
         vc.set(Calendar.SECOND, 0);
         vc.set(Calendar.MINUTE, 34);
         rd.set(Calendar.SECOND, 13);
         bd = evenMinuteDate(rd.getTime());
-        assertEquals("DateBuilder-produced date is not as expected.", vc.getTime(), bd);
+        assertEquals(vc.getTime(), bd);
 
         vc.set(Calendar.SECOND, 0);
         vc.set(Calendar.MINUTE, 33);
         rd.set(Calendar.SECOND, 13);
         bd = evenMinuteDateBefore(rd.getTime());
-        assertEquals("DateBuilder-produced date is not as expected.", vc.getTime(), bd);
+        assertEquals(vc.getTime(), bd);
 
         vc.set(Calendar.SECOND, 0);
         vc.set(Calendar.MINUTE, 0);
         vc.set(Calendar.HOUR_OF_DAY, 11);
         rd.set(Calendar.SECOND, 13);
         bd = evenHourDate(rd.getTime());
-        assertEquals("DateBuilder-produced date is not as expected.", vc.getTime(), bd);
+        assertEquals(vc.getTime(), bd);
 
         vc.set(Calendar.SECOND, 0);
         vc.set(Calendar.MINUTE, 0);
         vc.set(Calendar.HOUR_OF_DAY, 10);
         rd.set(Calendar.SECOND, 13);
         bd = evenHourDateBefore(rd.getTime());
-        assertEquals("DateBuilder-produced date is not as expected.", vc.getTime(), bd);
+        assertEquals(vc.getTime(), bd);
 
 
         Date td = new Date();
         bd = evenHourDateAfterNow();
         vc.setTime(bd);
-        assertEquals("DateBuilder-produced date is not as expected.", 0, vc.get(Calendar.MINUTE));
-        assertEquals("DateBuilder-produced date is not as expected.", 0, vc.get(Calendar.SECOND));
-        assertEquals("DateBuilder-produced date is not as expected.", 0, vc.get(Calendar.MILLISECOND));
-        assertTrue("DateBuilder-produced date is not as expected.", bd.after(td));
+        assertEquals(0, vc.get(Calendar.MINUTE));
+        assertEquals(0, vc.get(Calendar.SECOND));
+        assertEquals(0, vc.get(Calendar.MILLISECOND));
+        assertTrue(bd.after(td));
 
 
         vc.set(Calendar.SECOND, 54);
@@ -159,13 +166,14 @@ public class DateBuilderTest extends TestCase {
         vc.set(Calendar.HOUR_OF_DAY, 8);
         bd = nextGivenMinuteDate(vc.getTime(), 15);
         vc.setTime(bd);
-        assertEquals("DateBuilder-produced date is not as expected.", 8, vc.get(Calendar.HOUR_OF_DAY));
-        assertEquals("DateBuilder-produced date is not as expected.", 15, vc.get(Calendar.MINUTE));
-        assertEquals("DateBuilder-produced date is not as expected.", 0, vc.get(Calendar.SECOND));
-        assertEquals("DateBuilder-produced date is not as expected.", 0, vc.get(Calendar.MILLISECOND));
+        assertEquals(8, vc.get(Calendar.HOUR_OF_DAY));
+        assertEquals(15, vc.get(Calendar.MINUTE));
+        assertEquals(0, vc.get(Calendar.SECOND));
+        assertEquals(0, vc.get(Calendar.MILLISECOND));
     }
 
-    public void testGivenBuilders() {
+    @Test
+    void testGivenBuilders() {
 
         Calendar vc = Calendar.getInstance();
 
@@ -174,23 +182,24 @@ public class DateBuilderTest extends TestCase {
         vc.set(Calendar.HOUR_OF_DAY, 8);
         Date bd = nextGivenMinuteDate(vc.getTime(), 45);
         vc.setTime(bd);
-        assertEquals("DateBuilder-produced date is not as expected.", 8, vc.get(Calendar.HOUR_OF_DAY));
-        assertEquals("DateBuilder-produced date is not as expected.", 45, vc.get(Calendar.MINUTE));
-        assertEquals("DateBuilder-produced date is not as expected.", 0, vc.get(Calendar.SECOND));
-        assertEquals("DateBuilder-produced date is not as expected.", 0, vc.get(Calendar.MILLISECOND));
+        assertEquals(8, vc.get(Calendar.HOUR_OF_DAY));
+        assertEquals(45, vc.get(Calendar.MINUTE));
+        assertEquals(0, vc.get(Calendar.SECOND));
+        assertEquals(0, vc.get(Calendar.MILLISECOND));
 
         vc.set(Calendar.SECOND, 54);
         vc.set(Calendar.MINUTE, 46);
         vc.set(Calendar.HOUR_OF_DAY, 8);
         bd = nextGivenMinuteDate(vc.getTime(), 45);
         vc.setTime(bd);
-        assertEquals("DateBuilder-produced date is not as expected.", 9, vc.get(Calendar.HOUR_OF_DAY));
-        assertEquals("DateBuilder-produced date is not as expected.", 0, vc.get(Calendar.MINUTE));
-        assertEquals("DateBuilder-produced date is not as expected.", 0, vc.get(Calendar.SECOND));
-        assertEquals("DateBuilder-produced date is not as expected.", 0, vc.get(Calendar.MILLISECOND));
+        assertEquals(9, vc.get(Calendar.HOUR_OF_DAY));
+        assertEquals(0, vc.get(Calendar.MINUTE));
+        assertEquals(0, vc.get(Calendar.SECOND));
+        assertEquals(0, vc.get(Calendar.MILLISECOND));
     }
 
-    public void testAtBuilders() {
+    @Test
+    void testAtBuilders() {
 
         Calendar rd = Calendar.getInstance();
         Calendar vc = Calendar.getInstance();
@@ -198,24 +207,25 @@ public class DateBuilderTest extends TestCase {
         rd.setTime(new Date());
         Date bd = todayAt(10, 33, 12);
         vc.setTime(bd);
-        assertEquals("DateBuilder-produced date is not as expected.", 10, vc.get(Calendar.HOUR_OF_DAY));
-        assertEquals("DateBuilder-produced date is not as expected.", 33, vc.get(Calendar.MINUTE));
-        assertEquals("DateBuilder-produced date is not as expected.", 12, vc.get(Calendar.SECOND));
-        assertEquals("DateBuilder-produced date is not as expected.", 0, vc.get(Calendar.MILLISECOND));
-        assertEquals("DateBuilder-produced date is not as expected.", rd.get(Calendar.DAY_OF_YEAR), vc.get(Calendar.DAY_OF_YEAR));
+        assertEquals(10, vc.get(Calendar.HOUR_OF_DAY));
+        assertEquals(33, vc.get(Calendar.MINUTE));
+        assertEquals(12, vc.get(Calendar.SECOND));
+        assertEquals(0, vc.get(Calendar.MILLISECOND));
+        assertEquals(rd.get(Calendar.DAY_OF_YEAR), vc.get(Calendar.DAY_OF_YEAR));
 
         rd.setTime(new Date());
         rd.add(Calendar.MILLISECOND, (int)MILLISECONDS_IN_DAY); // increment the day (using this means on purpose - to test const)
         bd = tomorrowAt(10, 33, 12);
         vc.setTime(bd);
-        assertEquals("DateBuilder-produced date is not as expected.", 10, vc.get(Calendar.HOUR_OF_DAY));
-        assertEquals("DateBuilder-produced date is not as expected.", 33, vc.get(Calendar.MINUTE));
-        assertEquals("DateBuilder-produced date is not as expected.", 12, vc.get(Calendar.SECOND));
-        assertEquals("DateBuilder-produced date is not as expected.", 0, vc.get(Calendar.MILLISECOND));
-        assertEquals("DateBuilder-produced date is not as expected.", rd.get(Calendar.DAY_OF_YEAR), vc.get(Calendar.DAY_OF_YEAR));
+        assertEquals(10, vc.get(Calendar.HOUR_OF_DAY));
+        assertEquals(33, vc.get(Calendar.MINUTE));
+        assertEquals(12, vc.get(Calendar.SECOND));
+        assertEquals(0, vc.get(Calendar.MILLISECOND));
+        assertEquals(rd.get(Calendar.DAY_OF_YEAR), vc.get(Calendar.DAY_OF_YEAR));
     }
 
-    public void testTranslate() {
+    @Test
+    void testTranslate() {
 
         TimeZone tz1 = TimeZone.getTimeZone("GMT-2:00");
         TimeZone tz2 = TimeZone.getTimeZone("GMT-4:00");
@@ -230,7 +240,7 @@ public class DateBuilderTest extends TestCase {
         vc.set(Calendar.MILLISECOND, 0);
 
         vc.setTime( translateTime(vc.getTime(), tz1, tz2) );
-        assertEquals("DateBuilder-produced date is not as expected.", 12, vc.get(Calendar.HOUR_OF_DAY));
+        assertEquals(12, vc.get(Calendar.HOUR_OF_DAY));
 
         vc = Calendar.getInstance(tz2);
         vc.set(Calendar.YEAR, 2013);
@@ -242,60 +252,61 @@ public class DateBuilderTest extends TestCase {
         vc.set(Calendar.MILLISECOND, 0);
 
         vc.setTime( translateTime(vc.getTime(), tz2, tz1) );
-        assertEquals("DateBuilder-produced date is not as expected.", 8, vc.get(Calendar.HOUR_OF_DAY));
+        assertEquals(8, vc.get(Calendar.HOUR_OF_DAY));
     }
 
-    public void testMonthTranslations() {
+    @Test
+    void testMonthTranslations() {
 
         Calendar vc = Calendar.getInstance();
 
         Date bd = newDate().inYear(2013).inMonthOnDay(JANUARY, 1).atHourMinuteAndSecond(10, 30, 0).build();
         vc.setTime(bd);
-        assertEquals("DateBuilder-produced date is not as expected.", Calendar.JANUARY, vc.get(Calendar.MONTH));
+        assertEquals(Calendar.JANUARY, vc.get(Calendar.MONTH));
 
         bd = newDate().inYear(2013).inMonthOnDay(FEBRUARY, 1).atHourMinuteAndSecond(10, 30, 0).build();
         vc.setTime(bd);
-        assertEquals("DateBuilder-produced date is not as expected.", Calendar.FEBRUARY, vc.get(Calendar.MONTH));
+        assertEquals(Calendar.FEBRUARY, vc.get(Calendar.MONTH));
 
         bd = newDate().inYear(2013).inMonthOnDay(MARCH, 1).atHourMinuteAndSecond(10, 30, 0).build();
         vc.setTime(bd);
-        assertEquals("DateBuilder-produced date is not as expected.", Calendar.MARCH, vc.get(Calendar.MONTH));
+        assertEquals(Calendar.MARCH, vc.get(Calendar.MONTH));
 
         bd = newDate().inYear(2013).inMonthOnDay(APRIL, 1).atHourMinuteAndSecond(10, 30, 0).build();
         vc.setTime(bd);
-        assertEquals("DateBuilder-produced date is not as expected.", Calendar.APRIL, vc.get(Calendar.MONTH));
+        assertEquals(Calendar.APRIL, vc.get(Calendar.MONTH));
 
         bd = newDate().inYear(2013).inMonthOnDay(MAY, 1).atHourMinuteAndSecond(10, 30, 0).build();
         vc.setTime(bd);
-        assertEquals("DateBuilder-produced date is not as expected.", Calendar.MAY, vc.get(Calendar.MONTH));
+        assertEquals(Calendar.MAY, vc.get(Calendar.MONTH));
 
         bd = newDate().inYear(2013).inMonthOnDay(JUNE, 1).atHourMinuteAndSecond(10, 30, 0).build();
         vc.setTime(bd);
-        assertEquals("DateBuilder-produced date is not as expected.", Calendar.JUNE, vc.get(Calendar.MONTH));
+        assertEquals(Calendar.JUNE, vc.get(Calendar.MONTH));
 
         bd = newDate().inYear(2013).inMonthOnDay(JULY, 1).atHourMinuteAndSecond(10, 30, 0).build();
         vc.setTime(bd);
-        assertEquals("DateBuilder-produced date is not as expected.", Calendar.JULY, vc.get(Calendar.MONTH));
+        assertEquals(Calendar.JULY, vc.get(Calendar.MONTH));
 
         bd = newDate().inYear(2013).inMonthOnDay(AUGUST, 1).atHourMinuteAndSecond(10, 30, 0).build();
         vc.setTime(bd);
-        assertEquals("DateBuilder-produced date is not as expected.", Calendar.AUGUST, vc.get(Calendar.MONTH));
+        assertEquals(Calendar.AUGUST, vc.get(Calendar.MONTH));
 
         bd = newDate().inYear(2013).inMonthOnDay(SEPTEMBER, 1).atHourMinuteAndSecond(10, 30, 0).build();
         vc.setTime(bd);
-        assertEquals("DateBuilder-produced date is not as expected.", Calendar.SEPTEMBER, vc.get(Calendar.MONTH));
+        assertEquals(Calendar.SEPTEMBER, vc.get(Calendar.MONTH));
 
         bd = newDate().inYear(2013).inMonthOnDay(OCTOBER, 1).atHourMinuteAndSecond(10, 30, 0).build();
         vc.setTime(bd);
-        assertEquals("DateBuilder-produced date is not as expected.", Calendar.OCTOBER, vc.get(Calendar.MONTH));
+        assertEquals(Calendar.OCTOBER, vc.get(Calendar.MONTH));
 
         bd = newDate().inYear(2013).inMonthOnDay(NOVEMBER, 1).atHourMinuteAndSecond(10, 30, 0).build();
         vc.setTime(bd);
-        assertEquals("DateBuilder-produced date is not as expected.", Calendar.NOVEMBER, vc.get(Calendar.MONTH));
+        assertEquals(Calendar.NOVEMBER, vc.get(Calendar.MONTH));
 
         bd = newDate().inYear(2013).inMonthOnDay(DECEMBER, 1).atHourMinuteAndSecond(10, 30, 0).build();
         vc.setTime(bd);
-        assertEquals("DateBuilder-produced date is not as expected.", Calendar.DECEMBER, vc.get(Calendar.MONTH));
+        assertEquals(Calendar.DECEMBER, vc.get(Calendar.MONTH));
 
     }
 

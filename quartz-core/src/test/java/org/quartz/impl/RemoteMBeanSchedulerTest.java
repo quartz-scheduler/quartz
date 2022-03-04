@@ -17,19 +17,15 @@ package org.quartz.impl;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.hamcrest.MatcherAssert;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
@@ -47,7 +43,6 @@ import org.quartz.impl.matchers.GroupMatcher;
 import java.lang.management.ManagementFactory;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import java.util.Properties;
 
 import javax.management.AttributeList;
@@ -58,7 +53,7 @@ import javax.management.ObjectName;
 /**
  * RemoteMBeanSchedulerTest
  */
-public class RemoteMBeanSchedulerTest {
+class RemoteMBeanSchedulerTest {
 
     public static final String TRIGGER_KEY = "trigger1";
     public static final String GROUP_KEY = "group1";
@@ -68,7 +63,7 @@ public class RemoteMBeanSchedulerTest {
     private Scheduler scheduler;
     private RemoteMBeanScheduler remoteScheduler;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         Properties props = new Properties();
         props.put("org.quartz.scheduler.instanceName", "TestScheduler");
@@ -90,46 +85,46 @@ public class RemoteMBeanSchedulerTest {
         remoteScheduler = new TestRemoteScheduler(objectName);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws SchedulerException {
         scheduler.shutdown();
     }
 
     @Test
-    public void testJMXAttributesAccess() throws Exception {
-        assertThat(remoteScheduler.getCalendarNames(), equalTo(scheduler.getCalendarNames()));
-        assertThat(remoteScheduler.getJobGroupNames(), equalTo(scheduler.getJobGroupNames()));
-        assertThat(remoteScheduler.getPausedTriggerGroups(), equalTo(scheduler.getPausedTriggerGroups()));
-        assertThat(remoteScheduler.getSchedulerInstanceId(), equalTo(scheduler.getSchedulerInstanceId()));
-        assertThat(remoteScheduler.getSchedulerName(), equalTo(scheduler.getSchedulerName()));
-        assertThat(remoteScheduler.getTriggerGroupNames(), equalTo(scheduler.getTriggerGroupNames()));
+    void testJMXAttributesAccess() throws Exception {
+        MatcherAssert.assertThat(remoteScheduler.getCalendarNames(), equalTo(scheduler.getCalendarNames()));
+        MatcherAssert.assertThat(remoteScheduler.getJobGroupNames(), equalTo(scheduler.getJobGroupNames()));
+        MatcherAssert.assertThat(remoteScheduler.getPausedTriggerGroups(), equalTo(scheduler.getPausedTriggerGroups()));
+        MatcherAssert.assertThat(remoteScheduler.getSchedulerInstanceId(), equalTo(scheduler.getSchedulerInstanceId()));
+        MatcherAssert.assertThat(remoteScheduler.getSchedulerName(), equalTo(scheduler.getSchedulerName()));
+        MatcherAssert.assertThat(remoteScheduler.getTriggerGroupNames(), equalTo(scheduler.getTriggerGroupNames()));
     }
 
     @Test
-    public void testSchedulerMetaData() throws Exception{
+    void testSchedulerMetaData() throws Exception{
         SchedulerMetaData remoteSchedulerMetaData = remoteScheduler.getMetaData();
         SchedulerMetaData metaData = scheduler.getMetaData();
-        assertThat(remoteSchedulerMetaData.getSchedulerName(), equalTo(metaData.getSchedulerName()));
-        assertThat(remoteSchedulerMetaData.getSchedulerInstanceId(), equalTo(metaData.getSchedulerInstanceId()));
-        assertThat(remoteSchedulerMetaData.isInStandbyMode(), is(metaData.isInStandbyMode()));
-        assertThat(remoteSchedulerMetaData.getSchedulerClass(), equalTo((Class)TestRemoteScheduler.class));
-        assertThat(remoteSchedulerMetaData.isSchedulerRemote(), is(true));
-        assertThat(remoteSchedulerMetaData.isStarted(), is(false)); // information not available through JMX
-        assertThat(remoteSchedulerMetaData.isInStandbyMode(), is(metaData.isInStandbyMode()));
-        assertThat(remoteSchedulerMetaData.isShutdown(), is(metaData.isShutdown()));
-        assertThat(remoteSchedulerMetaData.getRunningSince(), nullValue()); // Information not available through JMX
-        assertThat(remoteSchedulerMetaData.getNumberOfJobsExecuted(), is(metaData.getNumberOfJobsExecuted()));
-        assertThat(remoteSchedulerMetaData.getJobStoreClass(), equalTo((Class)metaData.getJobStoreClass()));
-        assertThat(remoteSchedulerMetaData.isJobStoreSupportsPersistence(), is(false)); // Information not available through JMX
-        assertThat(remoteSchedulerMetaData.isJobStoreClustered(), is(false)); // Information not available through JMX
-        assertThat(remoteSchedulerMetaData.getThreadPoolClass(), equalTo((Class)metaData.getThreadPoolClass()));
-        assertThat(remoteSchedulerMetaData.getThreadPoolSize(), is(metaData.getThreadPoolSize()));
-        assertThat(remoteSchedulerMetaData.getVersion(), equalTo(metaData.getVersion()));
-        assertThat(remoteSchedulerMetaData.getJobStoreClass(), equalTo((Class)metaData.getJobStoreClass()));
+        MatcherAssert.assertThat(remoteSchedulerMetaData.getSchedulerName(), equalTo(metaData.getSchedulerName()));
+        MatcherAssert.assertThat(remoteSchedulerMetaData.getSchedulerInstanceId(), equalTo(metaData.getSchedulerInstanceId()));
+        MatcherAssert.assertThat(remoteSchedulerMetaData.isInStandbyMode(), is(metaData.isInStandbyMode()));
+        MatcherAssert.assertThat(remoteSchedulerMetaData.getSchedulerClass(), equalTo((Class)TestRemoteScheduler.class));
+        MatcherAssert.assertThat(remoteSchedulerMetaData.isSchedulerRemote(), is(true));
+        MatcherAssert.assertThat(remoteSchedulerMetaData.isStarted(), is(false)); // information not available through JMX
+        MatcherAssert.assertThat(remoteSchedulerMetaData.isInStandbyMode(), is(metaData.isInStandbyMode()));
+        MatcherAssert.assertThat(remoteSchedulerMetaData.isShutdown(), is(metaData.isShutdown()));
+        MatcherAssert.assertThat(remoteSchedulerMetaData.getRunningSince(), nullValue()); // Information not available through JMX
+        MatcherAssert.assertThat(remoteSchedulerMetaData.getNumberOfJobsExecuted(), is(metaData.getNumberOfJobsExecuted()));
+        MatcherAssert.assertThat(remoteSchedulerMetaData.getJobStoreClass(), equalTo((Class)metaData.getJobStoreClass()));
+        MatcherAssert.assertThat(remoteSchedulerMetaData.isJobStoreSupportsPersistence(), is(false)); // Information not available through JMX
+        MatcherAssert.assertThat(remoteSchedulerMetaData.isJobStoreClustered(), is(false)); // Information not available through JMX
+        MatcherAssert.assertThat(remoteSchedulerMetaData.getThreadPoolClass(), equalTo((Class)metaData.getThreadPoolClass()));
+        MatcherAssert.assertThat(remoteSchedulerMetaData.getThreadPoolSize(), is(metaData.getThreadPoolSize()));
+        MatcherAssert.assertThat(remoteSchedulerMetaData.getVersion(), equalTo(metaData.getVersion()));
+        MatcherAssert.assertThat(remoteSchedulerMetaData.getJobStoreClass(), equalTo((Class)metaData.getJobStoreClass()));
     }
 
     @Test
-    public void testCalendarOperations() throws Exception {
+    void testCalendarOperations() throws Exception {
         try {
             remoteScheduler.addCalendar("testCal", new BaseCalendar(), true, true);
             fail("Method was not exposed in MBean API");
@@ -145,11 +140,11 @@ public class RemoteMBeanSchedulerTest {
         }
 
         remoteScheduler.deleteCalendar(CALENDAR_KEY);
-        assertThat(scheduler.getCalendar(CALENDAR_KEY), nullValue());
+        MatcherAssert.assertThat(scheduler.getCalendar(CALENDAR_KEY), nullValue());
     }
 
     @Test
-    public void testTriggerOperations() throws Exception {
+    void testTriggerOperations() throws Exception {
         TriggerKey triggerKey = new TriggerKey(TRIGGER_KEY, GROUP_KEY);
         GroupMatcher<TriggerKey> groupMatcher = GroupMatcher.triggerGroupEquals(GROUP_KEY);
 
@@ -174,7 +169,7 @@ public class RemoteMBeanSchedulerTest {
             // expected
         }
 
-        assertThat(remoteScheduler.getTriggerState(triggerKey), is(scheduler.getTriggerState(triggerKey)));
+        MatcherAssert.assertThat(remoteScheduler.getTriggerState(triggerKey), is(scheduler.getTriggerState(triggerKey)));
 
         try {
             remoteScheduler.getTriggerKeys(groupMatcher);
@@ -184,33 +179,33 @@ public class RemoteMBeanSchedulerTest {
         }
 
         remoteScheduler.pauseTrigger(triggerKey);
-        assertThat(scheduler.getTriggerState(triggerKey), is(Trigger.TriggerState.PAUSED));
+        MatcherAssert.assertThat(scheduler.getTriggerState(triggerKey), is(Trigger.TriggerState.PAUSED));
 
         remoteScheduler.resumeTrigger(triggerKey);
-        assertThat(scheduler.getTriggerState(triggerKey), is(Trigger.TriggerState.NORMAL));
+        MatcherAssert.assertThat(scheduler.getTriggerState(triggerKey), is(Trigger.TriggerState.NORMAL));
 
         remoteScheduler.pauseTriggers(groupMatcher);
-        assertThat(scheduler.getTriggerState(triggerKey), is(Trigger.TriggerState.PAUSED));
+        MatcherAssert.assertThat(scheduler.getTriggerState(triggerKey), is(Trigger.TriggerState.PAUSED));
 
         remoteScheduler.resumeTriggers(groupMatcher);
-        assertThat(scheduler.getTriggerState(triggerKey), is(Trigger.TriggerState.NORMAL));
+        MatcherAssert.assertThat(scheduler.getTriggerState(triggerKey), is(Trigger.TriggerState.NORMAL));
 
         remoteScheduler.pauseAll();
-        assertThat(scheduler.getTriggerState(triggerKey), is(Trigger.TriggerState.PAUSED));
+        MatcherAssert.assertThat(scheduler.getTriggerState(triggerKey), is(Trigger.TriggerState.PAUSED));
 
         remoteScheduler.resumeAll();
-        assertThat(scheduler.getTriggerState(triggerKey), is(Trigger.TriggerState.NORMAL));
+        MatcherAssert.assertThat(scheduler.getTriggerState(triggerKey), is(Trigger.TriggerState.NORMAL));
     }
 
     @Test
-    public void testJobOperations() throws Exception {
+    void testJobOperations() throws Exception {
 
         JobKey job2 = new JobKey("job2", GROUP_KEY);
         JobDetail job2Detail = newJob(HelloJob.class).withIdentity(job2).storeDurably().build();
 
         remoteScheduler.addJob(job2Detail, false);
 
-        assertThat(remoteScheduler.getJobDetail(job2), equalTo(job2Detail));
+        MatcherAssert.assertThat(remoteScheduler.getJobDetail(job2), equalTo(job2Detail));
 
         try {
             remoteScheduler.checkExists(job2);
@@ -228,9 +223,9 @@ public class RemoteMBeanSchedulerTest {
         remoteScheduler.pauseJobs(matcher);
         remoteScheduler.resumeJobs(matcher);
 
-        assertThat(remoteScheduler.getJobKeys(matcher).size(), is(2));
+        MatcherAssert.assertThat(remoteScheduler.getJobKeys(matcher).size(), is(2));
 
-        assertThat(remoteScheduler.interrupt(job2), is(false));
+        MatcherAssert.assertThat(remoteScheduler.interrupt(job2), is(false));
 
         try {
             remoteScheduler.triggerJob(job2);
@@ -260,7 +255,7 @@ public class RemoteMBeanSchedulerTest {
             // expected
         }
 
-        assertThat(remoteScheduler.unscheduleJob(TriggerKey.triggerKey(TRIGGER_KEY, GROUP_KEY)), is(true));
+        MatcherAssert.assertThat(remoteScheduler.unscheduleJob(TriggerKey.triggerKey(TRIGGER_KEY, GROUP_KEY)), is(true));
 
         try {
             remoteScheduler.unscheduleJobs(null);
@@ -276,7 +271,7 @@ public class RemoteMBeanSchedulerTest {
             // expected
         }
 
-        assertThat(remoteScheduler.deleteJob(job2), is(true));
+        MatcherAssert.assertThat(remoteScheduler.deleteJob(job2), is(true));
 
         try {
             remoteScheduler.deleteJobs(Collections.singletonList(JobKey.jobKey(JOB_KEY, GROUP_KEY)));
@@ -288,7 +283,7 @@ public class RemoteMBeanSchedulerTest {
     }
 
     @Test
-    public void testLifecycleOperations() throws SchedulerException {
+    void testLifecycleOperations() throws SchedulerException {
         try {
             remoteScheduler.startDelayed(60);
             fail("Method was not exposed in MBean API");
@@ -297,12 +292,12 @@ public class RemoteMBeanSchedulerTest {
         }
 
         remoteScheduler.start();
-        assertThat(remoteScheduler.isStarted(), is(true));
-        assertThat(scheduler.isStarted(), is(true));
+        MatcherAssert.assertThat(remoteScheduler.isStarted(), is(true));
+        MatcherAssert.assertThat(scheduler.isStarted(), is(true));
 
         remoteScheduler.standby();
-        assertThat(remoteScheduler.isInStandbyMode(), is(true));
-        assertThat(scheduler.isInStandbyMode(), is(true));
+        MatcherAssert.assertThat(remoteScheduler.isInStandbyMode(), is(true));
+        MatcherAssert.assertThat(scheduler.isInStandbyMode(), is(true));
 
         try {
             remoteScheduler.shutdown(true);
@@ -318,18 +313,18 @@ public class RemoteMBeanSchedulerTest {
         } catch (SchedulerException e) {
             // expected
         }
-        assertThat(scheduler.isShutdown(), is(true));
+        MatcherAssert.assertThat(scheduler.isShutdown(), is(true));
 
     }
 
     @Test
-    public void testJMXOperations() throws Exception {
+    void testJMXOperations() throws Exception {
         remoteScheduler.clear();
-        assertThat(remoteScheduler.getJobGroupNames().isEmpty(), is(true));
+        MatcherAssert.assertThat(remoteScheduler.getJobGroupNames().isEmpty(), is(true));
     }
 
     @Test
-    public void testUnsupportedMethods() {
+    void testUnsupportedMethods() {
         try {
             remoteScheduler.getListenerManager();
             fail("Operation should not be supported");
@@ -347,7 +342,7 @@ public class RemoteMBeanSchedulerTest {
     }
 
     @Test
-    public void testListBrokenAttributes() throws Exception {
+    void testListBrokenAttributes() throws Exception {
         try {
             remoteScheduler.getContext();
             fail("Method was not exposed in MBean API");

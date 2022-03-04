@@ -107,7 +107,7 @@ public class PendingApplyDGCClient extends ClientBase {
     ThreadUtil.reallySleep(DGC_SECONDS * 1000L * 10);
 
     if (index.get() == 0) {
-      Assert.assertEquals(0, fastJobsCompleted.get());
+      Assertions.assertEquals(0, fastJobsCompleted.get());
 
       // trip local barrier again to get pending queue applied
       localBarrier.await();

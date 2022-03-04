@@ -5,9 +5,9 @@ import static org.quartz.TriggerBuilder.newTrigger;
 
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
@@ -32,7 +32,7 @@ public abstract class SendMailJobAuthTestBase {
         this.password = password;
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         simpleValidator = new SimpleValidator();
         wiser = new Wiser(2500);
@@ -47,7 +47,7 @@ public abstract class SendMailJobAuthTestBase {
         scheduler.getListenerManager().addJobListener(jobListener);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         wiser.stop();
         scheduler.shutdown(true);

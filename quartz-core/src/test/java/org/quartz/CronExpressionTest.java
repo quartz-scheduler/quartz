@@ -15,12 +15,23 @@
  */
 package org.quartz;
 
-import java.io.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+
+import org.junit.jupiter.api.Test;
 
 public class CronExpressionTest extends SerializationTestSupport {
     private static final String[] VERSIONS = new String[] {"1.5.2"};
@@ -65,7 +76,8 @@ public class CronExpressionTest extends SerializationTestSupport {
     /*
      * Test method for 'org.quartz.CronExpression.isSatisfiedBy(Date)'.
      */
-    public void testIsSatisfiedBy() throws Exception {
+    @Test
+    void testIsSatisfiedBy() throws Exception {
         CronExpression cronExpression = new CronExpression("0 15 10 * * ? 2005");
         
         Calendar cal = Calendar.getInstance();
@@ -85,7 +97,8 @@ public class CronExpressionTest extends SerializationTestSupport {
         assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
     }
 
-    public void testLastDayOffset() throws Exception {
+    @Test
+    void testLastDayOffset() throws Exception {
         CronExpression cronExpression = new CronExpression("0 15 10 L-2 * ? 2010");
         
         Calendar cal = Calendar.getInstance();
@@ -116,7 +129,8 @@ public class CronExpressionTest extends SerializationTestSupport {
     /*
      * QUARTZ-571: Showing that expressions with months correctly serialize.
      */
-    public void testQuartz571() throws Exception {
+    @Test
+    void testQuartz571() throws Exception {
         CronExpression cronExpression = new CronExpression("19 15 10 4 Apr ? ");
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -136,7 +150,8 @@ public class CronExpressionTest extends SerializationTestSupport {
      * QTZ-259 : last day offset causes repeating fire time
      * 
      */
- 	public void testQtz259() throws Exception {
+    @Test
+ 	void testQtz259() throws Exception {
  		CronScheduleBuilder schedBuilder = CronScheduleBuilder.cronSchedule("0 0 0 L-2 * ? *");
  		Trigger trigger = TriggerBuilder.newTrigger().withIdentity("test").withSchedule(schedBuilder).build();
  				
@@ -145,7 +160,7 @@ public class CronExpressionTest extends SerializationTestSupport {
  		while (++i < 26) {
  			Date date = trigger.getFireTimeAfter(pdate);
  			System.out.println("fireTime: " + date + ", previousFireTime: " + pdate);
- 			assertFalse("Next fire time is the same as previous fire time!", pdate.equals(date));
+ 			assertNotEquals(pdate, date, "Next fire time is the same as previous fire time!");
  			pdate = date;
  		}
  	}
@@ -154,7 +169,8 @@ public class CronExpressionTest extends SerializationTestSupport {
      * QTZ-259 : last day offset causes repeating fire time
      * 
      */
- 	public void testQtz259LW() throws Exception {
+    @Test
+ 	void testQtz259LW() throws Exception {
  		CronScheduleBuilder schedBuilder = CronScheduleBuilder.cronSchedule("0 0 0 LW * ? *");
  		Trigger trigger = TriggerBuilder.newTrigger().withIdentity("test").withSchedule(schedBuilder).build();
  				
@@ -163,7 +179,7 @@ public class CronExpressionTest extends SerializationTestSupport {
  		while (++i < 26) {
  			Date date = trigger.getFireTimeAfter(pdate);
  			System.out.println("fireTime: " + date + ", previousFireTime: " + pdate);
- 			assertFalse("Next fire time is the same as previous fire time!", pdate.equals(date));
+ 			assertNotEquals(pdate, date, "Next fire time is the same as previous fire time!");
  			pdate = date;
  		}
  	}
@@ -171,69 +187,80 @@ public class CronExpressionTest extends SerializationTestSupport {
     /*
      * QUARTZ-574: Showing that storeExpressionVals correctly calculates the month number
      */
-    public void testQuartz574() {
+    @Test
+    void testQuartz574() {
         try {
             new CronExpression("* * * * Foo ? ");
             fail("Expected ParseException did not fire for non-existent month");
         } catch(ParseException pe) {
-            assertTrue("Incorrect ParseException thrown", 
-                pe.getMessage().startsWith("Invalid Month value:"));
+            assertTrue( 
+                pe.getMessage().startsWith("Invalid Month value:"),
+                "Incorrect ParseException thrown");
         }
 
         try {
             new CronExpression("* * * * Jan-Foo ? ");
             fail("Expected ParseException did not fire for non-existent month");
         } catch(ParseException pe) {
-            assertTrue("Incorrect ParseException thrown", 
-                pe.getMessage().startsWith("Invalid Month value:"));
+            assertTrue( 
+                pe.getMessage().startsWith("Invalid Month value:"),
+                "Incorrect ParseException thrown");
         }
     }
 
-    public void testQuartz621() {
+    @Test
+    void testQuartz621() {
         try {
             new CronExpression("0 0 * * * *");
             fail("Expected ParseException did not fire for wildcard day-of-month and day-of-week");
         } catch(ParseException pe) {
-            assertTrue("Incorrect ParseException thrown", 
-                pe.getMessage().startsWith("Support for specifying both a day-of-week AND a day-of-month parameter is not implemented."));
+            assertTrue( 
+                pe.getMessage().startsWith("Support for specifying both a day-of-week AND a day-of-month parameter is not implemented."),
+                "Incorrect ParseException thrown");
         }
         try {
             new CronExpression("0 0 * 4 * *");
             fail("Expected ParseException did not fire for specified day-of-month and wildcard day-of-week");
         } catch(ParseException pe) {
-            assertTrue("Incorrect ParseException thrown", 
-                pe.getMessage().startsWith("Support for specifying both a day-of-week AND a day-of-month parameter is not implemented."));
+            assertTrue( 
+                pe.getMessage().startsWith("Support for specifying both a day-of-week AND a day-of-month parameter is not implemented."),
+                "Incorrect ParseException thrown");
         }
         try {
             new CronExpression("0 0 * * * 4");
             fail("Expected ParseException did not fire for wildcard day-of-month and specified day-of-week");
         } catch(ParseException pe) {
-            assertTrue("Incorrect ParseException thrown", 
-                pe.getMessage().startsWith("Support for specifying both a day-of-week AND a day-of-month parameter is not implemented."));
+            assertTrue( 
+                pe.getMessage().startsWith("Support for specifying both a day-of-week AND a day-of-month parameter is not implemented."),
+                "Incorrect ParseException thrown");
         }
     }
 
-    public void testQuartz640() throws ParseException {
+    @Test
+    void testQuartz640() throws ParseException {
         try {
             new CronExpression("0 43 9 1,5,29,L * ?");
             fail("Expected ParseException did not fire for L combined with other days of the month");
         } catch(ParseException pe) {
-            assertTrue("Incorrect ParseException thrown", 
-                pe.getMessage().startsWith("Support for specifying 'L' and 'LW' with other days of the month is not implemented"));
+            assertTrue( 
+                pe.getMessage().startsWith("Support for specifying 'L' and 'LW' with other days of the month is not implemented"),
+                "Incorrect ParseException thrown");
         }
         try {
             new CronExpression("0 43 9 ? * SAT,SUN,L");
             fail("Expected ParseException did not fire for L combined with other days of the week");
         } catch(ParseException pe) {
-            assertTrue("Incorrect ParseException thrown", 
-                pe.getMessage().startsWith("Support for specifying 'L' with other days of the week is not implemented"));
+            assertTrue( 
+                pe.getMessage().startsWith("Support for specifying 'L' with other days of the week is not implemented"),
+                "Incorrect ParseException thrown");
         }
         try {
             new CronExpression("0 43 9 ? * 6,7,L");
             fail("Expected ParseException did not fire for L combined with other days of the week");
         } catch(ParseException pe) {
-            assertTrue("Incorrect ParseException thrown", 
-                pe.getMessage().startsWith("Support for specifying 'L' with other days of the week is not implemented"));
+            assertTrue( 
+                pe.getMessage().startsWith("Support for specifying 'L' with other days of the week is not implemented"),
+                "Incorrect ParseException thrown");
         }
         try {
             new CronExpression("0 43 9 ? * 5L");
@@ -241,19 +268,21 @@ public class CronExpressionTest extends SerializationTestSupport {
             fail("Unexpected ParseException thrown for supported '5L' expression.");
         }
     }
-    
-    
-    public void testQtz96() throws ParseException {
+
+    @Test
+    void testQtz96() throws ParseException {
         try {
             new CronExpression("0/5 * * 32W 1 ?");
             fail("Expected ParseException did not fire for W with value larger than 31");
         } catch(ParseException pe) {
-            assertTrue("Incorrect ParseException thrown", 
-                pe.getMessage().startsWith("The 'W' option does not make sense with values larger than"));
+            assertTrue( 
+                pe.getMessage().startsWith("The 'W' option does not make sense with values larger than"),
+                "Incorrect ParseException thrown");
         }
     }
 
-    public void testQtz395_CopyConstructorMustPreserveTimeZone () throws ParseException {
+    @Test
+    void testQtz395_CopyConstructorMustPreserveTimeZone () throws ParseException {
         TimeZone nonDefault = TimeZone.getTimeZone("Europe/Brussels");
         if (nonDefault.equals(TimeZone.getDefault())) {
             nonDefault = EST_TIME_ZONE;
@@ -266,13 +295,14 @@ public class CronExpressionTest extends SerializationTestSupport {
     }
 
     // Issue #58
-    public void testSecRangeIntervalAfterSlash() throws Exception {
+    @Test
+    void testSecRangeIntervalAfterSlash() throws Exception {
         // Test case 1
         try {
             new CronExpression("/120 0 8-18 ? * 2-6");
             fail("Cron did not validate bad range interval in '_blank/xxx' form");
         } catch (ParseException e) {
-            assertEquals(e.getMessage(), "Increment > 60 : 120");
+            assertEquals("Increment > 60 : 120", e.getMessage());
         }
 
         // Test case 2
@@ -280,7 +310,7 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("0/120 0 8-18 ? * 2-6");
             fail("Cron did not validate bad range interval in in '0/xxx' form");
         } catch (ParseException e) {
-            assertEquals(e.getMessage(), "Increment > 60 : 120");
+            assertEquals("Increment > 60 : 120", e.getMessage());
         }
 
         // Test case 3
@@ -288,7 +318,7 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("/ 0 8-18 ? * 2-6");
             fail("Cron did not validate bad range interval in '_blank/_blank'");
         } catch (ParseException e) {
-            assertEquals(e.getMessage(), "'/' must be followed by an integer.");
+            assertEquals("'/' must be followed by an integer.", e.getMessage());
         }
 
         // Test case 4
@@ -296,19 +326,20 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("0/ 0 8-18 ? * 2-6");
             fail("Cron did not validate bad range interval in '0/_blank'");
         } catch (ParseException e) {
-            assertEquals(e.getMessage(), "'/' must be followed by an integer.");
+            assertEquals("'/' must be followed by an integer.", e.getMessage());
         }
     }
 
 
     // Issue #58
-    public void testMinRangeIntervalAfterSlash() throws Exception {
+    @Test
+    void testMinRangeIntervalAfterSlash() throws Exception {
         // Test case 1
         try {
             new CronExpression("0 /120 8-18 ? * 2-6");
             fail("Cron did not validate bad range interval in '_blank/xxx' form");
         } catch (ParseException e) {
-            assertEquals(e.getMessage(), "Increment > 60 : 120");
+            assertEquals("Increment > 60 : 120", e.getMessage());
         }
 
         // Test case 2
@@ -316,7 +347,7 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("0 0/120 8-18 ? * 2-6");
             fail("Cron did not validate bad range interval in in '0/xxx' form");
         } catch (ParseException e) {
-            assertEquals(e.getMessage(), "Increment > 60 : 120");
+            assertEquals("Increment > 60 : 120", e.getMessage());
         }
 
         // Test case 3
@@ -324,7 +355,7 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("0 / 8-18 ? * 2-6");
             fail("Cron did not validate bad range interval in '_blank/_blank'");
         } catch (ParseException e) {
-            assertEquals(e.getMessage(), "'/' must be followed by an integer.");
+            assertEquals("'/' must be followed by an integer.", e.getMessage());
         }
 
         // Test case 4
@@ -332,18 +363,19 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("0 0/ 8-18 ? * 2-6");
             fail("Cron did not validate bad range interval in '0/_blank'");
         } catch (ParseException e) {
-            assertEquals(e.getMessage(), "'/' must be followed by an integer.");
+            assertEquals("'/' must be followed by an integer.", e.getMessage());
         }
     }
 
     // Issue #58
-    public void testHourRangeIntervalAfterSlash() throws Exception {
+    @Test
+    void testHourRangeIntervalAfterSlash() throws Exception {
         // Test case 1
         try {
             new CronExpression("0 0 /120 ? * 2-6");
             fail("Cron did not validate bad range interval in '_blank/xxx' form");
         } catch (ParseException e) {
-            assertEquals(e.getMessage(), "Increment > 24 : 120");
+            assertEquals("Increment > 24 : 120", e.getMessage());
         }
 
         // Test case 2
@@ -351,7 +383,7 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("0 0 0/120 ? * 2-6");
             fail("Cron did not validate bad range interval in in '0/xxx' form");
         } catch (ParseException e) {
-            assertEquals(e.getMessage(), "Increment > 24 : 120");
+            assertEquals("Increment > 24 : 120", e.getMessage());
         }
 
         // Test case 3
@@ -359,7 +391,7 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("0 0 / ? * 2-6");
             fail("Cron did not validate bad range interval in '_blank/_blank'");
         } catch (ParseException e) {
-            assertEquals(e.getMessage(), "'/' must be followed by an integer.");
+            assertEquals("'/' must be followed by an integer.", e.getMessage());
         }
 
         // Test case 4
@@ -367,18 +399,19 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("0 0 0/ ? * 2-6");
             fail("Cron did not validate bad range interval in '0/_blank'");
         } catch (ParseException e) {
-            assertEquals(e.getMessage(), "'/' must be followed by an integer.");
+            assertEquals("'/' must be followed by an integer.", e.getMessage());
         }
     }
 
     // Issue #58
-    public void testDayOfMonthRangeIntervalAfterSlash() throws Exception {
+    @Test
+    void testDayOfMonthRangeIntervalAfterSlash() throws Exception {
         // Test case 1
         try {
             new CronExpression("0 0 0 /120 * 2-6");
             fail("Cron did not validate bad range interval in '_blank/xxx' form");
         } catch (ParseException e) {
-            assertEquals(e.getMessage(), "Increment > 31 : 120");
+            assertEquals("Increment > 31 : 120", e.getMessage());
         }
 
         // Test case 2
@@ -386,7 +419,7 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("0 0 0 0/120 * 2-6");
             fail("Cron did not validate bad range interval in in '0/xxx' form");
         } catch (ParseException e) {
-            assertEquals(e.getMessage(), "Increment > 31 : 120");
+            assertEquals("Increment > 31 : 120", e.getMessage());
         }
 
         // Test case 3
@@ -394,7 +427,7 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("0 0 0 / * 2-6");
             fail("Cron did not validate bad range interval in '_blank/_blank'");
         } catch (ParseException e) {
-            assertEquals(e.getMessage(), "'/' must be followed by an integer.");
+            assertEquals("'/' must be followed by an integer.", e.getMessage());
         }
 
         // Test case 4
@@ -402,18 +435,19 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("0 0 0 0/ * 2-6");
             fail("Cron did not validate bad range interval in '0/_blank'");
         } catch (ParseException e) {
-            assertEquals(e.getMessage(), "'/' must be followed by an integer.");
+            assertEquals("'/' must be followed by an integer.", e.getMessage());
         }
     }
 
     // Issue #58
-    public void testMonthRangeIntervalAfterSlash() throws Exception {
+    @Test
+    void testMonthRangeIntervalAfterSlash() throws Exception {
         // Test case 1
         try {
             new CronExpression("0 0 0 ? /120 2-6");
             fail("Cron did not validate bad range interval in '_blank/xxx' form");
         } catch (ParseException e) {
-            assertEquals(e.getMessage(), "Increment > 12 : 120");
+            assertEquals("Increment > 12 : 120", e.getMessage());
         }
 
         // Test case 2
@@ -421,7 +455,7 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("0 0 0 ? 0/120 2-6");
             fail("Cron did not validate bad range interval in in '0/xxx' form");
         } catch (ParseException e) {
-            assertEquals(e.getMessage(), "Increment > 12 : 120");
+            assertEquals("Increment > 12 : 120", e.getMessage());
         }
 
         // Test case 3
@@ -429,7 +463,7 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("0 0 0 ? / 2-6");
             fail("Cron did not validate bad range interval in '_blank/_blank'");
         } catch (ParseException e) {
-            assertEquals(e.getMessage(), "'/' must be followed by an integer.");
+            assertEquals("'/' must be followed by an integer.", e.getMessage());
         }
 
         // Test case 4
@@ -437,20 +471,21 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("0 0 0 ? 0/ 2-6");
             fail("Cron did not validate bad range interval in '0/_blank'");
         } catch (ParseException e) {
-            assertEquals(e.getMessage(), "'/' must be followed by an integer.");
+            assertEquals("'/' must be followed by an integer.", e.getMessage());
         }
     }
 
 
 
     // Issue #58
-    public void testDayOfWeekRangeIntervalAfterSlash() throws Exception {
+    @Test
+    void testDayOfWeekRangeIntervalAfterSlash() throws Exception {
         // Test case 1
         try {
             new CronExpression("0 0 0 ? * /120");
             fail("Cron did not validate bad range interval in '_blank/xxx' form");
         } catch (ParseException e) {
-            assertEquals(e.getMessage(), "Increment > 7 : 120");
+            assertEquals("Increment > 7 : 120", e.getMessage());
         }
 
         // Test case 2
@@ -458,7 +493,7 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("0 0 0 ? * 0/120");
             fail("Cron did not validate bad range interval in in '0/xxx' form");
         } catch (ParseException e) {
-            assertEquals(e.getMessage(), "Increment > 7 : 120");
+            assertEquals("Increment > 7 : 120", e.getMessage());
         }
 
         // Test case 3
@@ -466,7 +501,7 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("0 0 0 ? * /");
             fail("Cron did not validate bad range interval in '_blank/_blank'");
         } catch (ParseException e) {
-            assertEquals(e.getMessage(), "'/' must be followed by an integer.");
+            assertEquals("'/' must be followed by an integer.", e.getMessage());
         }
 
         // Test case 4
@@ -474,7 +509,7 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("0 0 0 ? * 0/");
             fail("Cron did not validate bad range interval in '0/_blank'");
         } catch (ParseException e) {
-            assertEquals(e.getMessage(), "'/' must be followed by an integer.");
+            assertEquals("'/' must be followed by an integer.", e.getMessage());
         }
     }
     

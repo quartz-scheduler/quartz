@@ -65,7 +65,7 @@ public class ManyTriggerClient extends ClientBase {
         System.out.println(new Date() + " - Waiting on another " + (triggers - counter.get()) + " triggers to fire");
       }
 
-      Assert.assertEquals("All " + triggers + " triggers should have fired by now (" + new Date() + ")", triggers,
+      Assertions.assertEquals("All " + triggers + " triggers should have fired by now (" + new Date() + ")", triggers,
                           counter.get());
 
     } else {

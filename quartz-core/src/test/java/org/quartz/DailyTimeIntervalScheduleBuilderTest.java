@@ -16,6 +16,7 @@
  */
 package org.quartz;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.quartz.DailyTimeIntervalScheduleBuilder.dailyTimeIntervalSchedule;
 import static org.quartz.DateBuilder.dateOf;
 import static org.quartz.JobBuilder.newJob;
@@ -23,12 +24,12 @@ import static org.quartz.TimeOfDay.hourMinuteAndSecondOfDay;
 import static org.quartz.TriggerBuilder.newTrigger;
 
 import java.util.Date;
-import java.util.Calendar;
 import java.util.List;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
 
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.quartz.DateBuilder.IntervalUnit;
 import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.spi.OperableTrigger;
@@ -39,9 +40,10 @@ import org.quartz.spi.OperableTrigger;
  * @author Zemian Deng <saltnlight5@gmail.com>
  *
  */
-public class DailyTimeIntervalScheduleBuilderTest extends TestCase {
-  
-  public void testScheduleActualTrigger() throws Exception {
+class DailyTimeIntervalScheduleBuilderTest {
+
+  @Test
+  void testScheduleActualTrigger() throws Exception {
     Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
     JobDetail job = newJob(MyJob.class).build();
     DailyTimeIntervalTrigger trigger = newTrigger().withIdentity("test")
@@ -51,8 +53,9 @@ public class DailyTimeIntervalScheduleBuilderTest extends TestCase {
     scheduler.scheduleJob(job, trigger); //We are not verify anything other than just run through the scheduler.
     scheduler.shutdown();
   }
-  
-  public void testScheduleInMiddleOfDailyInterval() throws Exception {
+
+  @Test
+  void testScheduleInMiddleOfDailyInterval() throws Exception {
     
     java.util.Calendar currTime = java.util.Calendar.getInstance();
     
@@ -78,7 +81,7 @@ public class DailyTimeIntervalScheduleBuilderTest extends TestCase {
     System.out.println("testScheduleInMiddleOfDailyInterval: currTime = " + currTime.getTime());
     System.out.println("testScheduleInMiddleOfDailyInterval: computed first fire time = " + trigger.getNextFireTime());
         
-    Assert.assertTrue("First fire time is not after now!", trigger.getNextFireTime().after(currTime.getTime()));
+    Assertions.assertTrue(trigger.getNextFireTime().after(currTime.getTime()), "First fire time is not after now!");
     
     
     Date startTime = DateBuilder.todayAt(2, 15, 0);
@@ -97,26 +100,28 @@ public class DailyTimeIntervalScheduleBuilderTest extends TestCase {
     System.out.println("testScheduleInMiddleOfDailyInterval: startTime = " + startTime);
     System.out.println("testScheduleInMiddleOfDailyInterval: computed first fire time = " + trigger.getNextFireTime());
         
-    Assert.assertTrue("First fire time is not after now!", trigger.getNextFireTime().equals(startTime));
+    Assertions.assertEquals(startTime, trigger.getNextFireTime(), "First fire time is not after now!");
  
     
     scheduler.shutdown();
   }
 
-  public void testHourlyTrigger() {
+  @Test
+  void testHourlyTrigger() {
     DailyTimeIntervalTrigger trigger = newTrigger().withIdentity("test")
         .withSchedule(dailyTimeIntervalSchedule()
             .withIntervalInHours(1))
             .build();
-    Assert.assertEquals("test", trigger.getKey().getName());
-    Assert.assertEquals("DEFAULT", trigger.getKey().getGroup());
-    Assert.assertEquals(IntervalUnit.HOUR, trigger.getRepeatIntervalUnit());
-    Assert.assertEquals(1, trigger.getRepeatInterval());
+    Assertions.assertEquals("test", trigger.getKey().getName());
+    Assertions.assertEquals("DEFAULT", trigger.getKey().getGroup());
+    Assertions.assertEquals(IntervalUnit.HOUR, trigger.getRepeatIntervalUnit());
+    Assertions.assertEquals(1, trigger.getRepeatInterval());
     List<Date> fireTimes = TriggerUtils.computeFireTimes((OperableTrigger)trigger, null, 48);
-    Assert.assertEquals(48, fireTimes.size());
+    Assertions.assertEquals(48, fireTimes.size());
   }
-  
-  public void testMinutelyTriggerWithTimeOfDay() {
+
+  @Test
+  void testMinutelyTriggerWithTimeOfDay() {
     DailyTimeIntervalTrigger trigger = newTrigger().withIdentity("test", "group")
         .withSchedule(dailyTimeIntervalSchedule()
             .withIntervalInMinutes(72)
@@ -124,19 +129,20 @@ public class DailyTimeIntervalScheduleBuilderTest extends TestCase {
             .endingDailyAt(TimeOfDay.hourAndMinuteOfDay(17, 0))
             .onMondayThroughFriday())
             .build();
-    Assert.assertEquals("test", trigger.getKey().getName());
-    Assert.assertEquals("group", trigger.getKey().getGroup());
-    Assert.assertEquals(true, new Date().getTime() >= trigger.getStartTime().getTime());
-    Assert.assertEquals(true, null == trigger.getEndTime());
-    Assert.assertEquals(IntervalUnit.MINUTE, trigger.getRepeatIntervalUnit());
-    Assert.assertEquals(72, trigger.getRepeatInterval());
-    Assert.assertEquals(new TimeOfDay(8, 0), trigger.getStartTimeOfDay());
-    Assert.assertEquals(new TimeOfDay(17, 0), trigger.getEndTimeOfDay());
+    Assertions.assertEquals("test", trigger.getKey().getName());
+    Assertions.assertEquals("group", trigger.getKey().getGroup());
+    Assertions.assertEquals(true, new Date().getTime() >= trigger.getStartTime().getTime());
+    Assertions.assertEquals(true, null == trigger.getEndTime());
+    Assertions.assertEquals(IntervalUnit.MINUTE, trigger.getRepeatIntervalUnit());
+    Assertions.assertEquals(72, trigger.getRepeatInterval());
+    Assertions.assertEquals(new TimeOfDay(8, 0), trigger.getStartTimeOfDay());
+    Assertions.assertEquals(new TimeOfDay(17, 0), trigger.getEndTimeOfDay());
     List<Date> fireTimes = TriggerUtils.computeFireTimes((OperableTrigger)trigger, null, 48);
-    Assert.assertEquals(48, fireTimes.size());
+    Assertions.assertEquals(48, fireTimes.size());
   }
-  
-  public void testSecondlyTriggerWithStartAndEndTime() {
+
+  @Test
+  void testSecondlyTriggerWithStartAndEndTime() {
     Date startTime = DateBuilder.dateOf(0,  0, 0, 1, 1, 2011);
     Date endTime = DateBuilder.dateOf(0, 0, 0, 2, 1, 2011);
     DailyTimeIntervalTrigger trigger = newTrigger().withIdentity("test", "test")
@@ -148,19 +154,20 @@ public class DailyTimeIntervalScheduleBuilderTest extends TestCase {
             .startAt(startTime)
             .endAt(endTime)
             .build();
-    Assert.assertEquals("test", trigger.getKey().getName());
-    Assert.assertEquals("test", trigger.getKey().getGroup());
-    Assert.assertEquals(true, startTime.getTime() == trigger.getStartTime().getTime());
-    Assert.assertEquals(true, endTime.getTime() == trigger.getEndTime().getTime());
-    Assert.assertEquals(IntervalUnit.SECOND, trigger.getRepeatIntervalUnit());
-    Assert.assertEquals(121, trigger.getRepeatInterval());
-    Assert.assertEquals(new TimeOfDay(10, 0, 0), trigger.getStartTimeOfDay());
-    Assert.assertEquals(new TimeOfDay(23, 59, 59), trigger.getEndTimeOfDay());
+    Assertions.assertEquals("test", trigger.getKey().getName());
+    Assertions.assertEquals("test", trigger.getKey().getGroup());
+    Assertions.assertEquals(true, startTime.getTime() == trigger.getStartTime().getTime());
+    Assertions.assertEquals(true, endTime.getTime() == trigger.getEndTime().getTime());
+    Assertions.assertEquals(IntervalUnit.SECOND, trigger.getRepeatIntervalUnit());
+    Assertions.assertEquals(121, trigger.getRepeatInterval());
+    Assertions.assertEquals(new TimeOfDay(10, 0, 0), trigger.getStartTimeOfDay());
+    Assertions.assertEquals(new TimeOfDay(23, 59, 59), trigger.getEndTimeOfDay());
     List<Date> fireTimes = TriggerUtils.computeFireTimes((OperableTrigger)trigger, null, 48);
-    Assert.assertEquals(48, fireTimes.size());
+    Assertions.assertEquals(48, fireTimes.size());
   }
 
-  public void testRepeatCountTrigger() {
+  @Test
+  void testRepeatCountTrigger() {
     DailyTimeIntervalTrigger trigger = newTrigger()
         .withIdentity("test")
         .withSchedule(
@@ -168,15 +175,16 @@ public class DailyTimeIntervalScheduleBuilderTest extends TestCase {
             .withIntervalInHours(1)
             .withRepeatCount(9))
         .build();
-    Assert.assertEquals("test", trigger.getKey().getName());
-    Assert.assertEquals("DEFAULT", trigger.getKey().getGroup());
-    Assert.assertEquals(IntervalUnit.HOUR, trigger.getRepeatIntervalUnit());
-    Assert.assertEquals(1, trigger.getRepeatInterval());
+    Assertions.assertEquals("test", trigger.getKey().getName());
+    Assertions.assertEquals("DEFAULT", trigger.getKey().getGroup());
+    Assertions.assertEquals(IntervalUnit.HOUR, trigger.getRepeatIntervalUnit());
+    Assertions.assertEquals(1, trigger.getRepeatInterval());
     List<Date> fireTimes = TriggerUtils.computeFireTimes((OperableTrigger)trigger, null, 48);
-    Assert.assertEquals(10, fireTimes.size());
+    Assertions.assertEquals(10, fireTimes.size());
   }
-  
-  public void testEndingAtAfterCount() {
+
+  @Test
+  void testEndingAtAfterCount() {
     Date startTime = DateBuilder.dateOf(0,  0, 0, 1, 1, 2011);
     DailyTimeIntervalTrigger trigger = newTrigger()
         .withIdentity("test")
@@ -187,17 +195,18 @@ public class DailyTimeIntervalScheduleBuilderTest extends TestCase {
             .endingDailyAfterCount(12))
         .startAt(startTime)
         .build();
-    Assert.assertEquals("test", trigger.getKey().getName());
-    Assert.assertEquals("DEFAULT", trigger.getKey().getGroup());
-    Assert.assertEquals(IntervalUnit.MINUTE, trigger.getRepeatIntervalUnit());
+    Assertions.assertEquals("test", trigger.getKey().getName());
+    Assertions.assertEquals("DEFAULT", trigger.getKey().getGroup());
+    Assertions.assertEquals(IntervalUnit.MINUTE, trigger.getRepeatIntervalUnit());
     List<Date> fireTimes = TriggerUtils.computeFireTimes((OperableTrigger)trigger, null, 48);
-    Assert.assertEquals(48, fireTimes.size());
-    Assert.assertEquals(dateOf(8, 0, 0, 1, 1, 2011), fireTimes.get(0));
-    Assert.assertEquals(dateOf(10, 45, 0, 4, 1, 2011), fireTimes.get(47));
-    Assert.assertEquals(new TimeOfDay(10, 45), trigger.getEndTimeOfDay());
+    Assertions.assertEquals(48, fireTimes.size());
+    Assertions.assertEquals(dateOf(8, 0, 0, 1, 1, 2011), fireTimes.get(0));
+    Assertions.assertEquals(dateOf(10, 45, 0, 4, 1, 2011), fireTimes.get(47));
+    Assertions.assertEquals(new TimeOfDay(10, 45), trigger.getEndTimeOfDay());
   }
-  
-  public void testEndingAtAfterCountOf1() {
+
+  @Test
+  void testEndingAtAfterCountOf1() {
     Date startTime = DateBuilder.dateOf(0,  0, 0, 1, 1, 2011);
     DailyTimeIntervalTrigger trigger = newTrigger()
         .withIdentity("test")
@@ -209,15 +218,15 @@ public class DailyTimeIntervalScheduleBuilderTest extends TestCase {
         .startAt(startTime)
         .forJob("testJob", "testJobGroup")
         .build();
-    Assert.assertEquals("test", trigger.getKey().getName());
-    Assert.assertEquals("DEFAULT", trigger.getKey().getGroup());
-    Assert.assertEquals(IntervalUnit.MINUTE, trigger.getRepeatIntervalUnit());
+    Assertions.assertEquals("test", trigger.getKey().getName());
+    Assertions.assertEquals("DEFAULT", trigger.getKey().getGroup());
+    Assertions.assertEquals(IntervalUnit.MINUTE, trigger.getRepeatIntervalUnit());
     validateTrigger(trigger);
     List<Date> fireTimes = TriggerUtils.computeFireTimes((OperableTrigger)trigger, null, 48);
-    Assert.assertEquals(48, fireTimes.size());
-    Assert.assertEquals(dateOf(8, 0, 0, 1, 1, 2011), fireTimes.get(0));
-    Assert.assertEquals(dateOf(8, 0, 0, 17, 2, 2011), fireTimes.get(47));
-    Assert.assertEquals(new TimeOfDay(8, 0), trigger.getEndTimeOfDay());
+    Assertions.assertEquals(48, fireTimes.size());
+    Assertions.assertEquals(dateOf(8, 0, 0, 1, 1, 2011), fireTimes.get(0));
+    Assertions.assertEquals(dateOf(8, 0, 0, 17, 2, 2011), fireTimes.get(47));
+    Assertions.assertEquals(new TimeOfDay(8, 0), trigger.getEndTimeOfDay());
   }
 
   private void validateTrigger(DailyTimeIntervalTrigger trigger) {
@@ -228,8 +237,9 @@ public class DailyTimeIntervalScheduleBuilderTest extends TestCase {
     }
   }
 
-  public void testEndingAtAfterCountOf0() {
-    try {
+  @Test
+  void testEndingAtAfterCountOf0() {
+    assertThrows(IllegalArgumentException.class, () -> {
       Date startTime = DateBuilder.dateOf(0,  0, 0, 1, 1, 2011);
       newTrigger()
           .withIdentity("test")
@@ -240,12 +250,9 @@ public class DailyTimeIntervalScheduleBuilderTest extends TestCase {
               .endingDailyAfterCount(0))
           .startAt(startTime)
           .build();
-      fail("We should not accept endingDailyAfterCount(0)");
-    } catch (IllegalArgumentException e) {
-      // Expected.
-    }
+    });
     
-    try {
+    assertThrows(IllegalArgumentException.class, () -> {
       Date startTime = DateBuilder.dateOf(0,  0, 0, 1, 1, 2011);
       newTrigger()
           .withIdentity("test")
@@ -255,10 +262,7 @@ public class DailyTimeIntervalScheduleBuilderTest extends TestCase {
               .endingDailyAfterCount(1))
           .startAt(startTime)
           .build();
-      fail("We should not accept endingDailyAfterCount(x) without first setting startingDailyAt.");
-    } catch (IllegalArgumentException e) {
-      // Expected.
-    }
+    });
   }
   
     /** An empty job for testing purpose. */

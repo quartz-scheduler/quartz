@@ -83,7 +83,7 @@ public class NonDurableJobRemovalTest extends AbstractStandaloneTest {
         Thread.sleep(50);
       }
 
-      Assert.assertFalse(scheduler.checkExists(jobDetail.getKey()));
+      Assertions.assertFalse(scheduler.checkExists(jobDetail.getKey()));
       scheduler.shutdown(true);
     }
   }

@@ -15,12 +15,15 @@
  */
 package org.quartz.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 
-import junit.framework.TestCase;
-
+import org.junit.jupiter.api.Test;
 import org.quartz.Scheduler;
 import org.quartz.core.QuartzScheduler;
 import org.quartz.core.QuartzSchedulerResources;
@@ -30,8 +33,10 @@ import org.quartz.spi.ClassLoadHelper;
 import org.quartz.spi.SchedulerPlugin;
 import org.quartz.spi.ThreadPool;
 
-public class DirectSchedulerFactoryTest extends TestCase {
-    public void testPlugins() throws Exception {
+class DirectSchedulerFactoryTest {
+
+    @Test
+    void testPlugins() throws Exception {
         final StringBuffer result = new StringBuffer();
         
         SchedulerPlugin testPlugin = new SchedulerPlugin() {
@@ -60,7 +65,8 @@ public class DirectSchedulerFactoryTest extends TestCase {
         assertEquals("TestPlugin|MyScheduler|start|shutdown", result.toString());
     }
 
-    public void testThreadName() throws Throwable {
+    @Test
+    void testThreadName() throws Throwable {
         DirectSchedulerFactory.getInstance().createVolatileScheduler(4);
         Scheduler scheduler = DirectSchedulerFactory.getInstance().getScheduler();
         QuartzScheduler qs = getField(scheduler, "sched");

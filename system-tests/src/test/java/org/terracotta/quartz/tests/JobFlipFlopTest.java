@@ -49,11 +49,11 @@ public class JobFlipFlopTest extends AbstractStandaloneTest {
       Trigger trigger = TriggerBuilder.newTrigger().withSchedule(CronScheduleBuilder.dailyAtHourAndMinute(0, 0))
               .withIdentity("ConstantJobFlipFlopTest", "trigger").build();
       
-      Assert.assertThat(scheduler.scheduleJob(job, trigger), IsNull.notNullValue());
+      MatcherAssert.assertThat(scheduler.scheduleJob(job, trigger), IsNull.notNullValue());
       while (scheduler.checkExists(job.getKey())) {
         Thread.sleep(50);
       }
-      Assert.assertThat(scheduler.scheduleJob(job, trigger), IsNull.notNullValue());
+      MatcherAssert.assertThat(scheduler.scheduleJob(job, trigger), IsNull.notNullValue());
     }
   }
 
@@ -73,7 +73,7 @@ public class JobFlipFlopTest extends AbstractStandaloneTest {
       while (!scheduler.checkExists(triggerKey)) {
         Thread.sleep(50);
       }
-      Assert.assertTrue(scheduler.unscheduleJob(triggerKey));
+      Assertions.assertTrue(scheduler.unscheduleJob(triggerKey));
     }
   }
 }

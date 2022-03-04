@@ -38,8 +38,8 @@ public class ClientCrashAtomicityTest extends AbstractStandaloneTest {
 
     @Override
     protected void test(Scheduler scheduler) throws Throwable {
-      Assert.assertFalse(scheduler.checkExists(new JobKey("job-name", "job-group")));
-      Assert.assertFalse(scheduler.checkExists(new TriggerKey("trigger-name", "trigger-group")));
+      Assertions.assertFalse(scheduler.checkExists(new JobKey("job-name", "job-group")));
+      Assertions.assertFalse(scheduler.checkExists(new TriggerKey("trigger-name", "trigger-group")));
       pass();
     }
     

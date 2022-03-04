@@ -15,14 +15,19 @@
  */
 package org.quartz;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
 import org.quartz.impl.JobDetailImpl;
 
-import junit.framework.TestCase;
+
 
 /**
  * Unit test for JobDetail.
  */
-public class JobDetailTest extends TestCase {
+class JobDetailTest {
 
     @PersistJobDataAfterExecution
     public class SomePersistentJob implements Job {
@@ -64,7 +69,8 @@ public class JobDetailTest extends TestCase {
     public class SomeExtendedStatefulJob extends SomeStatefulJob {
     }
 
-    public void testClone() {
+    @Test
+    void testClone() {
         JobDetailImpl jobDetail = new JobDetailImpl();
         jobDetail.setName("hi");
         
@@ -73,40 +79,41 @@ public class JobDetailTest extends TestCase {
         
     }
 
-    public void testAnnotationDetection() {
+    @Test
+    void testAnnotationDetection() {
         JobDetailImpl jobDetail = new JobDetailImpl();
         jobDetail.setName("hi");
 
         jobDetail.setJobClass(SomePersistentJob.class);
-        assertTrue("Expecting SomePersistentJob to be persistent", jobDetail.isPersistJobDataAfterExecution());
-        assertFalse("Expecting SomePersistentJob to not disallow concurrent execution", jobDetail.isConcurrentExectionDisallowed());
+        assertTrue(jobDetail.isPersistJobDataAfterExecution(), "Expecting SomePersistentJob to be persistent");
+        assertFalse(jobDetail.isConcurrentExectionDisallowed(), "Expecting SomePersistentJob to not disallow concurrent execution");
 
         jobDetail.setJobClass(SomeNonConcurrentJob.class);
-        assertFalse("Expecting SomeNonConcurrentJob to not be persistent", jobDetail.isPersistJobDataAfterExecution());
-        assertTrue("Expecting SomeNonConcurrentJob to disallow concurrent execution", jobDetail.isConcurrentExectionDisallowed());
+        assertFalse(jobDetail.isPersistJobDataAfterExecution(), "Expecting SomeNonConcurrentJob to not be persistent");
+        assertTrue(jobDetail.isConcurrentExectionDisallowed(), "Expecting SomeNonConcurrentJob to disallow concurrent execution");
 
         jobDetail.setJobClass(SomeNonConcurrentPersistentJob.class);
-        assertTrue("Expecting SomeNonConcurrentPersistentJob to be persistent", jobDetail.isPersistJobDataAfterExecution());
-        assertTrue("Expecting SomeNonConcurrentPersistentJob to disallow concurrent execution", jobDetail.isConcurrentExectionDisallowed());
+        assertTrue(jobDetail.isPersistJobDataAfterExecution(), "Expecting SomeNonConcurrentPersistentJob to be persistent");
+        assertTrue(jobDetail.isConcurrentExectionDisallowed(), "Expecting SomeNonConcurrentPersistentJob to disallow concurrent execution");
 
         jobDetail.setJobClass(SomeStatefulJob.class);
-        assertTrue("Expecting SomeStatefulJob to be persistent", jobDetail.isPersistJobDataAfterExecution());
-        assertTrue("Expecting SomeStatefulJob to disallow concurrent execution", jobDetail.isConcurrentExectionDisallowed());
+        assertTrue(jobDetail.isPersistJobDataAfterExecution(), "Expecting SomeStatefulJob to be persistent");
+        assertTrue(jobDetail.isConcurrentExectionDisallowed(), "Expecting SomeStatefulJob to disallow concurrent execution");
 
         jobDetail.setJobClass(SomeExtendedPersistentJob.class);
-        assertTrue("Expecting SomeExtendedPersistentJob to be persistent", jobDetail.isPersistJobDataAfterExecution());
-        assertFalse("Expecting SomeExtendedPersistentJob to not disallow concurrent execution", jobDetail.isConcurrentExectionDisallowed());
+        assertTrue(jobDetail.isPersistJobDataAfterExecution(), "Expecting SomeExtendedPersistentJob to be persistent");
+        assertFalse(jobDetail.isConcurrentExectionDisallowed(), "Expecting SomeExtendedPersistentJob to not disallow concurrent execution");
 
         jobDetail.setJobClass(SomeExtendedNonConcurrentJob.class);
-        assertFalse("Expecting SomeExtendedNonConcurrentJob to not be persistent", jobDetail.isPersistJobDataAfterExecution());
-        assertTrue("Expecting SomeExtendedNonConcurrentJob to disallow concurrent execution", jobDetail.isConcurrentExectionDisallowed());
+        assertFalse(jobDetail.isPersistJobDataAfterExecution(), "Expecting SomeExtendedNonConcurrentJob to not be persistent");
+        assertTrue(jobDetail.isConcurrentExectionDisallowed(), "Expecting SomeExtendedNonConcurrentJob to disallow concurrent execution");
 
         jobDetail.setJobClass(SomeExtendedNonConcurrentPersistentJob.class);
-        assertTrue("Expecting SomeExtendedNonConcurrentPersistentJob to be persistent", jobDetail.isPersistJobDataAfterExecution());
-        assertTrue("Expecting SomeExtendedNonConcurrentPersistentJob to disallow concurrent execution", jobDetail.isConcurrentExectionDisallowed());
+        assertTrue(jobDetail.isPersistJobDataAfterExecution(), "Expecting SomeExtendedNonConcurrentPersistentJob to be persistent");
+        assertTrue(jobDetail.isConcurrentExectionDisallowed(), "Expecting SomeExtendedNonConcurrentPersistentJob to disallow concurrent execution");
 
         jobDetail.setJobClass(SomeExtendedStatefulJob.class);
-        assertTrue("Expecting SomeExtendedStatefulJob to be persistent", jobDetail.isPersistJobDataAfterExecution());
-        assertTrue("Expecting SomeExtendedStatefulJob to disallow concurrent execution", jobDetail.isConcurrentExectionDisallowed());
+        assertTrue(jobDetail.isPersistJobDataAfterExecution(), "Expecting SomeExtendedStatefulJob to be persistent");
+        assertTrue(jobDetail.isConcurrentExectionDisallowed(), "Expecting SomeExtendedStatefulJob to disallow concurrent execution");
     }
 }

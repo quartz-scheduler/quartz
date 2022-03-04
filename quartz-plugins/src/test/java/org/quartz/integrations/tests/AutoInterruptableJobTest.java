@@ -16,6 +16,7 @@
 package org.quartz.integrations.tests;
 
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
 
@@ -25,8 +26,7 @@ import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import junit.framework.TestCase;
-
+import org.junit.jupiter.api.Test;
 import org.quartz.*;
 
 import org.quartz.impl.StdSchedulerFactory;
@@ -40,7 +40,7 @@ import org.quartz.plugins.interrupt.JobInterruptMonitorPlugin;
  * @author Rama Chavali
  */
  
-public class AutoInterruptableJobTest extends TestCase {
+class AutoInterruptableJobTest {
 
     static final CyclicBarrier sync = new CyclicBarrier(2);
 
@@ -79,11 +79,8 @@ public class AutoInterruptableJobTest extends TestCase {
         }
     }
     
-    @Override
-    protected void setUp() throws Exception {
-    }
-
-    public void testJobAutoInterruption() throws Exception {
+    @Test
+    void testJobAutoInterruption() throws Exception {
         
         // create a simple scheduler
         
@@ -119,12 +116,12 @@ public class AutoInterruptableJobTest extends TestCase {
         
         List<JobExecutionContext> executingJobs = sched.getCurrentlyExecutingJobs();
         
-        assertTrue("Number of executing jobs should be 1 ", executingJobs.size() == 1);
+        assertTrue(executingJobs.size() == 1, "Number of executing jobs should be 1 ");
                 
         sync.await(); // wait for the job to terminate
 
 
-        assertTrue("Expected interrupted flag to be set on job class ", TestInterruptableJob.interrupted.get());
+        assertTrue(TestInterruptableJob.interrupted.get(), "Expected interrupted flag to be set on job class ");
         
         sched.clear();
 

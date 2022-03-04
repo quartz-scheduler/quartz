@@ -21,9 +21,8 @@ import static org.quartz.TriggerBuilder.newTrigger;
 
 import java.util.Properties;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.quartz.Trigger.CompletedExecutionInstruction;
 import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
@@ -35,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Zemian Deng <saltnlight5@gmail.com>
  */
-public class Qtz205SchedulerListenerTest {
+class Qtz205SchedulerListenerTest {
 	private static Logger logger = LoggerFactory.getLogger(Qtz205SchedulerListenerTest.class);
 	
 	public static class Qtz205Job implements Job {
@@ -152,7 +151,7 @@ public class Qtz205SchedulerListenerTest {
 	/** QTZ-205 */
 
 	@Test
-	public void testTriggerFinalized() throws Exception {
+	void testTriggerFinalized() throws Exception {
 		Qtz205TriggerListener triggerListener = new Qtz205TriggerListener();
 		Qtz205ScheListener schedulerListener = new Qtz205ScheListener();
 		Properties props = new Properties();
@@ -174,8 +173,8 @@ public class Qtz205SchedulerListenerTest {
 		
 		scheduler.shutdown(true);
 
-		Assert.assertEquals(2, Qtz205Job.jobExecutionCount);
-		Assert.assertEquals(3, triggerListener.getFireCount());
-		Assert.assertEquals(1, schedulerListener.getTriggerFinalizedCount());
+		Assertions.assertEquals(2, Qtz205Job.jobExecutionCount);
+		Assertions.assertEquals(3, triggerListener.getFireCount());
+		Assertions.assertEquals(1, schedulerListener.getTriggerFinalizedCount());
 	}
 }

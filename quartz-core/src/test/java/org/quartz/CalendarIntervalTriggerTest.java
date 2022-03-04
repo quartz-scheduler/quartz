@@ -17,8 +17,11 @@ package org.quartz;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.text.ParseException;
 import java.util.Calendar;
@@ -26,7 +29,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-import org.junit.Test;
+import org.hamcrest.MatcherAssert;
+import org.junit.jupiter.api.Test;
 import org.quartz.DateBuilder.IntervalUnit;
 import org.quartz.impl.calendar.BaseCalendar;
 import org.quartz.impl.triggers.CalendarIntervalTriggerImpl;
@@ -34,12 +38,12 @@ import org.quartz.impl.triggers.CalendarIntervalTriggerImpl;
 /**
  * Unit tests for DateIntervalTrigger.
  */
-public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
+public class CalendarIntervalTriggerTest extends SerializationTestSupport {
     
     private static final String[] VERSIONS = new String[] {"2.0"};
 
     @Test
-    public void testQTZ331FireTimeAfterBoundary() {
+    void testQTZ331FireTimeAfterBoundary() {
         Calendar start = Calendar.getInstance();
         start.clear();
         start.set(2013, Calendar.FEBRUARY, 15);
@@ -49,14 +53,15 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
         Date triggerTime = start.getTime();
 
         CalendarIntervalTriggerImpl trigger = new CalendarIntervalTriggerImpl("test", startTime, null, IntervalUnit.DAY, 1);
-        assertThat(trigger.getFireTimeAfter(startTime), equalTo(triggerTime));
+        MatcherAssert.assertThat(trigger.getFireTimeAfter(startTime), equalTo(triggerTime));
 
 
         Date after = new Date(start.getTimeInMillis() - 500);
-        assertThat(trigger.getFireTimeAfter(after), equalTo(triggerTime));
+        MatcherAssert.assertThat(trigger.getFireTimeAfter(after), equalTo(triggerTime));
     }
 
-    public void testQTZ330DaylightSavingsCornerCase() {
+    @Test
+    void testQTZ330DaylightSavingsCornerCase() {
         TimeZone edt = TimeZone.getTimeZone("America/New_York");
 
         Calendar start = Calendar.getInstance();
@@ -77,10 +82,11 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
         intervalTrigger.computeFirstFireTime(baseCalendar);
 
         Date fireTime = intervalTrigger.getFireTimeAfter(after.getTime());
-        assertThat(fireTime.after(after.getTime()), is(true));
+        MatcherAssert.assertThat(fireTime.after(after.getTime()), is(true));
     }
 
-    public void testYearlyIntervalGetFireTimeAfter() {
+    @Test
+    void testYearlyIntervalGetFireTimeAfter() {
 
         Calendar startCalendar = Calendar.getInstance();
         startCalendar.set(2005, Calendar.JUNE, 1, 9, 30, 17);
@@ -98,11 +104,11 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
         List<Date> fireTimes = TriggerUtils.computeFireTimes(yearlyTrigger, null, 4);
         Date secondTime = fireTimes.get(2); // get the third fire time
         
-        assertEquals("Year increment result not as expected.", targetCalendar.getTime(), secondTime);
+        assertEquals(targetCalendar.getTime(), secondTime, "Year increment result not as expected.");
     }
 
-    
-    public void testMonthlyIntervalGetFireTimeAfter() {
+    @Test
+    void testMonthlyIntervalGetFireTimeAfter() {
 
         Calendar startCalendar = Calendar.getInstance();
         startCalendar.set(2005, Calendar.JUNE, 1, 9, 30, 17);
@@ -122,10 +128,11 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
         List<Date> fireTimes = TriggerUtils.computeFireTimes(yearlyTrigger, null, 6);
         Date fifthTime = fireTimes.get(5); // get the sixth fire time
 
-        assertEquals("Month increment result not as expected.", targetCalendar.getTime(), fifthTime);
+        assertEquals(targetCalendar.getTime(), fifthTime, "Month increment result not as expected.");
     }
 
-    public void testWeeklyIntervalGetFireTimeAfter() {
+    @Test
+    void testWeeklyIntervalGetFireTimeAfter() {
 
         Calendar startCalendar = Calendar.getInstance();
         startCalendar.set(2005, Calendar.JUNE, 1, 9, 30, 17);
@@ -145,10 +152,11 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
         List<Date> fireTimes = TriggerUtils.computeFireTimes(yearlyTrigger, null, 7);
         Date fifthTime = fireTimes.get(4); // get the fifth fire time
 
-        assertEquals("Week increment result not as expected.", targetCalendar.getTime(), fifthTime);
+        assertEquals(targetCalendar.getTime(), fifthTime, "Week increment result not as expected.");
     }
-    
-    public void testDailyIntervalGetFireTimeAfter() {
+
+    @Test
+    void testDailyIntervalGetFireTimeAfter() {
 
         Calendar startCalendar = Calendar.getInstance();
         startCalendar.set(2005, Calendar.JUNE, 1, 9, 30, 17);
@@ -168,10 +176,11 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
         List<Date> fireTimes = TriggerUtils.computeFireTimes(dailyTrigger, null, 6);
         Date fifthTime = fireTimes.get(4); // get the fifth fire time
 
-        assertEquals("Day increment result not as expected.", targetCalendar.getTime(), fifthTime);
+        assertEquals(targetCalendar.getTime(), fifthTime, "Day increment result not as expected.");
     }
-    
-    public void testHourlyIntervalGetFireTimeAfter() {
+
+    @Test
+    void testHourlyIntervalGetFireTimeAfter() {
 
         Calendar startCalendar = Calendar.getInstance();
         startCalendar.set(2005, Calendar.JUNE, 1, 9, 30, 17);
@@ -191,10 +200,11 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
         List<Date> fireTimes = TriggerUtils.computeFireTimes(yearlyTrigger, null, 6);
         Date fifthTime = fireTimes.get(4); // get the fifth fire time
 
-        assertEquals("Hour increment result not as expected.", targetCalendar.getTime(), fifthTime);
+        assertEquals(targetCalendar.getTime(), fifthTime, "Hour increment result not as expected.");
     }
 
-    public void testMinutelyIntervalGetFireTimeAfter() {
+    @Test
+    void testMinutelyIntervalGetFireTimeAfter() {
 
         Calendar startCalendar = Calendar.getInstance();
         startCalendar.set(2005, Calendar.JUNE, 1, 9, 30, 17);
@@ -214,10 +224,14 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
         List<Date> fireTimes = TriggerUtils.computeFireTimes(yearlyTrigger, null, 6);
         Date fifthTime = fireTimes.get(4); // get the fifth fire time
 
-        assertEquals("Minutes increment result not as expected.", targetCalendar.getTime(), fifthTime);
+        assertEquals(
+                targetCalendar.getTime(), 
+                fifthTime,
+                "Minutes increment result not as expected.");
     }
 
-    public void testSecondlyIntervalGetFireTimeAfter() {
+    @Test
+    void testSecondlyIntervalGetFireTimeAfter() {
 
         Calendar startCalendar = Calendar.getInstance();
         startCalendar.set(2005, Calendar.JUNE, 1, 9, 30, 17);
@@ -237,10 +251,14 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
         List<Date> fireTimes = TriggerUtils.computeFireTimes(yearlyTrigger, null, 6);
         Date fifthTime = fireTimes.get(4); // get the third fire time
 
-        assertEquals("Seconds increment result not as expected.", targetCalendar.getTime(), fifthTime);
+        assertEquals(
+                targetCalendar.getTime(), 
+                fifthTime,
+                "Seconds increment result not as expected.");
     }
 
-    public void testDaylightSavingsTransitions() {
+    @Test
+    void testDaylightSavingsTransitions() {
 
         // Pick a day before a spring daylight savings transition...
         
@@ -262,7 +280,10 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
         List<Date> fireTimes = TriggerUtils.computeFireTimes(dailyTrigger, null, 6);
         Date testTime = fireTimes.get(2); // get the third fire time
 
-        assertEquals("Day increment result not as expected over spring 2010 daylight savings transition.", targetCalendar.getTime(), testTime);
+        assertEquals(
+                targetCalendar.getTime(), 
+                testTime,
+                "Day increment result not as expected over spring 2010 daylight savings transition.");
 
         // And again, Pick a day before a spring daylight savings transition... (QTZ-240)
         
@@ -284,7 +305,10 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
         fireTimes = TriggerUtils.computeFireTimes(dailyTrigger, null, 6);
         testTime = fireTimes.get(2); // get the third fire time
 
-        assertEquals("Day increment result not as expected over spring 2011 daylight savings transition.", targetCalendar.getTime(), testTime);
+        assertEquals(
+                targetCalendar.getTime(), 
+                testTime,
+                "Day increment result not as expected over spring 2011 daylight savings transition.");
         
         // And again, Pick a day before a spring daylight savings transition... (QTZ-240) - and prove time of day is not preserved without setPreserveHourOfDayAcrossDaylightSavings(true)
         
@@ -313,7 +337,10 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
         Calendar testCal = Calendar.getInstance(TimeZone.getTimeZone("CET"));
         testCal.setTimeInMillis(testTime.getTime());
         
-        assertFalse("Day increment time-of-day result not as expected over spring 2011 daylight savings transition.", targetCalendar.get(Calendar.HOUR_OF_DAY) == testCal.get(Calendar.HOUR_OF_DAY));
+        assertNotEquals(
+                targetCalendar.get(Calendar.HOUR_OF_DAY),
+                testCal.get(Calendar.HOUR_OF_DAY),
+                "Day increment time-of-day result not as expected over spring 2011 daylight savings transition.");
         
         // And again, Pick a day before a spring daylight savings transition... (QTZ-240) - and prove time of day is preserved with setPreserveHourOfDayAcrossDaylightSavings(true)
         
@@ -343,7 +370,10 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
         testCal = Calendar.getInstance(TimeZone.getTimeZone("CET"));
         testCal.setTimeInMillis(testTime.getTime());
         
-        assertTrue("Day increment time-of-day result not as expected over spring 2011 daylight savings transition.", targetCalendar.get(Calendar.HOUR_OF_DAY) == testCal.get(Calendar.HOUR_OF_DAY));
+        assertEquals(
+                targetCalendar.get(Calendar.HOUR_OF_DAY),
+                testCal.get(Calendar.HOUR_OF_DAY),
+                "Day increment time-of-day result not as expected over spring 2011 daylight savings transition.");
         
         // Pick a day before a fall daylight savings transition...
         
@@ -365,7 +395,10 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
         fireTimes = TriggerUtils.computeFireTimes(dailyTrigger, null, 6);
         testTime = (Date) fireTimes.get(3); // get the fourth fire time
 
-        assertEquals("Day increment result not as expected over fall 2010 daylight savings transition.", targetCalendar.getTime(), testTime);
+        assertEquals(
+                targetCalendar.getTime(), 
+                testTime,
+                "Day increment result not as expected over fall 2010 daylight savings transition.");
         
         // And again, Pick a day before a fall daylight savings transition...  (QTZ-240)
         
@@ -390,13 +423,15 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
         fireTimes = TriggerUtils.computeFireTimes(dailyTrigger, null, 6);
         testTime = (Date) fireTimes.get(3); // get the fourth fire time
 
-        assertEquals("Day increment result not as expected over fall 2011 daylight savings transition.", targetCalendar.getTime(), testTime);        
+        assertEquals(
+                targetCalendar.getTime(), 
+                testTime,
+                "Day increment result not as expected over fall 2011 daylight savings transition.");
     }
- 
-    
-    public void testFinalFireTimes() {
 
-        
+    @Test
+    void testFinalFireTimes() {
+
         Calendar startCalendar = Calendar.getInstance();
         startCalendar.set(2010, Calendar.MARCH, 12, 9, 0, 0);
         startCalendar.clear(Calendar.MILLISECOND);
@@ -415,7 +450,7 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
 
         Date testTime = dailyTrigger.getFinalFireTime();
 
-        assertEquals("Final fire time not computed correctly for day interval.", endCalendar.getTime(), testTime);
+        assertEquals(endCalendar.getTime(), testTime, "Final fire time not computed correctly for day interval.");
 
         
         startCalendar = Calendar.getInstance();
@@ -437,14 +472,19 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
 
         testTime = dailyTrigger.getFinalFireTime();
 
-        assertTrue("Final fire time not computed correctly for minutely interval.", (endCalendar.getTime().after(testTime)));
+        assertTrue(
+                (endCalendar.getTime().after(testTime)),
+                "Final fire time not computed correctly for minutely interval.");
 
         endCalendar.add(Calendar.MINUTE,-3); // back up three more minutes
         
-        assertTrue("Final fire time not computed correctly for minutely interval.", (endCalendar.getTime().equals(testTime)));
+        assertTrue(
+                (endCalendar.getTime().equals(testTime)),
+                "Final fire time not computed correctly for minutely interval.");
     }
-    
-    public void testMisfireInstructionValidity() throws ParseException {
+
+    @Test
+    void testMisfireInstructionValidity() throws ParseException {
         CalendarIntervalTriggerImpl trigger = new CalendarIntervalTriggerImpl();
 
         try {

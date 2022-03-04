@@ -15,14 +15,20 @@
  */
 package org.quartz;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.JobKey.jobKey;
-import junit.framework.TestCase;
+
+import org.junit.jupiter.api.Test;
+
 
 /**
  * Test JobBuilder functionality 
  */
-public class JobBuilderTest extends TestCase {
+class JobBuilderTest {
 
 
     @SuppressWarnings("deprecation")
@@ -46,11 +52,8 @@ public class JobBuilderTest extends TestCase {
         }
     }
 
-    @Override
-    protected void setUp() throws Exception {
-    }
-
-    public void testJobBuilder() throws Exception {
+    @Test
+    void testJobBuilder() throws Exception {
         
         JobDetail job = newJob()
             .ofType(TestJob.class)
@@ -58,15 +61,15 @@ public class JobBuilderTest extends TestCase {
             .storeDurably()
             .build();
         
-        assertTrue("Unexpected job name: " + job.getKey().getName(), job.getKey().getName().equals("j1"));
-        assertTrue("Unexpected job group: " + job.getKey().getGroup(), job.getKey().getGroup().equals(JobKey.DEFAULT_GROUP));
-        assertTrue("Unexpected job key: " + job.getKey(), job.getKey().equals(jobKey("j1")));
-        assertTrue("Unexpected job description: " + job.getDescription(), job.getDescription() == null);
-        assertTrue("Expected isDurable == true ", job.isDurable());
-        assertFalse("Expected requestsRecovery == false ", job.requestsRecovery());
-        assertFalse("Expected isConcurrentExectionDisallowed == false ", job.isConcurrentExectionDisallowed());
-        assertFalse("Expected isPersistJobDataAfterExecution == false ", job.isPersistJobDataAfterExecution());
-        assertTrue("Unexpected job class: " + job.getJobClass(), job.getJobClass().equals(TestJob.class));
+        assertEquals("j1", job.getKey().getName(), "Unexpected job name: " + job.getKey().getName());
+        assertEquals(JobKey.DEFAULT_GROUP, job.getKey().getGroup(), "Unexpected job group: " + job.getKey().getGroup());
+        assertEquals(jobKey("j1"), job.getKey(), "Unexpected job key: " + job.getKey());
+        assertNull(job.getDescription(), "Unexpected job description: " + job.getDescription());
+        assertTrue(job.isDurable(), "Expected isDurable == true ");
+        assertFalse(job.requestsRecovery(), "Expected requestsRecovery == false ");
+        assertFalse(job.isConcurrentExectionDisallowed(), "Expected isConcurrentExectionDisallowed == false ");
+        assertFalse(job.isPersistJobDataAfterExecution(), "Expected isPersistJobDataAfterExecution == false ");
+        assertEquals(TestJob.class, job.getJobClass(), "Unexpected job class: " + job.getJobClass());
         
         job = newJob()
             .ofType(TestAnnotatedJob.class)
@@ -76,11 +79,11 @@ public class JobBuilderTest extends TestCase {
             .requestRecovery()
             .build();
         
-        assertTrue("Unexpected job description: " + job.getDescription(), job.getDescription().equals("my description"));
-        assertTrue("Expected isDurable == true ", job.isDurable());
-        assertTrue("Expected requestsRecovery == true ", job.requestsRecovery());
-        assertTrue("Expected isConcurrentExectionDisallowed == true ", job.isConcurrentExectionDisallowed());
-        assertTrue("Expected isPersistJobDataAfterExecution == true ", job.isPersistJobDataAfterExecution());
+        assertEquals("my description", job.getDescription(), "Unexpected job description: " + job.getDescription());
+        assertTrue(job.isDurable(), "Expected isDurable == true ");
+        assertTrue(job.requestsRecovery(), "Expected requestsRecovery == true ");
+        assertTrue(job.isConcurrentExectionDisallowed(), "Expected isConcurrentExectionDisallowed == true ");
+        assertTrue(job.isPersistJobDataAfterExecution(), "Expected isPersistJobDataAfterExecution == true ");
         
         job = newJob()
             .ofType(TestStatefulJob.class)
@@ -88,11 +91,11 @@ public class JobBuilderTest extends TestCase {
             .requestRecovery(false)
             .build();
         
-        assertTrue("Unexpected job group: " + job.getKey().getName(), job.getKey().getGroup().equals("g1"));
-        assertFalse("Expected isDurable == false ", job.isDurable());
-        assertFalse("Expected requestsRecovery == false ", job.requestsRecovery());
-        assertTrue("Expected isConcurrentExectionDisallowed == true ", job.isConcurrentExectionDisallowed());
-        assertTrue("Expected isPersistJobDataAfterExecution == true ", job.isPersistJobDataAfterExecution());
+        assertEquals("g1", job.getKey().getGroup(), "Unexpected job group: " + job.getKey().getName());
+        assertFalse(job.isDurable(), "Expected isDurable == false ");
+        assertFalse(job.requestsRecovery(), "Expected requestsRecovery == false ");
+        assertTrue(job.isConcurrentExectionDisallowed(), "Expected isConcurrentExectionDisallowed == true ");
+        assertTrue(job.isPersistJobDataAfterExecution(), "Expected isPersistJobDataAfterExecution == true ");
      
     }
 

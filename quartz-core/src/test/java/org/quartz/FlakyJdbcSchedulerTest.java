@@ -15,20 +15,20 @@
  */
 package org.quartz;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
-import junit.framework.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import java.util.stream.Stream;
+
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.quartz.impl.DirectSchedulerFactory;
 import org.quartz.impl.SchedulerRepository;
 import org.quartz.impl.jdbcjobstore.JdbcQuartzTestUtilities;
@@ -37,30 +37,29 @@ import org.quartz.simpl.SimpleThreadPool;
 import org.quartz.utils.ConnectionProvider;
 import org.quartz.utils.DBConnectionManager;
 
-@RunWith(Parameterized.class)
-public class FlakyJdbcSchedulerTest extends AbstractSchedulerTest {
+class FlakyJdbcSchedulerTest extends AbstractSchedulerTest {
 
-    @Parameters
-    public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][]{{0f, 0f, 0f}, {0.2f, 0f, 0f}, {0f, 0.2f, 0f}, {0f, 0f, 0.2f}, {0.2f, 0.2f, 0.2f}});
+    private static Stream<Arguments> data() {
+        return Stream.of(
+                Arguments.of(0f, 0f, 0f), 
+                Arguments.of(0.2f, 0f, 0f), 
+                Arguments.of(0f, 0.2f, 0f), 
+                Arguments.of(0f, 0f, 0.2f), 
+                Arguments.of(0.2f, 0.2f, 0.2f));
     }
     
     private final Random rndm;
-    private final float createFailureProb;
-    private final float preCommitFailureProb;
-    private final float postCommitFailureProb;
 
-    public FlakyJdbcSchedulerTest(float createFailureProb, float preCommitFailureProb, float postCommitFailureProb) {
-        this.createFailureProb = createFailureProb;
-        this.preCommitFailureProb = preCommitFailureProb;
-        this.postCommitFailureProb = postCommitFailureProb;
+    public FlakyJdbcSchedulerTest() {
         this.rndm = new Random();
     }
 
     @Override
-    protected Scheduler createScheduler(String name, int threadPoolSize) throws SchedulerException {
+    protected Scheduler createScheduler(String name, int threadPoolSize, float createFailureProb,
+            float preCommitFailureProb, float postCommitFailureProb) throws SchedulerException {
         try {
-            DBConnectionManager.getInstance().addConnectionProvider(name, new FlakyConnectionProvider(name));
+            DBConnectionManager.getInstance().addConnectionProvider(name,
+                    new FlakyConnectionProvider(name, createFailureProb, preCommitFailureProb, postCommitFailureProb));
         } catch (SQLException ex) {
             throw new AssertionError(ex);
         }
@@ -73,12 +72,14 @@ public class FlakyJdbcSchedulerTest extends AbstractSchedulerTest {
         return SchedulerRepository.getInstance().lookup(name + "Scheduler");
     }
 
-    @Test
-    public void testTriggerFiring() throws Exception {
+    @ParameterizedTest
+    @MethodSource("data")
+    void testTriggerFiring(float createFailureProb, float preCommitFailureProb, float postCommitFailureProb) throws Exception {
         final int jobCount = 100;
         final int execCount = 5;
 
-        Scheduler scheduler = createScheduler("testTriggerFiring", 2);
+        Scheduler scheduler = createScheduler("testTriggerFiring", 2, createFailureProb, preCommitFailureProb,
+                postCommitFailureProb);
         try {
             for (int i = 0; i < jobCount; i++) {
                 String jobName = "myJob" + i;
@@ -111,7 +112,7 @@ public class FlakyJdbcSchedulerTest extends AbstractSchedulerTest {
                 }
                 TimeUnit.SECONDS.sleep(1);
             }
-            Assert.fail();
+            fail();
         } finally {
             scheduler.shutdown(true);
         }
@@ -128,19 +129,19 @@ public class FlakyJdbcSchedulerTest extends AbstractSchedulerTest {
         }
     }
 
-    private void createFailure() throws SQLException {
+    private void createFailure(float createFailureProb) throws SQLException {
         if (rndm.nextFloat() < createFailureProb) {
             throw new SQLException("FlakyConnection failed on you on creation.");
         }
     }
 
-    private void preCommitFailure() throws SQLException {
+    private void preCommitFailure(float preCommitFailureProb) throws SQLException {
         if (rndm.nextFloat() < preCommitFailureProb) {
             throw new SQLException("FlakyConnection failed on you pre-commit.");
         }
     }
 
-    private void postCommitFailure() throws SQLException {
+    private void postCommitFailure(float postCommitFailureProb) throws SQLException {
         if (rndm.nextFloat() < postCommitFailureProb) {
             throw new SQLException("FlakyConnection failed on you post-commit.");
         }
@@ -150,10 +151,16 @@ public class FlakyJdbcSchedulerTest extends AbstractSchedulerTest {
 
         private final Thread safeThread;
         private final String delegateName;
-
-        private FlakyConnectionProvider(String name) throws SQLException {
+        private final float createFailureProb;
+        private final float preCommitFailureProb;
+        private final float postCommitFailureProb;
+        
+        private FlakyConnectionProvider(String name, float createFailureProb, float preCommitFailureProb, float postCommitFailureProb) throws SQLException {
             this.delegateName = "delegate_" + name;
             this.safeThread = Thread.currentThread();
+            this.createFailureProb = createFailureProb;
+            this.preCommitFailureProb = preCommitFailureProb;
+            this.postCommitFailureProb = postCommitFailureProb;
             JdbcQuartzTestUtilities.createDatabase(delegateName);
         }
 
@@ -162,9 +169,9 @@ public class FlakyJdbcSchedulerTest extends AbstractSchedulerTest {
             if (Thread.currentThread() == safeThread) {
                 return DBConnectionManager.getInstance().getConnection(delegateName);
             } else {
-                createFailure();
+                createFailure(createFailureProb);
                 return (Connection) Proxy.newProxyInstance(Connection.class.getClassLoader(), new Class[] {Connection.class},
-                        new FlakyConnectionInvocationHandler(DBConnectionManager.getInstance().getConnection(delegateName)));
+                        new FlakyConnectionInvocationHandler(DBConnectionManager.getInstance().getConnection(delegateName), preCommitFailureProb, postCommitFailureProb));
             }
         }
 
@@ -184,17 +191,21 @@ public class FlakyJdbcSchedulerTest extends AbstractSchedulerTest {
     private class FlakyConnectionInvocationHandler implements InvocationHandler {
 
         private final Connection delegate;
+        private final float preCommitFailureProb;
+        private final float postCommitFailureProb;
 
-        public FlakyConnectionInvocationHandler(Connection delegate) {
+        public FlakyConnectionInvocationHandler(Connection delegate, float preCommitFailureProb, float postCommitFailureProb) {
             this.delegate = delegate;
+            this.preCommitFailureProb = preCommitFailureProb;
+            this.postCommitFailureProb = postCommitFailureProb;
         }
         
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             if ("commit".equals(method.getName())) {
-                preCommitFailure();
+                preCommitFailure(preCommitFailureProb);
                 method.invoke(delegate, args);
-                postCommitFailure();
+                postCommitFailure(postCommitFailureProb);
                 return null;
             } else {
                 return method.invoke(delegate, args);

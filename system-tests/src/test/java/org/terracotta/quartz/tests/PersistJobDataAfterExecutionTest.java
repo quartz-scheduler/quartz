@@ -89,7 +89,7 @@ public class PersistJobDataAfterExecutionTest extends AbstractStandaloneTest {
       scheduler.start();
       localBarrier.await();
       contextList = scheduler.getCurrentlyExecutingJobs();
-      Assert.assertEquals(contextList.size(), 1);
+      Assertions.assertEquals(contextList.size(), 1);
       lastRunningJob = contextList.get(0).getJobDetail();
       localBarrier.await();
       scheduler.shutdown(true);
@@ -98,8 +98,8 @@ public class PersistJobDataAfterExecutionTest extends AbstractStandaloneTest {
       int numJobsExecuted = metaData.getNumberOfJobsExecuted();
       int finalCount = lastRunningJob.getJobDataMap().getIntValue(TestJob.JOB_PROP_NAME);
 
-      Assert.assertThat(numJobsExecuted, Is.is(1));
-      Assert.assertThat(finalCount, Is.is(1));
+      MatcherAssert.assertThat(numJobsExecuted, Is.is(1));
+      MatcherAssert.assertThat(finalCount, Is.is(1));
     }
     
     protected boolean isStartingScheduler() {
@@ -141,7 +141,7 @@ public class PersistJobDataAfterExecutionTest extends AbstractStandaloneTest {
       scheduler.start();
       localBarrier.await();
       contextList = scheduler.getCurrentlyExecutingJobs();
-      Assert.assertEquals(contextList.size(), 1);
+      Assertions.assertEquals(contextList.size(), 1);
       lastRunningJob = contextList.get(0).getJobDetail();
       localBarrier.await();
       scheduler.shutdown(true);
@@ -150,8 +150,8 @@ public class PersistJobDataAfterExecutionTest extends AbstractStandaloneTest {
       int numJobsExecuted = metaData.getNumberOfJobsExecuted();
       int finalCount = lastRunningJob.getJobDataMap().getIntValue(TestJob.JOB_PROP_NAME);
 
-      Assert.assertThat(numJobsExecuted, Is.is(1));
-      Assert.assertThat(finalCount, Is.is(2));
+      MatcherAssert.assertThat(numJobsExecuted, Is.is(1));
+      MatcherAssert.assertThat(finalCount, Is.is(2));
     }
     
     protected boolean isStartingScheduler() {

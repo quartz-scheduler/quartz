@@ -50,15 +50,14 @@
     <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest-library</artifactId>
-      <version>1.2</version>
+      <version>2.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit-dep</artifactId>
-      <version>4.8.2</version>
-      <scope>test</scope>
-    </dependency>    
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>asm</groupId>
       <artifactId>asm</artifactId>

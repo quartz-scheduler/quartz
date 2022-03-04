@@ -15,40 +15,61 @@
  */
 package org.quartz;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.text.ParseException;
 import java.util.Set;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
-public class Quartz601Test extends TestCase {
 
-    public void testNormal() {
+
+class Quartz601Test {
+
+    @Test
+    void testNormal() {
         for(int i=0; i<6; i++) {
             assertParsesForField("0 15 10 * * ? 2005", i);
         }
     }
-    public void testSecond() {
+    
+    @Test
+    void testSecond() {
           assertParsesForField("58-4 5 21 ? * MON-FRI", 0);
     }
-    public void testMinute() {
+    
+    @Test
+    void testMinute() {
           assertParsesForField("0 58-4 21 ? * MON-FRI", 1);
     }
-    public void testHour() {
+    
+    @Test
+    void testHour() {
           assertParsesForField("0 0/5 21-3 ? * MON-FRI", 2);
     }
-    public void testDayOfWeekNumber() {
+    
+    @Test
+    void testDayOfWeekNumber() {
           assertParsesForField("58 5 21 ? * 6-2", 5);
     }
-    public void testDayOfWeek() {
+    
+    @Test
+    void testDayOfWeek() {
           assertParsesForField("58 5 21 ? * FRI-TUE", 5);
     }
-    public void testDayOfMonth() {
+    
+    @Test
+    void testDayOfMonth() {
           assertParsesForField("58 5 21 28-5 1 ?", 3);
     }
-    public void testMonth() {
+    
+    @Test
+    void testMonth() {
           assertParsesForField("58 5 21 ? 11-2 FRI", 4);
     }
-    public void testAmbiguous() {
+    
+    @Test
+    void testAmbiguous() {
           assertParsesForField("0 0 14-6 ? * FRI-MON", 2);
           assertParsesForField("0 0 14-6 ? * FRI-MON", 5);
 

@@ -74,6 +74,7 @@
     <c3p0.version>0.9.5.5</c3p0.version>
     <hikaricp.version>3.4.5</hikaricp.version>
     <log4j.version>1.2.17</log4j.version>
+    <junit.version>5.8.2</junit.version>
     <gmaven-plugin.version>1.4</gmaven-plugin.version>
     <checkstyle-suppressions-file>${user.dir}/checkstyle/src/main/resources/suppressions.xml</checkstyle-suppressions-file>
     <checkstyle-config-file>${user.dir}/checkstyle/src/main/resources/checkstyle.xml</checkstyle-config-file>
@@ -428,6 +429,18 @@
       </properties>
     </profile>
   </profiles>  
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${junit.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <distributionManagement>
     <repository>

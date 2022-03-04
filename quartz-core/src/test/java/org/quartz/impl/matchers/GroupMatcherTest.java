@@ -16,8 +16,6 @@
  */
 package org.quartz.impl.matchers;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
 import org.quartz.JobKey;
 import org.quartz.TriggerKey;
 
@@ -26,15 +24,19 @@ import static org.quartz.TriggerKey.triggerKey;
 import static org.quartz.impl.matchers.GroupMatcher.anyJobGroup;
 import static org.quartz.impl.matchers.GroupMatcher.anyTriggerGroup;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 /**
  * Unit test for CronScheduleBuilder.
  * 
  * @author jhouse
  *
  */
-public class GroupMatcherTest extends TestCase {
+class GroupMatcherTest {
 	
-	public void testAnyGroupMatchers() {
+    @Test
+	void testAnyGroupMatchers() {
 
         TriggerKey tKey = triggerKey("booboo", "baz");
         JobKey jKey = jobKey("frumpwomp", "bazoo");
@@ -42,8 +44,8 @@ public class GroupMatcherTest extends TestCase {
         GroupMatcher tgm = anyTriggerGroup();
         GroupMatcher jgm = anyJobGroup();
 
-        Assert.assertTrue("Expected match on trigger group", tgm.isMatch(tKey));
-        Assert.assertTrue("Expected match on job group", jgm.isMatch(jKey));
+        Assertions.assertTrue(tgm.isMatch(tKey), "Expected match on trigger group");
+        Assertions.assertTrue(jgm.isMatch(jKey), "Expected match on job group");
 
 	}
 

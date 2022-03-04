@@ -15,19 +15,24 @@
  */
 package org.quartz.utils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.Properties;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
+
+
 
 /**
  * Unit tests for PropertiesParser.
  */
-public class PropertiesParserTest extends TestCase {
+class PropertiesParserTest {
 
     /**
      * Unit test for full getPropertyGroup() method.
      */
-    public void testGetPropertyGroupStringBooleanStringArray() {
+    @Test
+    void testGetPropertyGroupStringBooleanStringArray() {
         // Test that an empty property does not cause an exception
         Properties props = new Properties();
         props.put("x.y.z", "");

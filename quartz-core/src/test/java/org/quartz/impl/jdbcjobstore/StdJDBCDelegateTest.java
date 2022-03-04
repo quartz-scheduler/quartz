@@ -16,7 +16,10 @@
 package org.quartz.impl.jdbcjobstore;
 
 import static org.hamcrest.collection.IsIterableWithSize.iterableWithSize;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -31,18 +34,20 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.hamcrest.MatcherAssert;
+import org.junit.jupiter.api.Test;
+import org.quartz.JobDataMap;
 import org.quartz.JobPersistenceException;
 import org.quartz.TriggerKey;
+import org.quartz.simpl.SimpleClassLoadHelper;
 import org.quartz.spi.OperableTrigger;
 import org.slf4j.LoggerFactory;
-import org.quartz.JobDataMap;
-import org.quartz.simpl.SimpleClassLoadHelper;
 
-import junit.framework.TestCase;
 
-public class StdJDBCDelegateTest extends TestCase {
+class StdJDBCDelegateTest {
 
-    public void testSerializeJobData() throws IOException, NoSuchDelegateException {
+    @Test
+    void testSerializeJobData() throws IOException, NoSuchDelegateException {
         StdJDBCDelegate delegate = new StdJDBCDelegate();
         delegate.initialize(LoggerFactory.getLogger(getClass()), "QRTZ_", "TESTSCHED", "INSTANCE", new SimpleClassLoadHelper(), false, "");
         
@@ -66,7 +71,8 @@ public class StdJDBCDelegateTest extends TestCase {
         }
     }
 
-    public void testSelectBlobTriggerWithNoBlobContent() throws JobPersistenceException, SQLException, IOException, ClassNotFoundException {
+    @Test
+    void testSelectBlobTriggerWithNoBlobContent() throws JobPersistenceException, SQLException, IOException, ClassNotFoundException {
         StdJDBCDelegate jdbcDelegate = new StdJDBCDelegate();
         jdbcDelegate.initialize(LoggerFactory.getLogger(getClass()), "QRTZ_", "TESTSCHED", "INSTANCE", new SimpleClassLoadHelper(), false, "");
 
@@ -86,7 +92,8 @@ public class StdJDBCDelegateTest extends TestCase {
 
     }
 
-    public void testSelectSimpleTriggerWithExceptionWithExtendedProps() throws SQLException, JobPersistenceException, IOException, ClassNotFoundException {
+    @Test
+    void testSelectSimpleTriggerWithExceptionWithExtendedProps() throws SQLException, JobPersistenceException, IOException, ClassNotFoundException {
         TriggerPersistenceDelegate persistenceDelegate = mock(TriggerPersistenceDelegate.class);
         IllegalStateException exception = new IllegalStateException();
         when(persistenceDelegate.loadExtendedTriggerProperties(any(Connection.class), any(TriggerKey.class))).thenThrow(exception);
@@ -115,7 +122,8 @@ public class StdJDBCDelegateTest extends TestCase {
 
     }
 
-    public void testSelectSimpleTriggerWithDeleteBeforeSelectExtendedProps() throws JobPersistenceException, ClassNotFoundException, SQLException, IOException {
+    @Test
+    void testSelectSimpleTriggerWithDeleteBeforeSelectExtendedProps() throws JobPersistenceException, ClassNotFoundException, SQLException, IOException {
         TriggerPersistenceDelegate persistenceDelegate = mock(TriggerPersistenceDelegate.class);
         when(persistenceDelegate.loadExtendedTriggerProperties(any(Connection.class), any(TriggerKey.class))).thenThrow(new IllegalStateException());
 
@@ -138,7 +146,8 @@ public class StdJDBCDelegateTest extends TestCase {
         verify(persistenceDelegate).loadExtendedTriggerProperties(any(Connection.class), any(TriggerKey.class));
     }
 
-    public void testSelectTriggerToAcquireHonorsMaxCount() throws SQLException {
+    @Test
+    void testSelectTriggerToAcquireHonorsMaxCount() throws SQLException {
 
         StdJDBCDelegate jdbcDelegate = new StdJDBCDelegate();
 
@@ -155,7 +164,7 @@ public class StdJDBCDelegateTest extends TestCase {
 
         List<TriggerKey> triggerKeys = jdbcDelegate.selectTriggerToAcquire(conn, Long.MAX_VALUE, Long.MIN_VALUE, 10);
 
-        assertThat(triggerKeys, iterableWithSize(10));
+        MatcherAssert.assertThat(triggerKeys, iterableWithSize(10));
     }
 
     static class TestStdJDBCDelegate extends StdJDBCDelegate {

@@ -22,7 +22,8 @@ import org.quartz.impl.StdSchedulerFactory;
 public class RAMSchedulerTest extends AbstractSchedulerTest {
 
     @Override
-    protected Scheduler createScheduler(String name, int threadPoolSize) throws SchedulerException {
+    protected Scheduler createScheduler(String name, int threadPoolSize, float createFailureProb,
+            float preCommitFailureProb, float postCommitFailureProb) throws SchedulerException {
         Properties config = new Properties();
         config.setProperty("org.quartz.scheduler.instanceName", name + "Scheduler");
         config.setProperty("org.quartz.scheduler.instanceId", "AUTO");

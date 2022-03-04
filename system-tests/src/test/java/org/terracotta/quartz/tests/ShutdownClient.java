@@ -242,7 +242,7 @@ public class ShutdownClient extends AbstractClientBase {
     ClassLoader clusteredStateLoader = getUnderlyingToolkit(scheduler).getClass().getClassLoader();
 
     System.out.println("XXX: clusteredStateLoader: " + clusteredStateLoader);
-    Assert.assertNotNull(clusteredStateLoader);
+    Assertions.assertNotNull(clusteredStateLoader);
 
     CLASS_LOADER_LIST.add(new WeakReference<ClassLoader>(clusteredStateLoader));
   }

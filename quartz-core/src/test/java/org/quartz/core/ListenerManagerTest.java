@@ -15,6 +15,8 @@
  */
 package org.quartz.core;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.quartz.impl.matchers.GroupMatcher.jobGroupEquals;
 import static org.quartz.impl.matchers.GroupMatcher.triggerGroupEquals;
 import static org.quartz.impl.matchers.NameMatcher.jobNameContains;
@@ -22,8 +24,7 @@ import static org.quartz.impl.matchers.NameMatcher.jobNameContains;
 import java.util.List;
 import java.util.UUID;
 
-import junit.framework.TestCase;
-
+import org.junit.jupiter.api.Test;
 import org.quartz.JobListener;
 import org.quartz.SchedulerListener;
 import org.quartz.TriggerKey;
@@ -36,7 +37,7 @@ import org.quartz.listeners.TriggerListenerSupport;
 /**
  * Test ListenerManagerImpl functionality 
  */
-public class ListenerManagerTest extends TestCase {
+class ListenerManagerTest {
 
 
     public static class TestJobListener extends JobListenerSupport {
@@ -69,11 +70,8 @@ public class ListenerManagerTest extends TestCase {
 
     }
 
-    @Override
-    protected void setUp() throws Exception {
-    }
-
-    public void testManagementOfJobListeners() throws Exception {
+    @Test
+    void testManagementOfJobListeners() throws Exception {
         
         JobListener tl1 = new TestJobListener("tl1");
         JobListener tl2 = new TestJobListener("tl2");
@@ -82,19 +80,19 @@ public class ListenerManagerTest extends TestCase {
 
         // test adding listener without matcher
         manager.addJobListener(tl1);
-        assertEquals("Unexpected size of listener list", 1, manager.getJobListeners().size());
+        assertEquals(1, manager.getJobListeners().size(), "Unexpected size of listener list");
 
         // test adding listener with matcher
         manager.addJobListener(tl2, jobGroupEquals("foo"));
-        assertEquals("Unexpected size of listener list", 2, manager.getJobListeners().size());
+        assertEquals(2, manager.getJobListeners().size(), "Unexpected size of listener list");
 
         // test removing a listener
         manager.removeJobListener("tl1");
-        assertEquals("Unexpected size of listener list", 1, manager.getJobListeners().size());
+        assertEquals(1, manager.getJobListeners().size(), "Unexpected size of listener list");
         
         // test adding a matcher
         manager.addJobListenerMatcher("tl2", jobNameContains("foo"));
-        assertEquals("Unexpected size of listener's matcher list", 2, manager.getJobListenerMatchers("tl2").size());
+        assertEquals(2, manager.getJobListenerMatchers("tl2").size(), "Unexpected size of listener's matcher list");
            
         // Test ordering of registration is preserved.
         final int numListenersToTestOrderOf = 15;
@@ -108,12 +106,13 @@ public class ListenerManagerTest extends TestCase {
         List<JobListener> mls = manager.getJobListeners();
         int i = 0;
         for(JobListener lsnr: mls) {
-        	assertSame("Unexpected order of listeners", lstners[i], lsnr);
+        	assertSame(lstners[i], lsnr, "Unexpected order of listeners");
         	i++;
         }        
     }
 
-    public void testManagementOfTriggerListeners() throws Exception {
+    @Test
+    void testManagementOfTriggerListeners() throws Exception {
         
     	TriggerListener tl1 = new TestTriggerListener("tl1");
     	TriggerListener tl2 = new TestTriggerListener("tl2");
@@ -122,19 +121,19 @@ public class ListenerManagerTest extends TestCase {
 
         // test adding listener without matcher
         manager.addTriggerListener(tl1);
-        assertEquals("Unexpected size of listener list", 1, manager.getTriggerListeners().size());
+        assertEquals(1, manager.getTriggerListeners().size(), "Unexpected size of listener list");
 
         // test adding listener with matcher
         manager.addTriggerListener(tl2, triggerGroupEquals("foo"));
-        assertEquals("Unexpected size of listener list", 2, manager.getTriggerListeners().size());
+        assertEquals(2, manager.getTriggerListeners().size(), "Unexpected size of listener list");
 
         // test removing a listener
         manager.removeTriggerListener("tl1");
-        assertEquals("Unexpected size of listener list", 1, manager.getTriggerListeners().size());
+        assertEquals(1, manager.getTriggerListeners().size(), "Unexpected size of listener list");
         
         // test adding a matcher
         manager.addTriggerListenerMatcher("tl2", NameMatcher.<TriggerKey>nameContains("foo"));
-        assertEquals("Unexpected size of listener's matcher list", 2, manager.getTriggerListenerMatchers("tl2").size());
+        assertEquals(2, manager.getTriggerListenerMatchers("tl2").size(), "Unexpected size of listener's matcher list");
         
         // Test ordering of registration is preserved.
         final int numListenersToTestOrderOf = 15;
@@ -148,13 +147,13 @@ public class ListenerManagerTest extends TestCase {
         List<TriggerListener> mls = manager.getTriggerListeners();
         int i = 0;
         for(TriggerListener lsnr: mls) {
-        	assertSame("Unexpected order of listeners", lstners[i], lsnr);
+        	assertSame(lstners[i], lsnr, "Unexpected order of listeners");
         	i++;
         }
     }
 
-
-    public void testManagementOfSchedulerListeners() throws Exception {
+    @Test
+    void testManagementOfSchedulerListeners() throws Exception {
         
         SchedulerListener tl1 = new TestSchedulerListener();
         SchedulerListener tl2 = new TestSchedulerListener();
@@ -163,15 +162,15 @@ public class ListenerManagerTest extends TestCase {
 
         // test adding listener without matcher
         manager.addSchedulerListener(tl1);
-        assertEquals("Unexpected size of listener list", 1, manager.getSchedulerListeners().size());
+        assertEquals(1, manager.getSchedulerListeners().size(), "Unexpected size of listener list");
 
         // test adding listener with matcher
         manager.addSchedulerListener(tl2);
-        assertEquals("Unexpected size of listener list", 2, manager.getSchedulerListeners().size());
+        assertEquals(2, manager.getSchedulerListeners().size(), "Unexpected size of listener list");
 
         // test removing a listener
         manager.removeSchedulerListener(tl1);
-        assertEquals("Unexpected size of listener list", 1, manager.getSchedulerListeners().size());
+        assertEquals(1, manager.getSchedulerListeners().size(), "Unexpected size of listener list");
         
         
         // Test ordering of registration is preserved.
@@ -185,7 +184,7 @@ public class ListenerManagerTest extends TestCase {
         List<SchedulerListener> mls = manager.getSchedulerListeners();
         int i = 0;
         for(SchedulerListener lsnr: mls) {
-        	assertSame("Unexpected order of listeners", lstners[i], lsnr);
+        	assertSame(lstners[i], lsnr, "Unexpected order of listeners");
         	i++;
         } 
     }

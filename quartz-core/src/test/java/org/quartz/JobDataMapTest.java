@@ -15,6 +15,8 @@
  */
 package org.quartz;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Unit test for JobDataMap serialization backwards compatibility.
@@ -51,13 +53,13 @@ public class JobDataMapTest extends SerializationTestSupport {
     protected void verifyMatch(Object target, Object deserialized) {
         JobDataMap targetMap = (JobDataMap)target;
         JobDataMap deserializedMap = (JobDataMap)deserialized;
-        
+
         assertNotNull(deserializedMap);
         assertEquals(targetMap.getWrappedMap(), deserializedMap.getWrappedMap());
         assertEquals(targetMap.getAllowsTransientData(), deserializedMap.getAllowsTransientData());
         assertEquals(targetMap.isDirty(), deserializedMap.isDirty());
     }
-    
+
     public static void main(String[] args) throws Exception {
 		new JobDataMapTest().writeJobDataFile("2.1");
 	}

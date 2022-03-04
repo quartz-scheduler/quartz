@@ -18,8 +18,10 @@ package org.quartz;
 
 import static org.quartz.CronScheduleBuilder.atHourAndMinuteOnGivenDaysOfWeek;
 import static org.quartz.TriggerBuilder.newTrigger;
-import junit.framework.Assert;
-import junit.framework.TestCase;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 
 /**
  * Unit test for CronScheduleBuilder.
@@ -27,21 +29,22 @@ import junit.framework.TestCase;
  * @author jhouse
  *
  */
-public class CronScheduleBuilderTest extends TestCase {
+class CronScheduleBuilderTest {
 	
-	public void testAtHourAndMinuteOnGivenDaysOfWeek() {
+    @Test
+	void testAtHourAndMinuteOnGivenDaysOfWeek() {
 		
 		CronTrigger trigger = newTrigger().withIdentity("test")
 				.withSchedule(
 					atHourAndMinuteOnGivenDaysOfWeek(10, 0, DateBuilder.MONDAY, DateBuilder.THURSDAY, DateBuilder.FRIDAY))
 				.build();
-		Assert.assertEquals("0 0 10 ? * 2,5,6", trigger.getCronExpression());
+		Assertions.assertEquals("0 0 10 ? * 2,5,6", trigger.getCronExpression());
 
 		trigger = newTrigger().withIdentity("test")
 			.withSchedule(
 			atHourAndMinuteOnGivenDaysOfWeek(10, 0, DateBuilder.WEDNESDAY))
 			.build();
-		Assert.assertEquals("0 0 10 ? * 4", trigger.getCronExpression());
+		Assertions.assertEquals("0 0 10 ? * 4", trigger.getCronExpression());
 	}
 	
 }

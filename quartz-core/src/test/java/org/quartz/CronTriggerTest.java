@@ -17,11 +17,15 @@ package org.quartz;
 
 import java.text.ParseException;
 
+import org.hamcrest.MatcherAssert;
+import org.junit.jupiter.api.Test;
 import org.quartz.impl.triggers.CronTriggerImpl;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Unit test for CronTrigger.
@@ -81,33 +85,36 @@ public class CronTriggerTest extends SerializationTestSupport {
         assertEquals(targetCronTrigger.getCronExpression(), deserializedCronTrigger.getCronExpression());
     }
         
-    
-    public void testClone() throws ParseException {
+    @Test
+    void testClone() throws ParseException {
         CronTriggerImpl trigger = new CronTriggerImpl();
         trigger.setName("test");
         trigger.setGroup("testGroup");
         trigger.setCronExpression("0 0 12 * * ?");
         CronTrigger trigger2 = (CronTrigger) trigger.clone();
 
-        assertEquals( "Cloning failed", trigger, trigger2 );
+        assertEquals(trigger, trigger2, "Cloning failed");
 
         // equals() doesn't test the cron expression
-        assertEquals( "Cloning failed for the cron expression", 
-                      "0 0 12 * * ?", trigger2.getCronExpression()
-                    );
+        assertEquals(
+                "0 0 12 * * ?", 
+                trigger2.getCronExpression(),
+                "Cloning failed for the cron expression");
     }
 
     // http://jira.opensymphony.com/browse/QUARTZ-558
-    public void testQuartz558() throws ParseException {
+    @Test
+    void testQuartz558() throws ParseException {
         CronTriggerImpl trigger = new CronTriggerImpl();
         trigger.setName("test");
         trigger.setGroup("testGroup");
         CronTrigger trigger2 = (CronTrigger) trigger.clone();
 
-        assertEquals( "Cloning failed", trigger, trigger2 );
+        assertEquals(trigger, trigger2, "Cloning failed");
     }
 
-    public void testMisfireInstructionValidity() throws ParseException {
+    @Test
+    void testMisfireInstructionValidity() throws ParseException {
         CronTriggerImpl trigger = new CronTriggerImpl();
 
         try {
@@ -129,7 +136,8 @@ public class CronTriggerTest extends SerializationTestSupport {
         }
     }
 
-    public void testMisfireInstructionInDerivedBuilder() throws ParseException {
+    @Test
+    void testMisfireInstructionInDerivedBuilder() throws ParseException {
         for (int policy : asList(
                 Trigger.MISFIRE_INSTRUCTION_IGNORE_MISFIRE_POLICY,
                 Trigger.MISFIRE_INSTRUCTION_SMART_POLICY,
@@ -139,14 +147,15 @@ public class CronTriggerTest extends SerializationTestSupport {
             CronTriggerImpl trigger = new CronTriggerImpl();
             trigger.setCronExpression("0 0 12 * * ?");
             trigger.setMisfireInstruction(policy);
-            assertThat(trigger.getMisfireInstruction(), is(policy));
+            MatcherAssert.assertThat(trigger.getMisfireInstruction(), is(policy));
 
             CronTrigger copy = trigger.getTriggerBuilder().build();
-            assertThat(copy.getMisfireInstruction(), is(policy));
+            MatcherAssert.assertThat(copy.getMisfireInstruction(), is(policy));
         }
     }
 
-    public void testUndefinedMisfireInstructionInDerivedBuilder() throws ParseException {
+    @Test
+    void testUndefinedMisfireInstructionInDerivedBuilder() throws ParseException {
         CronTriggerImpl trigger = new CronTriggerImpl() {
             @Override
             public int getMisfireInstruction() {
@@ -158,11 +167,11 @@ public class CronTriggerTest extends SerializationTestSupport {
             trigger.setMisfireInstruction(12345);
             fail("Expected IllegalArgumentException");
         } catch (IllegalArgumentException e) {
-            assertThat(e.getMessage(), is("The misfire instruction code is invalid for this type of trigger."));
+            MatcherAssert.assertThat(e.getMessage(), is("The misfire instruction code is invalid for this type of trigger."));
         }
 
         CronTrigger copy = trigger.getTriggerBuilder().build();
-        assertThat(copy.getMisfireInstruction(), is(Trigger.MISFIRE_INSTRUCTION_SMART_POLICY));
+        MatcherAssert.assertThat(copy.getMisfireInstruction(), is(Trigger.MISFIRE_INSTRUCTION_SMART_POLICY));
     }
 
     // execute with version number to generate a new version's serialized form
