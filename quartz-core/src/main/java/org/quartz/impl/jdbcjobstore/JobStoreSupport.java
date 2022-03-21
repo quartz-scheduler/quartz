@@ -158,7 +158,8 @@ public abstract class JobStoreSupport implements JobStore, Constants {
     
     private volatile boolean schedulerRunning = false;
     private volatile boolean shutdown = false;
-    
+
+    private long clusterNodeFailureMarkInterval = 15 * 1000L;
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      * 
@@ -166,6 +167,22 @@ public abstract class JobStoreSupport implements JobStore, Constants {
      * 
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      */
+    /**
+     * <p></p>
+     * The period for which a non responding member in the cluster is marked as a failed node
+     * </p>
+     */
+    public long getClusterNodeFailureMarkInterval() {
+        return clusterNodeFailureMarkInterval;
+    }
+
+    /**
+     * Set the value on which a cluster member is identified as a non-responsive node
+     * @param clusterNodeFailureMarkInterval - The interval mark on which a member is marked as a failure
+     */
+    public void setClusterNodeFailureMarkInterval(long clusterNodeFailureMarkInterval) {
+        this.clusterNodeFailureMarkInterval = clusterNodeFailureMarkInterval;
+    }
 
     /**
      * <p>
@@ -3444,7 +3461,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
     
     protected long calcFailedIfAfter(SchedulerStateRecord rec) {
         return rec.getCheckinTimestamp() +
-            Math.max(rec.getCheckinInterval(), 
+            Math.max(Math.max(rec.getCheckinInterval(),getClusterNodeFailureMarkInterval()),
                     (System.currentTimeMillis() - lastCheckin)) +
             7500L;
     }
