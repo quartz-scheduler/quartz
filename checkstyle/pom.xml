@@ -13,12 +13,6 @@
   <name>quartz-checkstyle</name>
   <packaging>jar</packaging>
 
-  <properties>
-    <terracotta-snapshots-url>http://nexus.terracotta.eur.ad.sag/content/repositories/terracotta-snapshots</terracotta-snapshots-url>
-    <terracotta-staging-url>http://nexus.terracotta.eur.ad.sag/content/repositories/terracotta-staging</terracotta-staging-url>
-    <terracotta-releases-url>http://nexus.terracotta.eur.ad.sag/content/repositories/terracotta-releases</terracotta-releases-url>      
-  </properties>
-
   <profiles>
     <profile>
       <id>deploy-sonatype</id>
@@ -37,19 +31,5 @@
       </distributionManagement>
     </profile>    
   </profiles>
-  
-  <distributionManagement>
-    <repository>
-      <id>terracotta-staging</id>
-      <name>Terracotta Staging Repository</name>
-      <url>${terracotta-staging-url}</url>
-    </repository>
-    <snapshotRepository>
-      <id>terracotta-snapshots</id>
-      <uniqueVersion>false</uniqueVersion>
-      <name>Terracotta Snapshots Repository</name>
-      <url>${terracotta-snapshots-url}</url>
-    </snapshotRepository>
-  </distributionManagement>  
 
 </project>
