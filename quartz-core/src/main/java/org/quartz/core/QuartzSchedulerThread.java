@@ -71,7 +71,7 @@ public class QuartzSchedulerThread extends Thread {
 
     // When the scheduler finds there is no current trigger to fire, how long
     // it should wait until checking again...
-    private static long DEFAULT_IDLE_WAIT_TIME = 30L * 1000L;
+    private static final long DEFAULT_IDLE_WAIT_TIME = 30L * 1000L;
 
     private long idleWaitTime = DEFAULT_IDLE_WAIT_TIME;
 
@@ -424,9 +424,6 @@ public class QuartzSchedulerThread extends Thread {
                     continue; // while (!halted)
                 }
 
-                long now = System.currentTimeMillis();
-                long waitTime = now + getRandomizedIdleWaitTime();
-                long timeUntilContinue = waitTime - now;
                 synchronized(sigLock) {
                     try {
                       if(!halted.get()) {
@@ -435,7 +432,7 @@ public class QuartzSchedulerThread extends Thread {
                         // Check that before waiting for too long in case this very job needs to be
                         // scheduled very soon
                         if (!isScheduleChanged()) {
-                          sigLock.wait(timeUntilContinue);
+                          sigLock.wait(getRandomizedIdleWaitTime());
                         }
                       }
                     } catch (InterruptedException ignore) {
