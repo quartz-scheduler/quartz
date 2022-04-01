@@ -3,7 +3,7 @@ title: Cookbook
 visible_title: "Quartz Cookbook"
 active_sub_menu_id: site_mnu_docs_cookbook
 ---
-<div class="secNavPanel"><a href=".">Contents</a> | <a href="UpdateTrigger.html">&lsaquo;&nbsp;Prev</a> | <a href="ListJobs.html">Next&nbsp;&rsaquo;</a></div>
+<div class="secNavPanel"><a href=".">Contents</a> | <a href="UpdateTrigger.md">&lsaquo;&nbsp;Prev</a> | <a href="ListJobs.md">Next&nbsp;&rsaquo;</a></div>
 
 
 
