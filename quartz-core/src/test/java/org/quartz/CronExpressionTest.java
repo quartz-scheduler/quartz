@@ -472,7 +472,9 @@ public class CronExpressionTest extends SerializationTestSupport {
         }
     }
 
-    // Issue #776
+    /*
+     Issue #776 : Improve parsing of Day-of-Week and Month in CronExpression
+     */
     public void testIsValidExpression() throws Exception {
         assertTrue(CronExpression.isValidExpression("0 0 13 ? * MON"));
         assertTrue(CronExpression.isValidExpression("0 0 13 ? * MON-FRI"));
