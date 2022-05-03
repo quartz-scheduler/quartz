@@ -412,18 +412,15 @@ public final class CronExpression implements Serializable, Cloneable {
      *         expression
      */
     public static boolean isValidExpression(String cronExpression) {
-        
         try {
             new CronExpression(cronExpression);
         } catch (ParseException pe) {
             return false;
         }
-        
         return true;
     }
 
     public static void validateExpression(String cronExpression) throws ParseException {
-        
         new CronExpression(cronExpression);
     }
     
@@ -438,7 +435,6 @@ public final class CronExpression implements Serializable, Cloneable {
         expressionParsed = true;
 
         try {
-
             if (seconds == null) {
                 seconds = new TreeSet<Integer>();
             }
@@ -470,14 +466,14 @@ public final class CronExpression implements Serializable, Cloneable {
                 String expr = exprsTok.nextToken().trim();
 
                 // throw an exception if L is used with other days of the month
-                if(exprOn == DAY_OF_MONTH && expr.indexOf('L') != -1 && expr.length() > 1 && expr.contains(",")) {
+                if (exprOn == DAY_OF_MONTH && expr.indexOf('L') != -1 && expr.length() > 1 && expr.contains(",")) {
                     throw new ParseException("Support for specifying 'L' and 'LW' with other days of the month is not implemented", -1);
                 }
                 // throw an exception if L is used with other days of the week
-                if(exprOn == DAY_OF_WEEK && expr.indexOf('L') != -1 && expr.length() > 1  && expr.contains(",")) {
+                if (exprOn == DAY_OF_WEEK && expr.indexOf('L') != -1 && expr.length() > 1  && expr.contains(",")) {
                     throw new ParseException("Support for specifying 'L' with other days of the week is not implemented", -1);
                 }
-                if(exprOn == DAY_OF_WEEK && expr.indexOf('#') != -1 && expr.indexOf('#', expr.indexOf('#') +1) != -1) {
+                if (exprOn == DAY_OF_WEEK && expr.indexOf('#') != -1 && expr.indexOf('#', expr.indexOf('#') +1) != -1) {
                     throw new ParseException("Support for specifying multiple \"nth\" days is not implemented.", -1);
                 }
                 
@@ -515,8 +511,7 @@ public final class CronExpression implements Serializable, Cloneable {
         } catch (ParseException pe) {
             throw pe;
         } catch (Exception e) {
-            throw new ParseException("Illegal cron expression format ("
-                    + e.toString() + ")", 0);
+            throw new ParseException("Illegal cron expression format (" + e + ")", 0);
         }
     }
 
@@ -541,30 +536,32 @@ public final class CronExpression implements Serializable, Cloneable {
                 if (s.length() > i + 3) {
                     c = s.charAt(i + 3);
                     if (c == '-') {
+                        //Expect something like "MON-FRI"
                         i += 4;
-                        sub = s.substring(i, i + 3);
+                        sub = s.substring(i); //Should pick rest of string
                         eval = getMonthNumber(sub) + 1;
                         if (eval <= 0) {
                             throw new ParseException("Invalid Month value: '" + sub + "'", i);
                         }
+                    } else {
+                        //Not a valid value
+                        throw new ParseException("Invalid Month value: '" + sub + "'", i);
                     }
                 }
             } else if (type == DAY_OF_WEEK) {
                 sval = getDayOfWeekNumber(sub);
                 if (sval < 0) {
-                    throw new ParseException("Invalid Day-of-Week value: '"
-                                + sub + "'", i);
+                    throw new ParseException("Invalid Day-of-Week value: '" + sub + "'", i);
                 }
                 if (s.length() > i + 3) {
                     c = s.charAt(i + 3);
                     if (c == '-') {
+                        //Expect something like "JAN-MAY"
                         i += 4;
-                        sub = s.substring(i, i + 3);
+                        sub = s.substring(i); //Should pick rest of string
                         eval = getDayOfWeekNumber(sub);
                         if (eval < 0) {
-                            throw new ParseException(
-                                    "Invalid Day-of-Week value: '" + sub
-                                        + "'", i);
+                            throw new ParseException("Invalid Day-of-Week value: '" + sub + "'", i);
                         }
                     } else if (c == '#') {
                         try {
@@ -581,6 +578,9 @@ public final class CronExpression implements Serializable, Cloneable {
                     } else if (c == 'L') {
                         lastdayOfWeek = true;
                         i++;
+                    } else {
+                        //Not a valid value
+                        throw new ParseException("Invalid Day-of-Week value: '" + sub + "'", i);
                     }
                 }
 

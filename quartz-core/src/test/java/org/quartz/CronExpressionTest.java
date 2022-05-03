@@ -110,7 +110,6 @@ public class CronExpressionTest extends SerializationTestSupport {
         
         cal.set(2010, Calendar.OCTOBER, 29, 10, 15, 0); // nearest weekday to last day - 1 (29th is a friday in 2010)
         assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
-        
     }
 
     /*
@@ -145,7 +144,7 @@ public class CronExpressionTest extends SerializationTestSupport {
  		while (++i < 26) {
  			Date date = trigger.getFireTimeAfter(pdate);
  			System.out.println("fireTime: " + date + ", previousFireTime: " + pdate);
- 			assertFalse("Next fire time is the same as previous fire time!", pdate.equals(date));
+            assertNotSame("Next fire time is the same as previous fire time!", pdate, date);
  			pdate = date;
  		}
  	}
@@ -163,11 +162,11 @@ public class CronExpressionTest extends SerializationTestSupport {
  		while (++i < 26) {
  			Date date = trigger.getFireTimeAfter(pdate);
  			System.out.println("fireTime: " + date + ", previousFireTime: " + pdate);
- 			assertFalse("Next fire time is the same as previous fire time!", pdate.equals(date));
+            assertNotSame("Next fire time is the same as previous fire time!", pdate, date);
  			pdate = date;
  		}
  	}
- 	
+
     /*
      * QUARTZ-574: Showing that storeExpressionVals correctly calculates the month number
      */
@@ -176,16 +175,14 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("* * * * Foo ? ");
             fail("Expected ParseException did not fire for non-existent month");
         } catch(ParseException pe) {
-            assertTrue("Incorrect ParseException thrown", 
-                pe.getMessage().startsWith("Invalid Month value:"));
+            assertTrue("Incorrect ParseException thrown", pe.getMessage().startsWith("Invalid Month value:"));
         }
 
         try {
             new CronExpression("* * * * Jan-Foo ? ");
             fail("Expected ParseException did not fire for non-existent month");
         } catch(ParseException pe) {
-            assertTrue("Incorrect ParseException thrown", 
-                pe.getMessage().startsWith("Invalid Month value:"));
+            assertTrue("Incorrect ParseException thrown", pe.getMessage().startsWith("Invalid Month value:"));
         }
     }
 
@@ -241,8 +238,7 @@ public class CronExpressionTest extends SerializationTestSupport {
             fail("Unexpected ParseException thrown for supported '5L' expression.");
         }
     }
-    
-    
+
     public void testQtz96() throws ParseException {
         try {
             new CronExpression("0/5 * * 32W 1 ?");
@@ -441,8 +437,6 @@ public class CronExpressionTest extends SerializationTestSupport {
         }
     }
 
-
-
     // Issue #58
     public void testDayOfWeekRangeIntervalAfterSlash() throws Exception {
         // Test case 1
@@ -476,6 +470,24 @@ public class CronExpressionTest extends SerializationTestSupport {
         } catch (ParseException e) {
             assertEquals(e.getMessage(), "'/' must be followed by an integer.");
         }
+    }
+
+    // Issue #776
+    public void testIsValidExpression() throws Exception {
+        assertTrue(CronExpression.isValidExpression("0 0 13 ? * MON"));
+        assertTrue(CronExpression.isValidExpression("0 0 13 ? * MON-FRI"));
+        assertFalse(CronExpression.isValidExpression("0 0 13 ? * MONDAY"));
+        assertFalse(CronExpression.isValidExpression("0 0 13 ? * MON12345"));
+        assertFalse(CronExpression.isValidExpression("0 0 13 ? * MONabc-THURS345"));
+        assertFalse(CronExpression.isValidExpression("0 0 13 ? * MONabc,WEDSfdd,SUN345"));
+
+        assertTrue(CronExpression.isValidExpression("0 0 13 ? FEB *"));
+        assertTrue(CronExpression.isValidExpression("0 0 13 ? FEB MON"));
+        assertTrue(CronExpression.isValidExpression("0 0 13 ? FEB-APR MON"));
+        assertFalse(CronExpression.isValidExpression("0 0 13 ? FEB123 MON"));
+        assertFalse(CronExpression.isValidExpression("0 0 13 ? FEB123 MON123"));
+        assertFalse(CronExpression.isValidExpression("0 0 13 ? FEB123-MAY MON123"));
+        assertFalse(CronExpression.isValidExpression("0 0 13 ? FEB-MAY123 MON123"));
     }
     
     // execute with version number to generate a new version's serialized form
