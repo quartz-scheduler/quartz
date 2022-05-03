@@ -133,7 +133,6 @@ public class CronExpressionTest extends SerializationTestSupport {
 
     /**
      * QTZ-259 : last day offset causes repeating fire time
-     * 
      */
  	public void testQtz259() throws Exception {
  		CronScheduleBuilder schedBuilder = CronScheduleBuilder.cronSchedule("0 0 0 L-2 * ? *");
