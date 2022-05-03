@@ -486,7 +486,8 @@ public class CronExpressionTest extends SerializationTestSupport {
         assertTrue(CronExpression.isValidExpression("0 0 13 ? FEB *"));
         assertTrue(CronExpression.isValidExpression("0 0 13 ? FEB MON"));
         assertTrue(CronExpression.isValidExpression("0 0 13 ? FEB-APR MON"));
-        assertFalse(CronExpression.isValidExpression("0 0 13 ? FEB123 MON"));
+        assertTrue(CronExpression.isValidExpression("0 0 13 ? FEB-APR TUE-THU"));
+        assertFalse(CronExpression.isValidExpression("0 0 13 ? FEB123 WED"));
         assertFalse(CronExpression.isValidExpression("0 0 13 ? FEB123 MON123"));
         assertFalse(CronExpression.isValidExpression("0 0 13 ? FEB123-MAY MON123"));
         assertFalse(CronExpression.isValidExpression("0 0 13 ? FEB-MAY123 MON123"));
