@@ -16,10 +16,12 @@
 package org.quartz;
 
 import java.io.*;
+import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.Arrays;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 public class CronExpressionTest extends SerializationTestSupport {
@@ -477,7 +479,44 @@ public class CronExpressionTest extends SerializationTestSupport {
             assertEquals(e.getMessage(), "'/' must be followed by an integer.");
         }
     }
-    
+
+    private Date getUTCDateFromString(String date) throws ParseException {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return date.equals("null") ? null : dateFormat.parse(date);
+    }
+
+    private CronExpression getUTCCronExpression(String cronString) throws ParseException {
+        CronExpression cronExpression = new CronExpression(cronString);
+        cronExpression.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return cronExpression;
+    }
+
+    private void testGetTimeBefore(String cronString, String expectedDateString, String endTimeString)
+        throws ParseException {
+        CronExpression cronExpression = getUTCCronExpression(cronString);
+        Date endTime = getUTCDateFromString(endTimeString);
+        Date previousFiringTime = cronExpression.getTimeBefore(endTime);
+        Date expectedDate = getUTCDateFromString(expectedDateString);
+        assertEquals(expectedDate, previousFiringTime);
+    }
+
+    public void testGetTimeBefore_MinuteCron() throws ParseException {
+        testGetTimeBefore("0 */7 * ? * *", "1990-07-19 14:56:00", "1990-07-19 15:00:00");
+    }
+
+    public void testGetTimeBefore_DayCron() throws ParseException {
+        testGetTimeBefore("4,13 * 7,17 ? * MON,THU", "1990-07-19 17:59:13", "1990-07-22 15:00:00");
+    }
+
+    public void testGetTimeBefore_NoAnswer() throws ParseException {
+        testGetTimeBefore("0 * * ? * MON", "null", "1970-01-01 07:06:59");
+    }
+
+    public void testGetTimeBefore_EpochLimit() throws ParseException {
+        testGetTimeBefore("0 * * ? * *", "1970-01-01 00:00:00", "1970-01-01 00:00:01");
+    }
+
     // execute with version number to generate a new version's serialized form
     public static void main(String[] args) throws Exception {
         new CronExpressionTest().writeJobDataFile("1.5.2");

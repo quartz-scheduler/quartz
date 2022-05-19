@@ -18,7 +18,10 @@
 package org.quartz;
 
 import java.io.Serializable;
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -1586,16 +1589,48 @@ public final class CronExpression implements Serializable, Cloneable {
     }
 
     /**
-     * NOT YET IMPLEMENTED: Returns the time before the given time
+     * Returns the time before the given time
      * that the <code>CronExpression</code> matches.
+     *
+     * @param endTime the data to operate on
      */ 
-    public Date getTimeBefore(Date endTime) { 
-        // FUTURE_TODO: implement QUARTZ-423
-        return null;
+    public Date getTimeBefore(Date endTime) {
+        long lowInstant = Instant.EPOCH.toEpochMilli();
+        long highInstant = endTime.getTime() - 1L;
+        long maxTime = highInstant;
+        long retValInstant = lowInstant - 1L;
+        // Use the fact that if a mask in some instant t has its next valid scheduling in instant v then
+        // at time t' > t the next valid instant will be some v' >= v to binary search the answer
+        while(lowInstant <= highInstant) {
+            // Avoid overflow when computing midpoint
+            long midpointInstant = lowInstant + (highInstant - lowInstant) / 2L;
+            Date midpointDate = Date.from(Instant.ofEpochMilli(midpointInstant - 1L));
+            // Compute the next closest match to the midpoint
+            Date nextClosestMatch = getNextValidTimeAfter(midpointDate);
+            // If there is no answer here then it won't be any answer at any point in the future
+            if(nextClosestMatch == null) {
+                break;
+            }
+            long nextFireTime = nextClosestMatch.getTime();
+            // If the next fire time is greater than the maximum allowed instant then we must have to limit our
+            // search to the left side of our current search space
+            if(nextFireTime > maxTime) {
+                highInstant = midpointInstant - 1L;
+            }
+            // If the next fire time is within bounds it will be greater than the previous one for sure,
+            // so we must update our answer and limit the search to the right side of our current search space
+            else {
+                retValInstant = midpointInstant;
+                lowInstant = midpointInstant + 1L;
+            }
+        }
+        // retValInstant = -1 implies that we found no valid next fire time for any of the points in our search space
+        // so this cron has no valid firing time prior to endTime
+        return retValInstant < Instant.EPOCH.toEpochMilli() ? null : Date.from(Instant.ofEpochMilli(retValInstant));
     }
 
     /**
-     * NOT YET IMPLEMENTED: Returns the final time that the 
+     * NOT YET IMPLEMENTED: Returns the final time that the
      * <code>CronExpression</code> will match.
      */
     public Date getFinalFireTime() {
