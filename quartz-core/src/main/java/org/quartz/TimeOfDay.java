@@ -88,6 +88,15 @@ public class TimeOfDay implements Serializable {
      * @throws IllegalArgumentException if one or more of the input values is out of their valid range.
      */
     public static TimeOfDay hourMinuteAndSecondOfDay(int hour, int minute, int second) {
+        System.out.println("add");
+        System.out.println("add");
+        System.out.println("add");
+        System.out.println("add");
+        System.out.println("add");
+        System.out.println("add");
+        System.out.println("add");
+        System.out.println("add");
+        System.out.println("add");
         return new TimeOfDay(hour, minute, second);
     }
 
