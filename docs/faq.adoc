@@ -10,7 +10,7 @@ What is Quartz?::
 
 Quartz is a job scheduling library that can be integrated with, or used along side virtually any other software system. The term "job scheduler" seems to conjure different ideas for different people. As you read the tutorial, you should be able to get a firm idea of what we mean when we use this term, but in short, a job scheduler is a service component that is responsible for executing (or notifying) other software components when a pre-determined (scheduled) time arrives.
 
-See link:intro.adoc[Introduction] for more.
+See link:introduction.adoc[Introduction] for more.
 
 What Isn’t Quartz?::
 
