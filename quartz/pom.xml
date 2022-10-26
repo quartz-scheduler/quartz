@@ -236,6 +236,7 @@
           </execution>
         </executions>
       </plugin> 
+<!--
       <plugin>
         <groupId>org.codehaus.gmaven</groupId>
         <artifactId>groovy-maven-plugin</artifactId>
@@ -257,7 +258,8 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>       
+      </plugin>
+-->
     </plugins>
   </build>
   
