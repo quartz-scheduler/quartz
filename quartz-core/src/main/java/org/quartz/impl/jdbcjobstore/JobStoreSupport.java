@@ -143,6 +143,8 @@ public abstract class JobStoreSupport implements JobStore, Constants {
     
     private boolean acquireTriggersWithinLock = false;
     
+    private boolean useRowLocks = false;
+
     private long dbRetryInterval = 15000L; // 15 secs
     
     private boolean makeThreadsDaemons = false;
@@ -480,6 +482,43 @@ public abstract class JobStoreSupport implements JobStore, Constants {
     @SuppressWarnings("UnusedDeclaration") /* called reflectively */
     public void setAcquireTriggersWithinLock(boolean acquireTriggersWithinLock) {
         this.acquireTriggersWithinLock = acquireTriggersWithinLock;
+    }
+
+    /**
+
+    * The clustered mode(using jdbc) in the current library uses cluster-wide
+    * lock(LOCK_TRIGGER_ACCESS) such that every operation (acquire new triggers, 
+    * misfire handler) related to trigger or batch
+    * of triggers happens sequentially. It does not allow concurrent processing.
+    * This affects the overall performance of the cluster. The system remains choked
+    * on a particular thread either misfire handler, scheduler or cluster manager thread, 
+    * it that is stucked in its operation(could be due to large number of misfired
+    * triggers to be handled).
+    * 
+    * Another example where concurrent processing can be done: if there are 10
+    * workers, 9 out of 10 are stucked to acquire the exclusive lock unless that 
+    * 1 scheduler worker thread, handles the triggers to the worker threads.
+    * 
+    * How this is solved?
+    * 
+    * Instead of using cluster wide locks, we can take the lock on selected
+    * triggers using "FOR UPDATE SKIP LOCKED" with limit(which is batchAcquisitionCount). 
+    * Now, all the workers can acquire the triggers simultaneously.
+    * 
+    * Cluster manager will still continue to recover the jobs using the exclusive lock,
+    * but the rest two main threads(QuartzSchedulerThread, MisfireHandlerThread) will
+    * continue to work concurrently.
+    *
+    * use org.quartz.jobStore.useRowLocks="true" in quartz properties
+    *
+    * @return
+    */
+    public boolean isUseRowLocks() {
+        return useRowLocks;
+    }
+
+    public void setUseRowLocks(boolean useRowLocks) {
+        this.useRowLocks = useRowLocks;
     }
 
     
@@ -962,13 +1001,13 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         boolean hasMoreMisfiredTriggers =
             getDelegate().hasMisfiredTriggersInState(
                 conn, STATE_WAITING, getMisfireTime(), 
-                maxMisfiresToHandleAtATime, misfiredTriggers);
+                maxMisfiresToHandleAtATime, misfiredTriggers, isUseRowLocks());
 
         if (hasMoreMisfiredTriggers) {
             getLog().info(
                 "Handling the first " + misfiredTriggers.size() +
                 " triggers that missed their scheduled fire-time.  " +
-                "More misfired triggers remain to be processed.");
+                "More misfired triggers remain to be processed..." + Thread.currentThread().getName());
         } else if (misfiredTriggers.size() > 0) { 
             getLog().info(
                 "Handling " + misfiredTriggers.size() + 
@@ -2794,12 +2833,17 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         throws JobPersistenceException {
         
         String lockName;
-        if(isAcquireTriggersWithinLock() || maxCount > 1) { 
+        if(isAcquireTriggersWithinLock() || maxCount > 1) {
             lockName = LOCK_TRIGGER_ACCESS;
         } else {
             lockName = null;
         }
-        return executeInNonManagedTXLock(lockName, 
+
+        if (isUseRowLocks()) {
+            lockName = null;
+        }
+
+        return executeInNonManagedTXLock(lockName,
                 new TransactionCallback<List<OperableTrigger>>() {
                     public List<OperableTrigger> execute(Connection conn) throws JobPersistenceException {
                         return acquireNextTrigger(conn, noLaterThan, maxCount, timeWindow);
@@ -2841,7 +2885,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         do {
             currentLoopCount ++;
             try {
-                List<TriggerKey> keys = getDelegate().selectTriggerToAcquire(conn, noLaterThan + timeWindow, getMisfireTime(), maxCount);
+                List<TriggerKey> keys = getDelegate().selectTriggerToAcquire(conn, noLaterThan + timeWindow, getMisfireTime(), maxCount, isUseRowLocks());
                 
                 // No trigger is ready to fire yet.
                 if (keys == null || keys.size() == 0)
@@ -3259,7 +3303,10 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                 getLog().debug(
                     "Found 0 triggers that missed their scheduled fire-time.");
             } else {
-                transOwner = getLockHandler().obtainLock(conn, LOCK_TRIGGER_ACCESS);
+
+                if (!isUseRowLocks()) {
+                    transOwner = getLockHandler().obtainLock(conn, LOCK_TRIGGER_ACCESS);
+                }
                 
                 result = recoverMisfiredJobs(conn, false);
             }
@@ -3842,7 +3889,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
      * lockCallback is still executed in a non-managed transaction. 
      */
     protected <T> T executeInNonManagedTXLock(
-            String lockName, 
+            String lockName,
             TransactionCallback<T> txCallback, final TransactionValidator<T> txValidator) throws JobPersistenceException {
         boolean transOwner = false;
         Connection conn = null;

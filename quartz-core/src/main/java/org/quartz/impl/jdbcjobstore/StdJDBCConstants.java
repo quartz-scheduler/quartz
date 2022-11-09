@@ -514,7 +514,8 @@ public interface StdJDBCConstants extends Constants {
         + " AND " + COL_TRIGGER_STATE + " = ? AND " + COL_NEXT_FIRE_TIME + " <= ? " 
         + "AND (" + COL_MISFIRE_INSTRUCTION + " = -1 OR (" +COL_MISFIRE_INSTRUCTION+ " <> -1 AND "+ COL_NEXT_FIRE_TIME + " >= ?)) "
         + "ORDER BY "+ COL_NEXT_FIRE_TIME + " ASC, " + COL_PRIORITY + " DESC";
-    
+
+    String FOR_UPDATE_SKIP_LOCKED = "FOR UPDATE SKIP LOCKED";
     
     String INSERT_FIRED_TRIGGER = "INSERT INTO "
             + TABLE_PREFIX_SUBST + TABLE_FIRED_TRIGGERS + " (" + COL_SCHEDULER_NAME + ", " + COL_ENTRY_ID
@@ -661,6 +662,8 @@ public interface StdJDBCConstants extends Constants {
     String DELETE_PAUSED_TRIGGER_GROUPS = "DELETE FROM "
             + TABLE_PREFIX_SUBST + TABLE_PAUSED_TRIGGERS
             + " WHERE " + COL_SCHEDULER_NAME + " = " + SCHED_NAME_SUBST;
+
+    String LIMIT = "FETCH FIRST ? ROWS ONLY";
 
     //  CREATE TABLE qrtz_scheduler_state(INSTANCE_NAME VARCHAR2(80) NOT NULL,
     // LAST_CHECKIN_TIME NUMBER(13) NOT NULL, CHECKIN_INTERVAL NUMBER(13) NOT

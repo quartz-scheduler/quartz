@@ -141,7 +141,7 @@ public interface DriverDelegate {
      *         the given count.
      */
     boolean hasMisfiredTriggersInState(Connection conn, String state1, 
-        long ts, int count, List<TriggerKey> resultList) throws SQLException;
+        long ts, int count, List<TriggerKey> resultList, boolean useRowLocks) throws SQLException;
     
     /**
      * <p>
@@ -963,7 +963,7 @@ public interface DriverDelegate {
      *          
      * @return A (never null, possibly empty) list of the identifiers (Key objects) of the next triggers to be fired.
      */
-    public List<TriggerKey> selectTriggerToAcquire(Connection conn, long noLaterThan, long noEarlierThan, int maxCount)
+    public List<TriggerKey> selectTriggerToAcquire(Connection conn, long noLaterThan, long noEarlierThan, int maxCount, boolean useRowLocks)
         throws SQLException;
 
     /**

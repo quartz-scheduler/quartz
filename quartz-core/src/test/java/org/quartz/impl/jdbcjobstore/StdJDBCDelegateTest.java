@@ -150,12 +150,32 @@ public class StdJDBCDelegateTest extends TestCase {
 
         when(preparedStatement.executeQuery()).thenReturn(resultSet);
 
-        when(resultSet.next()).thenReturn(true);
+        when(resultSet.next()).thenReturn(true, true, true, true, true, false);
         when(resultSet.getString(anyString())).thenReturn("test");
 
-        List<TriggerKey> triggerKeys = jdbcDelegate.selectTriggerToAcquire(conn, Long.MAX_VALUE, Long.MIN_VALUE, 10);
+        List<TriggerKey> triggerKeys = jdbcDelegate.selectTriggerToAcquire(conn, Long.MAX_VALUE, Long.MIN_VALUE, 5, false);
 
-        assertThat(triggerKeys, iterableWithSize(10));
+        assertThat(triggerKeys, iterableWithSize(5));
+    }
+
+    public void testSelectTriggerToAcquireHonorsMaxCountUseRowLocks() throws SQLException {
+
+        StdJDBCDelegate jdbcDelegate = new StdJDBCDelegate();
+
+        Connection conn = mock(Connection.class);
+        PreparedStatement preparedStatement = mock(PreparedStatement.class);
+        ResultSet resultSet = mock(ResultSet.class);
+
+        when(conn.prepareStatement(anyString())).thenReturn(preparedStatement);
+
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+
+        when(resultSet.next()).thenReturn(true, true, true, true, true, false);
+        when(resultSet.getString(anyString())).thenReturn("test");
+
+        List<TriggerKey> triggerKeys = jdbcDelegate.selectTriggerToAcquire(conn, Long.MAX_VALUE, Long.MIN_VALUE, 5, true);
+
+        assertThat(triggerKeys, iterableWithSize(5));
     }
 
     static class TestStdJDBCDelegate extends StdJDBCDelegate {

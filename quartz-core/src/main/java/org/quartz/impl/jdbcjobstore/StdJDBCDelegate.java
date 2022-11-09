@@ -345,28 +345,35 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
      *         the given count.
      */
     public boolean hasMisfiredTriggersInState(Connection conn, String state1, 
-        long ts, int count, List<TriggerKey> resultList) throws SQLException {
+        long ts, int count, List<TriggerKey> resultList, boolean useRowLocks) throws SQLException {
         PreparedStatement ps = null;
         ResultSet rs = null;
 
         try {
-            ps = conn.prepareStatement(rtp(SELECT_HAS_MISFIRED_TRIGGERS_IN_STATE));
+            String query = SELECT_HAS_MISFIRED_TRIGGERS_IN_STATE  + " " + LIMIT;
+            if (useRowLocks) {
+                ps = conn.prepareStatement(rtp(query + " " + FOR_UPDATE_SKIP_LOCKED));
+            } else {
+                ps = conn.prepareStatement(rtp(query));
+            }
+
             ps.setBigDecimal(1, new BigDecimal(String.valueOf(ts)));
             ps.setString(2, state1);
+
+            if (count < 1) {
+                count = 1;
+            }
+            ps.setInt(3, count);
+
             rs = ps.executeQuery();
 
-            boolean hasReachedLimit = false;
-            while (rs.next() && (hasReachedLimit == false)) {
-                if (resultList.size() == count) {
-                    hasReachedLimit = true;
-                } else {
+            while (rs.next()) {
                     String triggerName = rs.getString(COL_TRIGGER_NAME);
                     String groupName = rs.getString(COL_TRIGGER_GROUP);
                     resultList.add(triggerKey(triggerName, groupName));
-                }
             }
-            
-            return hasReachedLimit;
+
+            return resultList.size() == count;
         } finally {
             closeResultSet(rs);
             closeStatement(ps);
@@ -2565,12 +2572,12 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
      *          
      * @return A (never null, possibly empty) list of the identifiers (Key objects) of the next triggers to be fired.
      * 
-     * @deprecated - This remained for compatibility reason. Use {@link #selectTriggerToAcquire(Connection, long, long, int)} instead. 
+     * @deprecated - This remained for compatibility reason. Use {@link #selectTriggerToAcquire(Connection, long, long, int, boolean)} instead.
      */
     public List<TriggerKey> selectTriggerToAcquire(Connection conn, long noLaterThan, long noEarlierThan)
             throws SQLException {
         // This old API used to always return 1 trigger.
-        return selectTriggerToAcquire(conn, noLaterThan, noEarlierThan, 1);
+        return selectTriggerToAcquire(conn, noLaterThan, noEarlierThan, 1, false);
     }
 
     /**
@@ -2590,29 +2597,31 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
      *          
      * @return A (never null, possibly empty) list of the identifiers (Key objects) of the next triggers to be fired.
      */
-    public List<TriggerKey> selectTriggerToAcquire(Connection conn, long noLaterThan, long noEarlierThan, int maxCount)
+    public List<TriggerKey> selectTriggerToAcquire(Connection conn, long noLaterThan, long noEarlierThan, int maxCount, boolean useRowLocks)
         throws SQLException {
         PreparedStatement ps = null;
         ResultSet rs = null;
         List<TriggerKey> nextTriggers = new LinkedList<TriggerKey>();
         try {
-            ps = conn.prepareStatement(rtp(SELECT_NEXT_TRIGGER_TO_ACQUIRE));
-            
-            // Set max rows to retrieve
-            if (maxCount < 1)
-                maxCount = 1; // we want at least one trigger back.
-            ps.setMaxRows(maxCount);
-            
-            // Try to give jdbc driver a hint to hopefully not pull over more than the few rows we actually need.
-            // Note: in some jdbc drivers, such as MySQL, you must set maxRows before fetchSize, or you get exception!
-            ps.setFetchSize(maxCount);
-            
+            String query = SELECT_NEXT_TRIGGER_TO_ACQUIRE + " " + LIMIT;
+            if (useRowLocks) {
+                ps = conn.prepareStatement(rtp(query + " " + FOR_UPDATE_SKIP_LOCKED));
+            } else {
+                ps = conn.prepareStatement(rtp(query));
+            }
+
             ps.setString(1, STATE_WAITING);
             ps.setBigDecimal(2, new BigDecimal(String.valueOf(noLaterThan)));
             ps.setBigDecimal(3, new BigDecimal(String.valueOf(noEarlierThan)));
+
+            if (maxCount < 1) {
+                maxCount = 1;
+            }
+            ps.setInt(4, maxCount);
+
             rs = ps.executeQuery();
             
-            while (rs.next() && nextTriggers.size() < maxCount) {
+            while (rs.next()) {
                 nextTriggers.add(triggerKey(
                         rs.getString(COL_TRIGGER_NAME),
                         rs.getString(COL_TRIGGER_GROUP)));
