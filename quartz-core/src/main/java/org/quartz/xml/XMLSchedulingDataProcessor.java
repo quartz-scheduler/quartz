@@ -660,7 +660,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
 
             int triggerPriority = Trigger.DEFAULT_PRIORITY;
             if(triggerPriorityString != null)
-                triggerPriority = Integer.valueOf(triggerPriorityString);
+                triggerPriority = Integer.parseInt(triggerPriorityString);
             
             String startTimeString = getTrimmedToNullString(xpath, "q:start-time", triggerNode);
             String startTimeFutureSecsString = getTrimmedToNullString(xpath, "q:start-time-seconds-in-future", triggerNode);
@@ -669,7 +669,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
             //QTZ-273 : use of DatatypeConverter.parseDateTime() instead of SimpleDateFormat
             Date triggerStartTime;
             if(startTimeFutureSecsString != null)
-                triggerStartTime = new Date(System.currentTimeMillis() + (Long.valueOf(startTimeFutureSecsString) * 1000L));
+                triggerStartTime = new Date(System.currentTimeMillis() + (Long.parseLong(startTimeFutureSecsString) * 1000L));
             else 
                 triggerStartTime = (startTimeString == null || startTimeString.length() == 0 ? new Date() : DatatypeConverter.parseDateTime(startTimeString).getTime());
             Date triggerEndTime = endTimeString == null || endTimeString.length() == 0 ? null : DatatypeConverter.parseDateTime(endTimeString).getTime();

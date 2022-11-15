@@ -260,7 +260,7 @@ public class JobDataMap extends StringKeyDirtyFlagMap implements Serializable {
     public int getIntFromString(String key) {
         Object obj = get(key);
 
-        return new Integer((String) obj);
+        return  Integer.parseInt((String) obj);
     }
 
     /**
@@ -381,7 +381,7 @@ public class JobDataMap extends StringKeyDirtyFlagMap implements Serializable {
     public double getDoubleValueFromString(String key) {
         Object obj = get(key);
 
-        return Double.valueOf((String) obj);
+        return Double.parseDouble((String) obj);
     }
 
     /**
@@ -427,7 +427,7 @@ public class JobDataMap extends StringKeyDirtyFlagMap implements Serializable {
     public float getFloatValueFromString(String key) {
         Object obj = get(key);
 
-        return new Float((String) obj);
+        return Float.parseFloat((String) obj);
     }
 
     /**
@@ -473,7 +473,7 @@ public class JobDataMap extends StringKeyDirtyFlagMap implements Serializable {
     public long getLongValueFromString(String key) {
         Object obj = get(key);
 
-        return new Long((String) obj);
+        return Long.parseLong((String) obj);
     }
 
     /**
