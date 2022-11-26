@@ -3203,6 +3203,9 @@ public abstract class JobStoreSupport implements JobStore, Constants {
      * </p>
      */
     protected DriverDelegate getDelegate() throws NoSuchDelegateException {
+        if(delegate != null) {
+            return delegate;
+        }
         synchronized(this) {
             if(null == delegate) {
                 try {
