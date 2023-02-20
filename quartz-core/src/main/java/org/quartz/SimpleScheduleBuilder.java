@@ -357,7 +357,7 @@ public class SimpleScheduleBuilder extends ScheduleBuilder<SimpleTrigger> {
      * If the Trigger misfires, use the 
      * {@link Trigger#MISFIRE_INSTRUCTION_IGNORE_MISFIRE_POLICY} instruction.
      * 
-     * @return the updated CronScheduleBuilder
+     * @return the updated SimpleScheduleBuilder
      * @see Trigger#MISFIRE_INSTRUCTION_IGNORE_MISFIRE_POLICY
      */
     public SimpleScheduleBuilder withMisfireHandlingInstructionIgnoreMisfires() {
