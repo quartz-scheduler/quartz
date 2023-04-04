@@ -437,7 +437,7 @@ There are several Plugins that come with Quartz, that can be found in the *org.q
 
 === Sample configuration of Logging Trigger History Plugin
 
-The logging trigger history plugin catches trigger events (it is also a trigger listener) and logs then with Jakarta Commons-Logging.  See the class's JavaDoc for a list of all the possible parameters.
+The logging trigger history plugin catches trigger events (it is also a trigger listener) and logs then with slf4j.  See the class's JavaDoc for a list of all the possible parameters.
 
 Sample configuration of Logging Trigger History Plugin
 
