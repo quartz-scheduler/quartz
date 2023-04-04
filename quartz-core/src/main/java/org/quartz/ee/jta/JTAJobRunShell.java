@@ -18,9 +18,9 @@
 
 package org.quartz.ee.jta;
 
-import javax.transaction.Status;
-import javax.transaction.SystemException;
-import javax.transaction.UserTransaction;
+import jakarta.transaction.Status;
+import jakarta.transaction.SystemException;
+import jakarta.transaction.UserTransaction;
 
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;

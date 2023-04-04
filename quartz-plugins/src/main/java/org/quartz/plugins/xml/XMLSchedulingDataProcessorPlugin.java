@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import javax.transaction.UserTransaction;
+import jakarta.transaction.UserTransaction;
 
 import org.quartz.*;
 import org.quartz.impl.JobDetailImpl;

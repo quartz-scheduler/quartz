@@ -30,7 +30,7 @@
     <url>https://github.com/quartz-scheduler/quartz</url>
   </scm>
   <issueManagement>
-    <system>Terracotta's JIRA</system>
+    <system>Issues Tracked on GitHub</system>
     <url>https://github.com/quartz-scheduler/quartz/issues</url>
   </issueManagement>  
   <developers>
@@ -65,7 +65,7 @@
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
 
-    <revision>2.4.0-SNAPSHOT</revision>
+    <revision>2.5.0-SNAPSHOT</revision>
 
     <skipDeploy>false</skipDeploy>
     <skipJavadoc>false</skipJavadoc>
@@ -265,7 +265,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-      </plugin>      
+      </plugin>
     </plugins>
   </build>
 

@@ -21,17 +21,17 @@ import java.util.HashSet;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.transaction.Synchronization;
-import javax.transaction.SystemException;
-import javax.transaction.Transaction;
-import javax.transaction.TransactionManager;
+import jakarta.transaction.Synchronization;
+import jakarta.transaction.SystemException;
+import jakarta.transaction.Transaction;
+import jakarta.transaction.TransactionManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Provides in memory thread/resource locking that is JTA 
- * <code>{@link javax.transaction.Transaction}</code> aware.  
+ * <code>{@link jakarta.transaction.Transaction}</code> aware.  
  * It is most appropriate for use when using 
  * <code>{@link org.quartz.impl.jdbcjobstore.JobStoreCMT}</code> without clustering.
  * 
@@ -41,12 +41,12 @@ import org.slf4j.LoggerFactory;
  *  
  * <p>
  * When a lock is obtained/released but there is no active JTA 
- * <code>{@link javax.transaction.Transaction}</code>, then this <code>Semaphore</code> operates
+ * <code>{@link jakarta.transaction.Transaction}</code>, then this <code>Semaphore</code> operates
  * just like <code>{@link org.quartz.impl.jdbcjobstore.SimpleSemaphore}</code>. 
  * </p>
  * 
  * <p>
- * By default, this class looks for the <code>{@link javax.transaction.TransactionManager}</code>
+ * By default, this class looks for the <code>{@link jakarta.transaction.TransactionManager}</code>
  * in JNDI under name "java:TransactionManager".  If this is not where your Application Server 
  * registers it, you can modify the JNDI lookup location using the 
  * "transactionManagerJNDIName" property.
@@ -173,10 +173,10 @@ public class JTANonClusteredSemaphore implements Semaphore {
     }
 
     /**
-     * Helper method to get the current <code>{@link javax.transaction.Transaction}</code>
-     * from the <code>{@link javax.transaction.TransactionManager}</code> in JNDI.
+     * Helper method to get the current <code>{@link jakarta.transaction.Transaction}</code>
+     * from the <code>{@link jakarta.transaction.TransactionManager}</code> in JNDI.
      * 
-     * @return The current <code>{@link javax.transaction.Transaction}</code>, null if
+     * @return The current <code>{@link jakarta.transaction.Transaction}</code>, null if
      * not currently in a transaction.
      */
     protected Transaction getTransaction() throws LockException{
@@ -277,7 +277,7 @@ public class JTANonClusteredSemaphore implements Semaphore {
 
     /**
      * Helper class that is registered with the active 
-     * <code>{@link javax.transaction.Transaction}</code> so that the lock
+     * <code>{@link jakarta.transaction.Transaction}</code> so that the lock
      * will be released when the transaction completes.
      */
     private class SemaphoreSynchronization implements Synchronization {

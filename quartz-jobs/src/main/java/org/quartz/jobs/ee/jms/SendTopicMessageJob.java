@@ -17,12 +17,12 @@
 
 package org.quartz.jobs.ee.jms;
 
-import javax.jms.Message;
-import javax.jms.Topic;
-import javax.jms.TopicConnection;
-import javax.jms.TopicConnectionFactory;
-import javax.jms.TopicPublisher;
-import javax.jms.TopicSession;
+import jakarta.jms.Message;
+import jakarta.jms.Topic;
+import jakarta.jms.TopicConnection;
+import jakarta.jms.TopicConnectionFactory;
+import jakarta.jms.TopicPublisher;
+import jakarta.jms.TopicSession;
 import javax.naming.Context;
 
 import org.quartz.Job;

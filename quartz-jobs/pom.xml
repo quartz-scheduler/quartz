@@ -14,6 +14,21 @@
 
   <dependencies>
     <dependency>
+      <groupId>jakarta.ejb</groupId>
+      <artifactId>jakarta.ejb-api</artifactId>
+      <version>4.0.1</version>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.jms</groupId>
+      <artifactId>jakarta.jms-api</artifactId>
+      <version>3.1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.mail</groupId>
+      <artifactId>jakarta.mail-api</artifactId>
+      <version>2.1.1</version>
+    </dependency>
+    <dependency>
       <groupId>org.quartz-scheduler.internal</groupId>
       <artifactId>quartz-core</artifactId>
       <version>${project.version}</version>
@@ -25,13 +40,24 @@
       <version>6.0-5</version>
       <scope>provided</scope>
     </dependency>
-    <dependency> 
-      <groupId>javax.mail</groupId>
-      <artifactId>mail</artifactId>
-      <version>1.4.7</version>
-      <scope>provided</scope>
-    </dependency>    
     <dependency>
+      <groupId>jakarta.mail</groupId>
+      <artifactId>jakarta.mail-api</artifactId>
+      <version>2.1.1</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.angus</groupId>
+      <artifactId>jakarta.mail</artifactId>
+      <version>2.0.1</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>mail</artifactId>
+          <groupId>jakarta.mail</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>    <dependency>
       <groupId>org.subethamail</groupId>
       <artifactId>subethasmtp</artifactId>
       <version>3.1.7</version>
