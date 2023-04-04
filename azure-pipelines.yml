@@ -26,5 +26,7 @@ resources:
 jobs:
   - template: build-templates/maven-common.yml@templates
     parameters:
-      jdkVersion: '1.7'
-      options: '-Dhttps.protocols=TLSv1.2 -Dtest.databasePort=1528'
+      jobName: Java8
+      jdkVersion: '1.8'
+      options: '-Dtest.databasePort=1527'
+      
