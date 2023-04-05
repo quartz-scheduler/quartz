@@ -13,7 +13,7 @@ active_sub_menu_id: site_mnu_docs_cookbook
 
 To shutdown / destroy a scheduler, simply call one of the shutdown(..) methods.
 
-Once you have shutdown a scheduler, it cannot be restarted (as threads and other resources are permanently destroyed). Also see the suspend method if you wish to simply pause the scheduler for a while.
+Once you have shutdown a scheduler, it cannot be restarted (as threads and other resources are permanently destroyed). Also see the standy() method if you wish to simply pause the scheduler for a while.
 
 
 ### Wait for Executing Jobs to Finish
