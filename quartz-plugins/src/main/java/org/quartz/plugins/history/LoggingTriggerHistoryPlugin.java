@@ -32,8 +32,7 @@ import org.quartz.spi.ClassLoadHelper;
 import org.quartz.spi.SchedulerPlugin;
 
 /**
- * Logs a history of all trigger firings via the Jakarta Commons-Logging
- * framework.
+ * Logs a history of all trigger firings via slf4j.
  * 
  * <p>
  * The logged message is customizable by setting one of the following message

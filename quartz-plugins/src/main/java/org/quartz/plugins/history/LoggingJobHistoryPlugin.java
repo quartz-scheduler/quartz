@@ -32,8 +32,7 @@ import org.quartz.spi.SchedulerPlugin;
 import java.text.MessageFormat;
 
 /**
- * Logs a history of all job executions (and execution vetos) via the 
- * Jakarta Commons-Logging framework.
+ * Logs a history of all job executions (and execution vetos) via slf4j. 
  * 
  * <p>
  * The logged message is customizable by setting one of the following message
