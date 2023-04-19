@@ -27,6 +27,18 @@ allprojects {
                 languageVersion = JavaLanguageVersion.of(11)
             }
         }
+        configurations {
+            provided
+            provided.dependencies.configureEach { dep ->
+                project.dependencies {
+                    constraints {
+                        runtimeOnly("$dep.group:$dep.name:$dep.version")
+                    }
+                }
+            }
+            compileOnly.extendsFrom(provided)
+            testRuntimeOnly.extendsFrom(provided)
+        }
     }
 
     plugins.withType(MavenPublishPlugin) {
@@ -61,7 +73,21 @@ allprojects {
                                 organizationUrl = "http://www.quartz-scheduler.org/"
                             }
                         }
+                        withXml {
+                            def providedXml = configurations.provided.dependencies.collect { dep ->
+                                NodeBuilder.newInstance().dependency {
+                                    createNode('groupId', dep.group)
+                                    createNode('artifactId', dep.name)
+                                    createNode('version', dep.version)
+                                    createNode('scope', 'provided')
+                                }
+                            }
+                            asNode().dependencies.each { deps ->
+                                deps.children().addAll(providedXml)
+                            }
+                        }
                     }
+
                     from components.java
                 }
             }

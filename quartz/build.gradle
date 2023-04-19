@@ -17,9 +17,9 @@ dependencies {
     compileOnly project(':quartz-stubs')
 
     implementation "org.slf4j:slf4j-api:$slf4jVersion"
-    runtimeOnly "org.slf4j:slf4j-log4j12:$slf4jVersion"
-    implementation "com.mchange:c3p0:$c3p0Version"
-    implementation "com.zaxxer:HikariCP:$hikaricpVersion"
+    provided "org.slf4j:slf4j-log4j12:$slf4jVersion"
+    provided "com.mchange:c3p0:$c3p0Version"
+    provided "com.zaxxer:HikariCP:$hikaricpVersion"
     compileOnly "jboss:jboss-common:$jbossVersion"
     compileOnly "jboss:jboss-minimal:$jbossVersion"
     compileOnly "jboss:jboss-system:$jbossVersion"
