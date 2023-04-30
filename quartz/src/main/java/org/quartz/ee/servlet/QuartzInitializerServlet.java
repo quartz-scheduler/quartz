@@ -19,11 +19,11 @@ package org.quartz.ee.servlet;
 
 import java.io.IOException;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -159,7 +159,7 @@ public class QuartzInitializerServlet extends HttpServlet {
      */
 
     @Override
-    public void init(ServletConfig cfg) throws javax.servlet.ServletException {
+    public void init(ServletConfig cfg) throws jakarta.servlet.ServletException {
         super.init(cfg);
 
         log("Quartz Initializer Servlet loaded, initializing Scheduler...");

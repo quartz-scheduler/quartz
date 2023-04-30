@@ -17,15 +17,15 @@
 
 package org.quartz.jobs.ee.jms;
 
-import javax.jms.Message;
-import javax.jms.Session;
+import jakarta.jms.Message;
+import jakarta.jms.Session;
 
 import org.quartz.JobDataMap;
 
 /**
  * The JmsMessageFactory interface allows for the creation of a
- * <code>javax.jms.Message</code>. This interface is used in constructing a
- * <code>javax.jms.Message</code> that is to be sent upon execution of a JMS
+ * <code>jakarta.jms.Message</code>. This interface is used in constructing a
+ * <code>jakarta.jms.Message</code> that is to be sent upon execution of a JMS
  * enabled job.
  * 
  * @see SendDestinationMessageJob
@@ -37,14 +37,14 @@ import org.quartz.JobDataMap;
 public interface JmsMessageFactory {
 
     /**
-     * Creates a <code>javax.jms.Message</code>.
+     * Creates a <code>jakarta.jms.Message</code>.
      * 
      * @param jobDataMap
      *            the <code>JobDataMap</code>
      * @param session
-     *            the <code>javax.jms.Session</code>
+     *            the <code>jakarta.jms.Session</code>
      * 
-     * @return the <code>javax.jms.Message</code>
+     * @return the <code>jakarta.jms.Message</code>
      */
     Message createMessage(JobDataMap jobDataMap, Session session);
 }

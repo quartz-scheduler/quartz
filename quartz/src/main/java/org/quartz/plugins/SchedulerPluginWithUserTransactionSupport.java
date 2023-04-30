@@ -15,8 +15,8 @@
  */
 package org.quartz.plugins;
 
-import javax.transaction.Status;
-import javax.transaction.UserTransaction;
+import jakarta.transaction.Status;
+import jakarta.transaction.UserTransaction;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

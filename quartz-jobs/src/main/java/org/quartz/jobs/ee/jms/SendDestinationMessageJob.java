@@ -17,12 +17,12 @@
 
 package org.quartz.jobs.ee.jms;
 
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
-import javax.jms.Message;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
+import jakarta.jms.Connection;
+import jakarta.jms.ConnectionFactory;
+import jakarta.jms.Destination;
+import jakarta.jms.Message;
+import jakarta.jms.MessageProducer;
+import jakarta.jms.Session;
 import javax.naming.Context;
 
 import org.quartz.Job;
@@ -32,8 +32,8 @@ import org.quartz.JobExecutionException;
 
 /**
  * <p>
- * A <code>Job</code> that sends a <code>javax.jms.Message</code> to a
- * <code>javax.jms.Destination</code>. Note, this class can only be used in a
+ * A <code>Job</code> that sends a <code>jakarta.jms.Message</code> to a
+ * <code>jakarta.jms.Destination</code>. Note, this class can only be used in a
  * JMS-based environment.
  * 
  * <p>
@@ -46,9 +46,9 @@ import org.quartz.JobExecutionException;
  * <li><code>JMS_DESTINATION_JNDI</code> - The JNDI name of the JMS
  * destination.</li>
  * <li><code>JMS_USE_TXN</code> - Whether or not to use a transacted
- * <code>javax.jms.Session</code>.</li>
+ * <code>jakarta.jms.Session</code>.</li>
  * <li><code>JMS_ACK_MODE</code> - The acknowledgement mode for the
- * <code>javax.jms.Session</code>.</li>
+ * <code>jakarta.jms.Session</code>.</li>
  * <li><code>JMS_MSG_FACTORY_CLASS_NAME</code> - The implementation class
  * name for the <code>JmsMessageFactory</code>.</li>
  * </ul>

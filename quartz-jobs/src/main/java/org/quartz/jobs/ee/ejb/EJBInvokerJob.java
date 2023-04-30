@@ -22,9 +22,9 @@ import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.util.Hashtable;
 
-import javax.ejb.EJBHome;
-import javax.ejb.EJBMetaData;
-import javax.ejb.EJBObject;
+import jakarta.ejb.EJBHome;
+import jakarta.ejb.EJBMetaData;
+import jakarta.ejb.EJBObject;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;

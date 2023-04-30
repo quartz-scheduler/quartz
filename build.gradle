@@ -77,7 +77,7 @@ allprojects {
                                     (dependency.groupId.text() == 'com.mchange' ||
                                             dependency.groupId.text() == 'com.zaxxer' ||
                                             dependency.artifactId.text() == 'slf4j-log4j12' ||
-                                            dependency.groupId.text() == 'javax.xml' )
+                                            dependency.groupId.text() == 'jakarta.xml' )
                                 }
                                 .each { dependency ->
                                     // Set scope value to compile.

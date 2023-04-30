@@ -21,7 +21,7 @@ import org.quartz.SchedulerException;
 
 /**
  * The JmsJobException is used to indicate an error during sending of a
- * <code>javax.jms.Message</code>.
+ * <code>jakarta.jms.Message</code>.
  * 
  * @author Fernando Ribeiro
  * @author Weston M. Price

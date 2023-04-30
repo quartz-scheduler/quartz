@@ -28,7 +28,7 @@ import org.quartz.JobDataMap;
 
 /**
  * Utility class that aids in the processing of JMS based jobs and sending of
- * <code>javax.jms.Message</code>
+ * <code>jakarta.jms.Message</code>
  * 
  * @author Fernando Ribeiro
  * @author Weston M. Price

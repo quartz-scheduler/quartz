@@ -17,12 +17,12 @@
 
 package org.quartz.jobs.ee.jms;
 
-import javax.jms.Message;
-import javax.jms.Queue;
-import javax.jms.QueueConnection;
-import javax.jms.QueueConnectionFactory;
-import javax.jms.QueueSender;
-import javax.jms.QueueSession;
+import jakarta.jms.Message;
+import jakarta.jms.Queue;
+import jakarta.jms.QueueConnection;
+import jakarta.jms.QueueConnectionFactory;
+import jakarta.jms.QueueSender;
+import jakarta.jms.QueueSession;
 import javax.naming.Context;
 
 import org.quartz.Job;
@@ -32,8 +32,8 @@ import org.quartz.JobExecutionException;
 
 /**
 * <p>
-* A <code>Job</code> that sends a <code>javax.jms.Message</code> to a 
-* <code>javax.jms.Queue</code>. This class is for older JMS. If you are using
+* A <code>Job</code> that sends a <code>jakarta.jms.Message</code> to a 
+* <code>jakarta.jms.Queue</code>. This class is for older JMS. If you are using
  * JMS 1.1, you should use {@link SendDestinationMessageJob} instead.
 * 
 * <p>
@@ -42,8 +42,8 @@ import org.quartz.JobExecutionException;
 * <ul>
 * <li><code>JMS_CONNECTION_FACTORY_JNDI</code> - The JNDI name of the JMS Connection Factory.</li>
 * <li><code>JMS_DESTINATION_JNDI</code> - The JNDI name of the JMS destination.</li>
-* <li><code>JMS_USE_TXN</code> - Whether or not to use a transacted <code>javax.jms.Session</code>.</li>
-* <li><code>JMS_ACK_MODE</code> - The acknowledgement mode for the <code>javax.jms.Session</code>.</li>
+* <li><code>JMS_USE_TXN</code> - Whether or not to use a transacted <code>jakarta.jms.Session</code>.</li>
+* <li><code>JMS_ACK_MODE</code> - The acknowledgement mode for the <code>jakarta.jms.Session</code>.</li>
 * <li><code>JMS_MSG_FACTORY_CLASS_NAME</code> - The implementation class name for the <code>JmsMessageFactory</code>.</li>
 * </ul>
 * 

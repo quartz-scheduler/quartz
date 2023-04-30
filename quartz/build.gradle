@@ -26,10 +26,29 @@ dependencies {
     compileOnly "jboss:jboss-jmx:$jbossVersion"
     compileOnly "org.apache.geronimo.specs:geronimo-commonj_1.1_spec:$commonjVersion"
 
-    implementation 'javax.xml:jaxb-api:2.1'
+    implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
 
-    compileOnly 'javax.transaction:javax.transaction-api:1.3'
-    compileOnly 'javax.servlet:javax.servlet-api:4.0.1'
+    compileOnly 'jakarta.transaction:jakarta.transaction-api:2.0.1'
+    compileOnly 'jakarta.servlet:jakarta.servlet-api:5.0.0'
+
+/*
+            <dependency>
+            <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+    <version>5.0.0</version>
+    </dependency>
+            <dependency>
+            <groupId>jakarta.transaction</groupId>
+      <artifactId>jakarta.transaction-api</artifactId>
+    <version>2.0.1</version>
+    </dependency>
+            <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
+    <version>4.0.0</version>
+    </dependency>
+    */
+
 
     testImplementation "junit:junit:$junitVersion"
     testImplementation 'asm:asm:3.2'
