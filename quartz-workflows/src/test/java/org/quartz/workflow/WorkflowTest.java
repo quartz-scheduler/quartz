@@ -75,6 +75,12 @@ public class WorkflowTest {
         testFactory.waitUntilConnectedJobsAreDone(jobCount);
     }
 
+
+
+    private void waitUntilAllJobsAreUnscheduled() throws InterruptedException {
+        testFactory.waitUntilAllJobsAreUnscheduled();
+    }
+
     @Test
     public void startJobsDoNotHaveInputParameters() throws Exception {
         JobDetail job1 = JobBuilder.newJob(ConnectedTestJob.class)
@@ -106,6 +112,7 @@ public class WorkflowTest {
 
         waitUntilConnectedJobsAreDone(2);
         assertThat(executedTestJobs).extracting(JobDetailWithPreviousJobKey::jobDetail).containsExactly(job1, followingJob1);
+        waitUntilAllJobsAreUnscheduled();
         assertThat(schedulerA.getJobGroupNames()).doesNotContain("jobGroup1", "jobGroup2");
     }
 
@@ -176,6 +183,7 @@ public class WorkflowTest {
         waitUntilConnectedJobsAreDone(3);
         assertThat(executedTestJobs.subList(0, 2)).extracting(JobDetailWithPreviousJobKey::jobDetail).containsExactlyInAnyOrder(job1, job2);
         assertThat(executedTestJobs.get(2).jobDetail()).isEqualTo(followingJob1);
+        waitUntilAllJobsAreUnscheduled();
         assertThat(schedulerA.getJobGroupNames()).doesNotContain("jobGroup1", "jobGroup2");
     }
 
@@ -206,6 +214,7 @@ public class WorkflowTest {
         waitUntilConnectedJobsAreDone(3);
         assertThat(executedTestJobs.get(0).jobDetail()).isEqualTo(job1);
         assertThat(executedTestJobs.subList(1, 3)).extracting(JobDetailWithPreviousJobKey::jobDetail).containsExactlyInAnyOrder(followingJob1, followingJob2);
+        waitUntilAllJobsAreUnscheduled();
         assertThat(schedulerA.getJobGroupNames()).doesNotContain("jobGroup1", "jobGroup2");
     }
 
@@ -233,6 +242,7 @@ public class WorkflowTest {
         waitUntilConnectedJobsAreDone(3);
         assertThat(executedTestJobs.get(0).jobDetail()).isEqualTo(job1);
         assertThat(executedTestJobs.subList(1, 3)).extracting(JobDetailWithPreviousJobKey::jobDetail).containsExactlyInAnyOrder(followingJob1, followingJob2);
+        waitUntilAllJobsAreUnscheduled();
         assertThat(schedulerA.getJobGroupNames()).doesNotContain("jobGroup1", "jobGroup2");
     }
 
@@ -268,6 +278,7 @@ public class WorkflowTest {
         waitUntilConnectedJobsAreDone(4);
         assertThat(executedTestJobs.subList(0, 2)).extracting(JobDetailWithPreviousJobKey::jobDetail).containsExactlyInAnyOrder(job1, job2);
         assertThat(executedTestJobs.subList(2, 4)).extracting(JobDetailWithPreviousJobKey::jobDetail).containsExactlyInAnyOrder(followingJob1, followingJob2);
+        waitUntilAllJobsAreUnscheduled();
         assertThat(schedulerA.getJobGroupNames()).doesNotContain("jobGroup1", "jobGroup2");
     }
 
@@ -304,6 +315,7 @@ public class WorkflowTest {
         waitUntilConnectedJobsAreDone(4);
         assertThat(executedTestJobs.subList(0, 2)).extracting(JobDetailWithPreviousJobKey::jobDetail).containsExactlyInAnyOrder(job1, job2);
         assertThat(executedTestJobs.subList(2, 4)).extracting(JobDetailWithPreviousJobKey::jobDetail).containsExactlyInAnyOrder(followingJob1, followingJob2);
+        waitUntilAllJobsAreUnscheduled();
         assertThat(schedulerA.getJobGroupNames()).doesNotContain("jobGroup1", "jobGroup2");
     }
 
@@ -341,6 +353,7 @@ public class WorkflowTest {
         waitUntilConnectedJobsAreDone(4);
         assertThat(executedTestJobs.subList(0, 2)).extracting(JobDetailWithPreviousJobKey::jobDetail).containsExactlyInAnyOrder(job1, job2);
         assertThat(executedTestJobs.subList(2, 4)).extracting(JobDetailWithPreviousJobKey::jobDetail).containsExactlyInAnyOrder(followingJob1, followingJob2);
+        waitUntilAllJobsAreUnscheduled();
         assertThat(schedulerA.getJobGroupNames()).doesNotContain("jobGroup1", "jobGroup2");
     }
 
@@ -378,6 +391,7 @@ public class WorkflowTest {
         waitUntilConnectedJobsAreDone(4);
         assertThat(executedTestJobs.subList(0, 2)).extracting(JobDetailWithPreviousJobKey::jobDetail).containsExactlyInAnyOrder(job1, job2);
         assertThat(executedTestJobs.subList(2, 4)).extracting(JobDetailWithPreviousJobKey::jobDetail).containsExactlyInAnyOrder(followingJob1, followingJob2);
+        waitUntilAllJobsAreUnscheduled();
         assertThat(schedulerA.getJobGroupNames()).doesNotContain("jobGroup1", "jobGroup2");
     }
     @Test
@@ -400,6 +414,7 @@ public class WorkflowTest {
 
         waitUntilConnectedJobsAreDone(2);
         assertThat(executedTestJobs).extracting(JobDetailWithPreviousJobKey::jobDetail).containsExactly(job1, followingJob1);
+        waitUntilAllJobsAreUnscheduled();
         assertThat(schedulerA.getJobGroupNames()).doesNotContain("jobGroup1", "jobGroup2");
     }
 
@@ -441,6 +456,7 @@ public class WorkflowTest {
         waitUntilConnectedJobsAreDone(4);
         assertThat(executedTestJobs.subList(0, 2)).extracting(JobDetailWithPreviousJobKey::jobDetail).containsExactlyInAnyOrder(job1, job2);
         assertThat(executedTestJobs.subList(2, 4)).extracting(JobDetailWithPreviousJobKey::jobDetail).containsExactlyInAnyOrder(followingJob1, followingJob2);
+        waitUntilAllJobsAreUnscheduled();
         assertThat(schedulerA.getJobGroupNames()).doesNotContain("jobGroup1", "jobGroup2");
     }
 
@@ -481,6 +497,7 @@ public class WorkflowTest {
         waitUntilConnectedJobsAreDone(4);
         assertThat(executedTestJobs.subList(0, 2)).extracting(JobDetailWithPreviousJobKey::jobDetail).containsExactlyInAnyOrder(job1, job2);
         assertThat(executedTestJobs.subList(2, 4)).extracting(JobDetailWithPreviousJobKey::jobDetail).containsExactlyInAnyOrder(followingJob1, followingJob2);
+        waitUntilAllJobsAreUnscheduled();
         assertThat(schedulerA.getJobGroupNames()).doesNotContain("jobGroup1", "jobGroup2");
     }
 

@@ -150,6 +150,7 @@ public class WorkflowJobStarter implements JobListener{
     @Override
     public void jobWasExecuted(JobExecutionContext context, JobExecutionException jobException) throws SchedulerException {
         try {
+            unscheduleFinishedJob(context);
             scheduleFollowingJobs(context);
         }
         finally {
@@ -162,17 +163,24 @@ public class WorkflowJobStarter implements JobListener{
         WorkflowJobStarter.startJob(scheduler, job, triggerPriority, RuleParameters.startParameters(cause));
     }
 
+    private void unscheduleFinishedJob(JobExecutionContext context) throws SchedulerException {
+        final Trigger trigger = context.getTrigger();
+        if(! trigger.mayFireAgain()) {
+            final Scheduler scheduler = context.getScheduler();
+            scheduler.unscheduleJob(trigger.getKey());
+        }
+    }
+
     private void scheduleFollowingJobs(JobExecutionContext context) throws SchedulerException {
         final JobDataMap data = context.getMergedJobDataMap();
         WorkflowRule rule = (WorkflowRule) data.get(Workflow.WORKFLOW_RULE);
-        if(rule == null)
-            return;
-        final Scheduler scheduler = context.getScheduler();
-        final Trigger trigger = context.getTrigger();
-        if(! trigger.mayFireAgain()) {
-            scheduler.unscheduleJob(trigger.getKey());
-            RuleParameters ruleParameters = RuleParameters.from(context);
-            rule.apply(ruleParameters, schedulerName -> byNameOrDefault(schedulerName, scheduler));
+        if(rule != null) {
+            final Trigger trigger = context.getTrigger();
+            if(! trigger.mayFireAgain()) {
+                RuleParameters ruleParameters = RuleParameters.from(context);
+                final Scheduler scheduler = context.getScheduler();
+                rule.apply(ruleParameters, schedulerName -> byNameOrDefault(schedulerName, scheduler));
+            }
         }
     }
 

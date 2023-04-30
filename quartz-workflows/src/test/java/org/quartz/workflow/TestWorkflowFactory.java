@@ -50,6 +50,7 @@ public class TestWorkflowFactory {
     public final Semaphore semaphore  = new Semaphore(0);
 
     public final List<JobDetailWithPreviousJobKey> executedTestJobs = Collections.synchronizedList(new ArrayList<>());
+    private static ScheduledJobSemaphore schedulerSemaphore;
 
     public static void startScheduler() throws SchedulerException, IOException {
         Properties configA = loadDefaultSchedulerConfiguration();
@@ -60,8 +61,11 @@ public class TestWorkflowFactory {
         configB.setProperty(StdSchedulerFactory.PROP_SCHED_INSTANCE_NAME, SCHED_B);
 
 
+        schedulerSemaphore = new ScheduledJobSemaphore();
         schedulerA = new StdSchedulerFactory(configA).getScheduler();
+        schedulerA.getListenerManager().addSchedulerListener(schedulerSemaphore);
         schedulerB = new StdSchedulerFactory(configB).getScheduler();
+        schedulerB.getListenerManager().addSchedulerListener(schedulerSemaphore);
         schedulerA.start();
         schedulerB.start();
     }
@@ -103,5 +107,9 @@ public class TestWorkflowFactory {
 
     public void waitUntilConnectedJobsAreDone(final int jobCount) throws InterruptedException {
         assertTrue("jobs done", semaphore.tryAcquire(jobCount, 5, TimeUnit.SECONDS));
+    }
+
+    public void waitUntilAllJobsAreUnscheduled() throws InterruptedException {
+        schedulerSemaphore.waitUntilAllJobsAreUnscheduled();
     }
 }
