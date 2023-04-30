@@ -5,6 +5,7 @@ plugins {
 dependencies {
     implementation project(':quartz')
     implementation project(':quartz-jobs')
+    implementation project(':quartz-workflows')
 
     implementation "org.slf4j:slf4j-api:$slf4jVersion"
     implementation "org.slf4j:slf4j-log4j12:$slf4jVersion"
@@ -88,4 +89,8 @@ tasks.register('runExample14', JavaExec) {
 tasks.register('runExample15', JavaExec) {
     description = 'Run Example 15'
     mainClass = "org.quartz.examples.example15.NativeJobExample"
+}
+tasks.register('runExample16', JavaExec) {
+    description = 'Run Example 16'
+    mainClass = "org.quartz.examples.example16.WorkflowExamples"
 }
