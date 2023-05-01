@@ -22,6 +22,7 @@ import java.util.List;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.JobListener;
+import org.quartz.SchedulerException;
 
 /**
  * Holds a List of references to JobListener instances and broadcasts all
@@ -98,7 +99,7 @@ public class BroadcastJobListener implements JobListener {
         return java.util.Collections.unmodifiableList(listeners);
     }
 
-    public void jobToBeExecuted(JobExecutionContext context) {
+    public void jobToBeExecuted(JobExecutionContext context) throws SchedulerException {
 
         Iterator<JobListener> itr = listeners.iterator();
         while(itr.hasNext()) {
@@ -107,7 +108,7 @@ public class BroadcastJobListener implements JobListener {
         }
     }
 
-    public void jobExecutionVetoed(JobExecutionContext context) {
+    public void jobExecutionVetoed(JobExecutionContext context) throws SchedulerException {
 
         Iterator<JobListener> itr = listeners.iterator();
         while(itr.hasNext()) {
@@ -116,7 +117,7 @@ public class BroadcastJobListener implements JobListener {
         }
     }
 
-    public void jobWasExecuted(JobExecutionContext context, JobExecutionException jobException) {
+    public void jobWasExecuted(JobExecutionContext context, JobExecutionException jobException) throws SchedulerException {
 
         Iterator<JobListener> itr = listeners.iterator();
         while(itr.hasNext()) {

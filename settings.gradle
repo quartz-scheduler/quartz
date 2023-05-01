@@ -9,6 +9,7 @@ rootProject.name = 'quartz-scheduler'
 
 include 'quartz-stubs'
 include 'quartz-jobs'
+include 'quartz-workflows'
 include 'quartz'
 include 'examples'
 
