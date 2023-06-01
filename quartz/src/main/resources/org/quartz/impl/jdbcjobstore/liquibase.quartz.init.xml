@@ -215,6 +215,12 @@
             <column name="TRIGGER_GROUP"/>
         </createIndex>
 
+        <createIndex tableName="${table_prefix}TRIGGERS" indexName="IDX_${table_prefix}T_J">
+            <column name="SCHED_NAME"/>
+            <column name="JOB_NAME"/>
+            <column name="JOB_GROUP"/>
+        </createIndex>
+
         <createIndex tableName="${table_prefix}TRIGGERS" indexName="IDX_${table_prefix}T_JG">
             <column name="SCHED_NAME"/>
             <column name="JOB_GROUP"/>
