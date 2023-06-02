@@ -44,6 +44,17 @@ import org.slf4j.Logger;
  */
 public class PostgreSQLDelegate extends StdJDBCDelegate {
 
+    // The difference from the StdJDBC one is the extra LIMIT clause at the end.
+    private static final String SELECT_NEXT_TRIGGER_TO_ACQUIRE = "SELECT "
+        + COL_TRIGGER_NAME + ", " + COL_TRIGGER_GROUP + ", "
+        + COL_NEXT_FIRE_TIME + ", " + COL_PRIORITY + " FROM "
+        + TABLE_PREFIX_SUBST + TABLE_TRIGGERS + " WHERE "
+        + COL_SCHEDULER_NAME + " = " + SCHED_NAME_SUBST
+        + " AND " + COL_TRIGGER_STATE + " = ? AND " + COL_NEXT_FIRE_TIME + " <= ? "
+        + "AND (" + COL_MISFIRE_INSTRUCTION + " = -1 OR (" +COL_MISFIRE_INSTRUCTION+ " <> -1 AND "+ COL_NEXT_FIRE_TIME + " >= ?)) "
+        + "ORDER BY "+ COL_NEXT_FIRE_TIME + " ASC, " + COL_PRIORITY + " DESC "
+        + "LIMIT ?";
+
     //---------------------------------------------------------------------------
     // protected methods that can be overridden by subclasses
     //---------------------------------------------------------------------------
@@ -124,6 +135,7 @@ public class PostgreSQLDelegate extends StdJDBCDelegate {
             ps.setString(1, STATE_WAITING);
             ps.setBigDecimal(2, new BigDecimal(String.valueOf(noLaterThan)));
             ps.setBigDecimal(3, new BigDecimal(String.valueOf(noEarlierThan)));
+            ps.setInt(4, maxCount);
             rs = ps.executeQuery();
 
             while (rs.next() && nextTriggers.size() < maxCount) {
