@@ -3680,7 +3680,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                 }
             }
             
-            // Wan't a Proxy, or was a Proxy, but wasn't ours.
+            // Wasn't a Proxy, or was a Proxy, but wasn't ours.
             closeConnection(conn);
         }
     }
