@@ -383,7 +383,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
             try {
                 // First try to get an existing one, instead of creating it,
                 // since if
-                // we're in a web-app being 'hot' re-depoloyed, then the JVM
+                // we're in a web-app being 'hot' re-deployed, then the JVM
                 // still
                 // has the registry that we created above the first time...
                 registry = LocateRegistry.getRegistry(resources
@@ -401,7 +401,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
             } catch (Exception e) {
                 // Fall back to an existing one, instead of creating it, since
                 // if
-                // we're in a web-app being 'hot' re-depoloyed, then the JVM
+                // we're in a web-app being 'hot' re-deployed, then the JVM
                 // still
                 // has the registry that we created above the first time...
                 registry = LocateRegistry.getRegistry(resources
