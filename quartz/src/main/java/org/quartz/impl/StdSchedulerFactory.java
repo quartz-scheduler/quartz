@@ -256,7 +256,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
 
     public static final String PROP_DATASOURCE_JNDI_INITIAL = "java.naming.factory.initial";
 
-    public static final String PROP_DATASOURCE_JNDI_PROVDER = "java.naming.provider.url";
+    public static final String PROP_DATASOURCE_JNDI_PROVIDER = "java.naming.provider.url";
 
     public static final String PROP_DATASOURCE_JNDI_PRINCIPAL = "java.naming.security.principal";
 
@@ -978,7 +978,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
                     String dsJndiInitial = pp.getStringProperty(
                             PROP_DATASOURCE_JNDI_INITIAL);
                     String dsJndiProvider = pp.getStringProperty(
-                            PROP_DATASOURCE_JNDI_PROVDER);
+                            PROP_DATASOURCE_JNDI_PROVIDER);
                     String dsJndiPrincipal = pp.getStringProperty(
                             PROP_DATASOURCE_JNDI_PRINCIPAL);
                     String dsJndiCredentials = pp.getStringProperty(
@@ -992,7 +992,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
                                     dsJndiInitial);
                         }
                         if (dsJndiProvider != null) {
-                            props.put(PROP_DATASOURCE_JNDI_PROVDER,
+                            props.put(PROP_DATASOURCE_JNDI_PROVIDER,
                                     dsJndiProvider);
                         }
                         if (dsJndiPrincipal != null) {
