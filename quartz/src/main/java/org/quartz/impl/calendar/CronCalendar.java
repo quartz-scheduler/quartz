@@ -168,7 +168,7 @@ public class CronCalendar extends BaseCalendar {
      * Returns a string representing the properties of the 
      * <CODE>CronCalendar</CODE>
      * 
-     * @return the properteis of the CronCalendar in a String format
+     * @return the properties of the CronCalendar in a String format
      */
     @Override
     public String toString() {

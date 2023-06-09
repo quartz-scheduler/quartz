@@ -612,7 +612,7 @@ public class DailyCalendar extends BaseCalendar {
      * Returns a string representing the properties of the 
      * <CODE>DailyCalendar</CODE>
      * 
-     * @return the properteis of the DailyCalendar in a String format
+     * @return the properties of the DailyCalendar in a String format
      */
     @Override
     public String toString() {
