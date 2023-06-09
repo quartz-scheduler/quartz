@@ -51,7 +51,7 @@ public interface JobFactory {
      * Scheduler will move all triggers associated with the Job into the
      * <code>Trigger.STATE_ERROR</code> state, which will require human
      * intervention (e.g. an application restart after fixing whatever 
-     * configuration problem led to the issue wih instantiating the Job. 
+     * configuration problem led to the issue with instantiating the Job. 
      * </p>
      * 
      * @param bundle
