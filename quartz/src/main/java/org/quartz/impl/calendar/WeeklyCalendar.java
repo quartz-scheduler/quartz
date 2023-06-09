@@ -83,7 +83,7 @@ public class WeeklyCalendar extends BaseCalendar implements Calendar,
 
     /**
      * <p>
-     * Return true, if wday (see Calendar.get()) is defined to be exluded. E. g.
+     * Return true, if wday (see Calendar.get()) is defined to be excluded. E. g.
      * saturday and sunday.
      * </p>
      */

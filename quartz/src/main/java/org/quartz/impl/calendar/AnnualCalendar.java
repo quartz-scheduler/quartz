@@ -80,7 +80,7 @@ public class AnnualCalendar extends BaseCalendar implements Calendar,
 
     /**
      * <p>
-     * Return true, if day is defined to be exluded.
+     * Return true, if day is defined to be excluded.
      * </p>
      */
     public boolean isDayExcluded(java.util.Calendar day) {
