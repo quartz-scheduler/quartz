@@ -28,7 +28,7 @@ import junit.framework.TestCase;
  * 
  * <p>The way to properly setup tests for subclass is it needs to generate a <ClassName>.ser
  * resource file under the same package. This ".ser" file only needs to be generated one time,
- * using the version of Quartz matching to the VERIONS values. Then during test, each of this
+ * using the version of Quartz matching to the VERSION values. Then during test, each of this
  * file will be deserialized to verify the data.</p>
  */
 public abstract class SerializationTestSupport extends TestCase {
