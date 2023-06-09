@@ -404,7 +404,7 @@ public class CronTriggerImpl extends AbstractTrigger<CronTrigger> implements Cro
     /**
      * <p>
      * Get the time at which the <code>CronTrigger</code> should quit
-     * repeating - even if repeastCount isn't yet satisfied.
+     * repeating - even if repeatCount isn't yet satisfied.
      * </p>
      * 
      * @see #getFinalFireTime()

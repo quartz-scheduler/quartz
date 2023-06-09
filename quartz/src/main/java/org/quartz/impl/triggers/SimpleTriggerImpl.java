@@ -323,7 +323,7 @@ public class SimpleTriggerImpl extends AbstractTrigger<SimpleTrigger> implements
     /**
      * <p>
      * Get the time at which the <code>SimpleTrigger</code> should quit
-     * repeating - even if repeastCount isn't yet satisfied.
+     * repeating - even if repeatCount isn't yet satisfied.
      * </p>
      * 
      * @see #getFinalFireTime()
