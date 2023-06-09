@@ -307,7 +307,7 @@ public class QuartzSchedulerResources {
             rmiCreateRegistryStrategy = CREATE_REGISTRY_NEVER;
         } else {
             throw new IllegalArgumentException(
-                    "Faild to set RMICreateRegistryStrategy - strategy unknown: '"
+                    "Failed to set RMICreateRegistryStrategy - strategy unknown: '"
                             + rmiCreateRegistryStrategy + "'");
         }
 
