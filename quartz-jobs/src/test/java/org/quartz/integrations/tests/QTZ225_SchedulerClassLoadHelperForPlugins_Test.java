@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * 
  * This test passes only if the plugin uses, like the SchedulerFactory does, the
  * DummyClassLoadHelper which is capable to load this imaginary job class
- * (previous behavior was : always instantiates the CascadeClassLoadHlper , not
+ * (previous behavior was : always instantiates the CascadeClassLoadHelper , not
  * considering the SchedulerFactory classLoadHelper)
  * 
  * @author adahanne
