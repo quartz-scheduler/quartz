@@ -386,7 +386,7 @@ public class JobDetailImpl implements Cloneable, java.io.Serializable, JobDetail
     /**
      * @return whether the associated Job class carries the {@link DisallowConcurrentExecution} annotation.
      */
-    public boolean isConcurrentExectionDisallowed() {
+    public boolean isConcurrentExecutionDisallowed() {
         
         return ClassUtils.isAnnotationPresent(jobClass, DisallowConcurrentExecution.class);
     }
@@ -407,7 +407,7 @@ public class JobDetailImpl implements Cloneable, java.io.Serializable, JobDetail
     public String toString() {
         return "JobDetail '" + getFullName() + "':  jobClass: '"
                 + ((getJobClass() == null) ? null : getJobClass().getName())
-                + " concurrentExectionDisallowed: " + isConcurrentExectionDisallowed() 
+                + " concurrentExecutionDisallowed: " + isConcurrentExecutionDisallowed() 
                 + " persistJobDataAfterExecution: " + isPersistJobDataAfterExecution() 
                 + " isDurable: " + isDurable() + " requestsRecovers: " + requestsRecovery();
     }

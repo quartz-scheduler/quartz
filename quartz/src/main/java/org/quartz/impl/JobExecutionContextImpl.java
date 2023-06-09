@@ -85,7 +85,7 @@ public class JobExecutionContextImpl implements java.io.Serializable, JobExecuti
 
     /**
      * <p>
-     * Create a JobExcecutionContext with the given context data.
+     * Create a JobExecutionContext with the given context data.
      * </p>
      */
     public JobExecutionContextImpl(Scheduler scheduler,

@@ -1487,7 +1487,7 @@ public class RAMJobStore implements JobStore {
                 // put it back into the timeTriggers set and continue to search for next trigger.
                 JobKey jobKey = tw.trigger.getJobKey();
                 JobDetail job = jobsByKey.get(tw.trigger.getJobKey()).jobDetail;
-                if (job.isConcurrentExectionDisallowed()) {
+                if (job.isConcurrentExecutionDisallowed()) {
                     if (acquiredJobKeysForNoConcurrentExec.contains(jobKey)) {
                         excludedTriggers.add(tw);
                         continue; // go to next trigger in store.
@@ -1576,7 +1576,7 @@ public class RAMJobStore implements JobStore {
 
                 JobDetail job = bundle.getJobDetail();
 
-                if (job.isConcurrentExectionDisallowed()) {
+                if (job.isConcurrentExecutionDisallowed()) {
                     ArrayList<TriggerWrapper> trigs = getTriggerWrappersForJob(job.getKey());
                     for (TriggerWrapper ttw : trigs) {
                         if (ttw.state == TriggerWrapper.STATE_WAITING) {
@@ -1633,7 +1633,7 @@ public class RAMJobStore implements JobStore {
                     jd = jd.getJobBuilder().setJobData(newData).build();
                     jw.jobDetail = jd;
                 }
-                if (jd.isConcurrentExectionDisallowed()) {
+                if (jd.isConcurrentExecutionDisallowed()) {
                     blockedJobs.remove(jd.getKey());
                     ArrayList<TriggerWrapper> trigs = getTriggerWrappersForJob(jd.getKey());
                     for(TriggerWrapper ttw : trigs) {
