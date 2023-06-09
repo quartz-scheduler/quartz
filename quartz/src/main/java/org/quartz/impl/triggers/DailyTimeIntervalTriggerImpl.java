@@ -675,7 +675,7 @@ public class DailyTimeIntervalTriggerImpl extends AbstractTrigger<DailyTimeInter
         if (endTimeOfDay != null) {
           afterTimePastEndTimeOfDay = afterTime.getTime() > endTimeOfDay.getTimeOfDayForDate(afterTime).getTime();
         }
-        // c. now we need to move move to the next valid day of week if either: 
+        // c. now we need to move to the next valid day of week if either: 
         // the given time is past the end time of day, or given time is not on a valid day of week
         Date fireTime = advanceToNextDayOfWeekIfNecessary(afterTime, afterTimePastEndTimeOfDay);
         if (fireTime == null)
