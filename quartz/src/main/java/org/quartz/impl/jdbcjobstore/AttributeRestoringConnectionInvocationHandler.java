@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <p>
- * Protects a <code>{@link java.sql.Connection}</code>'s attributes from being permanently modfied.
+ * Protects a <code>{@link java.sql.Connection}</code>'s attributes from being permanently modified.
  * </p>
  * 
  * <p>
