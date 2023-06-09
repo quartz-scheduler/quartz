@@ -59,7 +59,7 @@ public final class Util {
      * </p>
      * 
      * @param query
-     *          the unsubstitued query
+     *          the unsubstituted query
      * @param tablePrefix
      *          the table prefix
      * @return the query, with proper table prefix substituted
@@ -130,7 +130,7 @@ public final class Util {
         if(propNames == null || propNames.length == 0)
             return;
         if(propNames.length != propValues.length)
-            throw new IllegalArgumentException("propNames[].lenght != propValues[].length");
+            throw new IllegalArgumentException("propNames[].length != propValues[].length");
         
         String name = null;
         

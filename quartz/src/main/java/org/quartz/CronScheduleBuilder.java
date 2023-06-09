@@ -183,7 +183,7 @@ public class CronScheduleBuilder extends ScheduleBuilder<CronTrigger> {
      * the given days of the week.
      * 
      * @param daysOfWeek
-     *            the dasy of the week to fire
+     *            the day of the week to fire
      * @param hour
      *            the hour of day to fire
      * @param minute

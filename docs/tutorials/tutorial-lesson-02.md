@@ -122,7 +122,7 @@ the schedule and the work to be performed on that schedule. This has (in our opi
 
 For example, Jobs can be created and stored in the job scheduler independent of a trigger, and many triggers can
 be associated with the same job. Another benefit of this loose-coupling is the ability to configure jobs that remain in
-the scheduler after their associated triggers have expired, so that that it can be rescheduled later, without having to
+the scheduler after their associated triggers have expired, so that it can be rescheduled later, without having to
 re-define it. It also allows you to modify or replace a trigger without having to re-define its associated job.
 
 ### [Identities](#TutorialLesson2-Identities)

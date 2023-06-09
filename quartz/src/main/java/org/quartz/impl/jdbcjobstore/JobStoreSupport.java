@@ -421,7 +421,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
     public void setMisfireThreshold(long misfireThreshold) {
         if (misfireThreshold < 1) {
             throw new IllegalArgumentException(
-                    "Misfirethreshold must be larger than 0");
+                    "Misfire threshold must be larger than 0");
         }
         this.misfireThreshold = misfireThreshold;
     }
@@ -598,7 +598,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
     /**
      * Get whether to check to see if there are Triggers that have misfired
      * before actually acquiring the lock to recover them.  This should be 
-     * set to false if the majority of the time, there are are misfired
+     * set to false if the majority of the time, there are misfired
      * Triggers.
      */
     public boolean getDoubleCheckLockMisfireHandler() {
@@ -608,7 +608,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
     /**
      * Set whether to check to see if there are Triggers that have misfired
      * before actually acquiring the lock to recover them.  This should be 
-     * set to false if the majority of the time, there are are misfired
+     * set to false if the majority of the time, there are misfired
      * Triggers.
      */
     @SuppressWarnings("UnusedDeclaration") /* called reflectively */
@@ -695,7 +695,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                 recoverJobs();
             } catch (SchedulerException se) {
                 throw new SchedulerConfigException(
-                        "Failure occured during job recovery.", se);
+                        "Failure occurred during job recovery.", se);
             }
         }
 
@@ -798,7 +798,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         // Protect connection attributes we might change.
         conn = getAttributeRestoringConnection(conn);
 
-        // Set any connection connection attributes we are to override.
+        // Set any connection attributes we are to override.
         try {
             if (!isDontSetAutoCommitFalse()) {
                 conn.setAutoCommit(false);
@@ -1186,22 +1186,22 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         
         try {
 
-            boolean shouldBepaused;
+            boolean shouldBePaused;
 
             if (!forceState) {
-                shouldBepaused = getDelegate().isTriggerGroupPaused(
+                shouldBePaused = getDelegate().isTriggerGroupPaused(
                         conn, newTrigger.getKey().getGroup());
 
-                if(!shouldBepaused) {
-                    shouldBepaused = getDelegate().isTriggerGroupPaused(conn,
+                if(!shouldBePaused) {
+                    shouldBePaused = getDelegate().isTriggerGroupPaused(conn,
                             ALL_GROUPS_PAUSED);
 
-                    if (shouldBepaused) {
+                    if (shouldBePaused) {
                         getDelegate().insertPausedTriggerGroup(conn, newTrigger.getKey().getGroup());
                     }
                 }
 
-                if (shouldBepaused && (state.equals(STATE_WAITING) || state.equals(STATE_ACQUIRED))) {
+                if (shouldBePaused && (state.equals(STATE_WAITING) || state.equals(STATE_ACQUIRED))) {
                     state = STATE_PAUSED;
                 }
             }
@@ -1215,7 +1215,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                         + ") referenced by the trigger does not exist.");
             }
 
-            if (job.isConcurrentExectionDisallowed() && !recovering) { 
+            if (job.isConcurrentExecutionDisallowed() && !recovering) { 
                 state = checkBlockedState(conn, job.getKey(), state);
             }
             
@@ -1738,7 +1738,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
      * 
      * <p>
      * If removal of the <code>Calendar</code> would result in
-     * <code>Trigger</code>s pointing to non-existent calendars, then a
+     * <code>Trigger</code>s pointing to nonexistent calendars, then a
      * <code>JobPersistenceException</code> will be thrown.</p>
      *       *
      * @param calName The name of the <code>Calendar</code> to be removed.
@@ -2872,7 +2872,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                         continue;
                     }
                     
-                    if (job.isConcurrentExectionDisallowed()) {
+                    if (job.isConcurrentExecutionDisallowed()) {
                         if (acquiredJobKeysForNoConcurrentExec.contains(jobKey)) {
                             continue; // next trigger
                         } else {
@@ -3071,7 +3071,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         String state = STATE_WAITING;
         boolean force = true;
         
-        if (job.isConcurrentExectionDisallowed()) {
+        if (job.isConcurrentExecutionDisallowed()) {
             state = STATE_BLOCKED;
             force = false;
             try {
@@ -3160,7 +3160,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                 signalSchedulingChangeOnTxCompletion(0L);
             }
 
-            if (jobDetail.isConcurrentExectionDisallowed()) {
+            if (jobDetail.isConcurrentExecutionDisallowed()) {
                 getDelegate().updateTriggerStatesForJobFromOtherState(conn,
                         jobDetail.getKey(), STATE_WAITING,
                         STATE_BLOCKED);
@@ -3674,13 +3674,13 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                     AttributeRestoringConnectionInvocationHandler connHandler =
                         (AttributeRestoringConnectionInvocationHandler)invocationHandler;
                         
-                    connHandler.restoreOriginalAtributes();
+                    connHandler.restoreOriginalAttributes();
                     closeConnection(connHandler.getWrappedConnection());
                     return;
                 }
             }
             
-            // Wan't a Proxy, or was a Proxy, but wasn't ours.
+            // Wasn't a Proxy, or was a Proxy, but wasn't ours.
             closeConnection(conn);
         }
     }
@@ -3714,7 +3714,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
      * Rollback the supplied connection.
      * 
      * <p>  
-     * Logs any SQLException it gets trying to rollback, but will not propogate
+     * Logs any SQLException it gets trying to rollback, but will not propagate
      * the exception lest it mask the exception that caused the caller to 
      * need to rollback in the first place.
      * </p>

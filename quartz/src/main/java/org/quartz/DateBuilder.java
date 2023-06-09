@@ -871,10 +871,10 @@ public class DateBuilder {
 
         int arItr = minute / minuteBase;
 
-        int nextMinuteOccurance = minuteBase * (arItr + 1);
+        int nextMinuteOccurrence = minuteBase * (arItr + 1);
 
-        if (nextMinuteOccurance < 60) {
-            c.set(Calendar.MINUTE, nextMinuteOccurance);
+        if (nextMinuteOccurrence < 60) {
+            c.set(Calendar.MINUTE, nextMinuteOccurrence);
             c.set(Calendar.SECOND, 0);
             c.set(Calendar.MILLISECOND, 0);
 
@@ -934,10 +934,10 @@ public class DateBuilder {
 
         int arItr = second / secondBase;
 
-        int nextSecondOccurance = secondBase * (arItr + 1);
+        int nextSecondOccurrence = secondBase * (arItr + 1);
 
-        if (nextSecondOccurance < 60) {
-            c.set(Calendar.SECOND, nextSecondOccurance);
+        if (nextSecondOccurrence < 60) {
+            c.set(Calendar.SECOND, nextSecondOccurrence);
             c.set(Calendar.MILLISECOND, 0);
 
             return c.getTime();

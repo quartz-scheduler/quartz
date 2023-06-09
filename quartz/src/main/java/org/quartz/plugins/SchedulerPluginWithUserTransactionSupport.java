@@ -64,7 +64,7 @@ public abstract class SchedulerPluginWithUserTransactionSupport implements
      * on it to signal that the wrapped transaction should rollback.  
      * </p>
      * 
-     * @param userTransaction The UserTranaction object used to provide a 
+     * @param userTransaction The UserTransaction object used to provide a 
      * transaction around the start() operation.  It will be null if 
      * <em>wrapInUserTransaction</em> is false or if the transaction failed
      * to be started.
@@ -84,7 +84,7 @@ public abstract class SchedulerPluginWithUserTransactionSupport implements
      * on it to signal that the wrapped transaction should rollback.  
      * </p>
      * 
-     * @param userTransaction The UserTranaction object used to provide a 
+     * @param userTransaction The UserTransaction object used to provide a 
      * transaction around the shutdown() operation.  It will be null if 
      * <em>wrapInUserTransaction</em> is false or if the transaction failed
      * to be started.
@@ -184,7 +184,7 @@ public abstract class SchedulerPluginWithUserTransactionSupport implements
     }
     
     /**
-     * If the given UserTransaction is not null, it is committed/rolledback,
+     * If the given UserTransaction is not null, it is committed/rolled back,
      * and then returned to the UserTransactionHelper.
      */
     private void resolveUserTransaction(UserTransaction userTransaction) {

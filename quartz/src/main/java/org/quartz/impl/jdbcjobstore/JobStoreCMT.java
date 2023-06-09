@@ -99,7 +99,7 @@ public class JobStoreCMT extends JobStoreSupport {
 
     /**
      * Don't call set autocommit(false) on connections obtained from the
-     * DataSource. This can be helpfull in a few situations, such as if you
+     * DataSource. This can be helpful in a few situations, such as if you
      * have a driver that complains if it is called when it is already off.
      * 
      * @param b
@@ -187,7 +187,7 @@ public class JobStoreCMT extends JobStoreSupport {
         // Protect connection attributes we might change.
         conn = getAttributeRestoringConnection(conn);
         
-        // Set any connection connection attributes we are to override.
+        // Set any connection attributes we are to override.
         try {
             if (!isDontSetNonManagedTXConnectionAutoCommitFalse()) {
                 conn.setAutoCommit(false);

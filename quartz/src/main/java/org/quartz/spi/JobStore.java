@@ -301,7 +301,7 @@ public interface JobStore {
      *
      * <p>
      * If removal of the <code>Calendar</code> would result in
-     * <code>Trigger</code>s pointing to non-existent calendars, then a
+     * <code>Trigger</code>s pointing to nonexistent calendars, then a
      * <code>JobPersistenceException</code> will be thrown.</p>
      *       *
      * @param calName The name of the <code>Calendar</code> to be removed.

@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Demonstrates the behavior of <code>JobListener</code>s. In particular, this example will use a job listener to
- * trigger another job after one job succesfully executes.
+ * trigger another job after one job successfully executes.
  */
 public class ListenerExample {
 

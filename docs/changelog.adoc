@@ -17,7 +17,7 @@ Most Significant Changes This Release:
   related to code execution.  While it is possible to safely use this Job class, it is
   a risk for users that don't engage some thought.   If you wish to still use this job
   or something like it, the source code for it can now be found as "example15".
-* Example programs can now simply be executed via gradle. See the "exmaples_guide.txt"
+* Example programs can now simply be executed via gradle. See the "examples_guide.txt"
   file in the examples folder of the quartz repository for full description and info.
 
 All changes/updates:
@@ -36,12 +36,12 @@ THIS RELEASE REQUIRES JDK7
 * #316 depen: Updated C3P0 version to 0.9.5.3
 * #147 bugfix: Fix BINARY to BLOG type for job data for hsqldb
 * #156 bugfix: Fix null string used in thread name with DirectSchedulerFactory
-* #159 bugfix: Fix extra bad char tick on drop table qurtz_fired_triggers for postgres
+* #159 bugfix: Fix extra bad char tick on drop table qrtz_fired_triggers for postgres
 * #146 bugfix: Release BLOCKED triggers in releaseAcquiredTrigger
 * #212 bugfix: QuartzInitializerListener: fix a typo
 * #193 bugfix: Job execution context impl returns incorrect recovering job key
 * #172 bugfix: Miss notify SchedulerListeners in QuartzScheduler.java
-* #220 bugifx: DailyTimeIntervalTrigger failed to set endingDailyAfterCount = 1
+* #220 bugfix: DailyTimeIntervalTrigger failed to set endingDailyAfterCount = 1
 * #160 improv: Add drop table if exists check in sql script for postgres
 * #214 improv: Reuse JobBuilder.storeDurably(boolean) in JobBuilder
 * #281 improv: Fix no setter for dataSource property validateOnCheckout
@@ -106,7 +106,7 @@ quartz-1.7.3 	24-Feb-2010
 quartz-1.7.2 	10-Feb-2010 
 ----
 
-See https://jira.terracotta.org/jira/browse/QTZ/?selectedTab=com.atlassian.jira.jira-projects-plugin:changelog-panel[older JIRA for older release changelog].
+See https://jira.terracotta.org/jira/browse/QTZ/?selectedTab=com.atlassian.jira.jira-projects-plugin:changelog-panel[older Jira for older release changelog].
 
 == Change Categories
 

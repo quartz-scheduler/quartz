@@ -39,7 +39,7 @@ public interface ClassLoadHelper {
     /**
      * Return the class with the given name.
      *
-     * @param name the fqcn of the class to load.
+     * @param name the FQCN of the class to load.
      * @return the requested class.
      * @throws ClassNotFoundException if the class can be found in the classpath.
      */
@@ -48,7 +48,7 @@ public interface ClassLoadHelper {
     /**
      * Return the class of the given type with the given name.
      *
-     * @param name the fqcn of the class to load.
+     * @param name the FQCN of the class to load.
      * @return the requested class.
      * @throws ClassNotFoundException if the class can be found in the classpath.
      */

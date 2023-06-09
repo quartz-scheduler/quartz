@@ -32,7 +32,7 @@ import org.quartz.listeners.SchedulerListenerSupport;
  * </p>
  *
  * <p>
- * The main() method of this class currently accepts 0 or 1 arguemtns, if there
+ * The main() method of this class currently accepts 0 or 1 arguments, if there
  * is an argument, and its value is <code>"console"</code>, then the program
  * will print a short message on the console (std-out) and wait for the user to
  * type "exit" - at which time the scheduler will be shutdown.
@@ -131,7 +131,7 @@ public class QuartzServer extends SchedulerListenerSupport {
     /**
      * <p>
      * Called by the <code>{@link Scheduler}</code> when a serious error has
-     * occured within the scheduler - such as repeated failures in the <code>JobStore</code>,
+     * occurred within the scheduler - such as repeated failures in the <code>JobStore</code>,
      * or the inability to instantiate a <code>Job</code> instance when its
      * <code>Trigger</code> has fired.
      * </p>

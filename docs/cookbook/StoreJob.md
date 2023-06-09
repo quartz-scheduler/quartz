@@ -20,6 +20,6 @@ JobDetail job1 = newJob(MyJobClass.class)
     .storeDurably()
     .build();
 
-// Add the the job to the scheduler's store
+// Add the job to the scheduler's store
 sched.addJob(job, false);
 </code></pre>

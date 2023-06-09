@@ -66,7 +66,7 @@ import static org.quartz.impl.matchers.EverythingMatcher.allTriggers;
  * </p>
  * 
  * <p>
- * As you should know, the ramification of this is that access is extrememly
+ * As you should know, the ramification of this is that access is extremely
  * fast, but the data is completely volatile - therefore this <code>JobStore</code>
  * should not be used if true persistence between program shutdowns is
  * required.
@@ -767,7 +767,7 @@ public class RAMJobStore implements JobStore {
      *
      * <p>
      * If removal of the <code>Calendar</code> would result in
-     * <code>Trigger</code>s pointing to non-existent calendars, then a
+     * <code>Trigger</code>s pointing to nonexistent calendars, then a
      * <code>JobPersistenceException</code> will be thrown.</p>
      *       *
      * @param calName The name of the <code>Calendar</code> to be removed.
@@ -779,10 +779,10 @@ public class RAMJobStore implements JobStore {
         int numRefs = 0;
 
         synchronized (lock) {
-            for (TriggerWrapper trigger : triggersByKey.values()) {
-                OperableTrigger trigg = trigger.trigger;
-                if (trigg.getCalendarName() != null
-                        && trigg.getCalendarName().equals(calName)) {
+            for (TriggerWrapper wrapper : triggersByKey.values()) {
+                OperableTrigger trigger = wrapper.trigger;
+                if (trigger.getCalendarName() != null
+                        && trigger.getCalendarName().equals(calName)) {
                     numRefs++;
                 }
             }
@@ -1487,7 +1487,7 @@ public class RAMJobStore implements JobStore {
                 // put it back into the timeTriggers set and continue to search for next trigger.
                 JobKey jobKey = tw.trigger.getJobKey();
                 JobDetail job = jobsByKey.get(tw.trigger.getJobKey()).jobDetail;
-                if (job.isConcurrentExectionDisallowed()) {
+                if (job.isConcurrentExecutionDisallowed()) {
                     if (acquiredJobKeysForNoConcurrentExec.contains(jobKey)) {
                         excludedTriggers.add(tw);
                         continue; // go to next trigger in store.
@@ -1569,14 +1569,14 @@ public class RAMJobStore implements JobStore {
                 //tw.state = TriggerWrapper.STATE_EXECUTING;
                 tw.state = TriggerWrapper.STATE_WAITING;
 
-                TriggerFiredBundle bndle = new TriggerFiredBundle(retrieveJob(
+                TriggerFiredBundle bundle = new TriggerFiredBundle(retrieveJob(
                         tw.jobKey), trigger, cal,
                         false, new Date(), trigger.getPreviousFireTime(), prevFireTime,
                         trigger.getNextFireTime());
 
-                JobDetail job = bndle.getJobDetail();
+                JobDetail job = bundle.getJobDetail();
 
-                if (job.isConcurrentExectionDisallowed()) {
+                if (job.isConcurrentExecutionDisallowed()) {
                     ArrayList<TriggerWrapper> trigs = getTriggerWrappersForJob(job.getKey());
                     for (TriggerWrapper ttw : trigs) {
                         if (ttw.state == TriggerWrapper.STATE_WAITING) {
@@ -1594,7 +1594,7 @@ public class RAMJobStore implements JobStore {
                     }
                 }
 
-                results.add(new TriggerFiredResult(bndle));
+                results.add(new TriggerFiredResult(bundle));
             }
             return results;
         }
@@ -1633,7 +1633,7 @@ public class RAMJobStore implements JobStore {
                     jd = jd.getJobBuilder().setJobData(newData).build();
                     jw.jobDetail = jd;
                 }
-                if (jd.isConcurrentExectionDisallowed()) {
+                if (jd.isConcurrentExecutionDisallowed()) {
                     blockedJobs.remove(jd.getKey());
                     ArrayList<TriggerWrapper> trigs = getTriggerWrappersForJob(jd.getKey());
                     for(TriggerWrapper ttw : trigs) {

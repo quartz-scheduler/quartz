@@ -72,7 +72,7 @@ public class QTZ336_MissSchedulingChangeSignalTest {
 
 		LOG.info("------- Scheduling Job  -------------------");
 
-        JobDetail job = newJob(CollectDuractionBetweenFireTimesJob.class).withIdentity("job", "group").build();
+        JobDetail job = newJob(CollectDurationBetweenFireTimesJob.class).withIdentity("job", "group").build();
 
         SimpleTrigger trigger = newTrigger()
 	            .withIdentity("trigger1", "group1")
@@ -100,7 +100,7 @@ public class QTZ336_MissSchedulingChangeSignalTest {
 			e.printStackTrace();
 		}
 		
-        List<Long> durationBetweenFireTimesInMillis = CollectDuractionBetweenFireTimesJob.getDurations();
+        List<Long> durationBetweenFireTimesInMillis = CollectDurationBetweenFireTimesJob.getDurations();
         
         assertFalse("Job was not executed once!", durationBetweenFireTimesInMillis.isEmpty());
         
@@ -117,8 +117,8 @@ public class QTZ336_MissSchedulingChangeSignalTest {
      * condition the job must be real quick and not allowing concurrent executions.
      */
     @DisallowConcurrentExecution
-    public static class CollectDuractionBetweenFireTimesJob implements Job {
-        private static final Logger log = LoggerFactory.getLogger(CollectDuractionBetweenFireTimesJob.class);
+    public static class CollectDurationBetweenFireTimesJob implements Job {
+        private static final Logger log = LoggerFactory.getLogger(CollectDurationBetweenFireTimesJob.class);
         private static final List<Long> durationBetweenFireTimes = Collections.synchronizedList(new ArrayList<Long>());
         private static Long lastFireTime = null;
 

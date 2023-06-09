@@ -36,7 +36,7 @@ import java.util.Date;
 /**
  * Demonstrates the behavior of <code>StatefulJob</code>s, as well as how misfire instructions affect the firings of
  * triggers of <code>StatefulJob</code> s - when the jobs take longer to execute that the frequency of the trigger's
- * repitition.
+ * repetition.
  * <p>
  * While the example is running, you should note that there are two triggers with identical schedules, firing identical
  * jobs. The triggers "want" to fire every 3 seconds, but the jobs take 10 seconds to execute. Therefore, by the time

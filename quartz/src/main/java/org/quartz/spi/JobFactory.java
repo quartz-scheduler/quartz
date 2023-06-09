@@ -29,7 +29,7 @@ import org.quartz.SchedulerException;
  * <p>
  * This interface may be of use to those wishing to have their application
  * produce <code>Job</code> instances via some special mechanism, such as to
- * give the opertunity for dependency injection.
+ * give the opportunity for dependency injection.
  * </p>
  * 
  * @see org.quartz.Scheduler#setJobFactory(JobFactory)
@@ -46,12 +46,12 @@ public interface JobFactory {
      * 
      * <p>
      * It should be extremely rare for this method to throw an exception -
-     * basically only the the case where there is no way at all to instantiate
+     * basically only the case where there is no way at all to instantiate
      * and prepare the Job for execution.  When the exception is thrown, the
      * Scheduler will move all triggers associated with the Job into the
      * <code>Trigger.STATE_ERROR</code> state, which will require human
      * intervention (e.g. an application restart after fixing whatever 
-     * configuration problem led to the issue wih instantiating the Job. 
+     * configuration problem led to the issue with instantiating the Job. 
      * </p>
      * 
      * @param bundle

@@ -49,7 +49,7 @@ import org.quartz.utils.StringKeyDirtyFlagMap;
  *
  * <p>
  * Update since 2.2.4 - We keep an dirty flag for this map so that whenever you modify(add/delete) any of the entries,
- * it will set to "true". However if you create new instance using an exising map with {@link #JobDataMap(Map)}, then
+ * it will set to "true". However if you create new instance using an existing map with {@link #JobDataMap(Map)}, then
  * the dirty flag will NOT be set to "true" until you modify the instance.
  * </p>
  * 

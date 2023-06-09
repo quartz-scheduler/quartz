@@ -130,7 +130,7 @@ public interface QuartzSchedulerMBean {
     /**
      * Schedules an arbitrary job described by abstractJobInfo using a trigger specified by abstractTriggerInfo.
      * 
-     * AbtractTriggerInfo and AbstractJobInfo must contain the following String attributes.
+     * AbstractTriggerInfo and AbstractJobInfo must contain the following String attributes.
      *     AbstractTriggerInfo: triggerClass, the fully-qualified class name of a concrete Trigger type
      *     AbstractJobInfo: jobDetailClass, the fully-qualified class name of a concrete JobDetail type
      *
@@ -183,7 +183,7 @@ public interface QuartzSchedulerMBean {
      * Maps are limited to containing values from the same set of types, less Map itself.
      * 
      * @param abstractJobInfo map of attributes defining job
-     * @param replace whether or not to replace a pre-existing job with the same key
+     * @param replace whether or not to replace a preexisting job with the same key
      * @throws Exception
      */
     void addJob(Map<String, Object> abstractJobInfo, boolean replace)

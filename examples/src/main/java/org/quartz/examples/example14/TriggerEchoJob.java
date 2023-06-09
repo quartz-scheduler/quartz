@@ -31,7 +31,7 @@ public class TriggerEchoJob implements Job {
     private static final Logger LOG = LoggerFactory.getLogger(TriggerEchoJob.class);
 
     /**
-     * Empty constructor for job initilization
+     * Empty constructor for job initialization
      *
      * <p>
      * Quartz requires a public empty constructor so that the

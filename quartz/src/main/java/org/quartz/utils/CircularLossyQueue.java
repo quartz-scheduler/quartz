@@ -105,7 +105,7 @@ public class CircularLossyQueue<T> {
      * 
      * @return true if the queue is empty, false otherwise
      */
-    public boolean isEmtpy() {
+    public boolean isEmpty() {
         return depth() == 0;
     }
 

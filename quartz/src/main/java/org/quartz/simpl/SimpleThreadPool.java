@@ -175,8 +175,8 @@ public class SimpleThreadPool implements ThreadPool {
         return prio;
     }
 
-    public void setThreadNamePrefix(String prfx) {
-        this.threadNamePrefix = prfx;
+    public void setThreadNamePrefix(String prefix) {
+        this.threadNamePrefix = prefix;
     }
 
     public String getThreadNamePrefix() {

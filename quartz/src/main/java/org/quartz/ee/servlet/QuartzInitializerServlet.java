@@ -228,11 +228,11 @@ public class QuartzInitializerServlet extends HttpServlet {
             cfg.getServletContext().setAttribute(factoryKey, factory);
             
             
-            String servletCtxtKey = cfg.getInitParameter("scheduler-context-servlet-context-key");
-            if (servletCtxtKey != null) {
+            String servletCtxKey = cfg.getInitParameter("scheduler-context-servlet-context-key");
+            if (servletCtxKey != null) {
                 log("Storing the ServletContext in the scheduler context at key: "
-                        + servletCtxtKey);
-                scheduler.getContext().put(servletCtxtKey, cfg.getServletContext());
+                        + servletCtxKey);
+                scheduler.getContext().put(servletCtxKey, cfg.getServletContext());
             }
 
         } catch (Exception e) {

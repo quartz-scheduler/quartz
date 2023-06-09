@@ -79,9 +79,9 @@ public class FileScanJob implements Job {
      */
     public void execute(JobExecutionContext context) throws JobExecutionException {
         JobDataMap mergedJobDataMap = context.getMergedJobDataMap();
-        SchedulerContext schedCtxt = null;
+        SchedulerContext schedCtx = null;
         try {
-            schedCtxt = context.getScheduler().getContext();
+            schedCtx = context.getScheduler().getContext();
         } catch (SchedulerException e) {
             throw new JobExecutionException("Error obtaining scheduler context.", e, false);
         }
@@ -98,7 +98,7 @@ public class FileScanJob implements Job {
                     FILE_SCAN_LISTENER_NAME + "' not found in merged JobDataMap");
         }
 
-        org.quartz.jobs.FileScanListener listener = (FileScanListener)schedCtxt.get(listenerName);
+        org.quartz.jobs.FileScanListener listener = (FileScanListener)schedCtx.get(listenerName);
         
         if(listener == null) {
             throw new JobExecutionException("FileScanListener named '" + 

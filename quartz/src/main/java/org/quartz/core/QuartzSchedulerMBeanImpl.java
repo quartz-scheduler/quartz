@@ -61,12 +61,12 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
     private final static SampledStatistics NULL_SAMPLED_STATISTICS = new NullSampledStatisticsImpl();
 
     static {
-        final String[] notifTypes = new String[] { SCHEDULER_STARTED,
+        final String[] notificationTypes = new String[] { SCHEDULER_STARTED,
                 SCHEDULER_PAUSED, SCHEDULER_SHUTDOWN, };
         final String name = Notification.class.getName();
         final String description = "QuartzScheduler JMX Event";
         NOTIFICATION_INFO = new MBeanNotificationInfo[] { new MBeanNotificationInfo(
-                notifTypes, name, description), };
+                notificationTypes, name, description), };
     }
 
     /**
@@ -913,12 +913,12 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
      * @param msg
      */
     public void sendNotification(String eventType, Object data, String msg) {
-        Notification notif = new Notification(eventType, this, sequenceNumber
+        Notification notification = new Notification(eventType, this, sequenceNumber
                 .incrementAndGet(), System.currentTimeMillis(), msg);
         if (data != null) {
-            notif.setUserData(data);
+            notification.setUserData(data);
         }
-        emitter.sendNotification(notif);
+        emitter.sendNotification(notification);
     }
 
     /**
@@ -938,9 +938,9 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
      * @see javax.management.NotificationBroadcaster#addNotificationListener(javax.management.NotificationListener,
      *      javax.management.NotificationFilter, java.lang.Object)
      */
-    public void addNotificationListener(NotificationListener notif,
+    public void addNotificationListener(NotificationListener listener,
             NotificationFilter filter, Object callBack) {
-        emitter.addNotificationListener(notif, filter, callBack);
+        emitter.addNotificationListener(listener, filter, callBack);
     }
 
     /**
@@ -962,10 +962,10 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
      * @see javax.management.NotificationEmitter#removeNotificationListener(javax.management.NotificationListener,
      *      javax.management.NotificationFilter, java.lang.Object)
      */
-    public void removeNotificationListener(NotificationListener notif,
+    public void removeNotificationListener(NotificationListener listener,
             NotificationFilter filter, Object callBack)
             throws ListenerNotFoundException {
-        emitter.removeNotificationListener(notif, filter, callBack);
+        emitter.removeNotificationListener(listener, filter, callBack);
     }
 
     public synchronized boolean isSampledStatisticsEnabled() {

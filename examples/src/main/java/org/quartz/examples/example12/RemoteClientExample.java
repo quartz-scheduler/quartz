@@ -38,13 +38,13 @@ import org.slf4j.LoggerFactory;
  * schedule the job.
  *
  * This example demonstrates how Quartz can be used in a client/server
- * environment to remotely scheudle jobs on a remote server using
+ * environment to remotely schedule jobs on a remote server using
  * RMI (Remote Method Invocation).
  *
  * This example will run a server that will execute the schedule.  The
  * server itself will not schedule any jobs.   This example will also
  * execute a client that will connect to the server (via RMI) to
- * schedule the job.  Once the job is remotely scheduled, the sceduler on
+ * schedule the job.  Once the job is remotely scheduled, the scheduler on
  * the server will run the job (at the correct time).
  *
  * Note:  This example works best when you run the client and server on

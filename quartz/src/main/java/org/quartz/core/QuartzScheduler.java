@@ -383,7 +383,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
             try {
                 // First try to get an existing one, instead of creating it,
                 // since if
-                // we're in a web-app being 'hot' re-depoloyed, then the JVM
+                // we're in a web-app being 'hot' re-deployed, then the JVM
                 // still
                 // has the registry that we created above the first time...
                 registry = LocateRegistry.getRegistry(resources
@@ -401,7 +401,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
             } catch (Exception e) {
                 // Fall back to an existing one, instead of creating it, since
                 // if
-                // we're in a web-app being 'hot' re-depoloyed, then the JVM
+                // we're in a web-app being 'hot' re-deployed, then the JVM
                 // still
                 // has the registry that we created above the first time...
                 registry = LocateRegistry.getRegistry(resources
@@ -855,7 +855,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
         resources.getJobStore().storeJobAndTrigger(jobDetail, trig);
         notifySchedulerListenersJobAdded(jobDetail);
         notifySchedulerThread(trigger.getNextFireTime().getTime());
-        notifySchedulerListenersSchduled(trigger);
+        notifySchedulerListenersScheduled(trigger);
 
         return ft;
     }
@@ -900,7 +900,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
 
         resources.getJobStore().storeTrigger(trig, false);
         notifySchedulerThread(trigger.getNextFireTime().getTime());
-        notifySchedulerListenersSchduled(trigger);
+        notifySchedulerListenersScheduled(trigger);
 
         return ft;
     }
@@ -994,7 +994,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
         // make sure all triggers refer to their associated job
         for(Entry<JobDetail, Set<? extends Trigger>> e: triggersAndJobs.entrySet()) {
             JobDetail job = e.getKey();
-            if(job == null) // there can be one of these (for adding a bulk set of triggers for pre-existing jobs)
+            if(job == null) // there can be one of these (for adding a bulk set of triggers for preexisting jobs)
                 continue;
             Set<? extends Trigger> triggers = e.getValue();
             if(triggers == null) // this is possible because the job may be durable, and not yet be having triggers
@@ -1029,7 +1029,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
 
           Set<? extends Trigger> triggers = triggersAndJobs.get(job);
           for (Trigger trigger : triggers) {
-            notifySchedulerListenersSchduled(trigger);
+            notifySchedulerListenersScheduled(trigger);
           }
         }
     }
@@ -1121,7 +1121,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
         if (resources.getJobStore().replaceTrigger(triggerKey, trig)) {
             notifySchedulerThread(newTrigger.getNextFireTime().getTime());
             notifySchedulerListenersUnscheduled(triggerKey);
-            notifySchedulerListenersSchduled(newTrigger);
+            notifySchedulerListenersScheduled(newTrigger);
         } else {
             return null;
         }
@@ -1167,7 +1167,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
         }
 
         notifySchedulerThread(trig.getNextFireTime().getTime());
-        notifySchedulerListenersSchduled(trig);
+        notifySchedulerListenersScheduled(trig);
     }
 
     /**
@@ -1191,7 +1191,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
         }
 
         notifySchedulerThread(trig.getNextFireTime().getTime());
-        notifySchedulerListenersSchduled(trig);
+        notifySchedulerListenersScheduled(trig);
     }
     
     /**
@@ -1993,7 +1993,7 @@ J     *
         }
     }
 
-    public void notifySchedulerListenersSchduled(Trigger trigger) {
+    public void notifySchedulerListenersScheduled(Trigger trigger) {
         // build a list of all scheduler listeners that are to be notified...
         List<SchedulerListener> schedListeners = buildSchedulerListenerList();
 
@@ -2004,7 +2004,7 @@ J     *
             } catch (Exception e) {
                 getLog().error(
                         "Error while notifying SchedulerListener of scheduled job."
-                                + "  Triger=" + trigger.getKey(), e);
+                                + "  Trigger=" + trigger.getKey(), e);
             }
         }
     }
@@ -2023,7 +2023,7 @@ J     *
             } catch (Exception e) {
                 getLog().error(
                         "Error while notifying SchedulerListener of unscheduled job."
-                                + "  Triger=" + (triggerKey == null ? "ALL DATA" : triggerKey), e);
+                                + "  Trigger=" + (triggerKey == null ? "ALL DATA" : triggerKey), e);
             }
         }
     }
@@ -2039,7 +2039,7 @@ J     *
             } catch (Exception e) {
                 getLog().error(
                         "Error while notifying SchedulerListener of finalized trigger."
-                                + "  Triger=" + trigger.getKey(), e);
+                                + "  Trigger=" + trigger.getKey(), e);
             }
         }
     }

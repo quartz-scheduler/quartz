@@ -85,9 +85,9 @@ public class DirectoryScanJob implements Job {
      */
     public void execute(JobExecutionContext context) throws JobExecutionException {
         JobDataMap mergedJobDataMap = context.getMergedJobDataMap();
-        SchedulerContext schedCtxt = null;
+        SchedulerContext schedCtx = null;
         try {
-            schedCtxt = context.getScheduler().getContext();
+            schedCtx = context.getScheduler().getContext();
         } catch (SchedulerException e) {
             throw new JobExecutionException("Error obtaining scheduler context.", e, false);
         }
@@ -104,7 +104,7 @@ public class DirectoryScanJob implements Job {
                     DIRECTORY_SCAN_LISTENER_NAME + "' not found in merged JobDataMap");
         }
 
-        DirectoryScanListener listener = (DirectoryScanListener)schedCtxt.get(listenerName);
+        DirectoryScanListener listener = (DirectoryScanListener)schedCtx.get(listenerName);
         
         if(listener == null) {
             throw new JobExecutionException("DirectoryScanListener named '" + 

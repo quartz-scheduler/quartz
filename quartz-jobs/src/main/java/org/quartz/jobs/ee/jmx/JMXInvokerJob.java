@@ -40,14 +40,14 @@ import org.quartz.JobExecutionException;
  * The required parameters are as follows (case doesn't matter):
  * <dl>
  * <dt><strong>JMX_OBJECTNAME</strong></dt>
- * <dd>This is the fully qualifed name of the object (ie in JBoss to lookup
+ * <dd>This is the fully qualified name of the object (ie in JBoss to lookup
  * the log4j jmx bean you would specify "jboss.system:type=Log4jService,service=Logging"</dd>
  * <dt><strong>JMX_METHOD</strong></dt>
  * <dd>This is the method to invoke on the specified JMX Bean. (ie in JBoss to
  * change the log level you would specify "setLoggerLevel"</dd>
  * <dt><strong>JMX_PARAMDEFS</strong></dt>
  * <dd>This is a definition of the parameters to be passed to the specified method
- * and their corresponding java types.  Each parameter definition is comma seperated
+ * and their corresponding java types.  Each parameter definition is comma separated
  * and has the following parts: &lt;type&gt;:&lt;name&gt;.  Type is the java type for the parameter.  
  * The following types are supported:<br>
  * <b>i</b> - is for int<br>

@@ -256,7 +256,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
 
     public static final String PROP_DATASOURCE_JNDI_INITIAL = "java.naming.factory.initial";
 
-    public static final String PROP_DATASOURCE_JNDI_PROVDER = "java.naming.provider.url";
+    public static final String PROP_DATASOURCE_JNDI_PROVIDER = "java.naming.provider.url";
 
     public static final String PROP_DATASOURCE_JNDI_PRINCIPAL = "java.naming.security.principal";
 
@@ -435,7 +435,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
 
                 ClassLoader cl = getClass().getClassLoader();
                 if(cl == null)
-                    cl = findClassloader();
+                    cl = findClassLoader();
                 if(cl == null)
                     throw new SchedulerConfigException("Unable to find a class loader on the current thread or class.");
 
@@ -686,7 +686,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
         boolean makeSchedulerThreadDaemon =
             cfg.getBooleanProperty(PROP_SCHED_MAKE_SCHEDULER_THREAD_DAEMON);
 
-        boolean threadsInheritInitalizersClassLoader =
+        boolean threadsInheritInitializersClassLoader =
             cfg.getBooleanProperty(PROP_SCHED_SCHEDULER_THREADS_INHERIT_CONTEXT_CLASS_LOADER_OF_INITIALIZING_THREAD);
 
         long batchTimeWindow = cfg.getLongProperty(PROP_SCHED_BATCH_TIME_WINDOW, 0L);
@@ -718,7 +718,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
         boolean managementRESTServiceEnabled = cfg.getBooleanProperty(MANAGEMENT_REST_SERVICE_ENABLED, false);
         String managementRESTServiceHostAndPort = cfg.getStringProperty(MANAGEMENT_REST_SERVICE_HOST_PORT, "0.0.0.0:9889");
 
-        Properties schedCtxtProps = cfg.getPropertyGroup(PROP_SCHED_CONTEXT_PREFIX, true);
+        Properties schedCtxProps = cfg.getPropertyGroup(PROP_SCHED_CONTEXT_PREFIX, true);
 
         // If Proxying to remote scheduler, short-circuit here...
         // ~~~~~~~~~~~~~~~~~~
@@ -978,7 +978,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
                     String dsJndiInitial = pp.getStringProperty(
                             PROP_DATASOURCE_JNDI_INITIAL);
                     String dsJndiProvider = pp.getStringProperty(
-                            PROP_DATASOURCE_JNDI_PROVDER);
+                            PROP_DATASOURCE_JNDI_PROVIDER);
                     String dsJndiPrincipal = pp.getStringProperty(
                             PROP_DATASOURCE_JNDI_PRINCIPAL);
                     String dsJndiCredentials = pp.getStringProperty(
@@ -992,7 +992,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
                                     dsJndiInitial);
                         }
                         if (dsJndiProvider != null) {
-                            props.put(PROP_DATASOURCE_JNDI_PROVDER,
+                            props.put(PROP_DATASOURCE_JNDI_PROVIDER,
                                     dsJndiProvider);
                         }
                         if (dsJndiPrincipal != null) {
@@ -1275,8 +1275,8 @@ public class StdSchedulerFactory implements SchedulerFactory {
             if (js instanceof JobStoreSupport) {
                 JobStoreSupport jjs = (JobStoreSupport)js;
                 jjs.setDbRetryInterval(dbFailureRetry);
-                if(threadsInheritInitalizersClassLoader)
-                    jjs.setThreadsInheritInitializersClassLoadContext(threadsInheritInitalizersClassLoader);
+                if(threadsInheritInitializersClassLoader)
+                    jjs.setThreadsInheritInitializersClassLoadContext(threadsInheritInitializersClassLoader);
                 
                 jjs.setThreadExecutor(threadExecutor);
             }
@@ -1287,7 +1287,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
             rsrcs.setInstanceId(schedInstId);
             rsrcs.setJobRunShellFactory(jrsf);
             rsrcs.setMakeSchedulerThreadDaemon(makeSchedulerThreadDaemon);
-            rsrcs.setThreadsInheritInitializersClassLoadContext(threadsInheritInitalizersClassLoader);
+            rsrcs.setThreadsInheritInitializersClassLoadContext(threadsInheritInitializersClassLoader);
             rsrcs.setBatchTimeWindow(batchTimeWindow);
             rsrcs.setMaxBatchSize(maxBatchSize);
             rsrcs.setInterruptJobsOnShutdown(interruptJobsOnShutdown);
@@ -1317,8 +1317,8 @@ public class StdSchedulerFactory implements SchedulerFactory {
 
             rsrcs.setThreadPool(tp);
             if(tp instanceof SimpleThreadPool) {
-                if(threadsInheritInitalizersClassLoader)
-                    ((SimpleThreadPool)tp).setThreadsInheritContextClassLoaderOfInitializingThread(threadsInheritInitalizersClassLoader);
+                if(threadsInheritInitializersClassLoader)
+                    ((SimpleThreadPool)tp).setThreadsInheritContextClassLoaderOfInitializingThread(threadsInheritInitializersClassLoader);
             }
             tp.initialize();
             tpInited = true;
@@ -1355,8 +1355,8 @@ public class StdSchedulerFactory implements SchedulerFactory {
             }
     
             // set scheduler context data...
-            for(Object key: schedCtxtProps.keySet()) {
-                String val = schedCtxtProps.getProperty((String) key);    
+            for(Object key: schedCtxProps.keySet()) {
+                String val = schedCtxProps.getProperty((String) key);    
                 scheduler.getContext().put((String)key, val);
             }
     
@@ -1524,7 +1524,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
     private Class<?> loadClass(String className) throws ClassNotFoundException, SchedulerConfigException {
 
         try {
-            ClassLoader cl = findClassloader();
+            ClassLoader cl = findClassLoader();
             if(cl != null)
                 return cl.loadClass(className);
             throw new SchedulerConfigException("Unable to find a class loader on the current thread or class.");
@@ -1535,7 +1535,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
         }
     }
 
-    private ClassLoader findClassloader() {
+    private ClassLoader findClassLoader() {
         // work-around set context loader for windows-service started jvms (QUARTZ-748)
         if(Thread.currentThread().getContextClassLoader() == null && getClass().getClassLoader() != null) {
             Thread.currentThread().setContextClassLoader(getClass().getClassLoader());

@@ -54,7 +54,7 @@ public class CronCalendar extends BaseCalendar {
     }
 
     /**
-     * Create a <CODE>CronCalendar</CODE> with the given cron exprssion, 
+     * Create a <CODE>CronCalendar</CODE> with the given cron expression, 
      * <CODE>baseCalendar</CODE>, and <code>TimeZone</code>. 
      * 
      * @param baseCalendar the base calendar for this calendar instance &ndash;
@@ -168,7 +168,7 @@ public class CronCalendar extends BaseCalendar {
      * Returns a string representing the properties of the 
      * <CODE>CronCalendar</CODE>
      * 
-     * @return the properteis of the CronCalendar in a String format
+     * @return the properties of the CronCalendar in a String format
      */
     @Override
     public String toString() {

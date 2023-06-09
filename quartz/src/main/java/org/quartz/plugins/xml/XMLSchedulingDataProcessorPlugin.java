@@ -225,7 +225,7 @@ public class XMLSchedulingDataProcessorPlugin
                         String jobTriggerName = buildJobTriggerName(jobFile.getFileBasename());
                         TriggerKey tKey = new TriggerKey(jobTriggerName, JOB_INITIALIZATION_PLUGIN_NAME);
                         
-                        // remove pre-existing job/trigger, if any
+                        // remove preexisting job/trigger, if any
                         getScheduler().unscheduleJob(tKey);
 
                         JobDetail job = newJob().withIdentity(jobTriggerName, JOB_INITIALIZATION_PLUGIN_NAME).ofType(FileScanJob.class)
@@ -293,13 +293,13 @@ public class XMLSchedulingDataProcessorPlugin
     }
     
     /**
-     * Overriden to ignore <em>wrapInUserTransaction</em> because shutdown()
+     * Overridden to ignore <em>wrapInUserTransaction</em> because shutdown()
      * does not interact with the <code>Scheduler</code>. 
      */
     @Override
     public void shutdown() {
         // Since we have nothing to do, override base shutdown so don't
-        // get extranious UserTransactions.
+        // get extraneous UserTransactions.
     }
 
     private void processFile(JobFile jobFile) {
@@ -383,7 +383,7 @@ public class XMLSchedulingDataProcessorPlugin
                         file = new File(furl); 
                         try {
                             f = url.openStream();
-                        } catch (IOException ignor) {
+                        } catch (IOException ignore) {
                             // Swallow the exception
                         }
                     }        

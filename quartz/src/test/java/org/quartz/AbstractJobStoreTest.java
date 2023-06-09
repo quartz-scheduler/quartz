@@ -332,12 +332,12 @@ public abstract class AbstractJobStoreTest extends TestCase {
         Assert.assertEquals("Wrong number of jobs in group 'b'", store.getJobKeys(GroupMatcher.jobGroupEquals("b")).size(), 5);
 	}
 	
-	public void testStoreAndRetriveTriggers() throws Exception {
+	public void testStoreAndRetrieveTriggers() throws Exception {
         SchedulerSignaler schedSignaler = new SampleSignaler();
         ClassLoadHelper loadHelper = new CascadingClassLoadHelper();
         loadHelper.initialize();
 
-        JobStore store = createJobStore("testStoreAndRetriveTriggers");
+        JobStore store = createJobStore("testStoreAndRetrieveTriggers");
         store.initialize(loadHelper, schedSignaler);
 		
 		// Store jobs and triggers.

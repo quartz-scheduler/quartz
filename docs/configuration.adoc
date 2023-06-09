@@ -157,7 +157,7 @@ cluster. You may use the value "AUTO" as the instanceId if you wish the Id to be
 
 Only used if *org.quartz.scheduler.instanceId* is set to "AUTO". Defaults to
 "org.quartz.simpl.SimpleInstanceIdGenerator", which generates an instance id based upon host name and time stamp.
-Other IntanceIdGenerator implementations include SystemPropertyInstanceIdGenerator (which gets the instance id
+Other InstanceIdGenerator implementations include SystemPropertyInstanceIdGenerator (which gets the instance id
 from the system property "org.quartz.scheduler.instanceId", and HostnameInstanceIdGenerator which uses the
 local host name (InetAddress.getLocalHost().getHostName()).  You can also implement the InstanceIdGenerator
 interface your self.
@@ -204,7 +204,7 @@ ClassLoadHelper implementation can be found in the *org.quartz.simpl* package.
 
 `org.quartz.scheduler.jobFactory.class`
 
-The class name of the JobFactory to use. A JobFatcory is responsible for producing instances of JobClasses.
+The class name of the JobFactory to use. A JobFactory is responsible for producing instances of JobClasses.
 The default is 'org.quartz.simpl.PropertySettingJobFactory', which simply calls newInstance() on the class to produce
 a new instance each time execution is about to occur. PropertySettingJobFactory also reflectively
 sets the job's bean properties using the contents of the SchedulerContext and Job and Trigger JobDataMaps.
@@ -626,7 +626,7 @@ The number of milliseconds the scheduler will 'tolerate' a trigger to pass its n
 
 == Configuration of JDBC-JobStoreTX (store jobs and triggers in a database via JDBC)
 
-JDBCJobStore is used to store scheduling information (job, triggers and calendars) within a relational database.  There are actually two seperate JDBCJobStore classes that you can select between, depending on the transactional behaviour you need.
+JDBCJobStore is used to store scheduling information (job, triggers and calendars) within a relational database.  There are actually two separate JDBCJobStore classes that you can select between, depending on the transactional behaviour you need.
 
 JobStoreTX manages all transactions itself by calling commit() (or rollback()) on the database connection after every action (such as the addition of a job).  JDBCJobStore is appropriate if you are using Quartz in a stand-alone application, or within a servlet container if the application is not using JTA transactions.
 

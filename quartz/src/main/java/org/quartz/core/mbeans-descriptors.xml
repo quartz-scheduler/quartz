@@ -38,7 +38,7 @@
 			<parameter name="schedulingContext" type="org.quartz.core.SchedulingContext" description="The scheduling context."/>
 			<parameter name="trigger" type="org.quartz.Trigger" description="The Trigger to schedule."/>
 		</operation>
-		<operation name="unscheduleJob" description="Remove the indicated Triggerfrom the scheduler." impact="ACTION" returnType="boolean">
+		<operation name="unscheduleJob" description="Remove the indicated Trigger from the scheduler." impact="ACTION" returnType="boolean">
 			<parameter name="schedulingContext" type="org.quartz.core.SchedulingContext" description="The scheduling context."/>
 			<parameter name="triggerName" type="java.lang.String" description="The name of the Trigger to unschedule."/>
 			<parameter name="triggerGroupName" type="java.lang.String" description="The group name of the Trigger to unschedule."/>
@@ -187,10 +187,10 @@
 		<operation name="addJobListener" description="Add the given JobListener to the scheduler's list, of registered JobListeners." impact="ACTION" returnType="void">
 			<parameter name="jobListener" type="org.quartz.JobListener" description="Job listener to add."/>
 		</operation>
-		<operation name="removeGlobalJobListener" description="Remove the identifed JobListener from the scheduler's list of global listeners." impact="ACTION" returnType="boolean">
+		<operation name="removeGlobalJobListener" description="Remove the identified JobListener from the scheduler's list of global listeners." impact="ACTION" returnType="boolean">
 			<parameter name="jobListenerName" type="java.lang.String" description="Name of the global JobListener to remove."/>
 		</operation>
-		<operation name="removeJobListener" description="Remove the identifed JobListener from the scheduler's list of registered listeners." impact="ACTION" returnType="boolean">
+		<operation name="removeJobListener" description="Remove the identified JobListener from the scheduler's list of registered listeners." impact="ACTION" returnType="boolean">
 			<parameter name="jobListenerName" type="java.lang.String" description="Name of the JobListener to remove."/>
 		</operation>
 		<operation name="getGlobalJobListeners" description="Get a List containing all of the JobListeners in the scheduler's global list." impact="INFO" returnType="java.util.List"/>
@@ -208,10 +208,10 @@
 		<operation name="addTriggerListener" description="Add the given TriggerListener to the scheduler's list, of registered TriggerListeners." impact="ACTION" returnType="void">
 			<parameter name="triggerListener" type="org.quartz.TriggerListener" description="Trigger listener to add."/>
 		</operation>
-		<operation name="removeGlobalTriggerListener" description="Remove the identifed TriggerListener from the scheduler's list of global listeners." impact="ACTION" returnType="boolean">
+		<operation name="removeGlobalTriggerListener" description="Remove the identified TriggerListener from the scheduler's list of global listeners." impact="ACTION" returnType="boolean">
 			<parameter name="triggerListenerName" type="java.lang.String" description="Name of the global TriggerListener to remove."/>
 		</operation>
-		<operation name="removeTriggerListener" description="Remove the identifed TriggerListener from the scheduler's list of registered listeners." impact="ACTION" returnType="boolean">
+		<operation name="removeTriggerListener" description="Remove the identified TriggerListener from the scheduler's list of registered listeners." impact="ACTION" returnType="boolean">
 			<parameter name="triggerListenerName" type="java.lang.String" description="Name of the TriggerListener to remove."/>
 		</operation>
 		<operation name="getGlobalTriggerListeners" description="Get a List containing all of the TriggerListeners in the scheduler's global list." impact="INFO" returnType="java.util.List"/>

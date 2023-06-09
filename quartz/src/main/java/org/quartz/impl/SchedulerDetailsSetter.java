@@ -53,7 +53,7 @@ class SchedulerDetailsSetter {
         try {
             setter = target.getClass().getMethod(method, String.class);
         } catch (SecurityException e) {
-            LOGGER.error("A SecurityException occured: " + e.getMessage(), e);
+            LOGGER.error("A SecurityException occurred: " + e.getMessage(), e);
             return;
         } catch (NoSuchMethodException e) {
             // This probably won't happen since the interface has the method
