@@ -383,7 +383,7 @@ public class XMLSchedulingDataProcessorPlugin
                         file = new File(furl); 
                         try {
                             f = url.openStream();
-                        } catch (IOException ignor) {
+                        } catch (IOException ignore) {
                             // Swallow the exception
                         }
                     }        

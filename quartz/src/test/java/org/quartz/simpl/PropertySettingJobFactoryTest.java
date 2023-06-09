@@ -123,7 +123,7 @@ public class PropertySettingJobFactoryTest extends TestCase {
             factory.setBeanProps(new TestBean(), jobDataMap);
             fail();
         } catch (SchedulerException ignore) {
-            // ignroe
+            // ignore
         }
     }
 

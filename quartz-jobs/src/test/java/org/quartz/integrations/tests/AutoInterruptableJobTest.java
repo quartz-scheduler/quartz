@@ -59,7 +59,7 @@ public class AutoInterruptableJobTest extends TestCase {
             for(int i=0; i < 200; i++) {
                 try {
                     Thread.sleep(50); // simulate being busy for a while, then checking interrupted flag...
-                } catch (InterruptedException ingore) { }
+                } catch (InterruptedException ignore) { }
                 if(TestInterruptableJob.interrupted.get()) {
                     System.out.println("TestInterruptableJob main loop detected interrupt signal.");
                     break;
