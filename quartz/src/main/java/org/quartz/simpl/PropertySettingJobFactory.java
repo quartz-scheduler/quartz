@@ -260,7 +260,7 @@ public class PropertySettingJobFactory extends SimpleJobFactory {
     /**
      * Whether the JobInstantiation should fail and throw and exception if
      * a key (name) and value (type) found in the JobDataMap does not 
-     * correspond to a proptery setter on the Job class.
+     * correspond to a property setter on the Job class.
      *  
      * @return Returns the throwIfNotFound.
      */
@@ -271,7 +271,7 @@ public class PropertySettingJobFactory extends SimpleJobFactory {
     /**
      * Whether the JobInstantiation should fail and throw and exception if
      * a key (name) and value (type) found in the JobDataMap does not 
-     * correspond to a proptery setter on the Job class.
+     * correspond to a property setter on the Job class.
      *  
      * @param throwIfNotFound defaults to <code>false</code>.
      */
@@ -282,7 +282,7 @@ public class PropertySettingJobFactory extends SimpleJobFactory {
     /**
      * Whether a warning should be logged if
      * a key (name) and value (type) found in the JobDataMap does not 
-     * correspond to a proptery setter on the Job class.
+     * correspond to a property setter on the Job class.
      *  
      * @return Returns the warnIfNotFound.
      */
@@ -293,7 +293,7 @@ public class PropertySettingJobFactory extends SimpleJobFactory {
     /**
      * Whether a warning should be logged if
      * a key (name) and value (type) found in the JobDataMap does not 
-     * correspond to a proptery setter on the Job class.
+     * correspond to a property setter on the Job class.
      *  
      * @param warnIfNotFound defaults to <code>true</code>.
      */
