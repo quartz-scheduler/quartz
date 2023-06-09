@@ -686,7 +686,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
         boolean makeSchedulerThreadDaemon =
             cfg.getBooleanProperty(PROP_SCHED_MAKE_SCHEDULER_THREAD_DAEMON);
 
-        boolean threadsInheritInitalizersClassLoader =
+        boolean threadsInheritInitializersClassLoader =
             cfg.getBooleanProperty(PROP_SCHED_SCHEDULER_THREADS_INHERIT_CONTEXT_CLASS_LOADER_OF_INITIALIZING_THREAD);
 
         long batchTimeWindow = cfg.getLongProperty(PROP_SCHED_BATCH_TIME_WINDOW, 0L);
@@ -1275,8 +1275,8 @@ public class StdSchedulerFactory implements SchedulerFactory {
             if (js instanceof JobStoreSupport) {
                 JobStoreSupport jjs = (JobStoreSupport)js;
                 jjs.setDbRetryInterval(dbFailureRetry);
-                if(threadsInheritInitalizersClassLoader)
-                    jjs.setThreadsInheritInitializersClassLoadContext(threadsInheritInitalizersClassLoader);
+                if(threadsInheritInitializersClassLoader)
+                    jjs.setThreadsInheritInitializersClassLoadContext(threadsInheritInitializersClassLoader);
                 
                 jjs.setThreadExecutor(threadExecutor);
             }
@@ -1287,7 +1287,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
             rsrcs.setInstanceId(schedInstId);
             rsrcs.setJobRunShellFactory(jrsf);
             rsrcs.setMakeSchedulerThreadDaemon(makeSchedulerThreadDaemon);
-            rsrcs.setThreadsInheritInitializersClassLoadContext(threadsInheritInitalizersClassLoader);
+            rsrcs.setThreadsInheritInitializersClassLoadContext(threadsInheritInitializersClassLoader);
             rsrcs.setBatchTimeWindow(batchTimeWindow);
             rsrcs.setMaxBatchSize(maxBatchSize);
             rsrcs.setInterruptJobsOnShutdown(interruptJobsOnShutdown);
@@ -1317,8 +1317,8 @@ public class StdSchedulerFactory implements SchedulerFactory {
 
             rsrcs.setThreadPool(tp);
             if(tp instanceof SimpleThreadPool) {
-                if(threadsInheritInitalizersClassLoader)
-                    ((SimpleThreadPool)tp).setThreadsInheritContextClassLoaderOfInitializingThread(threadsInheritInitalizersClassLoader);
+                if(threadsInheritInitializersClassLoader)
+                    ((SimpleThreadPool)tp).setThreadsInheritContextClassLoaderOfInitializingThread(threadsInheritInitializersClassLoader);
             }
             tp.initialize();
             tpInited = true;
