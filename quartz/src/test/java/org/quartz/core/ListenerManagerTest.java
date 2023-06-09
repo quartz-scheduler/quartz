@@ -99,16 +99,16 @@ public class ListenerManagerTest extends TestCase {
         // Test ordering of registration is preserved.
         final int numListenersToTestOrderOf = 15;
         manager = new ListenerManagerImpl();
-        JobListener[] lstners = new JobListener[numListenersToTestOrderOf];
+        JobListener[] listeners = new JobListener[numListenersToTestOrderOf];
         for(int i=0; i < numListenersToTestOrderOf; i++) {
         	// use random name, to help test that order isn't based on naming or coincidental hashing
-        	lstners[i] = new TestJobListener(UUID.randomUUID().toString());
-        	manager.addJobListener(lstners[i]);
+        	listeners[i] = new TestJobListener(UUID.randomUUID().toString());
+        	manager.addJobListener(listeners[i]);
         }
         List<JobListener> mls = manager.getJobListeners();
         int i = 0;
-        for(JobListener lsnr: mls) {
-        	assertSame("Unexpected order of listeners", lstners[i], lsnr);
+        for(JobListener listener: mls) {
+        	assertSame("Unexpected order of listeners", listeners[i], listener);
         	i++;
         }        
     }
@@ -139,16 +139,16 @@ public class ListenerManagerTest extends TestCase {
         // Test ordering of registration is preserved.
         final int numListenersToTestOrderOf = 15;
         manager = new ListenerManagerImpl();
-        TriggerListener[] lstners = new TriggerListener[numListenersToTestOrderOf];
+        TriggerListener[] listeners = new TriggerListener[numListenersToTestOrderOf];
         for(int i=0; i < numListenersToTestOrderOf; i++) {
         	// use random name, to help test that order isn't based on naming or coincidental hashing
-        	lstners[i] = new TestTriggerListener(UUID.randomUUID().toString());
-        	manager.addTriggerListener(lstners[i]);
+        	listeners[i] = new TestTriggerListener(UUID.randomUUID().toString());
+        	manager.addTriggerListener(listeners[i]);
         }
         List<TriggerListener> mls = manager.getTriggerListeners();
         int i = 0;
-        for(TriggerListener lsnr: mls) {
-        	assertSame("Unexpected order of listeners", lstners[i], lsnr);
+        for(TriggerListener listener: mls) {
+        	assertSame("Unexpected order of listeners", listeners[i], listener);
         	i++;
         }
     }
@@ -177,15 +177,15 @@ public class ListenerManagerTest extends TestCase {
         // Test ordering of registration is preserved.
         final int numListenersToTestOrderOf = 15;
         manager = new ListenerManagerImpl();
-        SchedulerListener[] lstners = new SchedulerListener[numListenersToTestOrderOf];
+        SchedulerListener[] listeners = new SchedulerListener[numListenersToTestOrderOf];
         for(int i=0; i < numListenersToTestOrderOf; i++) {
-        	lstners[i] = new TestSchedulerListener();
-        	manager.addSchedulerListener(lstners[i]);
+        	listeners[i] = new TestSchedulerListener();
+        	manager.addSchedulerListener(listeners[i]);
         }
         List<SchedulerListener> mls = manager.getSchedulerListeners();
         int i = 0;
-        for(SchedulerListener lsnr: mls) {
-        	assertSame("Unexpected order of listeners", lstners[i], lsnr);
+        for(SchedulerListener listener: mls) {
+        	assertSame("Unexpected order of listeners", listeners[i], listener);
         	i++;
         } 
     }
