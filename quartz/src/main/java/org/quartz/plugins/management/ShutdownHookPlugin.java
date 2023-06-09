@@ -27,7 +27,7 @@ import org.quartz.spi.SchedulerPlugin;
 
 /**
  * This plugin catches the event of the JVM terminating (such as upon a CTRL-C)
- * and tells the scheuler to shutdown.
+ * and tells the scheduler to shutdown.
  * 
  * @see org.quartz.Scheduler#shutdown(boolean)
  * 

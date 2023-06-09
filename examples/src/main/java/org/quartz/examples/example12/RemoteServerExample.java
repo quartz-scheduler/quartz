@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  *  This example will run a server that will execute the schedule.  The
  *  server itself will not schedule any jobs.   This example will also
  *  execute a client that will connect to the server (via RMI) to
- *  schedule the job.  Once the job is remotely scheduled, the sceduler on
+ *  schedule the job.  Once the job is remotely scheduled, the scheduler on
  *  the server will run the job (at the correct time).
  *  Note:  This example works best when you run the client and server on
  *  different computers.  However, you can certainly run the server and
