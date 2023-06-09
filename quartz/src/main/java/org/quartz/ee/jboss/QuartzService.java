@@ -83,7 +83,7 @@ public class QuartzService extends ServiceMBeanSupport implements
     private boolean usePropertiesFile;
 
     /*
-    * If true, the scheduler will be started. If false, the scheduler is initailized 
+    * If true, the scheduler will be started. If false, the scheduler is initialized 
     * (and available) but start() is not called - it will not execute jobs. 
     */
     private boolean startScheduler = true;
