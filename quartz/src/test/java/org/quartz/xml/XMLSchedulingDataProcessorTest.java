@@ -263,7 +263,7 @@ public class XMLSchedulingDataProcessorTest extends TestCase {
 
     /** Test for QTZ-353, where it requires a JDBC storage */
 	public void testRemoveJobClassNotFound() throws Exception {
-        String DB_NAME = "XmlDeleteNonExistsJobTestDatasase";
+        String DB_NAME = "XmlDeleteNonExistsJobTestDatabase";
         String SCHEDULER_NAME = "XmlDeleteNonExistsJobTestScheduler";
         JdbcQuartzTestUtilities.createDatabase(DB_NAME);
 
@@ -314,7 +314,7 @@ public class XMLSchedulingDataProcessorTest extends TestCase {
 
 
     public void testOverwriteJobClassNotFound() throws Exception {
-        String DB_NAME = "XmlDeleteNonExistsJobTestDatasase";
+        String DB_NAME = "XmlDeleteNonExistsJobTestDatabase";
         String SCHEDULER_NAME = "XmlDeleteNonExistsJobTestScheduler";
         JdbcQuartzTestUtilities.createDatabase(DB_NAME);
 
@@ -384,7 +384,7 @@ public class XMLSchedulingDataProcessorTest extends TestCase {
 	}
 
     private void modifyStoredJobClassName() throws Exception {
-        String DB_NAME = "XmlDeleteNonExistsJobTestDatasase";
+        String DB_NAME = "XmlDeleteNonExistsJobTestDatabase";
         Connection conn = DBConnectionManager.getInstance().getConnection(DB_NAME);
         Statement statement = conn.createStatement();
         statement.executeUpdate("update qrtz_job_details set job_class_name='com.FakeNonExistsJob'");

@@ -34,7 +34,7 @@ import java.sql.Statement;
  */
 public class DeleteNonExistsJobTest {
     private static Logger LOG = LoggerFactory.getLogger(DeleteNonExistsJobTest.class);
-    private static String DB_NAME = "DeleteNonExistsJobTestDatasase";
+    private static String DB_NAME = "DeleteNonExistsJobTestDatabase";
     private static String SCHEDULER_NAME = "DeleteNonExistsJobTestScheduler";
     private static Scheduler scheduler;
 
