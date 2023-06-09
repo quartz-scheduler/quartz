@@ -183,7 +183,7 @@ public interface QuartzSchedulerMBean {
      * Maps are limited to containing values from the same set of types, less Map itself.
      * 
      * @param abstractJobInfo map of attributes defining job
-     * @param replace whether or not to replace a pre-existing job with the same key
+     * @param replace whether or not to replace a preexisting job with the same key
      * @throws Exception
      */
     void addJob(Map<String, Object> abstractJobInfo, boolean replace)

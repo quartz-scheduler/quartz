@@ -994,7 +994,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
         // make sure all triggers refer to their associated job
         for(Entry<JobDetail, Set<? extends Trigger>> e: triggersAndJobs.entrySet()) {
             JobDetail job = e.getKey();
-            if(job == null) // there can be one of these (for adding a bulk set of triggers for pre-existing jobs)
+            if(job == null) // there can be one of these (for adding a bulk set of triggers for preexisting jobs)
                 continue;
             Set<? extends Trigger> triggers = e.getValue();
             if(triggers == null) // this is possible because the job may be durable, and not yet be having triggers

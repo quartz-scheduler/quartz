@@ -321,7 +321,7 @@ public abstract class AbstractSchedulerTest {
 
       Map<Thread, StackTraceElement[]> allThreadsEnd = Thread.getAllStackTraces();
       Set<Thread> endingThreads = new HashSet<Thread>(allThreadsEnd.keySet());
-      // remove all pre-existing threads from the set
+      // remove all preexisting threads from the set
       for(Thread t: allThreadsStart.keySet()) {
         allThreadsEnd.remove(t);
       }

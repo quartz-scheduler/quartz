@@ -225,7 +225,7 @@ public class XMLSchedulingDataProcessorPlugin
                         String jobTriggerName = buildJobTriggerName(jobFile.getFileBasename());
                         TriggerKey tKey = new TriggerKey(jobTriggerName, JOB_INITIALIZATION_PLUGIN_NAME);
                         
-                        // remove pre-existing job/trigger, if any
+                        // remove preexisting job/trigger, if any
                         getScheduler().unscheduleJob(tKey);
 
                         JobDetail job = newJob().withIdentity(jobTriggerName, JOB_INITIALIZATION_PLUGIN_NAME).ofType(FileScanJob.class)

@@ -603,13 +603,13 @@ public interface Scheduler {
      * </p>
      * 
      * <p>NOTE: There is a limitation that only exactly matched groups
-     * can be remembered as paused.  For example, if there are pre-existing
+     * can be remembered as paused.  For example, if there are preexisting
      * job in groups "aaa" and "bbb" and a matcher is given to pause
      * groups that start with "a" then the group "aaa" will be remembered
      * as paused and any subsequently added jobs in group "aaa" will be paused,
      * however if a job is added to group "axx" it will not be paused,
      * as "axx" wasn't known at the time the "group starts with a" matcher 
-     * was applied.  HOWEVER, if there are pre-existing groups "aaa" and
+     * was applied.  HOWEVER, if there are preexisting groups "aaa" and
      * "bbb" and a matcher is given to pause the group "axx" (with a
      * group equals matcher) then no jobs will be paused, but it will be 
      * remembered that group "axx" is paused and later when a job is added 
@@ -639,13 +639,13 @@ public interface Scheduler {
      * </p>
      * 
      * <p>NOTE: There is a limitation that only exactly matched groups
-     * can be remembered as paused.  For example, if there are pre-existing
+     * can be remembered as paused.  For example, if there are preexisting
      * triggers in groups "aaa" and "bbb" and a matcher is given to pause
      * groups that start with "a" then the group "aaa" will be remembered as
      * paused and any subsequently added triggers in that group be paused,
      * however if a trigger is added to group "axx" it will not be paused,
      * as "axx" wasn't known at the time the "group starts with a" matcher 
-     * was applied.  HOWEVER, if there are pre-existing groups "aaa" and
+     * was applied.  HOWEVER, if there are preexisting groups "aaa" and
      * "bbb" and a matcher is given to pause the group "axx" (with a
      * group equals matcher) then no triggers will be paused, but it will be 
      * remembered that group "axx" is paused and later when a trigger is added
