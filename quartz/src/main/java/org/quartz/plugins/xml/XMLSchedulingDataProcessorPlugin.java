@@ -299,7 +299,7 @@ public class XMLSchedulingDataProcessorPlugin
     @Override
     public void shutdown() {
         // Since we have nothing to do, override base shutdown so don't
-        // get extranious UserTransactions.
+        // get extraneous UserTransactions.
     }
 
     private void processFile(JobFile jobFile) {
