@@ -82,7 +82,7 @@ public class SystemPropertyInstanceIdGeneratorTest extends TestCase {
     assertEquals("goo", instId);
   }
 
-  public void testGeneratorThroughSchedulerInstatiation() throws Exception {
+  public void testGeneratorThroughSchedulerInstantiation() throws Exception {
     try {
       JdbcQuartzTestUtilities.createDatabase("MeSchedulerDatabase");
     } catch (SQLException e) {
