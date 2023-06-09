@@ -18,7 +18,7 @@ Quartz is not a job queue - though it is often used as one, and can do a reasona
 +
 Quartz is not a grid computation engine - though simple, small scale usage as such can be achieved with effort.
 +
-Quartz is not a job execution service for use by business personnel - it is a code library that can be easily embeded into applications that need the capability to schedule application-related tasks to occur in the future or on a recurring basis.
+Quartz is not a job execution service for use by business personnel - it is a code library that can be easily embedded into applications that need the capability to schedule application-related tasks to occur in the future or on a recurring basis.
 
 What is Quartz - From a Software Component View?::
 
