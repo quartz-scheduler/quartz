@@ -695,7 +695,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                 recoverJobs();
             } catch (SchedulerException se) {
                 throw new SchedulerConfigException(
-                        "Failure occured during job recovery.", se);
+                        "Failure occurred during job recovery.", se);
             }
         }
 

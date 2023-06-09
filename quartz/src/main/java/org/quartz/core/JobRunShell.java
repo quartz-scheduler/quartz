@@ -127,7 +127,7 @@ public class JobRunShell extends SchedulerListenerSupport implements Runnable {
             job = sched.getJobFactory().newJob(firedTriggerBundle, scheduler);
         } catch (SchedulerException se) {
             sched.notifySchedulerListenersError(
-                    "An error occured instantiating job to be executed. job= '"
+                    "An error occurred instantiating job to be executed. job= '"
                             + jobDetail.getKey() + "'", se);
             throw se;
         } catch (Throwable ncdfe) { // such as NoClassDefFoundError
@@ -135,7 +135,7 @@ public class JobRunShell extends SchedulerListenerSupport implements Runnable {
                     "Problem instantiating class '"
                             + jobDetail.getJobClass().getName() + "' - ", ncdfe);
             sched.notifySchedulerListenersError(
-                    "An error occured instantiating job to be executed. job= '"
+                    "An error occurred instantiating job to be executed. job= '"
                             + jobDetail.getKey() + "'", se);
             throw se;
         }
