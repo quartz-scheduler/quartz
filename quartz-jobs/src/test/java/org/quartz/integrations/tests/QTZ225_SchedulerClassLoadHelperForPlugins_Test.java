@@ -67,7 +67,7 @@ public class QTZ225_SchedulerClassLoadHelperForPlugins_Test {
     }
 
     @Test
-    public void dummyClassLoadHelperSuccessfullyLoadedImagninaryJobClassTest() throws SchedulerException {
+    public void dummyClassLoadHelperSuccessfullyLoadedImaginaryJobClassTest() throws SchedulerException {
         if (!sched.checkExists(new JobKey("ImaginaryJob"))) {
             fail("The dummy job was not added to the scheduler, certainly because the dummy classloadhelper was not used by the plugin");
         }
