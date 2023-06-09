@@ -25,7 +25,7 @@ import java.util.StringTokenizer;
 
 /**
  * <p>
- * This is an utility calss used to parse the properties.
+ * This is an utility class used to parse the properties.
  * </p>
  * 
  * @author James House
