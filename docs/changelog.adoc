@@ -106,7 +106,7 @@ quartz-1.7.3 	24-Feb-2010
 quartz-1.7.2 	10-Feb-2010 
 ----
 
-See https://jira.terracotta.org/jira/browse/QTZ/?selectedTab=com.atlassian.jira.jira-projects-plugin:changelog-panel[older JIRA for older release changelog].
+See https://jira.terracotta.org/jira/browse/QTZ/?selectedTab=com.atlassian.jira.jira-projects-plugin:changelog-panel[older Jira for older release changelog].
 
 == Change Categories
 

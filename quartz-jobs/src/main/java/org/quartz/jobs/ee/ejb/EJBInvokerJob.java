@@ -234,7 +234,7 @@ public class EJBInvokerJob implements Job {
         } finally {
             // Don't close jndiContext until after method execution because
             // WebLogic requires context to be open to keep the user credentials
-            // available.  See JIRA Issue: QUARTZ-401
+            // available.  See Jira Issue: QUARTZ-401
             if (jndiContext != null) {
                 try {
                     jndiContext.close();
