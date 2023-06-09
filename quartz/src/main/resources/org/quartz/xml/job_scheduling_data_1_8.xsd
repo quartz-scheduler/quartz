@@ -205,7 +205,7 @@
                 with the caveat that order for expressions like 3-0 is not legal but will pass, 
                 and month and day names must be capitalized.
                 If you want to examine the correctness look for the [\s] to denote the
-                seperation of individual regular expressions. This is how I break them up visually 
+                separation of individual regular expressions. This is how I break them up visually 
                 to examine them:
                 
                 SECONDS:
