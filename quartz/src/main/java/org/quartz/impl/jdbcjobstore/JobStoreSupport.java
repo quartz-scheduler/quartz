@@ -1186,22 +1186,22 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         
         try {
 
-            boolean shouldBepaused;
+            boolean shouldBePaused;
 
             if (!forceState) {
-                shouldBepaused = getDelegate().isTriggerGroupPaused(
+                shouldBePaused = getDelegate().isTriggerGroupPaused(
                         conn, newTrigger.getKey().getGroup());
 
-                if(!shouldBepaused) {
-                    shouldBepaused = getDelegate().isTriggerGroupPaused(conn,
+                if(!shouldBePaused) {
+                    shouldBePaused = getDelegate().isTriggerGroupPaused(conn,
                             ALL_GROUPS_PAUSED);
 
-                    if (shouldBepaused) {
+                    if (shouldBePaused) {
                         getDelegate().insertPausedTriggerGroup(conn, newTrigger.getKey().getGroup());
                     }
                 }
 
-                if (shouldBepaused && (state.equals(STATE_WAITING) || state.equals(STATE_ACQUIRED))) {
+                if (shouldBePaused && (state.equals(STATE_WAITING) || state.equals(STATE_ACQUIRED))) {
                     state = STATE_PAUSED;
                 }
             }
