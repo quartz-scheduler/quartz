@@ -106,7 +106,7 @@ public class CUBRIDDelegate extends StdJDBCDelegate {
         byte[] byteArray;
         if (baos == null) {
             //saving 0 byte blob may cause error? like http://dev.naver.com/projects/cubrid/issue/13710 - (0 byte bit)
-            //alternativly store null since blob not null columns are not allowed (cubrid 8.4.1). may be allowed in future versions?
+            //alternatively store null since blob not null columns are not allowed (cubrid 8.4.1). may be allowed in future versions?
             byteArray = new byte[0];
         } else {
             byteArray = baos.toByteArray();
