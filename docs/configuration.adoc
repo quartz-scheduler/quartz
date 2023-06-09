@@ -626,7 +626,7 @@ The number of milliseconds the scheduler will 'tolerate' a trigger to pass its n
 
 == Configuration of JDBC-JobStoreTX (store jobs and triggers in a database via JDBC)
 
-JDBCJobStore is used to store scheduling information (job, triggers and calendars) within a relational database.  There are actually two seperate JDBCJobStore classes that you can select between, depending on the transactional behaviour you need.
+JDBCJobStore is used to store scheduling information (job, triggers and calendars) within a relational database.  There are actually two separate JDBCJobStore classes that you can select between, depending on the transactional behaviour you need.
 
 JobStoreTX manages all transactions itself by calling commit() (or rollback()) on the database connection after every action (such as the addition of a job).  JDBCJobStore is appropriate if you are using Quartz in a stand-alone application, or within a servlet container if the application is not using JTA transactions.
 

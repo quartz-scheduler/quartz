@@ -47,7 +47,7 @@ import org.quartz.JobExecutionException;
  * change the log level you would specify "setLoggerLevel"</dd>
  * <dt><strong>JMX_PARAMDEFS</strong></dt>
  * <dd>This is a definition of the parameters to be passed to the specified method
- * and their corresponding java types.  Each parameter definition is comma seperated
+ * and their corresponding java types.  Each parameter definition is comma separated
  * and has the following parts: &lt;type&gt;:&lt;name&gt;.  Type is the java type for the parameter.  
  * The following types are supported:<br>
  * <b>i</b> - is for int<br>
