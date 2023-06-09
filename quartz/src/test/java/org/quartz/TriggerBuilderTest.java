@@ -90,7 +90,7 @@ public class TriggerBuilderTest extends TestCase {
     }
     
     /** QTZ-157 */
-    public void testTriggerBuilderWithEndTimePriorCurrrentTime() throws Exception {
+    public void testTriggerBuilderWithEndTimePriorCurrentTime() throws Exception {
     	TriggerBuilder.newTrigger()
                 .withIdentity("some trigger name", "some trigger group")
                 .forJob("some job name", "some job group")
