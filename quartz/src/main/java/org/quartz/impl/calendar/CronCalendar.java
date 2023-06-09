@@ -54,7 +54,7 @@ public class CronCalendar extends BaseCalendar {
     }
 
     /**
-     * Create a <CODE>CronCalendar</CODE> with the given cron exprssion, 
+     * Create a <CODE>CronCalendar</CODE> with the given cron expression, 
      * <CODE>baseCalendar</CODE>, and <code>TimeZone</code>. 
      * 
      * @param baseCalendar the base calendar for this calendar instance &ndash;
