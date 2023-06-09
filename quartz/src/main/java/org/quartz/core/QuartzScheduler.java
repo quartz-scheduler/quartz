@@ -855,7 +855,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
         resources.getJobStore().storeJobAndTrigger(jobDetail, trig);
         notifySchedulerListenersJobAdded(jobDetail);
         notifySchedulerThread(trigger.getNextFireTime().getTime());
-        notifySchedulerListenersSchduled(trigger);
+        notifySchedulerListenersScheduled(trigger);
 
         return ft;
     }
@@ -900,7 +900,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
 
         resources.getJobStore().storeTrigger(trig, false);
         notifySchedulerThread(trigger.getNextFireTime().getTime());
-        notifySchedulerListenersSchduled(trigger);
+        notifySchedulerListenersScheduled(trigger);
 
         return ft;
     }
@@ -1029,7 +1029,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
 
           Set<? extends Trigger> triggers = triggersAndJobs.get(job);
           for (Trigger trigger : triggers) {
-            notifySchedulerListenersSchduled(trigger);
+            notifySchedulerListenersScheduled(trigger);
           }
         }
     }
@@ -1121,7 +1121,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
         if (resources.getJobStore().replaceTrigger(triggerKey, trig)) {
             notifySchedulerThread(newTrigger.getNextFireTime().getTime());
             notifySchedulerListenersUnscheduled(triggerKey);
-            notifySchedulerListenersSchduled(newTrigger);
+            notifySchedulerListenersScheduled(newTrigger);
         } else {
             return null;
         }
@@ -1167,7 +1167,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
         }
 
         notifySchedulerThread(trig.getNextFireTime().getTime());
-        notifySchedulerListenersSchduled(trig);
+        notifySchedulerListenersScheduled(trig);
     }
 
     /**
@@ -1191,7 +1191,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
         }
 
         notifySchedulerThread(trig.getNextFireTime().getTime());
-        notifySchedulerListenersSchduled(trig);
+        notifySchedulerListenersScheduled(trig);
     }
     
     /**
@@ -1993,7 +1993,7 @@ J     *
         }
     }
 
-    public void notifySchedulerListenersSchduled(Trigger trigger) {
+    public void notifySchedulerListenersScheduled(Trigger trigger) {
         // build a list of all scheduler listeners that are to be notified...
         List<SchedulerListener> schedListeners = buildSchedulerListenerList();
 
