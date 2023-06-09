@@ -678,7 +678,7 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
             return null;
         }
 
-        // increment afterTme by a second, so that we are 
+        // increment afterTime by a second, so that we are 
         // comparing against a time after it!
         if (afterTime == null) {
             afterTime = new Date();
