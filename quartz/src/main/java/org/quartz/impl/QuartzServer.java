@@ -32,7 +32,7 @@ import org.quartz.listeners.SchedulerListenerSupport;
  * </p>
  *
  * <p>
- * The main() method of this class currently accepts 0 or 1 arguemtns, if there
+ * The main() method of this class currently accepts 0 or 1 arguments, if there
  * is an argument, and its value is <code>"console"</code>, then the program
  * will print a short message on the console (std-out) and wait for the user to
  * type "exit" - at which time the scheduler will be shutdown.
