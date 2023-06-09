@@ -18,7 +18,7 @@ The program will perform the following actions:
 
 
 + Start up the Quartz Scheduler
-+ Schedule two jobs, each job will execute the every three seconds, indefintely
++ Schedule two jobs, each job will execute the every three seconds, indefinitely
 + The jobs will throw an exception, and quartz will take appropriate action
 + The program will wait 60 seconds so that the two jobs have plenty of time to run
 + Shut down the Scheduler
