@@ -38,7 +38,7 @@ public class SimpleJob1 implements Job {
     private static Logger _log = LoggerFactory.getLogger(SimpleJob1.class);
 
     /**
-     * Empty constructor for job initilization
+     * Empty constructor for job initialization
      */
     public SimpleJob1() {
     }

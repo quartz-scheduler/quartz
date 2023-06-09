@@ -41,7 +41,7 @@ public class SimpleJob implements Job {
   public static final String DELAY_TIME = "delay time";
 
   /**
-   * Empty constructor for job initilization
+   * Empty constructor for job initialization
    */
   public SimpleJob() {
   }
