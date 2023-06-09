@@ -135,7 +135,7 @@ public class AttributeRestoringConnectionInvocationHandler implements Invocation
      * attributes of the wrapped connection to their original values (if they
      * were overwritten).
      */
-    public void restoreOriginalAtributes() {
+    public void restoreOriginalAttributes() {
         try {
             if (overwroteOriginalAutoCommitValue) {
                 conn.setAutoCommit(originalAutoCommitValue);
@@ -159,7 +159,7 @@ public class AttributeRestoringConnectionInvocationHandler implements Invocation
      * were overwritten), before finally actually closing the wrapped connection.
      */
     public void close() throws SQLException {
-        restoreOriginalAtributes();
+        restoreOriginalAttributes();
         
         conn.close();
     }

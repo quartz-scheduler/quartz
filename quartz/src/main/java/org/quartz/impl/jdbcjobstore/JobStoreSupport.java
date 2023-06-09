@@ -3674,7 +3674,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                     AttributeRestoringConnectionInvocationHandler connHandler =
                         (AttributeRestoringConnectionInvocationHandler)invocationHandler;
                         
-                    connHandler.restoreOriginalAtributes();
+                    connHandler.restoreOriginalAttributes();
                     closeConnection(connHandler.getWrappedConnection());
                     return;
                 }
