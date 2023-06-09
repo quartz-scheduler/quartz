@@ -435,7 +435,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
 
                 ClassLoader cl = getClass().getClassLoader();
                 if(cl == null)
-                    cl = findClassloader();
+                    cl = findClassLoader();
                 if(cl == null)
                     throw new SchedulerConfigException("Unable to find a class loader on the current thread or class.");
 
@@ -1524,7 +1524,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
     private Class<?> loadClass(String className) throws ClassNotFoundException, SchedulerConfigException {
 
         try {
-            ClassLoader cl = findClassloader();
+            ClassLoader cl = findClassLoader();
             if(cl != null)
                 return cl.loadClass(className);
             throw new SchedulerConfigException("Unable to find a class loader on the current thread or class.");
@@ -1535,7 +1535,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
         }
     }
 
-    private ClassLoader findClassloader() {
+    private ClassLoader findClassLoader() {
         // work-around set context loader for windows-service started jvms (QUARTZ-748)
         if(Thread.currentThread().getContextClassLoader() == null && getClass().getClassLoader() != null) {
             Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
