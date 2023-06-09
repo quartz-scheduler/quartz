@@ -46,7 +46,7 @@ Choose from the following menu of How-Tos:
 * link:TriggerListeners.html[Using TriggerListeners]
 * link:SchedulerListeners.html[Using SchedulerListeners]
 * link:TenSecTrigger.html[Trigger That Fires Every 10 Seconds]
-* link:NintyMinTrigger.html[Trigger That Fires Every 90 Minutes]
+* link:NinetyMinTrigger.html[Trigger That Fires Every 90 Minutes]
 * link:DailyTrigger.html[Trigger That Fires Every Day]
 * link:BiDailyTrigger.html[Trigger That Fires Every 2 Days]
 * link:WeeklyTrigger.html[Trigger That Fires Every Week]
