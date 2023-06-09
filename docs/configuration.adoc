@@ -157,7 +157,7 @@ cluster. You may use the value "AUTO" as the instanceId if you wish the Id to be
 
 Only used if *org.quartz.scheduler.instanceId* is set to "AUTO". Defaults to
 "org.quartz.simpl.SimpleInstanceIdGenerator", which generates an instance id based upon host name and time stamp.
-Other IntanceIdGenerator implementations include SystemPropertyInstanceIdGenerator (which gets the instance id
+Other InstanceIdGenerator implementations include SystemPropertyInstanceIdGenerator (which gets the instance id
 from the system property "org.quartz.scheduler.instanceId", and HostnameInstanceIdGenerator which uses the
 local host name (InetAddress.getLocalHost().getHostName()).  You can also implement the InstanceIdGenerator
 interface your self.
