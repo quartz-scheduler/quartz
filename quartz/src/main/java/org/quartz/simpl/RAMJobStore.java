@@ -1569,12 +1569,12 @@ public class RAMJobStore implements JobStore {
                 //tw.state = TriggerWrapper.STATE_EXECUTING;
                 tw.state = TriggerWrapper.STATE_WAITING;
 
-                TriggerFiredBundle bndle = new TriggerFiredBundle(retrieveJob(
+                TriggerFiredBundle bundle = new TriggerFiredBundle(retrieveJob(
                         tw.jobKey), trigger, cal,
                         false, new Date(), trigger.getPreviousFireTime(), prevFireTime,
                         trigger.getNextFireTime());
 
-                JobDetail job = bndle.getJobDetail();
+                JobDetail job = bundle.getJobDetail();
 
                 if (job.isConcurrentExectionDisallowed()) {
                     ArrayList<TriggerWrapper> trigs = getTriggerWrappersForJob(job.getKey());
@@ -1594,7 +1594,7 @@ public class RAMJobStore implements JobStore {
                     }
                 }
 
-                results.add(new TriggerFiredResult(bndle));
+                results.add(new TriggerFiredResult(bundle));
             }
             return results;
         }

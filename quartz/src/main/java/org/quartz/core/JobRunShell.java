@@ -93,9 +93,9 @@ public class JobRunShell extends SchedulerListenerSupport implements Runnable {
      *          The <code>Scheduler</code> instance that should be made
      *          available within the <code>JobExecutionContext</code>.
      */
-    public JobRunShell(Scheduler scheduler, TriggerFiredBundle bndle) {
+    public JobRunShell(Scheduler scheduler, TriggerFiredBundle bundle) {
         this.scheduler = scheduler;
-        this.firedTriggerBundle = bndle;
+        this.firedTriggerBundle = bundle;
     }
 
     /*

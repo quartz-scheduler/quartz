@@ -67,7 +67,7 @@ public class StdJobRunShellFactory implements JobRunShellFactory {
      * to obtain instances of <code>{@link org.quartz.core.JobRunShell}</code>.
      * </p>
      */
-    public JobRunShell createJobRunShell(TriggerFiredBundle bndle) throws SchedulerException {
-        return new JobRunShell(scheduler, bndle);
+    public JobRunShell createJobRunShell(TriggerFiredBundle bundle) throws SchedulerException {
+        return new JobRunShell(scheduler, bundle);
     }
 }
