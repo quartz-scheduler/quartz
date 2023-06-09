@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
  * </p>
  *
  * Configure the instance1.properties file and the instance2.properties
- * file as necesary (see the "Configuration" section below for details).
+ * file as necessary (see the "Configuration" section below for details).
  *
  * This example uses a database to maintain scheduling information in a
  * clustered environment.   You will need to first install the Quartz
