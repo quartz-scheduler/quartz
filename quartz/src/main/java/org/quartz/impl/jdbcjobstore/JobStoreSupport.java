@@ -421,7 +421,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
     public void setMisfireThreshold(long misfireThreshold) {
         if (misfireThreshold < 1) {
             throw new IllegalArgumentException(
-                    "Misfirethreshold must be larger than 0");
+                    "Misfire threshold must be larger than 0");
         }
         this.misfireThreshold = misfireThreshold;
     }
