@@ -84,7 +84,7 @@ public class RemoteScheduler implements Scheduler {
     /**
      * <p>
      * Construct a <code>RemoteScheduler</code> instance to proxy the given
-     * <code>RemoteableQuartzScheduler</code> instance, and with the given
+     * <code>RemotableQuartzScheduler</code> instance, and with the given
      * <code>SchedulingContext</code>.
      * </p>
      */
