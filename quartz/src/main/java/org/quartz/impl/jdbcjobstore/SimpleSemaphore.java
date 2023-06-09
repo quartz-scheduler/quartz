@@ -130,7 +130,7 @@ public class SimpleSemaphore implements Semaphore {
         if (isLockOwner(lockName)) {
             if(getLog().isDebugEnabled()) {
                 getLog().debug(
-                    "Lock '" + lockName + "' retuned by: "
+                    "Lock '" + lockName + "' returned by: "
                             + Thread.currentThread().getName());
             }
             getThreadLocks().remove(lockName);
@@ -138,7 +138,7 @@ public class SimpleSemaphore implements Semaphore {
             this.notifyAll();
         } else if (getLog().isDebugEnabled()) {
             getLog().debug(
-                "Lock '" + lockName + "' attempt to retun by: "
+                "Lock '" + lockName + "' attempt to return by: "
                         + Thread.currentThread().getName()
                         + " -- but not owner!",
                 new Exception("stack-trace of wrongful returner"));
