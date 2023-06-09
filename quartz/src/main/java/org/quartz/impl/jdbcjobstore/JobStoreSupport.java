@@ -3714,7 +3714,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
      * Rollback the supplied connection.
      * 
      * <p>  
-     * Logs any SQLException it gets trying to rollback, but will not propogate
+     * Logs any SQLException it gets trying to rollback, but will not propagate
      * the exception lest it mask the exception that caused the caller to 
      * need to rollback in the first place.
      * </p>
