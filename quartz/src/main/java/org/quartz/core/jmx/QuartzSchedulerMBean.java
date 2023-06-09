@@ -130,7 +130,7 @@ public interface QuartzSchedulerMBean {
     /**
      * Schedules an arbitrary job described by abstractJobInfo using a trigger specified by abstractTriggerInfo.
      * 
-     * AbtractTriggerInfo and AbstractJobInfo must contain the following String attributes.
+     * AbstractTriggerInfo and AbstractJobInfo must contain the following String attributes.
      *     AbstractTriggerInfo: triggerClass, the fully-qualified class name of a concrete Trigger type
      *     AbstractJobInfo: jobDetailClass, the fully-qualified class name of a concrete JobDetail type
      *
