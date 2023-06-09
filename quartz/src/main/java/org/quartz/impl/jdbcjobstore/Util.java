@@ -59,7 +59,7 @@ public final class Util {
      * </p>
      * 
      * @param query
-     *          the unsubstitued query
+     *          the unsubstituted query
      * @param tablePrefix
      *          the table prefix
      * @return the query, with proper table prefix substituted

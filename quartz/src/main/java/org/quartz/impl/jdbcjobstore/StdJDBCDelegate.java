@@ -3024,7 +3024,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
      * </p>
      * 
      * @param query
-     *          the unsubstitued query
+     *          the unsubstituted query
      * @return the query, with proper table prefix substituted
      */
     protected final String rtp(String query) {
