@@ -779,10 +779,10 @@ public class RAMJobStore implements JobStore {
         int numRefs = 0;
 
         synchronized (lock) {
-            for (TriggerWrapper trigger : triggersByKey.values()) {
-                OperableTrigger trigg = trigger.trigger;
-                if (trigg.getCalendarName() != null
-                        && trigg.getCalendarName().equals(calName)) {
+            for (TriggerWrapper wrapper : triggersByKey.values()) {
+                OperableTrigger trigger = wrapper.trigger;
+                if (trigger.getCalendarName() != null
+                        && trigger.getCalendarName().equals(calName)) {
                     numRefs++;
                 }
             }
