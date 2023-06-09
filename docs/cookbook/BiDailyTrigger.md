@@ -11,7 +11,7 @@ active_sub_menu_id: site_mnu_docs_cookbook
 
 # How-To: Trigger That Executes Every 2 Days
 
-At first glance, you may be tempted to use a CronTrigger. However, if this is truly to be every two days, CronTrigger won't work. To illustrate this, simply think of how many days are in a typical month (28-31). A cron expression like "0 0 5 2/2 * ?" would give us a trigger that would restart its count at the beginning of every month. This means that we would would get subsequent firings on July 30 and August 2, which is an interval of three days, not two.
+At first glance, you may be tempted to use a CronTrigger. However, if this is truly to be every two days, CronTrigger won't work. To illustrate this, simply think of how many days are in a typical month (28-31). A cron expression like "0 0 5 2/2 * ?" would give us a trigger that would restart its count at the beginning of every month. This means that we would get subsequent firings on July 30 and August 2, which is an interval of three days, not two.
 
 Likewise, an expression like "0 0 5 1/2 * ?" would end up firing on July 31 and August 1, just one day apart.
 
