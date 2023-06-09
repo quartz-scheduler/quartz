@@ -130,7 +130,7 @@ public class ClusterExample {
                              // down...
           .build();
 
-      SimpleTrigger trigger = newTrigger().withIdentity("triger_" + count, schedId)
+      SimpleTrigger trigger = newTrigger().withIdentity("trigger_" + count, schedId)
           .startAt(futureDate(1, IntervalUnit.SECOND))
           .withSchedule(simpleSchedule().withRepeatCount(20).withIntervalInSeconds(5)).build();
 
@@ -148,7 +148,7 @@ public class ClusterExample {
                              // down...
           .build();
 
-      trigger = newTrigger().withIdentity("triger_" + count, schedId).startAt(futureDate(2, IntervalUnit.SECOND))
+      trigger = newTrigger().withIdentity("trigger_" + count, schedId).startAt(futureDate(2, IntervalUnit.SECOND))
           .withSchedule(simpleSchedule().withRepeatCount(20).withIntervalInSeconds(5)).build();
 
       _log.info(job.getKey() + " will run at: " + trigger.getNextFireTime() + " and repeat: "
@@ -167,7 +167,7 @@ public class ClusterExample {
                              // down...
           .build();
 
-      trigger = newTrigger().withIdentity("triger_" + count, schedId).startAt(futureDate(1, IntervalUnit.SECOND))
+      trigger = newTrigger().withIdentity("trigger_" + count, schedId).startAt(futureDate(1, IntervalUnit.SECOND))
           .withSchedule(simpleSchedule().withRepeatCount(20).withIntervalInSeconds(3)).build();
 
       _log.info(job.getKey() + " will run at: " + trigger.getNextFireTime() + " and repeat: "
@@ -184,7 +184,7 @@ public class ClusterExample {
                              // down...
           .build();
 
-      trigger = newTrigger().withIdentity("triger_" + count, schedId).startAt(futureDate(1, IntervalUnit.SECOND))
+      trigger = newTrigger().withIdentity("trigger_" + count, schedId).startAt(futureDate(1, IntervalUnit.SECOND))
           .withSchedule(simpleSchedule().withRepeatCount(20).withIntervalInSeconds(4)).build();
 
       _log.info(job.getKey() + " will run at: " + trigger.getNextFireTime() + " & repeat: " + trigger.getRepeatCount()
@@ -201,7 +201,7 @@ public class ClusterExample {
                              // down...
           .build();
 
-      trigger = newTrigger().withIdentity("triger_" + count, schedId).startAt(futureDate(1, IntervalUnit.SECOND))
+      trigger = newTrigger().withIdentity("trigger_" + count, schedId).startAt(futureDate(1, IntervalUnit.SECOND))
           .withSchedule(simpleSchedule().withRepeatCount(20).withIntervalInMilliseconds(4500L)).build();
 
       _log.info(job.getKey() + " will run at: " + trigger.getNextFireTime() + " & repeat: " + trigger.getRepeatCount()

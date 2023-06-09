@@ -2004,7 +2004,7 @@ J     *
             } catch (Exception e) {
                 getLog().error(
                         "Error while notifying SchedulerListener of scheduled job."
-                                + "  Triger=" + trigger.getKey(), e);
+                                + "  Trigger=" + trigger.getKey(), e);
             }
         }
     }
@@ -2023,7 +2023,7 @@ J     *
             } catch (Exception e) {
                 getLog().error(
                         "Error while notifying SchedulerListener of unscheduled job."
-                                + "  Triger=" + (triggerKey == null ? "ALL DATA" : triggerKey), e);
+                                + "  Trigger=" + (triggerKey == null ? "ALL DATA" : triggerKey), e);
             }
         }
     }
@@ -2039,7 +2039,7 @@ J     *
             } catch (Exception e) {
                 getLog().error(
                         "Error while notifying SchedulerListener of finalized trigger."
-                                + "  Triger=" + trigger.getKey(), e);
+                                + "  Trigger=" + trigger.getKey(), e);
             }
         }
     }
