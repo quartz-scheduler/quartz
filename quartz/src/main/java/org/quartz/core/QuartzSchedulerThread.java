@@ -75,7 +75,7 @@ public class QuartzSchedulerThread extends Thread {
 
     private long idleWaitTime = DEFAULT_IDLE_WAIT_TIME;
 
-    private int idleWaitVariablness = 7 * 1000;
+    private int idleWaitVariableness = 7 * 1000;
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -134,11 +134,11 @@ public class QuartzSchedulerThread extends Thread {
 
     void setIdleWaitTime(long waitTime) {
         idleWaitTime = waitTime;
-        idleWaitVariablness = (int) (waitTime * 0.2);
+        idleWaitVariableness = (int) (waitTime * 0.2);
     }
 
     private long getRandomizedIdleWaitTime() {
-        return idleWaitTime - random.nextInt(idleWaitVariablness);
+        return idleWaitTime - random.nextInt(idleWaitVariableness);
     }
 
     /**
