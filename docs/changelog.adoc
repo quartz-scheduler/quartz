@@ -36,7 +36,7 @@ THIS RELEASE REQUIRES JDK7
 * #316 depen: Updated C3P0 version to 0.9.5.3
 * #147 bugfix: Fix BINARY to BLOG type for job data for hsqldb
 * #156 bugfix: Fix null string used in thread name with DirectSchedulerFactory
-* #159 bugfix: Fix extra bad char tick on drop table qurtz_fired_triggers for postgres
+* #159 bugfix: Fix extra bad char tick on drop table qrtz_fired_triggers for postgres
 * #146 bugfix: Release BLOCKED triggers in releaseAcquiredTrigger
 * #212 bugfix: QuartzInitializerListener: fix a typo
 * #193 bugfix: Job execution context impl returns incorrect recovering job key
