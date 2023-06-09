@@ -173,7 +173,7 @@ public class CronExpressionTest extends SerializationTestSupport {
     public void testQuartz574() {
         try {
             new CronExpression("* * * * Foo ? ");
-            fail("Expected ParseException did not fire for non-existent month");
+            fail("Expected ParseException did not fire for nonexistent month");
         } catch(ParseException pe) {
             assertTrue("Incorrect ParseException thrown", 
                 pe.getMessage().startsWith("Invalid Month value:"));
@@ -181,7 +181,7 @@ public class CronExpressionTest extends SerializationTestSupport {
 
         try {
             new CronExpression("* * * * Jan-Foo ? ");
-            fail("Expected ParseException did not fire for non-existent month");
+            fail("Expected ParseException did not fire for nonexistent month");
         } catch(ParseException pe) {
             assertTrue("Incorrect ParseException thrown", 
                 pe.getMessage().startsWith("Invalid Month value:"));
