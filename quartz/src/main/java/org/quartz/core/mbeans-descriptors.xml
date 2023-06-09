@@ -38,7 +38,7 @@
 			<parameter name="schedulingContext" type="org.quartz.core.SchedulingContext" description="The scheduling context."/>
 			<parameter name="trigger" type="org.quartz.Trigger" description="The Trigger to schedule."/>
 		</operation>
-		<operation name="unscheduleJob" description="Remove the indicated Triggerfrom the scheduler." impact="ACTION" returnType="boolean">
+		<operation name="unscheduleJob" description="Remove the indicated Trigger from the scheduler." impact="ACTION" returnType="boolean">
 			<parameter name="schedulingContext" type="org.quartz.core.SchedulingContext" description="The scheduling context."/>
 			<parameter name="triggerName" type="java.lang.String" description="The name of the Trigger to unschedule."/>
 			<parameter name="triggerGroupName" type="java.lang.String" description="The group name of the Trigger to unschedule."/>
