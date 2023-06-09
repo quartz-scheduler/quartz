@@ -184,7 +184,7 @@ public abstract class SchedulerPluginWithUserTransactionSupport implements
     }
     
     /**
-     * If the given UserTransaction is not null, it is committed/rolledback,
+     * If the given UserTransaction is not null, it is committed/rolled back,
      * and then returned to the UserTransactionHelper.
      */
     private void resolveUserTransaction(UserTransaction userTransaction) {
