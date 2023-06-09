@@ -91,7 +91,7 @@ public interface DailyTimeIntervalTrigger extends Trigger {
     
     /**
      * <p>
-     * Get the the number of times for interval this trigger should
+     * Get the number of times for interval this trigger should
      * repeat, after which it will be automatically deleted.
      * </p>
      * 
@@ -101,7 +101,7 @@ public interface DailyTimeIntervalTrigger extends Trigger {
 
     /**
      * <p>
-     * Get the the time interval that will be added to the <code>DateIntervalTrigger</code>'s
+     * Get the time interval that will be added to the <code>DateIntervalTrigger</code>'s
      * fire time (in the set repeat interval unit) in order to calculate the time of the 
      * next trigger repeat.
      * </p>

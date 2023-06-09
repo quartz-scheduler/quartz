@@ -353,7 +353,7 @@ public class JobDetailImpl implements Cloneable, java.io.Serializable, JobDetail
 
     /**
      * <p>
-     * Set whether or not the the <code>Scheduler</code> should re-execute
+     * Set whether or not the <code>Scheduler</code> should re-execute
      * the <code>Job</code> if a 'recovery' or 'fail-over' situation is
      * encountered.
      * </p>

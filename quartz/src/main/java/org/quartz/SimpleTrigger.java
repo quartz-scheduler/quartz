@@ -138,7 +138,7 @@ public interface SimpleTrigger extends Trigger {
 
     /**
      * <p>
-     * Get the the number of times the <code>SimpleTrigger</code> should
+     * Get the number of times the <code>SimpleTrigger</code> should
      * repeat, after which it will be automatically deleted.
      * </p>
      * 
@@ -148,7 +148,7 @@ public interface SimpleTrigger extends Trigger {
 
     /**
      * <p>
-     * Get the the time interval (in milliseconds) at which the <code>SimpleTrigger</code> should repeat.
+     * Get the time interval (in milliseconds) at which the <code>SimpleTrigger</code> should repeat.
      * </p>
      */
     public long getRepeatInterval();

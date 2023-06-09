@@ -99,7 +99,7 @@ public class CronTriggerImpl extends AbstractTrigger<CronTrigger> implements Cro
      * 
      * <p>
      * The start-time will also be set to the current time, and the time zone
-     * will be set the the system's default time zone.
+     * will be set the system's default time zone.
      * </p>
      */
     public CronTriggerImpl() {
@@ -115,7 +115,7 @@ public class CronTriggerImpl extends AbstractTrigger<CronTrigger> implements Cro
      * 
      * <p>
      * The start-time will also be set to the current time, and the time zone
-     * will be set the the system's default time zone.
+     * will be set the system's default time zone.
      * </p>
      * 
      * @deprecated use a TriggerBuilder instead
@@ -132,7 +132,7 @@ public class CronTriggerImpl extends AbstractTrigger<CronTrigger> implements Cro
      * 
      * <p>
      * The start-time will also be set to the current time, and the time zone
-     * will be set the the system's default time zone.
+     * will be set the system's default time zone.
      * </p>
      * 
      * @deprecated use a TriggerBuilder instead
@@ -152,7 +152,7 @@ public class CronTriggerImpl extends AbstractTrigger<CronTrigger> implements Cro
      * 
      * <p>
      * The start-time will also be set to the current time, and the time zone
-     * will be set the the system's default time zone.
+     * will be set the system's default time zone.
      * </p>
      * 
      * @deprecated use a TriggerBuilder instead
@@ -177,7 +177,7 @@ public class CronTriggerImpl extends AbstractTrigger<CronTrigger> implements Cro
      * 
      * <p>
      * The start-time will also be set to the current time, and the time zone
-     * will be set the the system's default time zone.
+     * will be set the system's default time zone.
      * </p>
      * 
      * @deprecated use a TriggerBuilder instead
@@ -199,7 +199,7 @@ public class CronTriggerImpl extends AbstractTrigger<CronTrigger> implements Cro
      * 
      * <p>
      * The start-time will also be set to the current time, and the time zone
-     * will be set the the system's default time zone.
+     * will be set the system's default time zone.
      * </p>
      * 
      * @deprecated use a TriggerBuilder instead
@@ -236,7 +236,7 @@ public class CronTriggerImpl extends AbstractTrigger<CronTrigger> implements Cro
      * 
      * <p>
      * If null, the start-time will also be set to the current time, the time
-     * zone will be set the the system's default.
+     * zone will be set the system's default.
      * </p>
      * 
      * @param startTime

@@ -129,7 +129,7 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
     /**
      * <p>
      * Create a <code>DateIntervalTrigger</code> that will occur immediately, and
-     * repeat at the the given interval.
+     * repeat at the given interval.
      * </p>
      */
     public CalendarIntervalTriggerImpl(String name, IntervalUnit intervalUnit,  int repeatInterval) {
@@ -139,7 +139,7 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
     /**
      * <p>
      * Create a <code>DateIntervalTrigger</code> that will occur immediately, and
-     * repeat at the the given interval.
+     * repeat at the given interval.
      * </p>
      */
     public CalendarIntervalTriggerImpl(String name, String group, IntervalUnit intervalUnit,
@@ -150,7 +150,7 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
     /**
      * <p>
      * Create a <code>DateIntervalTrigger</code> that will occur at the given time,
-     * and repeat at the the given interval until the given end time.
+     * and repeat at the given interval until the given end time.
      * </p>
      * 
      * @param startTime
@@ -172,7 +172,7 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
     /**
      * <p>
      * Create a <code>DateIntervalTrigger</code> that will occur at the given time,
-     * and repeat at the the given interval until the given end time.
+     * and repeat at the given interval until the given end time.
      * </p>
      * 
      * @param startTime
@@ -199,7 +199,7 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
     /**
      * <p>
      * Create a <code>DateIntervalTrigger</code> that will occur at the given time,
-     * fire the identified <code>Job</code> and repeat at the the given
+     * fire the identified <code>Job</code> and repeat at the given
      * interval until the given end time.
      * </p>
      * 
@@ -324,7 +324,7 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
 
     /**
      * <p>
-     * set the the time interval that will be added to the <code>DateIntervalTrigger</code>'s
+     * set the time interval that will be added to the <code>DateIntervalTrigger</code>'s
      * fire time (in the set repeat interval unit) in order to calculate the time of the 
      * next trigger repeat.
      * </p>
@@ -879,7 +879,7 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
         // find the next fire time after that
         fTime = getFireTimeAfter(fTime, true);
         
-        // the the trigger fires at the end time, that's it!
+        // the trigger fires at the end time, that's it!
         if(fTime.equals(getEndTime()))
             return fTime;
         
