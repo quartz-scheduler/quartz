@@ -40,7 +40,7 @@ import org.quartz.JobExecutionException;
  * The required parameters are as follows (case doesn't matter):
  * <dl>
  * <dt><strong>JMX_OBJECTNAME</strong></dt>
- * <dd>This is the fully qualifed name of the object (ie in JBoss to lookup
+ * <dd>This is the fully qualified name of the object (ie in JBoss to lookup
  * the log4j jmx bean you would specify "jboss.system:type=Log4jService,service=Logging"</dd>
  * <dt><strong>JMX_METHOD</strong></dt>
  * <dd>This is the method to invoke on the specified JMX Bean. (ie in JBoss to
