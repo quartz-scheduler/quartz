@@ -798,7 +798,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         // Protect connection attributes we might change.
         conn = getAttributeRestoringConnection(conn);
 
-        // Set any connection connection attributes we are to override.
+        // Set any connection attributes we are to override.
         try {
             if (!isDontSetAutoCommitFalse()) {
                 conn.setAutoCommit(false);

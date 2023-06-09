@@ -187,7 +187,7 @@ public class JobStoreCMT extends JobStoreSupport {
         // Protect connection attributes we might change.
         conn = getAttributeRestoringConnection(conn);
         
-        // Set any connection connection attributes we are to override.
+        // Set any connection attributes we are to override.
         try {
             if (!isDontSetNonManagedTXConnectionAutoCommitFalse()) {
                 conn.setAutoCommit(false);
