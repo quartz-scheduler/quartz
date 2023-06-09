@@ -130,7 +130,7 @@ public final class Util {
         if(propNames == null || propNames.length == 0)
             return;
         if(propNames.length != propValues.length)
-            throw new IllegalArgumentException("propNames[].lenght != propValues[].length");
+            throw new IllegalArgumentException("propNames[].length != propValues[].length");
         
         String name = null;
         
