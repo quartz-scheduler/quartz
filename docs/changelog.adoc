@@ -17,7 +17,7 @@ Most Significant Changes This Release:
   related to code execution.  While it is possible to safely use this Job class, it is
   a risk for users that don't engage some thought.   If you wish to still use this job
   or something like it, the source code for it can now be found as "example15".
-* Example programs can now simply be executed via gradle. See the "exmaples_guide.txt"
+* Example programs can now simply be executed via gradle. See the "examples_guide.txt"
   file in the examples folder of the quartz repository for full description and info.
 
 All changes/updates:
