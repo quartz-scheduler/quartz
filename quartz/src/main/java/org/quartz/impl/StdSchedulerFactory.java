@@ -718,7 +718,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
         boolean managementRESTServiceEnabled = cfg.getBooleanProperty(MANAGEMENT_REST_SERVICE_ENABLED, false);
         String managementRESTServiceHostAndPort = cfg.getStringProperty(MANAGEMENT_REST_SERVICE_HOST_PORT, "0.0.0.0:9889");
 
-        Properties schedCtxtProps = cfg.getPropertyGroup(PROP_SCHED_CONTEXT_PREFIX, true);
+        Properties schedCtxProps = cfg.getPropertyGroup(PROP_SCHED_CONTEXT_PREFIX, true);
 
         // If Proxying to remote scheduler, short-circuit here...
         // ~~~~~~~~~~~~~~~~~~
@@ -1355,8 +1355,8 @@ public class StdSchedulerFactory implements SchedulerFactory {
             }
     
             // set scheduler context data...
-            for(Object key: schedCtxtProps.keySet()) {
-                String val = schedCtxtProps.getProperty((String) key);    
+            for(Object key: schedCtxProps.keySet()) {
+                String val = schedCtxProps.getProperty((String) key);    
                 scheduler.getContext().put((String)key, val);
             }
     
