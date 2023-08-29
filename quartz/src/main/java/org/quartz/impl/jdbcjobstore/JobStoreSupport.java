@@ -1215,7 +1215,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                         + ") referenced by the trigger does not exist.");
             }
 
-            if (job.isConcurrentExectionDisallowed() && !recovering) { 
+            if (job.isConcurrentExecutionDisallowed() && !recovering) {
                 state = checkBlockedState(conn, job.getKey(), state);
             }
             
@@ -2872,7 +2872,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                         continue;
                     }
                     
-                    if (job.isConcurrentExectionDisallowed()) {
+                    if (job.isConcurrentExecutionDisallowed()) {
                         if (acquiredJobKeysForNoConcurrentExec.contains(jobKey)) {
                             continue; // next trigger
                         } else {
@@ -3071,7 +3071,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         String state = STATE_WAITING;
         boolean force = true;
         
-        if (job.isConcurrentExectionDisallowed()) {
+        if (job.isConcurrentExecutionDisallowed()) {
             state = STATE_BLOCKED;
             force = false;
             try {
@@ -3160,7 +3160,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                 signalSchedulingChangeOnTxCompletion(0L);
             }
 
-            if (jobDetail.isConcurrentExectionDisallowed()) {
+            if (jobDetail.isConcurrentExecutionDisallowed()) {
                 getDelegate().updateTriggerStatesForJobFromOtherState(conn,
                         jobDetail.getKey(), STATE_WAITING,
                         STATE_BLOCKED);
