@@ -2,8 +2,9 @@ In submitting this contribution, I agree to the current Software AG contributor 
 https://github.com/quartz-scheduler/contributing/blob/main/CONTRIBUTING.md
 
 This PR...
+
 ## Changes
--
+- 
 
 ## Checklist
 - [ ] tested locally
@@ -12,5 +13,5 @@ This PR...
 - [ ] signed-off on the above mentioned SoftwareAG contributor agreement via `git commit -s` on my commits. 
   (If you're not using command-line, you can use a [browser extension](https://github.com/scottrigby/dco-gh-ui) )
 
-Fixes #
-
+## Fixes
+- 
