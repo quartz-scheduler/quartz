@@ -4,9 +4,9 @@ visible_title: "Quartz Tutorials"
 active_sub_menu_id: site_mnu_docs_tutorials
 ---
 <div class="secNavPanel">
-          <a href="./" title="Go to Tutorial Table of Contents">Table of Contents</a> |
-          <a href="tutorial-lesson-01.html" title="Go to Lesson 2">&lsaquo;&nbsp;Lesson 1</a> |
-          <a href="tutorial-lesson-03.html" title="Go to Lesson 2">Lesson 3&nbsp;&rsaquo;</a> |
+          <a href="./index.adoc" title="Go to Tutorial Table of Contents">Table of Contents</a> |
+          <a href="tutorial-lesson-01.md" title="Go to Lesson 2">&lsaquo;&nbsp;Lesson 1</a> |
+          <a href="tutorial-lesson-03.md" title="Go to Lesson 2">Lesson 3&nbsp;&rsaquo;</a> |
 </div>
 
 ## Lesson 2: The Quartz API, Jobs And Triggers
@@ -27,7 +27,7 @@ A **Scheduler**'s life-cycle is bounded by it's creation, via a **SchedulerFacto
 a call to its *shutdown()* method.  Once created the Scheduler interface can be used add, remove, and list
 Jobs and Triggers, and perform other scheduling-related operations (such as pausing a trigger).  However, the
 Scheduler will not actually act on any triggers (execute jobs) until it has been started with the *start()*
-method, as shown in <a href="tutorial-lesson-01.html" title="Go to Lesson 1">Lesson 1</a>.       
+method, as shown in <a href="tutorial-lesson-01.md" title="Go to Lesson 1">Lesson 1</a>.       
 
 Quartz provides "builder" classes that define a Domain Specific Language (or DSL, also sometimes referred to as
 a "fluent interface"). In the previous lesson you saw an example of it, which we present a portion of here again:
@@ -135,5 +135,5 @@ compound of the name and group.
 
 
 You now have a general idea about what Jobs and Triggers are, you can learn more about them in <a
-    href="tutorial-lesson-03.html" title="Tutorial Lesson 3">Lesson 3: More About Jobs &amp; JobDetails</a> and <a
-    href="tutorial-lesson-04.html" title="Tutorial Lesson 4">Lesson 4: More About Triggers</a>.
+    href="tutorial-lesson-03.md" title="Tutorial Lesson 3">Lesson 3: More About Jobs &amp; JobDetails</a> and <a
+    href="tutorial-lesson-04.md" title="Tutorial Lesson 4">Lesson 4: More About Triggers</a>.
