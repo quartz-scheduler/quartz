@@ -111,7 +111,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
 
     protected HashMap<String, Calendar> calendarCache = new HashMap<String, Calendar>();
 
-    private DriverDelegate delegate;
+    private volatile DriverDelegate delegate;
 
     private long misfireThreshold = 60000L; // one minute
 
@@ -3203,30 +3203,32 @@ public abstract class JobStoreSupport implements JobStore, Constants {
      * </p>
      */
     protected DriverDelegate getDelegate() throws NoSuchDelegateException {
-        synchronized(this) {
-            if(null == delegate) {
-                try {
-                    if(delegateClassName != null) {
-                        delegateClass = getClassLoadHelper().loadClass(delegateClassName, DriverDelegate.class);
-                    }
+        if(null==delegate) {
+            synchronized (this) {
+                if (null == delegate) {
+                    try {
+                        if (delegateClassName != null) {
+                            delegateClass = getClassLoadHelper().loadClass(delegateClassName, DriverDelegate.class);
+                        }
 
-                    delegate = delegateClass.newInstance();
-                    
-                    delegate.initialize(getLog(), tablePrefix, instanceName, instanceId, getClassLoadHelper(), canUseProperties(), getDriverDelegateInitString());
-                    
-                } catch (InstantiationException e) {
-                    throw new NoSuchDelegateException("Couldn't create delegate: "
-                            + e.getMessage(), e);
-                } catch (IllegalAccessException e) {
-                    throw new NoSuchDelegateException("Couldn't create delegate: "
-                            + e.getMessage(), e);
-                } catch (ClassNotFoundException e) {
-                    throw new NoSuchDelegateException("Couldn't load delegate class: "
-                            + e.getMessage(), e);
+                        delegate = delegateClass.newInstance();
+
+                        delegate.initialize(getLog(), tablePrefix, instanceName, instanceId, getClassLoadHelper(), canUseProperties(), getDriverDelegateInitString());
+
+                    } catch (InstantiationException e) {
+                        throw new NoSuchDelegateException("Couldn't create delegate: "
+                                + e.getMessage(), e);
+                    } catch (IllegalAccessException e) {
+                        throw new NoSuchDelegateException("Couldn't create delegate: "
+                                + e.getMessage(), e);
+                    } catch (ClassNotFoundException e) {
+                        throw new NoSuchDelegateException("Couldn't load delegate class: "
+                                + e.getMessage(), e);
+                    }
                 }
             }
-            return delegate;
         }
+        return delegate;
     }
 
     protected Semaphore getLockHandler() {
