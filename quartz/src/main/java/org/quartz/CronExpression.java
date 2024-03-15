@@ -218,6 +218,23 @@ public final class CronExpression implements Serializable, Cloneable {
     protected static final int NO_SPEC_INT = 98; // '?'
     protected static final Integer ALL_SPEC = ALL_SPEC_INT;
     protected static final Integer NO_SPEC = NO_SPEC_INT;
+
+    private static final List<String> ALWAYS_CRON_EXPRESSIONS = new ArrayList<>();
+
+  static
+  {
+
+    try
+    {
+      ALWAYS_CRON_EXPRESSIONS.add(new CronExpression("* * * ? * * *").getExpressionSummary());
+      ALWAYS_CRON_EXPRESSIONS.add(new CronExpression("* * * * * ? *").getExpressionSummary());
+    }
+    catch (ParseException pE)
+    {
+      LOG.logWarning("static constructor", "Unable to create alwaysCronExpressions data.");
+    }
+  }
+    
     
     protected static final Map<String, Integer> monthMap = new HashMap<String, Integer>(20);
     protected static final Map<String, Integer> dayMap = new HashMap<String, Integer>(60);
@@ -350,6 +367,14 @@ public final class CronExpression implements Serializable, Cloneable {
      * @return the next valid date/time
      */
     public Date getNextInvalidTimeAfter(Date date) {
+
+        //Partial fix for QUARTZ-481
+        if (ALWAYS_CRON_EXPRESSIONS.contains(getExpressionSummary()))
+        {
+          Calendar futureCal = new GregorianCalendar(9999, Calendar.DECEMBER, 31);
+          return = futureCal.getTime();
+        } 
+        
         long difference = 1000;
         
         //move back to the nearest second so differences will be accurate
