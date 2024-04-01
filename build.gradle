@@ -96,7 +96,8 @@ allprojects {
                         "Implementation-Vendor-Id": project.group,
                         "Implementation-Version": project.version,
                         "Built-By": System.getProperty("user.name"),
-                        "Built-JDK": System.getProperty("java.version")
+                        "Built-JDK": System.getProperty("java.version"),
+                        "Automatic-Module-Name": 'org.quartz'
                 )
             }
         }
