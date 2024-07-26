@@ -324,6 +324,17 @@ public class JobBuilder {
         jobDataMap.put(dataKey, value);
         return this;
     }
+
+    /**
+     * Add the given key-value pair to the JobDetail's {@link JobDataMap}.
+     *
+     * @return the updated JobBuilder
+     * @see JobDetail#getJobDataMap()
+     */
+    public JobBuilder usingJobData(String dataKey, Object value) {
+        jobDataMap.put(dataKey, value);
+        return this;
+    }
     
     /**
      * Add all the data from the given {@link JobDataMap} to the

@@ -251,6 +251,19 @@ public class JobDataMap extends StringKeyDirtyFlagMap implements Serializable {
 
     /**
      * <p>
+     * Adds the given <code>Object</code> value as a string version to the
+     * <code>Job</code>'s data map.
+     * </p>
+     */
+    public void putAsString(String key, Object value) {
+        String strValue = value.toString();
+
+        super.put(key, strValue);
+    }
+
+
+    /**
+     * <p>
      * Retrieve the identified <code>int</code> value from the <code>JobDataMap</code>.
      * </p>
      * 
