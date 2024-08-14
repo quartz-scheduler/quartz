@@ -709,9 +709,9 @@ public final class CronExpression implements Serializable, Cloneable {
 
     private void checkIncrementRange(int incr, int type, int idxPos) throws ParseException {
         if (incr > 59 && (type == SECOND || type == MINUTE)) {
-            throw new ParseException("Increment > 60 : " + incr, idxPos);
+            throw new ParseException("Increment > 59 : " + incr, idxPos);
         } else if (incr > 23 && (type == HOUR)) {
-            throw new ParseException("Increment > 24 : " + incr, idxPos);
+            throw new ParseException("Increment > 23 : " + incr, idxPos);
         } else if (incr > 31 && (type == DAY_OF_MONTH)) {
             throw new ParseException("Increment > 31 : " + incr, idxPos);
         } else if (incr > 7 && (type == DAY_OF_WEEK)) {
