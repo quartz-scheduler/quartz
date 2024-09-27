@@ -60,8 +60,8 @@ allprojects {
                         developers {
                             developer {
                                 name = "Terracotta Engineers"
-                                email = "tc-oss@softwareag.com"
-                                organization = "Terracotta Inc., a wholly-owned subsidiary of Software AG USA, Inc."
+                                email = "tc-oss@wwpdl.vnet.ibm.com"
+                                organization = "Super iPaaS Integration LLC, an IBM Company"
                                 organizationUrl = "http://www.quartz-scheduler.org/"
                             }
                         }
