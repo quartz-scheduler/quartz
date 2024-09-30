@@ -111,6 +111,35 @@ public class CronExpressionTest extends SerializationTestSupport {
         cal.set(2010, Calendar.OCTOBER, 29, 10, 15, 0); // nearest weekday to last day - 1 (29th is a friday in 2010)
         assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
         
+        cronExpression = new CronExpression("0 15 10 1,L * ? 2010");
+        
+        cal.set(2010, Calendar.OCTOBER, 1, 10, 15, 0);
+        assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
+        
+        cal.set(2010, Calendar.OCTOBER, 31, 10, 15, 0);
+        assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
+        
+        cal.set(2010, Calendar.OCTOBER, 30, 10, 15, 0);
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+        
+        cronExpression = new CronExpression("0 15 10 L-1W,L-1 * ? 2010");
+        
+        cal.set(2010, Calendar.OCTOBER, 29, 10, 15, 0); // nearest weekday to last day - 1 (29th is a friday in 2010)
+        assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
+        
+        cal.set(2010, Calendar.OCTOBER, 30, 10, 15, 0); // last day - 1
+        
+        cronExpression = new CronExpression("0 15 10 2W,16 * ? 2010");
+        
+        cal.set(2010, Calendar.OCTOBER, 1, 10, 15, 0); // nearest weekday to the 2nd of the month (1st is a friday in 2010)
+        assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
+        
+        cal.set(2010, Calendar.OCTOBER, 2, 10, 15, 0);
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+        
+        cal.set(2010, Calendar.OCTOBER, 16, 10, 15, 0);
+        assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
+        
     }
 
     /*
@@ -214,13 +243,6 @@ public class CronExpressionTest extends SerializationTestSupport {
     }
 
     public void testQuartz640() throws ParseException {
-        try {
-            new CronExpression("0 43 9 1,5,29,L * ?");
-            fail("Expected ParseException did not fire for L combined with other days of the month");
-        } catch(ParseException pe) {
-            assertTrue("Incorrect ParseException thrown", 
-                pe.getMessage().startsWith("Support for specifying 'L' and 'LW' with other days of the month is not implemented"));
-        }
         try {
             new CronExpression("0 43 9 ? * SAT,SUN,L");
             fail("Expected ParseException did not fire for L combined with other days of the week");
