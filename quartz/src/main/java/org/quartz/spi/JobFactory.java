@@ -30,7 +30,7 @@ import org.quartz.SchedulerException;
  * <p>
  * This interface may be of use to those wishing to have their application
  * produce <code>Job</code> instances via some special mechanism, such as to
- * give the opertunity for dependency injection.
+ * give the opportunity for dependency injection.
  * </p>
  * 
  * @see org.quartz.Scheduler#setJobFactory(JobFactory)
