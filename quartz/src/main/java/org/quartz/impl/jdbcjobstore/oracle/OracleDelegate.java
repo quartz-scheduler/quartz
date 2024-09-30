@@ -137,12 +137,7 @@ public class OracleDelegate extends StdJDBCDelegate {
         Object obj = null;
         InputStream binaryInput = rs.getBinaryStream(colName);
         if (binaryInput != null) {
-            ObjectInputStream in = new ObjectInputStream(binaryInput);
-            try {
-                obj = in.readObject();
-            } finally {
-                in.close();
-            }
+            obj = getObject(binaryInput);
         }
 
         return obj;

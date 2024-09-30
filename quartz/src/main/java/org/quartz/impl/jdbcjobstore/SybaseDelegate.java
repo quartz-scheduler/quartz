@@ -70,16 +70,7 @@ public class SybaseDelegate extends StdJDBCDelegate {
             return null;
         }
 
-        Object obj = null;
-
-        ObjectInputStream in = new ObjectInputStream(binaryInput);
-        try {
-            obj = in.readObject();
-        } finally {
-            in.close();
-        }
-
-        return obj;
+        return getObject(binaryInput);
     }
 
     @Override           
