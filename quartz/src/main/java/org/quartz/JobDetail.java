@@ -100,7 +100,7 @@ public interface JobDetail extends Serializable, Cloneable {
      * @see DisallowConcurrentExecution
      * @return whether the associated Job class carries the {@link DisallowConcurrentExecution} annotation.
      */
-    public boolean isConcurrentExectionDisallowed();
+    public boolean isConcurrentExecutionDisallowed();
 
     /**
      * <p>

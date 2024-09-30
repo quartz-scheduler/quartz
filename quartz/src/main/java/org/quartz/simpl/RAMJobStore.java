@@ -25,7 +25,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +45,6 @@ import org.quartz.TriggerKey;
 import org.quartz.Trigger.CompletedExecutionInstruction;
 import org.quartz.Trigger.TriggerState;
 import org.quartz.Trigger.TriggerTimeComparator;
-import org.quartz.impl.JobDetailImpl;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.impl.matchers.StringMatcher;
 import org.quartz.spi.ClassLoadHelper;
@@ -57,8 +55,6 @@ import org.quartz.spi.TriggerFiredBundle;
 import org.quartz.spi.TriggerFiredResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.quartz.impl.matchers.EverythingMatcher.allTriggers;
 
 /**
  * <p>
@@ -1488,7 +1484,7 @@ public class RAMJobStore implements JobStore {
                 // put it back into the timeTriggers set and continue to search for next trigger.
                 JobKey jobKey = tw.trigger.getJobKey();
                 JobDetail job = jobsByKey.get(tw.trigger.getJobKey()).jobDetail;
-                if (job.isConcurrentExectionDisallowed()) {
+                if (job.isConcurrentExecutionDisallowed()) {
                     if (acquiredJobKeysForNoConcurrentExec.contains(jobKey)) {
                         excludedTriggers.add(tw);
                         continue; // go to next trigger in store.
@@ -1577,7 +1573,7 @@ public class RAMJobStore implements JobStore {
 
                 JobDetail job = bndle.getJobDetail();
 
-                if (job.isConcurrentExectionDisallowed()) {
+                if (job.isConcurrentExecutionDisallowed()) {
                     ArrayList<TriggerWrapper> trigs = getTriggerWrappersForJob(job.getKey());
                     for (TriggerWrapper ttw : trigs) {
                         if (ttw.state == TriggerWrapper.STATE_WAITING) {
@@ -1634,7 +1630,7 @@ public class RAMJobStore implements JobStore {
                     jd = jd.getJobBuilder().setJobData(newData).build();
                     jw.jobDetail = jd;
                 }
-                if (jd.isConcurrentExectionDisallowed()) {
+                if (jd.isConcurrentExecutionDisallowed()) {
                     blockedJobs.remove(jd.getKey());
                     ArrayList<TriggerWrapper> trigs = getTriggerWrappersForJob(jd.getKey());
                     for(TriggerWrapper ttw : trigs) {

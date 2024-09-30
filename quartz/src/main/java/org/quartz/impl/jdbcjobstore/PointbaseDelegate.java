@@ -31,9 +31,7 @@ import java.sql.SQLException;
 
 import org.quartz.Calendar;
 import org.quartz.JobDetail;
-import org.quartz.spi.ClassLoadHelper;
 import org.quartz.spi.OperableTrigger;
-import org.slf4j.Logger;
 
 /**
  * <p>
@@ -80,7 +78,7 @@ public class PointbaseDelegate extends StdJDBCDelegate {
             ps.setString(3, job.getDescription());
             ps.setString(4, job.getJobClass().getName());
             setBoolean(ps, 5, job.isDurable());
-            setBoolean(ps, 6, job.isConcurrentExectionDisallowed());
+            setBoolean(ps, 6, job.isConcurrentExecutionDisallowed());
             setBoolean(ps, 7, job.isPersistJobDataAfterExecution());
             setBoolean(ps, 8, job.requestsRecovery());
             ps.setBinaryStream(9, bais, len);
@@ -123,7 +121,7 @@ public class PointbaseDelegate extends StdJDBCDelegate {
             ps.setString(1, job.getDescription());
             ps.setString(2, job.getJobClass().getName());
             setBoolean(ps, 3, job.isDurable());
-            setBoolean(ps, 4, job.isConcurrentExectionDisallowed());
+            setBoolean(ps, 4, job.isConcurrentExecutionDisallowed());
             setBoolean(ps, 5, job.isPersistJobDataAfterExecution());
             setBoolean(ps, 6, job.requestsRecovery());
             ps.setBinaryStream(7, bais, len);

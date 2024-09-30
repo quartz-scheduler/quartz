@@ -65,7 +65,7 @@ public class JobBuilderTest extends TestCase {
         assertTrue("Unexpected job description: " + job.getDescription(), job.getDescription() == null);
         assertTrue("Expected isDurable == true ", job.isDurable());
         assertFalse("Expected requestsRecovery == false ", job.requestsRecovery());
-        assertFalse("Expected isConcurrentExectionDisallowed == false ", job.isConcurrentExectionDisallowed());
+        assertFalse("Expected isConcurrentExecutionDisallowed == false ", job.isConcurrentExecutionDisallowed());
         assertFalse("Expected isPersistJobDataAfterExecution == false ", job.isPersistJobDataAfterExecution());
         assertTrue("Unexpected job class: " + job.getJobClass(), job.getJobClass().equals(TestJob.class));
         
@@ -80,7 +80,7 @@ public class JobBuilderTest extends TestCase {
         assertTrue("Unexpected job description: " + job.getDescription(), job.getDescription().equals("my description"));
         assertTrue("Expected isDurable == true ", job.isDurable());
         assertTrue("Expected requestsRecovery == true ", job.requestsRecovery());
-        assertTrue("Expected isConcurrentExectionDisallowed == true ", job.isConcurrentExectionDisallowed());
+        assertTrue("Expected isConcurrentExecutionDisallowed == true ", job.isConcurrentExecutionDisallowed());
         assertTrue("Expected isPersistJobDataAfterExecution == true ", job.isPersistJobDataAfterExecution());
         
         job = newJob()
@@ -92,7 +92,7 @@ public class JobBuilderTest extends TestCase {
         assertTrue("Unexpected job group: " + job.getKey().getName(), job.getKey().getGroup().equals("g1"));
         assertFalse("Expected isDurable == false ", job.isDurable());
         assertFalse("Expected requestsRecovery == false ", job.requestsRecovery());
-        assertTrue("Expected isConcurrentExectionDisallowed == true ", job.isConcurrentExectionDisallowed());
+        assertTrue("Expected isConcurrentExecutionDisallowed == true ", job.isConcurrentExecutionDisallowed());
         assertTrue("Expected isPersistJobDataAfterExecution == true ", job.isPersistJobDataAfterExecution());
      
     }

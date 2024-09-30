@@ -617,7 +617,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             ps.setString(3, job.getDescription());
             ps.setString(4, job.getJobClass().getName());
             setBoolean(ps, 5, job.isDurable());
-            setBoolean(ps, 6, job.isConcurrentExectionDisallowed());
+            setBoolean(ps, 6, job.isConcurrentExecutionDisallowed());
             setBoolean(ps, 7, job.isPersistJobDataAfterExecution());
             setBoolean(ps, 8, job.requestsRecovery());
             setBytes(ps, 9, baos);
@@ -656,7 +656,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             ps.setString(1, job.getDescription());
             ps.setString(2, job.getJobClass().getName());
             setBoolean(ps, 3, job.isDurable());
-            setBoolean(ps, 4, job.isConcurrentExectionDisallowed());
+            setBoolean(ps, 4, job.isConcurrentExecutionDisallowed());
             setBoolean(ps, 5, job.isPersistJobDataAfterExecution());
             setBoolean(ps, 6, job.requestsRecovery());
             setBytes(ps, 7, baos);
@@ -2656,7 +2656,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             if (job != null) {
                 ps.setString(8, trigger.getJobKey().getName());
                 ps.setString(9, trigger.getJobKey().getGroup());
-                setBoolean(ps, 10, job.isConcurrentExectionDisallowed());
+                setBoolean(ps, 10, job.isConcurrentExecutionDisallowed());
                 setBoolean(ps, 11, job.requestsRecovery());
             } else {
                 ps.setString(8, null);
@@ -2700,7 +2700,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             if (job != null) {
                 ps.setString(5, trigger.getJobKey().getName());
                 ps.setString(6, trigger.getJobKey().getGroup());
-                setBoolean(ps, 7, job.isConcurrentExectionDisallowed());
+                setBoolean(ps, 7, job.isConcurrentExecutionDisallowed());
                 setBoolean(ps, 8, job.requestsRecovery());
             } else {
                 ps.setString(5, null);
