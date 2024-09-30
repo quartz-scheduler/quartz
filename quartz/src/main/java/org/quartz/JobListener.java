@@ -65,7 +65,7 @@ public interface JobListener {
      * 
      * @see #jobExecutionVetoed(JobExecutionContext)
      */
-    void jobToBeExecuted(JobExecutionContext context);
+    void jobToBeExecuted(JobExecutionContext context) throws SchedulerException;
 
     /**
      * <p>
@@ -77,7 +77,7 @@ public interface JobListener {
      * 
      * @see #jobToBeExecuted(JobExecutionContext)
      */
-    void jobExecutionVetoed(JobExecutionContext context);
+    void jobExecutionVetoed(JobExecutionContext context) throws SchedulerException;
 
     
     /**
@@ -88,6 +88,6 @@ public interface JobListener {
      * </p>
      */
     void jobWasExecuted(JobExecutionContext context,
-            JobExecutionException jobException);
+            JobExecutionException jobException) throws SchedulerException;
 
 }
