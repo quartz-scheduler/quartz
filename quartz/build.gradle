@@ -88,3 +88,14 @@ processResources {
         expand([version: project.version, fullname: project.fullname, name: project.name])
     }
 }
+
+ext {
+    JDK_PATH = System.getProperty("jdk")
+}
+
+tasks.withType(Test).configureEach {
+    if ( JDK_PATH != null  ) {
+        println("External Java home '${JDK_PATH}' spefified for tests!")
+        executable = new File(JDK_PATH, 'bin/java')
+    }
+}
