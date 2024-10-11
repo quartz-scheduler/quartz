@@ -1,5 +1,5 @@
 import org.gradle.api.publish.maven.internal.publication.MavenPomInternal;
-import org.gradle.api.publish.maven.internal.publisher.MavenProjectIdentity;
+import org.gradle.api.publish.maven.internal.publisher.MavenPublicationCoordinates;
 import static org.gradle.api.publish.plugins.PublishingPlugin.PUBLISH_TASK_GROUP;
 
 plugins {
@@ -110,18 +110,18 @@ allprojects {
             enabled = false
         }
         tasks.withType(GenerateMavenPom) {pomTask ->
-            MavenProjectIdentity identity = ((MavenPomInternal) pomTask.getPom()).getProjectIdentity();
+            MavenPublicationCoordinates coordinates = ((MavenPomInternal) pomTask.getPom()).getCoordinates()
             TaskProvider<WriteProperties> pomPropertiesTask = project.getTasks().register(pomTask.getName().replace("PomFile", "PomProperties"), WriteProperties.class, task -> {
                 task.dependsOn(pomTask);
                 task.setGroup(PUBLISH_TASK_GROUP);
                 task.setOutputFile(new File(pomTask.getDestination().getParentFile(), "pom.properties"));
-                task.property("groupId", identity.getGroupId());
-                task.property("artifactId", identity.getArtifactId());
-                task.property("version", identity.getVersion());
+                task.property("groupId", coordinates.getGroupId());
+                task.property("artifactId", coordinates.getArtifactId());
+                task.property("version", coordinates.getVersion());
             });
 
             project.tasks.withType(Jar).configureEach{jar ->
-                jar.into("META-INF/maven/" + identity.getGroupId().get() + "/" + identity.getArtifactId().get(), spec -> {
+                jar.into("META-INF/maven/" + coordinates.getGroupId().get() + "/" + coordinates.getArtifactId().get(), spec -> {
                     spec.from(pomTask, pom -> pom.rename(".*", "pom.xml"));
                     spec.from(pomPropertiesTask);
                 });

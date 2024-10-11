@@ -35,8 +35,14 @@ jobs:
       jobName: Java11
       jdkVersion: '1.11'
       options: '-Dtest.databasePort=1527'
-  #- template: build-templates/gradle-common.yml@templates
-  #  parameters:
-  #    jobName: Java17
-  #    jdkVersion: '1.17'
-  #    options: '-Dtest.databasePort=1527'
+  - template: build-templates/gradle-common.yml@templates
+    parameters:
+      jobName: Java17
+      jdkVersion: '1.17'
+      options: '-Dtest.databasePort=1527'
+  - template: build-templates/gradle-common.yml@templates
+    parameters:
+      jobName: Java21
+      jdkVersion: '1.21'
+      options: '-Dtest.databasePort=1527'
+
