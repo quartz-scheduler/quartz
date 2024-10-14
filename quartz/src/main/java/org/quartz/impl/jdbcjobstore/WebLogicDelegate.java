@@ -72,11 +72,8 @@ public class WebLogicDelegate extends StdJDBCDelegate {
         }
 
         if (null != binaryInput) {
-            ObjectInputStream in = new ObjectInputStream(binaryInput);
-            try {
+            try (ObjectInputStream in = new ObjectInputStream(binaryInput)) {
                 obj = in.readObject();
-            } finally {
-                in.close();
             }
         }
 

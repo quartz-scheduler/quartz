@@ -1248,11 +1248,9 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
     public int updateBlobTrigger(Connection conn, OperableTrigger trigger)
         throws SQLException, IOException {
         PreparedStatement ps = null;
-        ByteArrayOutputStream os = null;
 
-        try {
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             // update the blob
-            os = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(os);
             oos.writeObject(trigger);
             oos.close();
@@ -1268,9 +1266,6 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             return ps.executeUpdate();
         } finally {
             closeStatement(ps);
-            if (os != null) {
-                os.close();
-            }
         }
     }
 
@@ -3100,18 +3095,9 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         for (Map.Entry<?, ?> value : data.entrySet()) {
             Map.Entry<?, ?> entry = (Map.Entry<?, ?>) value;
 
-            ByteArrayOutputStream baos = null;
-            try {
-                baos = serializeObject(entry.getValue());
+            try (ByteArrayOutputStream baos = serializeObject(entry.getValue())) {
             } catch (IOException e) {
                 return entry.getKey();
-            } finally {
-                if (baos != null) {
-                    try {
-                        baos.close();
-                    } catch (IOException ignore) {
-                    }
-                }
             }
         }
         
@@ -3201,11 +3187,8 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
                     && ((ByteArrayInputStream) binaryInput).available() == 0 ) {
                     //do nothing
                 } else {
-                    ObjectInputStream in = new ObjectInputStream(binaryInput);
-                    try {
+                    try (ObjectInputStream in = new ObjectInputStream(binaryInput)) {
                         obj = in.readObject();
-                    } finally {
-                        in.close();
                     }
                 }
             }
