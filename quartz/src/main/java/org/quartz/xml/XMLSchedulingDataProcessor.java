@@ -514,7 +514,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
         for (int i = 0; i < deleteJobGroupNodes.getLength(); i++) {
             Node node = deleteJobGroupNodes.item(i);
             String t = node.getTextContent();
-            if(t == null || (t = t.trim()).length() == 0)
+            if(t == null || (t = t.trim()).isEmpty())
                 continue;
             jobGroupsToDelete.add(t);
         }
@@ -528,7 +528,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
         for (int i = 0; i < deleteTriggerGroupNodes.getLength(); i++) {
             Node node = deleteTriggerGroupNodes.item(i);
             String t = node.getTextContent();
-            if(t == null || (t = t.trim()).length() == 0)
+            if(t == null || (t = t.trim()).isEmpty())
                 continue;
             triggerGroupsToDelete.add(t);
         }
@@ -672,8 +672,8 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
             if(startTimeFutureSecsString != null)
                 triggerStartTime = new Date(System.currentTimeMillis() + (Long.valueOf(startTimeFutureSecsString) * 1000L));
             else 
-                triggerStartTime = (startTimeString == null || startTimeString.length() == 0 ? new Date() : DatatypeConverter.parseDateTime(startTimeString).getTime());
-            Date triggerEndTime = endTimeString == null || endTimeString.length() == 0 ? null : DatatypeConverter.parseDateTime(endTimeString).getTime();
+                triggerStartTime = (startTimeString == null || startTimeString.isEmpty() ? new Date() : DatatypeConverter.parseDateTime(startTimeString).getTime());
+            Date triggerEndTime = endTimeString == null || endTimeString.isEmpty() ? null : DatatypeConverter.parseDateTime(endTimeString).getTime();
 
             TriggerKey triggerKey = triggerKey(triggerName, triggerGroup);
             
@@ -690,7 +690,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
                     .withIntervalInMilliseconds(repeatInterval)
                     .withRepeatCount(repeatCount);
                 
-                if (triggerMisfireInstructionConst != null && triggerMisfireInstructionConst.length() != 0) {
+                if (triggerMisfireInstructionConst != null && !triggerMisfireInstructionConst.isEmpty()) {
                     if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_FIRE_NOW"))
                         ((SimpleScheduleBuilder)sched).withMisfireHandlingInstructionFireNow();
                     else if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_EXISTING_COUNT"))
@@ -716,7 +716,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
                 sched = cronSchedule(cronExpression)
                     .inTimeZone(tz);
 
-                if (triggerMisfireInstructionConst != null && triggerMisfireInstructionConst.length() != 0) {
+                if (triggerMisfireInstructionConst != null && !triggerMisfireInstructionConst.isEmpty()) {
                     if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_DO_NOTHING"))
                         ((CronScheduleBuilder)sched).withMisfireHandlingInstructionDoNothing();
                     else if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_FIRE_ONCE_NOW"))
@@ -738,7 +738,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
                 sched = calendarIntervalSchedule()
                     .withInterval(repeatInterval, repeatUnit);
 
-                if (triggerMisfireInstructionConst != null && triggerMisfireInstructionConst.length() != 0) {
+                if (triggerMisfireInstructionConst != null && !triggerMisfireInstructionConst.isEmpty()) {
                     if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_DO_NOTHING"))
                         ((CalendarIntervalScheduleBuilder)sched).withMisfireHandlingInstructionDoNothing();
                     else if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_FIRE_ONCE_NOW"))
@@ -790,7 +790,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
         if(str != null)
             str = str.trim();
         
-        if(str != null && str.length() == 0)
+        if(str != null && str.isEmpty())
             str = null;
         
         return str;
@@ -1023,7 +1023,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
             
             List<MutableTrigger> triggersOfJob = triggersByFQJobName.get(detail.getKey());
             
-            if (!detail.isDurable() && (triggersOfJob == null || triggersOfJob.size() == 0)) {
+            if (!detail.isDurable() && (triggersOfJob == null || triggersOfJob.isEmpty())) {
                 if (dupeJ == null) {
                     throw new SchedulerException(
                         "A new job defined without any triggers must be durable: " + 
@@ -1032,7 +1032,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
                 
                 if ((dupeJ.isDurable() && 
                     (sched.getTriggersOfJob(
-                        detail.getKey()).size() == 0))) {
+                            detail.getKey()).isEmpty()))) {
                     throw new SchedulerException(
                         "Can't change existing durable job without triggers to non-durable: " + 
                         detail.getKey());
@@ -1041,7 +1041,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
             
             
             if(dupeJ != null || detail.isDurable()) {
-                if (triggersOfJob != null && triggersOfJob.size() > 0)
+                if (triggersOfJob != null && !triggersOfJob.isEmpty())
                     sched.addJob(detail, true, true);  // add the job regardless is durable or not b/c we have trigger to add
                 else
                     sched.addJob(detail, true, false); // add the job only if a replacement or durable, else exception will throw!
@@ -1225,7 +1225,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
      *              DTD validation exception.
      */
     protected void maybeThrowValidationException() throws ValidationException {
-        if (validationExceptions.size() > 0) {
+        if (!validationExceptions.isEmpty()) {
             throw new ValidationException("Encountered " + validationExceptions.size() + " validation exceptions.", validationExceptions);
         }
     }

@@ -236,7 +236,7 @@ public class SimpleThreadPool implements ThreadPool {
 
     public void initialize() throws SchedulerConfigException {
 
-        if(workers != null && workers.size() > 0) // already initialized...
+        if(workers != null && !workers.isEmpty()) // already initialized...
             return;
         
         if (count <= 0) {
@@ -360,7 +360,7 @@ public class SimpleThreadPool implements ThreadPool {
                     }
 
                     // Wait until all worker threads are shut down
-                    while (busyWorkers.size() > 0) {
+                    while (!busyWorkers.isEmpty()) {
                         WorkerThread wt = (WorkerThread) busyWorkers.getFirst();
                         try {
                             getLog().debug(
@@ -418,7 +418,7 @@ public class SimpleThreadPool implements ThreadPool {
             handoffPending = true;
 
             // Wait until a worker thread is available
-            while ((availWorkers.size() < 1) && !isShutdown) {
+            while ((availWorkers.isEmpty()) && !isShutdown) {
                 try {
                     nextRunnableLock.wait(500);
                 } catch (InterruptedException ignore) {
@@ -448,7 +448,7 @@ public class SimpleThreadPool implements ThreadPool {
     public int blockForAvailableThreads() {
         synchronized(nextRunnableLock) {
 
-            while((availWorkers.size() < 1 || handoffPending) && !isShutdown) {
+            while((availWorkers.isEmpty() || handoffPending) && !isShutdown) {
                 try {
                     nextRunnableLock.wait(500);
                 } catch (InterruptedException ignore) {

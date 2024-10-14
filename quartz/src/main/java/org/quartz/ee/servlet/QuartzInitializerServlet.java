@@ -192,7 +192,7 @@ public class QuartzInitializerServlet extends HttpServlet {
             int startDelay = 0;
             String startDelayS = cfg.getInitParameter("start-delay-seconds");
             try {
-                if(startDelayS != null && startDelayS.trim().length() > 0)
+                if(startDelayS != null && !startDelayS.trim().isEmpty())
                     startDelay = Integer.parseInt(startDelayS);
             } catch(Exception e) {
                 log("Cannot parse value of 'start-delay-seconds' to an integer: " + startDelayS + ", defaulting to 5 seconds.", e);

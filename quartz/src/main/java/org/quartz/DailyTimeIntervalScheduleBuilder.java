@@ -233,7 +233,7 @@ public class DailyTimeIntervalScheduleBuilder extends ScheduleBuilder<DailyTimeI
      * @return the updated DailyTimeIntervalScheduleBuilder
      */
     public DailyTimeIntervalScheduleBuilder onDaysOfTheWeek(Set<Integer> onDaysOfWeek) {
-        if(onDaysOfWeek == null || onDaysOfWeek.size() == 0)
+        if(onDaysOfWeek == null || onDaysOfWeek.isEmpty())
             throw new IllegalArgumentException("Days of week must be an non-empty set.");
         for (Integer day : onDaysOfWeek)
             if (!ALL_DAYS_OF_THE_WEEK.contains(day))

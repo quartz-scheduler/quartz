@@ -120,7 +120,7 @@ public class ValidationException extends Exception {
      */
     @Override
     public String getMessage() {
-        if (getValidationExceptions().size() == 0) { return super.getMessage(); }
+        if (getValidationExceptions().isEmpty()) { return super.getMessage(); }
 
         StringBuffer sb = new StringBuffer();
 

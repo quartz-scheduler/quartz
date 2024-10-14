@@ -274,7 +274,7 @@ public class OracleDelegate extends StdJDBCDelegate {
             JobDetail jobDetail) throws SQLException, IOException {
 
         byte[] data = null;
-        if (trigger.getJobDataMap().size() > 0) {
+        if (!trigger.getJobDataMap().isEmpty()) {
             data = serializeJobData(trigger.getJobDataMap()).toByteArray();
         }
         
@@ -374,7 +374,7 @@ public class OracleDelegate extends StdJDBCDelegate {
         // save some clock cycles by unnecessarily writing job data blob ...
         boolean updateJobData = trigger.getJobDataMap().isDirty();
         byte[] data = null;
-        if (updateJobData && trigger.getJobDataMap().size() > 0) {
+        if (updateJobData && !trigger.getJobDataMap().isEmpty()) {
             data = serializeJobData(trigger.getJobDataMap()).toByteArray();
         }
                 

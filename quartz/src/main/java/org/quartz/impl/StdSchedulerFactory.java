@@ -660,7 +660,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
 
         userTXLocation = cfg.getStringProperty(PROP_SCHED_USER_TX_URL,
                 userTXLocation);
-        if (userTXLocation != null && userTXLocation.trim().length() == 0) {
+        if (userTXLocation != null && userTXLocation.trim().isEmpty()) {
             userTXLocation = null;
         }
 

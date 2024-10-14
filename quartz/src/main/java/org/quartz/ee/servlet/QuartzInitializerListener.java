@@ -179,7 +179,7 @@ public class QuartzInitializerListener implements ServletContextListener {
             if(startDelayS == null)
                 startDelayS = servletContext.getInitParameter("start-delay-seconds");
             try {
-                if(startDelayS != null && startDelayS.trim().length() > 0)
+                if(startDelayS != null && !startDelayS.trim().isEmpty())
                     startDelay = Integer.parseInt(startDelayS);
             } catch(Exception e) {
                 log.error("Cannot parse value of 'start-delay-seconds' to an integer: " + startDelayS + ", defaulting to 5 seconds.");

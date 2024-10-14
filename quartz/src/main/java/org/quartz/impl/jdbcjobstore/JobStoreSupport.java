@@ -970,7 +970,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                 "Handling the first " + misfiredTriggers.size() +
                 " triggers that missed their scheduled fire-time.  " +
                 "More misfired triggers remain to be processed.");
-        } else if (misfiredTriggers.size() > 0) { 
+        } else if (!misfiredTriggers.isEmpty()) {
             getLog().info(
                 "Handling " + misfiredTriggers.size() + 
                 " trigger(s) that missed their scheduled fire-time.");
@@ -2316,7 +2316,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
             List<FiredTriggerRecord> lst = getDelegate().selectFiredTriggerRecordsByJob(conn,
                     jobKey.getName(), jobKey.getGroup());
 
-            if (lst.size() > 0) {
+            if (!lst.isEmpty()) {
                 FiredTriggerRecord rec = lst.get(0);
                 if (rec.isJobDisallowsConcurrentExecution()) { // OLD_TODO: worry about failed/recovering/volatile job  states?
                     return (STATE_PAUSED.equals(currentState)) ? STATE_PAUSED_BLOCKED : STATE_BLOCKED;
@@ -2845,7 +2845,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                 List<TriggerKey> keys = getDelegate().selectTriggerToAcquire(conn, noLaterThan + timeWindow, getMisfireTime(), maxCount);
                 
                 // No trigger is ready to fire yet.
-                if (keys == null || keys.size() == 0)
+                if (keys == null || keys.isEmpty())
                     return acquiredTriggers;
 
                 long batchEnd = noLaterThan;
@@ -2914,7 +2914,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
 
                 // if we didn't end up with any trigger to fire from that first
                 // batch, try again for another batch. We allow with a max retry count.
-                if(acquiredTriggers.size() == 0 && currentLoopCount < MAX_DO_LOOP_RETRY) {
+                if(acquiredTriggers.isEmpty() && currentLoopCount < MAX_DO_LOOP_RETRY) {
                     continue;
                 }
                 
@@ -3332,7 +3332,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                 commitConnection(conn);
             }
             
-            if (firstCheckIn || (failedRecords.size() > 0)) {
+            if (firstCheckIn || (!failedRecords.isEmpty())) {
                 getLockHandler().obtainLock(conn, LOCK_STATE_ACCESS);
                 transStateOwner = true;
     
@@ -3340,7 +3340,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                 // The first time through, we also need to make sure we update/create our state record
                 failedRecords = (firstCheckIn) ? clusterCheckIn(conn) : findFailedInstances(conn);
     
-                if (failedRecords.size() > 0) {
+                if (!failedRecords.isEmpty()) {
                     getLockHandler().obtainLock(conn, LOCK_TRIGGER_ACCESS);
                     //getLockHandler().obtainLock(conn, LOCK_JOB_ACCESS);
                     transOwner = true;
@@ -3492,7 +3492,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
     protected void clusterRecover(Connection conn, List<SchedulerStateRecord> failedInstances)
         throws JobPersistenceException {
 
-        if (failedInstances.size() > 0) {
+        if (!failedInstances.isEmpty()) {
 
             long recoverIds = System.currentTimeMillis();
 

@@ -200,7 +200,7 @@ public class JobDetailImpl implements Cloneable, java.io.Serializable, JobDetail
      *              if name is null or empty.
      */
     public void setName(String name) {
-        if (name == null || name.trim().length() == 0) {
+        if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Job name cannot be empty.");
         }
 
@@ -228,7 +228,7 @@ public class JobDetailImpl implements Cloneable, java.io.Serializable, JobDetail
      *              if the group is an empty string.
      */
     public void setGroup(String group) {
-        if (group != null && group.trim().length() == 0) {
+        if (group != null && group.trim().isEmpty()) {
             throw new IllegalArgumentException(
                     "Group name cannot be empty.");
         }

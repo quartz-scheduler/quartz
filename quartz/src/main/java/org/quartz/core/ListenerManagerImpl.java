@@ -35,7 +35,7 @@ public class ListenerManagerImpl implements ListenerManager {
     }
 
     public void addJobListener(JobListener jobListener, List<Matcher<JobKey>> matchers) {
-        if (jobListener.getName() == null || jobListener.getName().length() == 0) {
+        if (jobListener.getName() == null || jobListener.getName().isEmpty()) {
             throw new IllegalArgumentException(
                     "JobListener name cannot be empty.");
         }
@@ -43,7 +43,7 @@ public class ListenerManagerImpl implements ListenerManager {
         synchronized (globalJobListeners) {
             globalJobListeners.put(jobListener.getName(), jobListener);
             LinkedList<Matcher<JobKey>> matchersL = new  LinkedList<Matcher<JobKey>>();
-            if(matchers != null && matchers.size() > 0)
+            if(matchers != null && !matchers.isEmpty())
                 matchersL.addAll(matchers);
             else
                 matchersL.add(EverythingMatcher.allJobs());
@@ -58,7 +58,7 @@ public class ListenerManagerImpl implements ListenerManager {
     }
     
     public void addJobListener(JobListener jobListener, Matcher<JobKey> matcher) {
-        if (jobListener.getName() == null || jobListener.getName().length() == 0) {
+        if (jobListener.getName() == null || jobListener.getName().isEmpty()) {
             throw new IllegalArgumentException(
                     "JobListener name cannot be empty.");
         }
@@ -148,7 +148,7 @@ public class ListenerManagerImpl implements ListenerManager {
     
     public void addTriggerListener(TriggerListener triggerListener, List<Matcher<TriggerKey>> matchers) {
         if (triggerListener.getName() == null
-                || triggerListener.getName().length() == 0) {
+                || triggerListener.getName().isEmpty()) {
             throw new IllegalArgumentException(
                     "TriggerListener name cannot be empty.");
         }
@@ -157,7 +157,7 @@ public class ListenerManagerImpl implements ListenerManager {
             globalTriggerListeners.put(triggerListener.getName(), triggerListener);
 
             LinkedList<Matcher<TriggerKey>> matchersL = new  LinkedList<Matcher<TriggerKey>>();
-            if(matchers != null && matchers.size() > 0)
+            if(matchers != null && !matchers.isEmpty())
                 matchersL.addAll(matchers);
             else
                 matchersL.add(EverythingMatcher.allTriggers());
@@ -175,7 +175,7 @@ public class ListenerManagerImpl implements ListenerManager {
             throw new IllegalArgumentException("Null value not acceptable for matcher.");
         
         if (triggerListener.getName() == null
-                || triggerListener.getName().length() == 0) {
+                || triggerListener.getName().isEmpty()) {
             throw new IllegalArgumentException(
                     "TriggerListener name cannot be empty.");
         }

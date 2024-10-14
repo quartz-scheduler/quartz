@@ -363,7 +363,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
     private void bind() throws RemoteException {
         String host = resources.getRMIRegistryHost();
         // don't export if we're not configured to do so...
-        if (host == null || host.length() == 0) {
+        if (host == null || host.isEmpty()) {
             return;
         }
 
@@ -430,7 +430,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
     private void unBind() throws RemoteException {
         String host = resources.getRMIRegistryHost();
         // don't un-export if we're not configured to do so...
-        if (host == null || host.length() == 0) {
+        if (host == null || host.isEmpty()) {
             return;
         }
 
@@ -1638,7 +1638,7 @@ J     *
      */
     public void addInternalJobListener(JobListener jobListener) {
         if (jobListener.getName() == null
-                || jobListener.getName().length() == 0) {
+                || jobListener.getName().isEmpty()) {
             throw new IllegalArgumentException(
                     "JobListener name cannot be empty.");
         }
@@ -1695,7 +1695,7 @@ J     *
      */
     public void addInternalTriggerListener(TriggerListener triggerListener) {
         if (triggerListener.getName() == null
-                || triggerListener.getName().length() == 0) {
+                || triggerListener.getName().isEmpty()) {
             throw new IllegalArgumentException(
                     "TriggerListener name cannot be empty.");
         }

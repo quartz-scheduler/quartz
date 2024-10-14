@@ -174,7 +174,7 @@ public abstract class DBSemaphore implements Semaphore, Constants,
     }
 
     protected void setSQL(String sql) {
-        if ((sql != null) && (sql.trim().length() != 0)) {
+        if ((sql != null) && (!sql.trim().isEmpty())) {
             this.sql = sql.trim();
         }
         
@@ -182,7 +182,7 @@ public abstract class DBSemaphore implements Semaphore, Constants,
     }
 
     protected void setInsertSQL(String insertSql) {
-        if ((insertSql != null) && (insertSql.trim().length() != 0)) {
+        if ((insertSql != null) && (!insertSql.trim().isEmpty())) {
             this.insertSql = insertSql.trim();
         }
         

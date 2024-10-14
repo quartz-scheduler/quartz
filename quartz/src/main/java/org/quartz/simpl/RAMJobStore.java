@@ -328,7 +328,7 @@ public class RAMJobStore implements JobStore {
                 HashMap<JobKey, JobWrapper> grpMap = jobsByGroup.get(jobKey.getGroup());
                 if (grpMap != null) {
                     grpMap.remove(jobKey);
-                    if (grpMap.size() == 0) {
+                    if (grpMap.isEmpty()) {
                         jobsByGroup.remove(jobKey.getGroup());
                     }
                 }
@@ -483,7 +483,7 @@ public class RAMJobStore implements JobStore {
                 HashMap<TriggerKey, TriggerWrapper> grpMap = triggersByGroup.get(key.getGroup());
                 if (grpMap != null) {
                     grpMap.remove(key);
-                    if (grpMap.size() == 0) {
+                    if (grpMap.isEmpty()) {
                         triggersByGroup.remove(key.getGroup());
                     }
                 }
@@ -501,7 +501,7 @@ public class RAMJobStore implements JobStore {
                 if (removeOrphanedJob) {
                     JobWrapper jw = jobsByKey.get(tw.jobKey);
                     List<OperableTrigger> trigs = getTriggersForJob(tw.jobKey);
-                    if ((trigs == null || trigs.size() == 0) && !jw.jobDetail.isDurable()) {
+                    if ((trigs == null || trigs.isEmpty()) && !jw.jobDetail.isDurable()) {
                         if (removeJob(jw.key)) {
                             signaler.notifySchedulerListenersJobDeleted(jw.key);
                         }
@@ -536,7 +536,7 @@ public class RAMJobStore implements JobStore {
                 HashMap<TriggerKey, TriggerWrapper> grpMap = triggersByGroup.get(triggerKey.getGroup());
                 if (grpMap != null) {
                     grpMap.remove(triggerKey);
-                    if (grpMap.size() == 0) {
+                    if (grpMap.isEmpty()) {
                         triggersByGroup.remove(triggerKey.getGroup());
                     }
                 }
@@ -1453,7 +1453,7 @@ public class RAMJobStore implements JobStore {
             long batchEnd = noLaterThan;
             
             // return empty list if store has no triggers.
-            if (timeTriggers.size() == 0)
+            if (timeTriggers.isEmpty())
                 return result;
             
             while (true) {
@@ -1509,7 +1509,7 @@ public class RAMJobStore implements JobStore {
             }
 
             // If we did excluded triggers to prevent ACQUIRE state due to DisallowConcurrentExecution, we need to add them back to store.
-            if (excludedTriggers.size() > 0)
+            if (!excludedTriggers.isEmpty())
                 timeTriggers.addAll(excludedTriggers);
             return result;
         }

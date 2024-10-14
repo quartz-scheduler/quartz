@@ -208,7 +208,7 @@ public abstract class AbstractTrigger<T extends Trigger> implements OperableTrig
      *              if name is null or empty.
      */
     public void setName(String name) {
-        if (name == null || name.trim().length() == 0) {
+        if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException(
                     "Trigger name cannot be null or empty.");
         }
@@ -237,7 +237,7 @@ public abstract class AbstractTrigger<T extends Trigger> implements OperableTrig
      *              if group is an empty string.
      */
     public void setGroup(String group) {
-        if (group != null && group.trim().length() == 0) {
+        if (group != null && group.trim().isEmpty()) {
             throw new IllegalArgumentException(
                     "Group name cannot be an empty string.");
         }
@@ -274,7 +274,7 @@ public abstract class AbstractTrigger<T extends Trigger> implements OperableTrig
      *              if jobName is null or empty.
      */
     public void setJobName(String jobName) {
-        if (jobName == null || jobName.trim().length() == 0) {
+        if (jobName == null || jobName.trim().isEmpty()) {
             throw new IllegalArgumentException(
                     "Job name cannot be null or empty.");
         }
@@ -304,7 +304,7 @@ public abstract class AbstractTrigger<T extends Trigger> implements OperableTrig
      *              if group is an empty string.
      */
     public void setJobGroup(String jobGroup) {
-        if (jobGroup != null && jobGroup.trim().length() == 0) {
+        if (jobGroup != null && jobGroup.trim().isEmpty()) {
             throw new IllegalArgumentException(
                     "Group name cannot be null or empty.");
         }

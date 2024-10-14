@@ -89,7 +89,7 @@ public class PropertiesParser {
         
         val = val.trim();
         
-        return (val.length() == 0) ? def : val;
+        return (val.isEmpty()) ? def : val;
     }
 
     public String[] getStringArrayProperty(String name) {

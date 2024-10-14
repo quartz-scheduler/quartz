@@ -1045,7 +1045,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             JobDetail jobDetail) throws SQLException, IOException {
 
         ByteArrayOutputStream baos = null;
-        if(trigger.getJobDataMap().size() > 0) {
+        if(!trigger.getJobDataMap().isEmpty()) {
             baos = serializeJobData(trigger.getJobDataMap());
         }
         
