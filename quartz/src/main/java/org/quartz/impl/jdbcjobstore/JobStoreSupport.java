@@ -1570,28 +1570,19 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                 return TriggerState.NONE;
             }
 
-            if (ts.equals(STATE_DELETED)) {
-                return TriggerState.NONE;
-            }
-
-            if (ts.equals(STATE_COMPLETE)) {
-                return TriggerState.COMPLETE;
-            }
-
-            if (ts.equals(STATE_PAUSED)) {
-                return TriggerState.PAUSED;
-            }
-
-            if (ts.equals(STATE_PAUSED_BLOCKED)) {
-                return TriggerState.PAUSED;
-            }
-
-            if (ts.equals(STATE_ERROR)) {
-                return TriggerState.ERROR;
-            }
-
-            if (ts.equals(STATE_BLOCKED)) {
-                return TriggerState.BLOCKED;
+            switch (ts) {
+                case STATE_DELETED:
+                    return TriggerState.NONE;
+                case STATE_COMPLETE:
+                    return TriggerState.COMPLETE;
+                case STATE_PAUSED:
+                    return TriggerState.PAUSED;
+                case STATE_PAUSED_BLOCKED:
+                    return TriggerState.PAUSED;
+                case STATE_ERROR:
+                    return TriggerState.ERROR;
+                case STATE_BLOCKED:
+                    return TriggerState.BLOCKED;
             }
 
             return TriggerState.NORMAL;

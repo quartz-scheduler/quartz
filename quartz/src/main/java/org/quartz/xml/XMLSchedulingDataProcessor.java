@@ -192,14 +192,15 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
           {
               if (prefix == null)
                   throw new IllegalArgumentException("Null prefix");
-              if (XMLConstants.XML_NS_PREFIX.equals(prefix))
-                  return XMLConstants.XML_NS_URI;
-              if (XMLConstants.XMLNS_ATTRIBUTE.equals(prefix))
-                  return XMLConstants.XMLNS_ATTRIBUTE_NS_URI;
-        
-              if ("q".equals(prefix))
-                  return QUARTZ_NS;
-        
+              switch (prefix) {
+                  case XMLConstants.XML_NS_PREFIX:
+                      return XMLConstants.XML_NS_URI;
+                  case XMLConstants.XMLNS_ATTRIBUTE:
+                      return XMLConstants.XMLNS_ATTRIBUTE_NS_URI;
+                  case "q":
+                      return QUARTZ_NS;
+              }
+
               return XMLConstants.NULL_NS_URI;
           }
         
@@ -678,79 +679,100 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
             TriggerKey triggerKey = triggerKey(triggerName, triggerGroup);
             
             ScheduleBuilder<?> sched;
-            
-            if (triggerNode.getNodeName().equals("simple")) {
-                String repeatCountString = getTrimmedToNullString(xpath, "q:repeat-count", triggerNode);
-                String repeatIntervalString = getTrimmedToNullString(xpath, "q:repeat-interval", triggerNode);
 
-                int repeatCount = repeatCountString == null ? 0 : Integer.parseInt(repeatCountString);
-                long repeatInterval = repeatIntervalString == null ? 0 : Long.parseLong(repeatIntervalString);
+            switch (triggerNode.getNodeName()) {
+                case "simple": {
+                    String repeatCountString = getTrimmedToNullString(xpath, "q:repeat-count", triggerNode);
+                    String repeatIntervalString = getTrimmedToNullString(xpath, "q:repeat-interval", triggerNode);
 
-                sched = simpleSchedule()
-                    .withIntervalInMilliseconds(repeatInterval)
-                    .withRepeatCount(repeatCount);
-                
-                if (triggerMisfireInstructionConst != null && !triggerMisfireInstructionConst.isEmpty()) {
-                    if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_FIRE_NOW"))
-                        ((SimpleScheduleBuilder)sched).withMisfireHandlingInstructionFireNow();
-                    else if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_EXISTING_COUNT"))
-                        ((SimpleScheduleBuilder)sched).withMisfireHandlingInstructionNextWithExistingCount();
-                    else if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_REMAINING_COUNT"))
-                        ((SimpleScheduleBuilder)sched).withMisfireHandlingInstructionNextWithRemainingCount();
-                    else if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_RESCHEDULE_NOW_WITH_EXISTING_REPEAT_COUNT"))
-                        ((SimpleScheduleBuilder)sched).withMisfireHandlingInstructionNowWithExistingCount();
-                    else if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_RESCHEDULE_NOW_WITH_REMAINING_REPEAT_COUNT"))
-                        ((SimpleScheduleBuilder)sched).withMisfireHandlingInstructionNowWithRemainingCount();
-                    else if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_SMART_POLICY")) {
-                        // do nothing.... (smart policy is default)
+                    int repeatCount = repeatCountString == null ? 0 : Integer.parseInt(repeatCountString);
+                    long repeatInterval = repeatIntervalString == null ? 0 : Long.parseLong(repeatIntervalString);
+
+                    sched = simpleSchedule()
+                            .withIntervalInMilliseconds(repeatInterval)
+                            .withRepeatCount(repeatCount);
+
+                    if (triggerMisfireInstructionConst != null && !triggerMisfireInstructionConst.isEmpty()) {
+                        switch (triggerMisfireInstructionConst) {
+                            case "MISFIRE_INSTRUCTION_FIRE_NOW":
+                                ((SimpleScheduleBuilder) sched).withMisfireHandlingInstructionFireNow();
+                                break;
+                            case "MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_EXISTING_COUNT":
+                                ((SimpleScheduleBuilder) sched).withMisfireHandlingInstructionNextWithExistingCount();
+                                break;
+                            case "MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_REMAINING_COUNT":
+                                ((SimpleScheduleBuilder) sched).withMisfireHandlingInstructionNextWithRemainingCount();
+                                break;
+                            case "MISFIRE_INSTRUCTION_RESCHEDULE_NOW_WITH_EXISTING_REPEAT_COUNT":
+                                ((SimpleScheduleBuilder) sched).withMisfireHandlingInstructionNowWithExistingCount();
+                                break;
+                            case "MISFIRE_INSTRUCTION_RESCHEDULE_NOW_WITH_REMAINING_REPEAT_COUNT":
+                                ((SimpleScheduleBuilder) sched).withMisfireHandlingInstructionNowWithRemainingCount();
+                                break;
+                            case "MISFIRE_INSTRUCTION_SMART_POLICY":
+                                // do nothing.... (smart policy is default)
+                                break;
+                            default:
+                                throw new ParseException("Unexpected/Unhandlable Misfire Instruction encountered '" + triggerMisfireInstructionConst + "', for trigger: " + triggerKey, -1);
+                        }
                     }
-                    else
-                        throw new ParseException("Unexpected/Unhandlable Misfire Instruction encountered '" + triggerMisfireInstructionConst + "', for trigger: " + triggerKey, -1);
+                    break;
                 }
-            } else if (triggerNode.getNodeName().equals("cron")) {
-                String cronExpression = getTrimmedToNullString(xpath, "q:cron-expression", triggerNode);
-                String timezoneString = getTrimmedToNullString(xpath, "q:time-zone", triggerNode);
+                case "cron":
+                    String cronExpression = getTrimmedToNullString(xpath, "q:cron-expression", triggerNode);
+                    String timezoneString = getTrimmedToNullString(xpath, "q:time-zone", triggerNode);
 
-                TimeZone tz = timezoneString == null ? null : TimeZone.getTimeZone(timezoneString);
+                    TimeZone tz = timezoneString == null ? null : TimeZone.getTimeZone(timezoneString);
 
-                sched = cronSchedule(cronExpression)
-                    .inTimeZone(tz);
+                    sched = cronSchedule(cronExpression)
+                            .inTimeZone(tz);
 
-                if (triggerMisfireInstructionConst != null && !triggerMisfireInstructionConst.isEmpty()) {
-                    if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_DO_NOTHING"))
-                        ((CronScheduleBuilder)sched).withMisfireHandlingInstructionDoNothing();
-                    else if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_FIRE_ONCE_NOW"))
-                        ((CronScheduleBuilder)sched).withMisfireHandlingInstructionFireAndProceed();
-                    else if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_SMART_POLICY")) {
-                        // do nothing.... (smart policy is default)
+                    if (triggerMisfireInstructionConst != null && !triggerMisfireInstructionConst.isEmpty()) {
+                        switch (triggerMisfireInstructionConst) {
+                            case "MISFIRE_INSTRUCTION_DO_NOTHING":
+                                ((CronScheduleBuilder) sched).withMisfireHandlingInstructionDoNothing();
+                                break;
+                            case "MISFIRE_INSTRUCTION_FIRE_ONCE_NOW":
+                                ((CronScheduleBuilder) sched).withMisfireHandlingInstructionFireAndProceed();
+                                break;
+                            case "MISFIRE_INSTRUCTION_SMART_POLICY":
+                                // do nothing.... (smart policy is default)
+                                break;
+                            default:
+                                throw new ParseException("Unexpected/Unhandlable Misfire Instruction encountered '" + triggerMisfireInstructionConst + "', for trigger: " + triggerKey, -1);
+                        }
                     }
-                    else
-                        throw new ParseException("Unexpected/Unhandlable Misfire Instruction encountered '" + triggerMisfireInstructionConst + "', for trigger: " + triggerKey, -1);
-                }
-            } else if (triggerNode.getNodeName().equals("calendar-interval")) {
-                String repeatIntervalString = getTrimmedToNullString(xpath, "q:repeat-interval", triggerNode);
-                String repeatUnitString = getTrimmedToNullString(xpath, "q:repeat-interval-unit", triggerNode);
+                    break;
+                case "calendar-interval": {
+                    String repeatIntervalString = getTrimmedToNullString(xpath, "q:repeat-interval", triggerNode);
+                    String repeatUnitString = getTrimmedToNullString(xpath, "q:repeat-interval-unit", triggerNode);
 
-                int repeatInterval = Integer.parseInt(repeatIntervalString);
+                    int repeatInterval = Integer.parseInt(repeatIntervalString);
 
-                IntervalUnit repeatUnit = IntervalUnit.valueOf(repeatUnitString);
+                    IntervalUnit repeatUnit = IntervalUnit.valueOf(repeatUnitString);
 
-                sched = calendarIntervalSchedule()
-                    .withInterval(repeatInterval, repeatUnit);
+                    sched = calendarIntervalSchedule()
+                            .withInterval(repeatInterval, repeatUnit);
 
-                if (triggerMisfireInstructionConst != null && !triggerMisfireInstructionConst.isEmpty()) {
-                    if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_DO_NOTHING"))
-                        ((CalendarIntervalScheduleBuilder)sched).withMisfireHandlingInstructionDoNothing();
-                    else if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_FIRE_ONCE_NOW"))
-                        ((CalendarIntervalScheduleBuilder)sched).withMisfireHandlingInstructionFireAndProceed();
-                    else if(triggerMisfireInstructionConst.equals("MISFIRE_INSTRUCTION_SMART_POLICY")) {
-                        // do nothing.... (smart policy is default)
+                    if (triggerMisfireInstructionConst != null && !triggerMisfireInstructionConst.isEmpty()) {
+                        switch (triggerMisfireInstructionConst) {
+                            case "MISFIRE_INSTRUCTION_DO_NOTHING":
+                                ((CalendarIntervalScheduleBuilder) sched).withMisfireHandlingInstructionDoNothing();
+                                break;
+                            case "MISFIRE_INSTRUCTION_FIRE_ONCE_NOW":
+                                ((CalendarIntervalScheduleBuilder) sched).withMisfireHandlingInstructionFireAndProceed();
+                                break;
+                            case "MISFIRE_INSTRUCTION_SMART_POLICY":
+                                // do nothing.... (smart policy is default)
+                                break;
+                            default:
+                                throw new ParseException("Unexpected/Unhandlable Misfire Instruction encountered '" + triggerMisfireInstructionConst + "', for trigger: " + triggerKey, -1);
+                        }
                     }
-                    else
-                        throw new ParseException("Unexpected/Unhandlable Misfire Instruction encountered '" + triggerMisfireInstructionConst + "', for trigger: " + triggerKey, -1);
+                    break;
                 }
-            } else {
-                throw new ParseException("Unknown trigger type: " + triggerNode.getNodeName(), -1);
+                default:
+                    throw new ParseException("Unknown trigger type: " + triggerNode.getNodeName(), -1);
             }
 
             
