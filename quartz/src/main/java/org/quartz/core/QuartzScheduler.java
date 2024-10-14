@@ -298,7 +298,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
                         isInStandbyMode(), isShutdown(), runningSince(), 
                         numJobsExecuted(), getJobStoreClass(), 
                         supportsPersistence(), isClustered(), getThreadPoolClass(), 
-                        getThreadPoolSize(), getVersion())).toString());
+                        getThreadPoolSize(), getVersion())));
     }
     
     /*

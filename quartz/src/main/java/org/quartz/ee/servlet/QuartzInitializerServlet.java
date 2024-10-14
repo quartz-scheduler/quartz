@@ -237,7 +237,7 @@ public class QuartzInitializerServlet extends HttpServlet {
             }
 
         } catch (Exception e) {
-            log("Quartz Scheduler failed to initialize: " + e.toString());
+            log("Quartz Scheduler failed to initialize: " + e);
             throw new ServletException(e);
         }
     }
@@ -266,7 +266,7 @@ public class QuartzInitializerServlet extends HttpServlet {
                 scheduler.shutdown(waitOnShutdown);
             }
         } catch (Exception e) {
-            log("Quartz Scheduler failed to shutdown cleanly: " + e.toString());
+            log("Quartz Scheduler failed to shutdown cleanly: " + e);
             e.printStackTrace();
         }
 

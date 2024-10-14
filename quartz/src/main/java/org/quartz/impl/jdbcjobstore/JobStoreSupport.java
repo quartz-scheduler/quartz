@@ -783,11 +783,11 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         } catch (SQLException sqle) {
             throw new JobPersistenceException(
                     "Failed to obtain DB connection from data source '"
-                    + getDataSource() + "': " + sqle.toString(), sqle);
+                    + getDataSource() + "': " + sqle, sqle);
         } catch (Throwable e) {
             throw new JobPersistenceException(
                     "Failed to obtain DB connection from data source '"
-                    + getDataSource() + "': " + e.toString(), e);
+                    + getDataSource() + "': " + e, e);
         }
 
         if (conn == null) { 

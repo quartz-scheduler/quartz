@@ -1504,7 +1504,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
                 }
             } catch (NumberFormatException nfe) {
                 throw new SchedulerConfigException("Could not parse property '"
-                        + name + "' into correct data type: " + nfe.toString());
+                        + name + "' into correct data type: " + nfe);
             }
         }
     }
