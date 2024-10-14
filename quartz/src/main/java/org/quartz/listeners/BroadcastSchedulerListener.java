@@ -29,7 +29,7 @@ public class BroadcastSchedulerListener implements SchedulerListener {
     private final List<SchedulerListener> listeners;
 
     public BroadcastSchedulerListener() {
-        listeners = new LinkedList<SchedulerListener>();
+        listeners = new LinkedList<>();
     }
 
     /**

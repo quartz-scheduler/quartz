@@ -100,7 +100,7 @@ public class TriggerSupport {
     public static TabularData toTabularData(List<? extends Trigger> triggers) {
         TabularData tData = new TabularDataSupport(TABULAR_TYPE);
         if (triggers != null) {
-            ArrayList<CompositeData> list = new ArrayList<CompositeData>();
+            ArrayList<CompositeData> list = new ArrayList<>();
             for (Trigger trigger : triggers) {
                 list.add(toCompositeData(trigger));
             }
@@ -110,7 +110,7 @@ public class TriggerSupport {
     }
     
     public static List<CompositeData> toCompositeList(List<? extends Trigger> triggers) {
-        List<CompositeData> result = new ArrayList<CompositeData>();
+        List<CompositeData> result = new ArrayList<>();
         for(Trigger trigger : triggers) {
             CompositeData cData = TriggerSupport.toCompositeData(trigger);
             if(cData != null) {

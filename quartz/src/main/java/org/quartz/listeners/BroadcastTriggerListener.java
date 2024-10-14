@@ -57,7 +57,7 @@ public class BroadcastTriggerListener implements TriggerListener {
             throw new IllegalArgumentException("Listener name cannot be null!");
         }
         this.name = name;
-        listeners = new LinkedList<TriggerListener>();
+        listeners = new LinkedList<>();
     }
 
     /**

@@ -47,7 +47,7 @@ public class HolidayCalendar extends BaseCalendar implements Calendar,
     static final long serialVersionUID = -7590908752291814693L;
     
     // A sorted set to store the holidays
-    private TreeSet<Date> dates = new TreeSet<Date>();
+    private TreeSet<Date> dates = new TreeSet<>();
 
     public HolidayCalendar() {
     }
@@ -67,7 +67,7 @@ public class HolidayCalendar extends BaseCalendar implements Calendar,
     @Override
     public Object clone() {
         HolidayCalendar clone = (HolidayCalendar) super.clone();
-        clone.dates = new TreeSet<Date>(dates);
+        clone.dates = new TreeSet<>(dates);
         return clone;
     }
     

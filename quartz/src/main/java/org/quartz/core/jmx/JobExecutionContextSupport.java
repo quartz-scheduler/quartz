@@ -89,7 +89,7 @@ public class JobExecutionContextSupport {
     public static TabularData toTabularData(
             final List<JobExecutionContext> executingJobs)
             throws SchedulerException {
-        List<CompositeData> list = new ArrayList<CompositeData>();
+        List<CompositeData> list = new ArrayList<>();
         for (JobExecutionContext executingJob : executingJobs) {
             list.add(toCompositeData(executingJob));
         }

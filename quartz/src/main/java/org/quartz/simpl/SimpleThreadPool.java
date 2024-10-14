@@ -75,8 +75,8 @@ public class SimpleThreadPool implements ThreadPool {
     private final Object nextRunnableLock = new Object();
 
     private List<WorkerThread> workers;
-    private final LinkedList<WorkerThread> availWorkers = new LinkedList<WorkerThread>();
-    private final LinkedList<WorkerThread> busyWorkers = new LinkedList<WorkerThread>();
+    private final LinkedList<WorkerThread> availWorkers = new LinkedList<>();
+    private final LinkedList<WorkerThread> busyWorkers = new LinkedList<>();
 
     private String threadNamePrefix;
 
@@ -281,7 +281,7 @@ public class SimpleThreadPool implements ThreadPool {
     }
 
     protected List<WorkerThread> createWorkerThreads(int createCount) {
-        workers = new LinkedList<WorkerThread>();
+        workers = new LinkedList<>();
         for (int i = 1; i<= createCount; ++i) {
             String threadPrefix = getThreadNamePrefix();
             if (threadPrefix == null) {

@@ -58,7 +58,7 @@ public class JobChainingJobListener extends JobListenerSupport {
             throw new IllegalArgumentException("Listener name cannot be null!");
         }
         this.name = name;
-        chainLinks = new HashMap<JobKey, JobKey>();
+        chainLinks = new HashMap<>();
     }
 
     public String getName() {

@@ -156,11 +156,11 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
 
     private final ListenerManager listenerManager = new ListenerManagerImpl();
     
-    private final HashMap<String, JobListener> internalJobListeners = new HashMap<String, JobListener>(10);
+    private final HashMap<String, JobListener> internalJobListeners = new HashMap<>(10);
 
-    private final HashMap<String, TriggerListener> internalTriggerListeners = new HashMap<String, TriggerListener>(10);
+    private final HashMap<String, TriggerListener> internalTriggerListeners = new HashMap<>(10);
 
-    private final ArrayList<SchedulerListener> internalSchedulerListeners = new ArrayList<SchedulerListener>(10);
+    private final ArrayList<SchedulerListener> internalSchedulerListeners = new ArrayList<>(10);
 
     private JobFactory jobFactory = new PropertySettingJobFactory();
     
@@ -172,7 +172,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
 
     private final Random random = new Random();
 
-    private final ArrayList<Object> holdToPreventGC = new ArrayList<Object>(5);
+    private final ArrayList<Object> holdToPreventGC = new ArrayList<>(5);
 
     private boolean signalOnSchedulingChange = true;
 
@@ -1037,7 +1037,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
 
     public void scheduleJob(JobDetail jobDetail, Set<? extends Trigger> triggersForJob,
             boolean replace) throws SchedulerException {
-        Map<JobDetail, Set<? extends Trigger>> triggersAndJobs = new HashMap<JobDetail, Set<? extends Trigger>>();
+        Map<JobDetail, Set<? extends Trigger>> triggersAndJobs = new HashMap<>();
         triggersAndJobs.put(jobDetail, triggersForJob);
         scheduleJobs(triggersAndJobs, replace);
     }
@@ -1671,7 +1671,7 @@ J     *
      */
     public List<JobListener> getInternalJobListeners() {
         synchronized (internalJobListeners) {
-            return java.util.Collections.unmodifiableList(new LinkedList<JobListener>(internalJobListeners.values()));
+            return java.util.Collections.unmodifiableList(new LinkedList<>(internalJobListeners.values()));
         }
     }
 
@@ -1728,7 +1728,7 @@ J     *
      */
     public List<TriggerListener> getInternalTriggerListeners() {
         synchronized (internalTriggerListeners) {
-            return java.util.Collections.unmodifiableList(new LinkedList<TriggerListener>(internalTriggerListeners.values()));
+            return java.util.Collections.unmodifiableList(new LinkedList<>(internalTriggerListeners.values()));
         }
     }
 
@@ -1779,7 +1779,7 @@ J     *
      */
     public List<SchedulerListener> getInternalSchedulerListeners() {
         synchronized (internalSchedulerListeners) {
-            return java.util.Collections.unmodifiableList(new ArrayList<SchedulerListener>(internalSchedulerListeners));
+            return java.util.Collections.unmodifiableList(new ArrayList<>(internalSchedulerListeners));
         }
     }
 
@@ -1799,7 +1799,7 @@ J     *
 
     private List<TriggerListener> buildTriggerListenerList()
         throws SchedulerException {
-        List<TriggerListener> allListeners = new LinkedList<TriggerListener>();
+        List<TriggerListener> allListeners = new LinkedList<>();
         allListeners.addAll(getListenerManager().getTriggerListeners());
         allListeners.addAll(getInternalTriggerListeners());
 
@@ -1808,7 +1808,7 @@ J     *
 
     private List<JobListener> buildJobListenerList()
         throws SchedulerException {
-        List<JobListener> allListeners = new LinkedList<JobListener>();
+        List<JobListener> allListeners = new LinkedList<>();
         allListeners.addAll(getListenerManager().getJobListeners());
         allListeners.addAll(getInternalJobListeners());
 
@@ -1816,7 +1816,7 @@ J     *
     }
 
     private List<SchedulerListener> buildSchedulerListenerList() {
-        List<SchedulerListener> allListeners = new LinkedList<SchedulerListener>();
+        List<SchedulerListener> allListeners = new LinkedList<>();
         allListeners.addAll(getListenerManager().getSchedulerListeners());
         allListeners.addAll(getInternalSchedulerListeners());
     
@@ -2417,7 +2417,7 @@ class ErrorLogger extends SchedulerListenerSupport {
 /////////////////////////////////////////////////////////////////////////////
 
 class ExecutingJobsManager implements JobListener {
-    HashMap<String, JobExecutionContext> executingJobs = new HashMap<String, JobExecutionContext>();
+    HashMap<String, JobExecutionContext> executingJobs = new HashMap<>();
 
     AtomicInteger numJobsFired = new AtomicInteger(0);
 
@@ -2456,7 +2456,7 @@ class ExecutingJobsManager implements JobListener {
 
     public List<JobExecutionContext> getExecutingJobs() {
         synchronized (executingJobs) {
-            return java.util.Collections.unmodifiableList(new ArrayList<JobExecutionContext>(
+            return java.util.Collections.unmodifiableList(new ArrayList<>(
                     executingJobs.values()));
         }
     }

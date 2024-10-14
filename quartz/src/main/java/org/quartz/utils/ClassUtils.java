@@ -55,7 +55,7 @@ public class ClassUtils {
         }
 
         //Check interfaces (breadth first)
-        Queue<Class<?>> q = new LinkedList<Class<?>>();
+        Queue<Class<?>> q = new LinkedList<>();
         q.add(clazz);
         while (!q.isEmpty()) {
             Class<?> c = q.remove();

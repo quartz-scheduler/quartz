@@ -38,14 +38,14 @@ public class EverythingMatcher<T extends Key<?>> implements Matcher<T> {
      * Create an EverythingMatcher that matches all jobs.
      */
     public static EverythingMatcher<JobKey> allJobs() {
-        return new EverythingMatcher<JobKey>();
+        return new EverythingMatcher<>();
     }
 
     /**
      * Create an EverythingMatcher that matches all triggers.
      */
     public static EverythingMatcher<TriggerKey> allTriggers() {
-        return new EverythingMatcher<TriggerKey>();
+        return new EverythingMatcher<>();
     }
     
     public boolean isMatch(T key) {

@@ -19,15 +19,15 @@ import org.quartz.impl.matchers.EverythingMatcher;
 
 public class ListenerManagerImpl implements ListenerManager {
 
-    private final Map<String, JobListener> globalJobListeners = new LinkedHashMap<String, JobListener>(10);
+    private final Map<String, JobListener> globalJobListeners = new LinkedHashMap<>(10);
 
-    private final Map<String, TriggerListener> globalTriggerListeners = new LinkedHashMap<String, TriggerListener>(10);
+    private final Map<String, TriggerListener> globalTriggerListeners = new LinkedHashMap<>(10);
 
-    private final Map<String, List<Matcher<JobKey>>> globalJobListenersMatchers = new LinkedHashMap<String, List<Matcher<JobKey>>>(10);
+    private final Map<String, List<Matcher<JobKey>>> globalJobListenersMatchers = new LinkedHashMap<>(10);
 
-    private final Map<String, List<Matcher<TriggerKey>>> globalTriggerListenersMatchers = new LinkedHashMap<String, List<Matcher<TriggerKey>>>(10);
+    private final Map<String, List<Matcher<TriggerKey>>> globalTriggerListenersMatchers = new LinkedHashMap<>(10);
 
-    private final ArrayList<SchedulerListener> schedulerListeners = new ArrayList<SchedulerListener>(10);
+    private final ArrayList<SchedulerListener> schedulerListeners = new ArrayList<>(10);
 
     
     public void addJobListener(JobListener jobListener, Matcher<JobKey> ... matchers) {
@@ -42,7 +42,7 @@ public class ListenerManagerImpl implements ListenerManager {
         
         synchronized (globalJobListeners) {
             globalJobListeners.put(jobListener.getName(), jobListener);
-            LinkedList<Matcher<JobKey>> matchersL = new  LinkedList<Matcher<JobKey>>();
+            LinkedList<Matcher<JobKey>> matchersL = new LinkedList<>();
             if(matchers != null && !matchers.isEmpty())
                 matchersL.addAll(matchers);
             else
@@ -65,7 +65,7 @@ public class ListenerManagerImpl implements ListenerManager {
         
         synchronized (globalJobListeners) {
             globalJobListeners.put(jobListener.getName(), jobListener);
-            LinkedList<Matcher<JobKey>> matchersL = new  LinkedList<Matcher<JobKey>>();
+            LinkedList<Matcher<JobKey>> matchersL = new LinkedList<>();
             if(matcher != null)
                 matchersL.add(matcher);
             else
@@ -132,7 +132,7 @@ public class ListenerManagerImpl implements ListenerManager {
     
     public List<JobListener> getJobListeners() {
         synchronized (globalJobListeners) {
-            return java.util.Collections.unmodifiableList(new LinkedList<JobListener>(globalJobListeners.values()));
+            return java.util.Collections.unmodifiableList(new LinkedList<>(globalJobListeners.values()));
         }
     }
 
@@ -156,7 +156,7 @@ public class ListenerManagerImpl implements ListenerManager {
         synchronized (globalTriggerListeners) {
             globalTriggerListeners.put(triggerListener.getName(), triggerListener);
 
-            LinkedList<Matcher<TriggerKey>> matchersL = new  LinkedList<Matcher<TriggerKey>>();
+            LinkedList<Matcher<TriggerKey>> matchersL = new LinkedList<>();
             if(matchers != null && !matchers.isEmpty())
                 matchersL.addAll(matchers);
             else
@@ -182,7 +182,7 @@ public class ListenerManagerImpl implements ListenerManager {
 
         synchronized (globalTriggerListeners) {
             globalTriggerListeners.put(triggerListener.getName(), triggerListener);
-            List<Matcher<TriggerKey>> matchers = new LinkedList<Matcher<TriggerKey>>();
+            List<Matcher<TriggerKey>> matchers = new LinkedList<>();
             matchers.add(matcher);
             globalTriggerListenersMatchers.put(triggerListener.getName(), matchers);
         }
@@ -244,7 +244,7 @@ public class ListenerManagerImpl implements ListenerManager {
 
     public List<TriggerListener> getTriggerListeners() {
         synchronized (globalTriggerListeners) {
-            return java.util.Collections.unmodifiableList(new LinkedList<TriggerListener>(globalTriggerListeners.values()));
+            return java.util.Collections.unmodifiableList(new LinkedList<>(globalTriggerListeners.values()));
         }
     }
 
@@ -269,7 +269,7 @@ public class ListenerManagerImpl implements ListenerManager {
 
     public List<SchedulerListener> getSchedulerListeners() {
         synchronized (schedulerListeners) {
-            return java.util.Collections.unmodifiableList(new ArrayList<SchedulerListener>(schedulerListeners));
+            return java.util.Collections.unmodifiableList(new ArrayList<>(schedulerListeners));
         }
     }
 }

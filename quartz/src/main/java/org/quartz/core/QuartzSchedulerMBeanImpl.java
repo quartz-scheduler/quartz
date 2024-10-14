@@ -105,7 +105,7 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
 
     public TabularData getAllJobDetails() throws Exception {
         try {
-            List<JobDetail> detailList = new ArrayList<JobDetail>();
+            List<JobDetail> detailList = new ArrayList<>();
             for (String jobGroupName : scheduler.getJobGroupNames()) {
                 for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(jobGroupName))) {
                     detailList.add(scheduler.getJobDetail(jobKey));
@@ -119,7 +119,7 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
 
     public List<CompositeData> getAllTriggers() throws Exception {
         try {
-            List<Trigger> triggerList = new ArrayList<Trigger>();
+            List<Trigger> triggerList = new ArrayList<>();
             for (String triggerGroupName : scheduler.getTriggerGroupNames()) {
                 for (TriggerKey triggerKey : scheduler.getTriggerKeys(GroupMatcher.triggerGroupEquals(triggerGroupName))) {
                     triggerList.add(scheduler.getTrigger(triggerKey));
@@ -383,7 +383,7 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
 
     public List<String> getJobNames(String groupName) throws Exception {
         try {
-            List<String> jobNames = new ArrayList<String>();
+            List<String> jobNames = new ArrayList<>();
             for(JobKey key: scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
                 jobNames.add(key.getName());
             }
@@ -424,7 +424,7 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
 
     public List<String> getTriggerNames(String groupName) throws Exception {
         try {
-            List<String> triggerNames = new ArrayList<String>();
+            List<String> triggerNames = new ArrayList<>();
             for(TriggerKey key: scheduler.getTriggerKeys(GroupMatcher.triggerGroupEquals(groupName))) {
                 triggerNames.add(key.getName());
             }
@@ -736,7 +736,7 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
     }
 
     public void jobDeleted(JobKey jobKey) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("jobName", jobKey.getName());
         map.put("jobGroup", jobKey.getGroup());
         sendNotification(JOB_DELETED, map);
@@ -747,7 +747,7 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
     }
 
     public void jobUnscheduled(TriggerKey triggerKey) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("triggerName", triggerKey.getName());
         map.put("triggerGroup", triggerKey.getGroup());
         sendNotification(JOB_UNSCHEDULED, map);
@@ -758,28 +758,28 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
     }
     
     public void jobPaused(JobKey jobKey) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("jobName", jobKey.getName());
         map.put("jobGroup", jobKey.getGroup());
         sendNotification(JOBS_PAUSED, map);
     }
 
     public void jobsPaused(String jobGroup) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("jobName", null);
         map.put("jobGroup", jobGroup);
         sendNotification(JOBS_PAUSED, map);
     }
     
     public void jobsResumed(String jobGroup) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("jobName", null);
         map.put("jobGroup", jobGroup);
         sendNotification(JOBS_RESUMED, map);
     }
 
     public void jobResumed(JobKey jobKey) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("jobName", jobKey.getName());
         map.put("jobGroup", jobKey.getGroup());
         sendNotification(JOBS_RESUMED, map);
@@ -812,21 +812,21 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
     }
 
     public void triggerFinalized(Trigger trigger) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("triggerName", trigger.getKey().getName());
         map.put("triggerGroup", trigger.getKey().getGroup());
         sendNotification(TRIGGER_FINALIZED, map);
     }
 
     public void triggersPaused(String triggerGroup) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("triggerName", null);
         map.put("triggerGroup", triggerGroup);
         sendNotification(TRIGGERS_PAUSED, map);
     }
 
     public void triggerPaused(TriggerKey triggerKey) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         if(triggerKey != null) {
             map.put("triggerName", triggerKey.getName());
             map.put("triggerGroup", triggerKey.getGroup());
@@ -835,14 +835,14 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
     }
 
     public void triggersResumed(String triggerGroup) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("triggerName", null);
         map.put("triggerGroup", triggerGroup);
         sendNotification(TRIGGERS_RESUMED, map);
     }
 
     public void triggerResumed(TriggerKey triggerKey) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         if(triggerKey != null) {
             map.put("triggerName", triggerKey.getName());
             map.put("triggerGroup", triggerKey.getGroup());
@@ -999,7 +999,7 @@ public class QuartzSchedulerMBeanImpl extends StandardMBean implements
     }
 
     public Map<String, Long> getPerformanceMetrics() {
-        Map<String, Long> result = new HashMap<String, Long>();
+        Map<String, Long> result = new HashMap<>();
         result.put("JobsCompleted", Long
                 .valueOf(getJobsCompletedMostRecentSample()));
         result.put("JobsExecuted", Long

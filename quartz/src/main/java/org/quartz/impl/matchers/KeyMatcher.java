@@ -39,7 +39,7 @@ public class KeyMatcher<T extends Key<?>> implements Matcher<T> {
      * Create a KeyMatcher that matches Keys that equal the given key. 
      */
     public static <U extends Key<?>> KeyMatcher<U> keyEquals(U compareTo) {
-        return new KeyMatcher<U>(compareTo);
+        return new KeyMatcher<>(compareTo);
     }
 
     public boolean isMatch(T key) {

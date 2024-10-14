@@ -116,25 +116,25 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
      */
 
     // pre-processing commands
-    protected List<String> jobGroupsToDelete = new LinkedList<String>();
-    protected List<String> triggerGroupsToDelete = new LinkedList<String>();
-    protected List<JobKey> jobsToDelete = new LinkedList<JobKey>();
-    protected List<TriggerKey> triggersToDelete = new LinkedList<TriggerKey>();
+    protected List<String> jobGroupsToDelete = new LinkedList<>();
+    protected List<String> triggerGroupsToDelete = new LinkedList<>();
+    protected List<JobKey> jobsToDelete = new LinkedList<>();
+    protected List<TriggerKey> triggersToDelete = new LinkedList<>();
 
     // scheduling commands
-    protected List<JobDetail> loadedJobs = new LinkedList<JobDetail>();
-    protected List<MutableTrigger> loadedTriggers = new LinkedList<MutableTrigger>();
+    protected List<JobDetail> loadedJobs = new LinkedList<>();
+    protected List<MutableTrigger> loadedTriggers = new LinkedList<>();
     
     // directives
     private boolean overWriteExistingData = true;
     private boolean ignoreDuplicates = false;
 
-    protected Collection<Exception> validationExceptions = new ArrayList<Exception>();
+    protected Collection<Exception> validationExceptions = new ArrayList<>();
 
     
     protected ClassLoadHelper classLoadHelper;
-    protected List<String> jobGroupsToNeverDelete = new LinkedList<String>();
-    protected List<String> triggerGroupsToNeverDelete = new LinkedList<String>();
+    protected List<String> jobGroupsToNeverDelete = new LinkedList<>();
+    protected List<String> triggerGroupsToNeverDelete = new LinkedList<>();
     
     private DocumentBuilder docBuilder = null;
     private XPath xpath = null;
@@ -912,12 +912,12 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
 
     private Map<JobKey, List<MutableTrigger>> buildTriggersByFQJobNameMap(List<MutableTrigger> triggers) {
         
-        Map<JobKey, List<MutableTrigger>> triggersByFQJobName = new HashMap<JobKey, List<MutableTrigger>>();
+        Map<JobKey, List<MutableTrigger>> triggersByFQJobName = new HashMap<>();
         
         for(MutableTrigger trigger: triggers) {
             List<MutableTrigger> triggersOfJob = triggersByFQJobName.get(trigger.getJobKey());
             if(triggersOfJob == null) {
-                triggersOfJob = new LinkedList<MutableTrigger>();
+                triggersOfJob = new LinkedList<>();
                 triggersByFQJobName.put(trigger.getJobKey(), triggersOfJob);
             }
             triggersOfJob.add(trigger);
@@ -999,8 +999,8 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
     protected void scheduleJobs(Scheduler sched)
         throws SchedulerException {
         
-        List<JobDetail> jobs = new LinkedList<JobDetail>(getLoadedJobs());
-        List<MutableTrigger> triggers = new LinkedList<MutableTrigger>( getLoadedTriggers());
+        List<JobDetail> jobs = new LinkedList<>(getLoadedJobs());
+        List<MutableTrigger> triggers = new LinkedList<>(getLoadedTriggers());
         
         log.info("Adding " + jobs.size() + " jobs, " + triggers.size() + " triggers.");
         

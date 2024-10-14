@@ -34,7 +34,7 @@ public class CounterManagerImpl implements CounterManager {
 
     private final Timer timer;
     private boolean shutdown;
-    private final List<Counter> counters = new ArrayList<Counter>();
+    private final List<Counter> counters = new ArrayList<>();
 
     /**
      * Constructor that accepts a timer that will be used for scheduling sampled

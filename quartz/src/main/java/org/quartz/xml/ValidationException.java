@@ -40,7 +40,7 @@ public class ValidationException extends Exception {
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      */
 
-    private Collection<Exception> validationExceptions = new ArrayList<Exception>();
+    private Collection<Exception> validationExceptions = new ArrayList<>();
 
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

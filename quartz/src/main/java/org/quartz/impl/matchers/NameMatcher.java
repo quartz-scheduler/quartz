@@ -38,7 +38,7 @@ public class NameMatcher<T extends Key<?>> extends StringMatcher<T> {
      * Create a NameMatcher that matches names equaling the given string.
      */
     public static <T extends Key<?>> NameMatcher<T> nameEquals(String compareTo) {
-        return new NameMatcher<T>(compareTo, StringOperatorName.EQUALS);
+        return new NameMatcher<>(compareTo, StringOperatorName.EQUALS);
     }
 
     /**
@@ -59,7 +59,7 @@ public class NameMatcher<T extends Key<?>> extends StringMatcher<T> {
      * Create a NameMatcher that matches names starting with the given string.
      */
     public static <U extends Key<?>> NameMatcher<U> nameStartsWith(String compareTo) {
-        return new NameMatcher<U>(compareTo, StringOperatorName.STARTS_WITH);
+        return new NameMatcher<>(compareTo, StringOperatorName.STARTS_WITH);
     }
 
     /**
@@ -80,7 +80,7 @@ public class NameMatcher<T extends Key<?>> extends StringMatcher<T> {
      * Create a NameMatcher that matches names ending with the given string.
      */
     public static <U extends Key<?>> NameMatcher<U> nameEndsWith(String compareTo) {
-        return new NameMatcher<U>(compareTo, StringOperatorName.ENDS_WITH);
+        return new NameMatcher<>(compareTo, StringOperatorName.ENDS_WITH);
     }
 
     /**
@@ -101,7 +101,7 @@ public class NameMatcher<T extends Key<?>> extends StringMatcher<T> {
      * Create a NameMatcher that matches names containing the given string.
      */
     public static <U extends Key<?>> NameMatcher<U> nameContains(String compareTo) {
-        return new NameMatcher<U>(compareTo, StringOperatorName.CONTAINS);
+        return new NameMatcher<>(compareTo, StringOperatorName.CONTAINS);
     }
 
     /**

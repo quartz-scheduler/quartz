@@ -44,7 +44,7 @@ public class AndMatcher<T extends Key<?>> implements Matcher<T> {
      * Create an AndMatcher that depends upon the result of both of the given matchers.
      */
     public static <U extends Key<?>> AndMatcher<U> and(Matcher<U> leftOperand, Matcher<U> rightOperand) {
-        return new AndMatcher<U>(leftOperand, rightOperand);
+        return new AndMatcher<>(leftOperand, rightOperand);
     }
 
     public boolean isMatch(T key) {

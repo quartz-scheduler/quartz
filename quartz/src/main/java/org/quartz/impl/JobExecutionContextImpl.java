@@ -74,7 +74,7 @@ public class JobExecutionContextImpl implements java.io.Serializable, JobExecuti
     
     private Object result;
     
-    private final HashMap<Object, Object> data = new HashMap<Object, Object>();
+    private final HashMap<Object, Object> data = new HashMap<>();
 
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

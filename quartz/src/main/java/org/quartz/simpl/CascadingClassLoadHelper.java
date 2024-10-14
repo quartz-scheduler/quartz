@@ -78,7 +78,7 @@ public class CascadingClassLoadHelper implements ClassLoadHelper {
      * thread, which is the thread that is initializing Quartz.
      */
     public void initialize() {
-        loadHelpers = new LinkedList<ClassLoadHelper>();
+        loadHelpers = new LinkedList<>();
 
         loadHelpers.add(new LoadingLoaderClassLoadHelper());
         loadHelpers.add(new SimpleClassLoadHelper());

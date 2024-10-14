@@ -110,7 +110,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
     
     protected Class<? extends DriverDelegate> delegateClass = StdJDBCDelegate.class;
 
-    protected HashMap<String, Calendar> calendarCache = new HashMap<String, Calendar>();
+    protected HashMap<String, Calendar> calendarCache = new HashMap<>();
 
     private DriverDelegate delegate;
 
@@ -956,7 +956,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         int maxMisfiresToHandleAtATime = 
             (recovering) ? -1 : getMaxMisfiresToHandleAtATime();
         
-        List<TriggerKey> misfiredTriggers = new LinkedList<TriggerKey>();
+        List<TriggerKey> misfiredTriggers = new LinkedList<>();
         long earliestNewTime = Long.MAX_VALUE;
         // We must still look for the MISFIRED state in case triggers were left 
         // in this state when upgrading to this version that does not support it. 
@@ -2269,7 +2269,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
             LOCK_TRIGGER_ACCESS,
             new TransactionCallback() {
                 public Set<String> execute(final Connection conn) throws JobPersistenceException {
-                    Set<String> groupNames = new HashSet<String>();
+                    Set<String> groupNames = new HashSet<>();
                     Set<JobKey> jobNames = getJobNames(conn, matcher);
 
                     for (JobKey jobKey : jobNames) {
@@ -2451,7 +2451,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
             new TransactionCallback() {
                 public Set<String> execute(Connection conn) throws JobPersistenceException {
                     Set<JobKey> jobKeys = getJobNames(conn, matcher);
-                    Set<String> groupNames = new HashSet<String>();
+                    Set<String> groupNames = new HashSet<>();
 
                     for (JobKey jobKey: jobKeys) {
                         List<OperableTrigger> triggers = getTriggersForJob(conn, jobKey);
@@ -2519,7 +2519,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                 }
             }
 
-            return new HashSet<String>(groups);
+            return new HashSet<>(groups);
 
         } catch (SQLException e) {
             throw new JobPersistenceException("Couldn't pause trigger group '"
@@ -2602,7 +2602,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         try {
 
             getDelegate().deletePausedTriggerGroup(conn, matcher);
-            HashSet<String> groups = new HashSet<String>();
+            HashSet<String> groups = new HashSet<>();
 
             Set<TriggerKey> keys = getDelegate().selectTriggersInGroup(conn,
                     matcher);
@@ -2801,7 +2801,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                     public Boolean validate(Connection conn, List<OperableTrigger> result) throws JobPersistenceException {
                         try {
                             List<FiredTriggerRecord> acquired = getDelegate().selectInstancesFiredTriggerRecords(conn, getInstanceId());
-                            Set<String> fireInstanceIds = new HashSet<String>();
+                            Set<String> fireInstanceIds = new HashSet<>();
                             for (FiredTriggerRecord ft : acquired) {
                                 fireInstanceIds.add(ft.getFireInstanceId());
                             }
@@ -2826,8 +2826,8 @@ public abstract class JobStoreSupport implements JobStore, Constants {
           throw new IllegalArgumentException();
         }
         
-        List<OperableTrigger> acquiredTriggers = new ArrayList<OperableTrigger>();
-        Set<JobKey> acquiredJobKeysForNoConcurrentExec = new HashSet<JobKey>();
+        List<OperableTrigger> acquiredTriggers = new ArrayList<>();
+        Set<JobKey> acquiredJobKeysForNoConcurrentExec = new HashSet<>();
         final int MAX_DO_LOOP_RETRY = 3;
         int currentLoopCount = 0;
         do {
@@ -2969,7 +2969,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         return executeInNonManagedTXLock(LOCK_TRIGGER_ACCESS,
                 new TransactionCallback<List<TriggerFiredResult>>() {
                     public List<TriggerFiredResult> execute(Connection conn) throws JobPersistenceException {
-                        List<TriggerFiredResult> results = new ArrayList<TriggerFiredResult>();
+                        List<TriggerFiredResult> results = new ArrayList<>();
 
                         TriggerFiredResult result;
                         for (OperableTrigger trigger : triggers) {
@@ -2992,7 +2992,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                     public Boolean validate(Connection conn, List<TriggerFiredResult> result) throws JobPersistenceException {
                         try {
                             List<FiredTriggerRecord> acquired = getDelegate().selectInstancesFiredTriggerRecords(conn, getInstanceId());
-                            Set<String> executingTriggers = new HashSet<String>();
+                            Set<String> executingTriggers = new HashSet<>();
                             for (FiredTriggerRecord ft : acquired) {
                                 if (STATE_EXECUTING.equals(ft.getFireInstanceState())) {
                                     executingTriggers.add(ft.getFireInstanceId());
@@ -3277,7 +3277,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         }
     }
 
-    protected ThreadLocal<Long> sigChangeForTxCompletion = new ThreadLocal<Long>();
+    protected ThreadLocal<Long> sigChangeForTxCompletion = new ThreadLocal<>();
     protected void signalSchedulingChangeOnTxCompletion(long candidateNewNextFireTime) {
         Long sigTime = sigChangeForTxCompletion.get();
         if(sigTime == null && candidateNewNextFireTime >= 0L)
@@ -3369,7 +3369,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
     protected List<SchedulerStateRecord> findFailedInstances(Connection conn)
         throws JobPersistenceException {
         try {
-            List<SchedulerStateRecord> failedInstances = new LinkedList<SchedulerStateRecord>();
+            List<SchedulerStateRecord> failedInstances = new LinkedList<>();
             boolean foundThisScheduler = false;
             long timeNow = System.currentTimeMillis();
             
@@ -3425,7 +3425,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
             Connection conn, 
             List<SchedulerStateRecord> schedulerStateRecords) 
         throws SQLException, NoSuchDelegateException {
-        List<SchedulerStateRecord> orphanedInstances = new ArrayList<SchedulerStateRecord>();
+        List<SchedulerStateRecord> orphanedInstances = new ArrayList<>();
         
         Set<String> allFiredTriggerInstanceNames = getDelegate().selectFiredTriggerInstanceNames(conn);
         if (!allFiredTriggerInstanceNames.isEmpty()) {
@@ -3505,7 +3505,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                     int recoveredCount = 0;
                     int otherCount = 0;
 
-                    Set<TriggerKey> triggerKeys = new HashSet<TriggerKey>();
+                    Set<TriggerKey> triggerKeys = new HashSet<>();
 
                     for (FiredTriggerRecord ftRec : firedTriggerRecs) {
 

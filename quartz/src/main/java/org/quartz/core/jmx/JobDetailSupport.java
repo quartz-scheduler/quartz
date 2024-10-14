@@ -130,7 +130,7 @@ public class JobDetailSupport {
     public static TabularData toTabularData(JobDetail[] jobDetails) {
         TabularData tData = new TabularDataSupport(TABULAR_TYPE);
         if (jobDetails != null) {
-            ArrayList<CompositeData> list = new ArrayList<CompositeData>();
+            ArrayList<CompositeData> list = new ArrayList<>();
             for (JobDetail jobDetail : jobDetails) {
                 list.add(toCompositeData(jobDetail));
             }

@@ -79,7 +79,7 @@ public class JobDataMapSupport {
      */
     public static TabularData toTabularData(JobDataMap jobDataMap) {
         TabularData tData = new TabularDataSupport(TABULAR_TYPE);
-        ArrayList<CompositeData> list = new ArrayList<CompositeData>();
+        ArrayList<CompositeData> list = new ArrayList<>();
         Iterator<String> iter = jobDataMap.keySet().iterator();
         while (iter.hasNext()) {
             String key = iter.next();

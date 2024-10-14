@@ -43,7 +43,7 @@ public class AnnualCalendar extends BaseCalendar implements Calendar,
 
     static final long serialVersionUID = 7346867105876610961L;
 
-    private ArrayList<java.util.Calendar> excludeDays = new ArrayList<java.util.Calendar>();
+    private ArrayList<java.util.Calendar> excludeDays = new ArrayList<>();
 
     // true, if excludeDays is sorted
     private boolean dataSorted = false;
@@ -66,7 +66,7 @@ public class AnnualCalendar extends BaseCalendar implements Calendar,
     @Override
     public Object clone() {
         AnnualCalendar clone = (AnnualCalendar) super.clone();
-        clone.excludeDays = new ArrayList<java.util.Calendar>(excludeDays);
+        clone.excludeDays = new ArrayList<>(excludeDays);
         return clone;
     }
 
@@ -135,7 +135,7 @@ public class AnnualCalendar extends BaseCalendar implements Calendar,
      */
     public void setDaysExcluded(ArrayList<java.util.Calendar> days) {
         if (days == null) {
-            excludeDays = new ArrayList<java.util.Calendar>();
+            excludeDays = new ArrayList<>();
         } else {
             excludeDays = days;
         }

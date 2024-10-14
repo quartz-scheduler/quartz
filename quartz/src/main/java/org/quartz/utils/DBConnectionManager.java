@@ -58,7 +58,7 @@ public class DBConnectionManager {
 
     private static final DBConnectionManager instance = new DBConnectionManager();
 
-    private final HashMap<String, ConnectionProvider> providers = new HashMap<String, ConnectionProvider>();
+    private final HashMap<String, ConnectionProvider> providers = new HashMap<>();
 
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

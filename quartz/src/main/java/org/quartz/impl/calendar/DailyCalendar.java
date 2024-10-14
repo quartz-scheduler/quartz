@@ -653,7 +653,7 @@ public class DailyCalendar extends BaseCalendar {
      * Helper method to split the given string by the given delimiter.
      */
     private String[] split(String string, String delim) {
-        ArrayList<String> result = new ArrayList<String>();
+        ArrayList<String> result = new ArrayList<>();
         
         StringTokenizer stringTokenizer = new StringTokenizer(string, delim);
         while (stringTokenizer.hasMoreTokens()) {

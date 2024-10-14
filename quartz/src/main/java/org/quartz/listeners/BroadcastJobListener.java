@@ -57,7 +57,7 @@ public class BroadcastJobListener implements JobListener {
             throw new IllegalArgumentException("Listener name cannot be null!");
         }
         this.name = name;
-        listeners = new LinkedList<JobListener>();
+        listeners = new LinkedList<>();
     }
 
     /**

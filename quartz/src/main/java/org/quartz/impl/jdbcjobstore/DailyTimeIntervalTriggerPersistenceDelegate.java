@@ -114,7 +114,7 @@ public class DailyTimeIntervalTriggerPersistenceDelegate extends SimplePropertie
                 .withRepeatCount(repeatCount);
                 
         if (daysOfWeekStr != null) {
-            Set<Integer> daysOfWeek = new HashSet<Integer>();
+            Set<Integer> daysOfWeek = new HashSet<>();
             String[] nums = daysOfWeekStr.split(",");
             if (nums.length > 0) {
                 for (String num : nums) {

@@ -56,7 +56,7 @@ public class SchedulerRepository {
      */
 
     private SchedulerRepository() {
-        schedulers = new HashMap<String, Scheduler>();
+        schedulers = new HashMap<>();
     }
 
     /*
