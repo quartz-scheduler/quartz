@@ -3097,9 +3097,9 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
      * null if all values are serializable.
      */
     protected Object getKeyOfNonSerializableValue(Map<?, ?> data) {
-        for (Iterator<?> entryIter = data.entrySet().iterator(); entryIter.hasNext();) {
-            Map.Entry<?, ?> entry = (Map.Entry<?, ?>)entryIter.next();
-            
+        for (Map.Entry<?, ?> value : data.entrySet()) {
+            Map.Entry<?, ?> entry = (Map.Entry<?, ?>) value;
+
             ByteArrayOutputStream baos = null;
             try {
                 baos = serializeObject(entry.getValue());
@@ -3107,7 +3107,10 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
                 return entry.getKey();
             } finally {
                 if (baos != null) {
-                    try { baos.close(); } catch (IOException ignore) {}
+                    try {
+                        baos.close();
+                    } catch (IOException ignore) {
+                    }
                 }
             }
         }
@@ -3143,25 +3146,25 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
      */
     protected Properties convertToProperty(Map<?, ?> data) throws IOException {
         Properties properties = new Properties();
-        
-        for (Iterator<?> entryIter = data.entrySet().iterator(); entryIter.hasNext();) {
-            Map.Entry<?, ?> entry = (Map.Entry<?, ?>)entryIter.next();
-            
+
+        for (Map.Entry<?, ?> value : data.entrySet()) {
+            Map.Entry<?, ?> entry = (Map.Entry<?, ?>) value;
+
             Object key = entry.getKey();
             Object val = (entry.getValue() == null) ? "" : entry.getValue();
-            
-            if(!(key instanceof String)) {
-                throw new IOException("JobDataMap keys/values must be Strings " 
-                        + "when the 'useProperties' property is set. " 
+
+            if (!(key instanceof String)) {
+                throw new IOException("JobDataMap keys/values must be Strings "
+                        + "when the 'useProperties' property is set. "
                         + " offending Key: " + key);
             }
-            
-            if(!(val instanceof String)) {
-                throw new IOException("JobDataMap values must be Strings " 
-                        + "when the 'useProperties' property is set. " 
+
+            if (!(val instanceof String)) {
+                throw new IOException("JobDataMap values must be Strings "
+                        + "when the 'useProperties' property is set. "
                         + " Key of offending value: " + key);
             }
-            
+
             properties.put(key, val);
         }
         

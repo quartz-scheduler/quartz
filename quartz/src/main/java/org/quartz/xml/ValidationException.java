@@ -126,10 +126,7 @@ public class ValidationException extends Exception {
 
         boolean first = true;
 
-        for (Iterator<Exception> iter = getValidationExceptions().iterator(); iter
-                .hasNext(); ) {
-            Exception e = iter.next();
-
+        for (Exception e : getValidationExceptions()) {
             if (!first) {
                 sb.append('\n');
                 first = false;

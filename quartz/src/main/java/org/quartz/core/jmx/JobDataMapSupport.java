@@ -39,8 +39,8 @@ public class JobDataMapSupport {
         JobDataMap jobDataMap = new JobDataMap();
 
         if(tabularData != null) {
-            for (final Iterator<?> pos = tabularData.values().iterator(); pos.hasNext();) {
-                CompositeData cData = (CompositeData) pos.next();
+            for (Object o : tabularData.values()) {
+                CompositeData cData = (CompositeData) o;
                 jobDataMap.put((String) cData.get("key"), (String) cData.get("value"));
             }
         }
@@ -52,8 +52,7 @@ public class JobDataMapSupport {
         JobDataMap jobDataMap = new JobDataMap();
 
         if(map != null) {
-            for (final Iterator<String> pos = map.keySet().iterator(); pos.hasNext();) {
-                String key = pos.next();
+            for (String key : map.keySet()) {
                 jobDataMap.put(key, map.get(key));
             }
         }

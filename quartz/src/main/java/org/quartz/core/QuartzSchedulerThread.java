@@ -370,8 +370,8 @@ public class QuartzSchedulerThread extends Thread {
                                                 + triggers + "'", se);
                                 //QTZ-179 : a problem occurred interacting with the triggers from the db
                                 //we release them and loop again
-                                for (int i = 0; i < triggers.size(); i++) {
-                                    qsRsrcs.getJobStore().releaseAcquiredTrigger(triggers.get(i));
+                                for (OperableTrigger trigger : triggers) {
+                                    qsRsrcs.getJobStore().releaseAcquiredTrigger(trigger);
                                 }
                                 continue;
                             }
