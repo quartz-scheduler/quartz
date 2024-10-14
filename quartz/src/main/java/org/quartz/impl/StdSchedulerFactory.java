@@ -921,7 +921,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
                     }
 
                     ((JobStoreSupport)js).setLockHandler(lockHandler);
-                    getLog().info("Using custom data access locking (synchronization): " + lockHandlerClass);
+                    getLog().info("Using custom data access locking (synchronization): {}", lockHandlerClass);
                 } catch (Exception e) {
                     initException = new SchedulerException("JobStore LockHandler class '" + lockHandlerClass
                             + "' could not be instantiated.", e);
@@ -1034,7 +1034,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
                     else {
                         cpClass = "org.quartz.utils.C3p0PoolingConnectionProvider";
                     }
-                    log.info("Using ConnectionProvider class '" + cpClass + "' for data source '" + dsNames[i] + "'");
+                    log.info("Using ConnectionProvider class '{}' for data source '{}'", cpClass, dsNames[i]);
 
                     try {
                         ConnectionProvider cp = null;
@@ -1209,7 +1209,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
             tProps = cfg.getPropertyGroup(PROP_THREAD_EXECUTOR, true);
             try {
                 threadExecutor = (ThreadExecutor) loadHelper.loadClass(threadExecutorClass).newInstance();
-                log.info("Using custom implementation for ThreadExecutor: " + threadExecutorClass);
+                log.info("Using custom implementation for ThreadExecutor: {}", threadExecutorClass);
 
                 setBeanProps(threadExecutor, tProps);
             } catch (Exception e) {
@@ -1371,12 +1371,10 @@ public class StdSchedulerFactory implements SchedulerFactory {
             jrsf.initialize(scheduler);
             
             qs.initialize();
-    
-            getLog().info(
-                    "Quartz scheduler '" + scheduler.getSchedulerName()
-                            + "' initialized from " + propSrc);
-    
-            getLog().info("Quartz scheduler version: " + qs.getVersion());
+
+            getLog().info("Quartz scheduler '{}' initialized from {}", scheduler.getSchedulerName(), propSrc);
+
+            getLog().info("Quartz scheduler version: {}", qs.getVersion());
     
             // prevents the repository from being garbage collected
             qs.addNoGCObject(schedRep);

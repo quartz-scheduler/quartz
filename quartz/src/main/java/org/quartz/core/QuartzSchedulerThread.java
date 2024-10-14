@@ -112,7 +112,7 @@ public class QuartzSchedulerThread extends Thread {
         this.qsRsrcs = qsRsrcs;
         this.setDaemon(setDaemon);
         if(qsRsrcs.isThreadsInheritInitializersClassLoadContext()) {
-            log.info("QuartzSchedulerThread Inheriting ContextClassLoader of thread: " + Thread.currentThread().getName());
+            log.info("QuartzSchedulerThread Inheriting ContextClassLoader of thread: {}", Thread.currentThread().getName());
             this.setContextClassLoader(Thread.currentThread().getContextClassLoader());
         }
 
@@ -295,7 +295,7 @@ public class QuartzSchedulerThread extends Thread {
                                 now + idleWaitTime, Math.min(availThreadCount, qsRsrcs.getMaxBatchSize()), qsRsrcs.getBatchTimeWindow());
                         acquiresFailed = 0;
                         if (log.isDebugEnabled())
-                            log.debug("batch acquisition of " + (triggers == null ? 0 : triggers.size()) + " triggers");
+                            log.debug("batch acquisition of {} triggers", triggers == null ? 0 : triggers.size());
                     } catch (JobPersistenceException jpe) {
                         if (acquiresFailed == 0) {
                             qs.notifySchedulerListenersError(
@@ -307,8 +307,7 @@ public class QuartzSchedulerThread extends Thread {
                         continue;
                     } catch (RuntimeException e) {
                         if (acquiresFailed == 0) {
-                            getLog().error("quartzSchedulerThreadLoop: RuntimeException "
-                                    +e.getMessage(), e);
+                            getLog().error("quartzSchedulerThreadLoop: RuntimeException {}", e.getMessage(), e);
                         }
                         if (acquiresFailed < Integer.MAX_VALUE)
                             acquiresFailed++;
@@ -385,7 +384,7 @@ public class QuartzSchedulerThread extends Thread {
                             Exception exception = result.getException();
 
                             if (exception instanceof RuntimeException) {
-                                getLog().error("RuntimeException while firing trigger " + triggers.get(i), exception);
+                                getLog().error("RuntimeException while firing trigger {}", triggers.get(i), exception);
                                 qsRsrcs.getJobStore().releaseAcquiredTrigger(triggers.get(i));
                                 continue;
                             }

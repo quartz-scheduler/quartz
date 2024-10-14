@@ -129,8 +129,7 @@ public class ShutdownHookPlugin implements SchedulerPlugin {
                 try {
                     scheduler.shutdown(isCleanShutdown());
                 } catch (SchedulerException e) {
-                    getLog().info(
-                            "Error shutting down Quartz: " + e.getMessage(), e);
+                    getLog().info("Error shutting down Quartz: {}", e.getMessage(), e);
                 }
             }
         };

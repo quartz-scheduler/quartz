@@ -105,26 +105,20 @@ public abstract class DBSemaphore implements Semaphore, Constants,
         throws LockException {
 
         if(log.isDebugEnabled()) {
-            log.debug(
-                "Lock '" + lockName + "' is desired by: "
-                        + Thread.currentThread().getName());
+            log.debug("Lock '{}' is desired by: {}", lockName, Thread.currentThread().getName());
         }
         if (!isLockOwner(lockName)) {
 
             executeSQL(conn, lockName, expandedSQL, expandedInsertSQL);
             
             if(log.isDebugEnabled()) {
-                log.debug(
-                    "Lock '" + lockName + "' given to: "
-                            + Thread.currentThread().getName());
+                log.debug("Lock '{}' given to: {}", lockName, Thread.currentThread().getName());
             }
             getThreadLocks().add(lockName);
             //getThreadLocksObtainer().put(lockName, new
             // Exception("Obtainer..."));
         } else if(log.isDebugEnabled()) {
-            log.debug(
-                "Lock '" + lockName + "' Is already owned by: "
-                        + Thread.currentThread().getName());
+            log.debug("Lock '{}' Is already owned by: {}", lockName, Thread.currentThread().getName());
         }
 
         return true;
@@ -139,18 +133,12 @@ public abstract class DBSemaphore implements Semaphore, Constants,
 
         if (isLockOwner(lockName)) {
             if(getLog().isDebugEnabled()) {
-                getLog().debug(
-                    "Lock '" + lockName + "' returned by: "
-                            + Thread.currentThread().getName());
+                getLog().debug("Lock '{}' returned by: {}", lockName, Thread.currentThread().getName());
             }
             getThreadLocks().remove(lockName);
             //getThreadLocksObtainer().remove(lockName);
         } else if (getLog().isDebugEnabled()) {
-            getLog().warn(
-                "Lock '" + lockName + "' attempt to return by: "
-                        + Thread.currentThread().getName()
-                        + " -- but not owner!",
-                new Exception("stack-trace of wrongful returner"));
+            getLog().warn("Lock '{}' attempt to return by: {} -- but not owner!", lockName, Thread.currentThread().getName(), new Exception("stack-trace of wrongful returner"));
         }
     }
 

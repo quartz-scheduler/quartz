@@ -266,9 +266,7 @@ public class SimpleThreadPool implements ThreadPool {
 
 
         if (isThreadsInheritContextClassLoaderOfInitializingThread()) {
-            getLog().info(
-                    "Job execution threads will use class loader of thread: "
-                            + Thread.currentThread().getName());
+            getLog().info("Job execution threads will use class loader of thread: {}", Thread.currentThread().getName());
         }
 
         // create the worker threads and start them
@@ -363,9 +361,7 @@ public class SimpleThreadPool implements ThreadPool {
                     while (!busyWorkers.isEmpty()) {
                         WorkerThread wt = (WorkerThread) busyWorkers.getFirst();
                         try {
-                            getLog().debug(
-                                    "Waiting for thread " + wt.getName()
-                                            + " to shut down");
+                            getLog().debug("Waiting for thread {} to shut down", wt.getName());
 
                             // note: with waiting infinite time the
                             // application may appear to 'hang'.

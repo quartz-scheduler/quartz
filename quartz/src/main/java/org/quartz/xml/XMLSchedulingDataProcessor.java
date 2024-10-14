@@ -454,9 +454,8 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
             ClassNotFoundException, ParseException, XPathException {
 
         prepForProcessing();
-        
-        log.info("Parsing XML file: " + fileName + 
-                " with systemId: " + systemId);
+
+        log.info("Parsing XML file: {} with systemId: {}", fileName, systemId);
         InputSource is = new InputSource(getInputStream(fileName));
         is.setSystemId(systemId);
         
@@ -481,7 +480,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
 
         prepForProcessing();
 
-        log.info("Parsing XML from stream with systemId: " + systemId);
+        log.info("Parsing XML from stream with systemId: {}", systemId);
 
         InputSource is = new InputSource(stream);
         is.setSystemId(systemId);
@@ -507,7 +506,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
                 "/q:job-scheduling-data/q:pre-processing-commands/q:delete-jobs-in-group",
                 document, XPathConstants.NODESET);
 
-        log.debug("Found " + deleteJobGroupNodes.getLength() + " delete job group commands.");
+        log.debug("Found {} delete job group commands.", deleteJobGroupNodes.getLength());
 
         for (int i = 0; i < deleteJobGroupNodes.getLength(); i++) {
             Node node = deleteJobGroupNodes.item(i);
@@ -521,7 +520,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
                 "/q:job-scheduling-data/q:pre-processing-commands/q:delete-triggers-in-group",
                 document, XPathConstants.NODESET);
 
-        log.debug("Found " + deleteTriggerGroupNodes.getLength() + " delete trigger group commands.");
+        log.debug("Found {} delete trigger group commands.", deleteTriggerGroupNodes.getLength());
 
         for (int i = 0; i < deleteTriggerGroupNodes.getLength(); i++) {
             Node node = deleteTriggerGroupNodes.item(i);
@@ -535,7 +534,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
                 "/q:job-scheduling-data/q:pre-processing-commands/q:delete-job",
                 document, XPathConstants.NODESET);
 
-        log.debug("Found " + deleteJobNodes.getLength() + " delete job commands.");
+        log.debug("Found {} delete job commands.", deleteJobNodes.getLength());
 
         for (int i = 0; i < deleteJobNodes.getLength(); i++) {
             Node node = deleteJobNodes.item(i);
@@ -552,7 +551,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
                 "/q:job-scheduling-data/q:pre-processing-commands/q:delete-trigger",
                 document, XPathConstants.NODESET);
 
-        log.debug("Found " + deleteTriggerNodes.getLength() + " delete trigger commands.");
+        log.debug("Found {} delete trigger commands.", deleteTriggerNodes.getLength());
 
         for (int i = 0; i < deleteTriggerNodes.getLength(); i++) {
             Node node = deleteTriggerNodes.item(i);
@@ -572,20 +571,20 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
         Boolean overWrite = getBoolean(xpath, 
                 "/q:job-scheduling-data/q:processing-directives/q:overwrite-existing-data", document);
         if(overWrite == null) {
-            log.debug("Directive 'overwrite-existing-data' not specified, defaulting to " + isOverWriteExistingData());
+            log.debug("Directive 'overwrite-existing-data' not specified, defaulting to {}", isOverWriteExistingData());
         }
         else {
-            log.debug("Directive 'overwrite-existing-data' specified as: " + overWrite);
+            log.debug("Directive 'overwrite-existing-data' specified as: {}", overWrite);
             setOverWriteExistingData(overWrite);
         }
         
         Boolean ignoreDupes = getBoolean(xpath, 
                 "/q:job-scheduling-data/q:processing-directives/q:ignore-duplicates", document);
         if(ignoreDupes == null) {
-            log.debug("Directive 'ignore-duplicates' not specified, defaulting to " + isIgnoreDuplicates());
+            log.debug("Directive 'ignore-duplicates' not specified, defaulting to {}", isIgnoreDuplicates());
         }
         else {
-            log.debug("Directive 'ignore-duplicates' specified as: " + ignoreDupes);
+            log.debug("Directive 'ignore-duplicates' specified as: {}", ignoreDupes);
             setIgnoreDuplicates(ignoreDupes);
         }
         
@@ -596,7 +595,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
         NodeList jobNodes = (NodeList) xpath.evaluate("/q:job-scheduling-data/q:schedule/q:job",
                 document, XPathConstants.NODESET);
 
-        log.debug("Found " + jobNodes.getLength() + " job definitions.");
+        log.debug("Found {} job definitions.", jobNodes.getLength());
 
         for (int i = 0; i < jobNodes.getLength(); i++) {
             Node jobDetailNode = jobNodes.item(i);
@@ -632,7 +631,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
             }
             
             if(log.isDebugEnabled())
-                log.debug("Parsed job definition: " + jobDetail);
+                log.debug("Parsed job definition: {}", jobDetail);
 
             addJobToSchedule(jobDetail);
         }
@@ -644,7 +643,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
         NodeList triggerEntries = (NodeList) xpath.evaluate(
                 "/q:job-scheduling-data/q:schedule/q:trigger/*", document, XPathConstants.NODESET);
 
-        log.debug("Found " + triggerEntries.getLength() + " trigger definitions.");
+        log.debug("Found {} trigger definitions.", triggerEntries.getLength());
 
         for (int j = 0; j < triggerEntries.getLength(); j++) {
             Node triggerNode = triggerEntries.item(j);
@@ -796,7 +795,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
             }
             
             if(log.isDebugEnabled())
-                log.debug("Parsed trigger definition: " + trigger);
+                log.debug("Parsed trigger definition: {}", trigger);
             
             addTriggerToSchedule(trigger);
         }
@@ -998,8 +997,8 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
         
         List<JobDetail> jobs = new LinkedList<>(getLoadedJobs());
         List<MutableTrigger> triggers = new LinkedList<>(getLoadedTriggers());
-        
-        log.info("Adding " + jobs.size() + " jobs, " + triggers.size() + " triggers.");
+
+        log.info("Adding {} jobs, {} triggers.", jobs.size(), triggers.size());
         
         Map<JobKey, List<MutableTrigger>> triggersByFQJobName = buildTriggersByFQJobNameMap(triggers);
         
@@ -1017,7 +1016,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
             } catch (JobPersistenceException e) {
                 if (e.getCause() instanceof ClassNotFoundException && isOverWriteExistingData()) {
                     // We are going to replace jobDetail anyway, so just delete it first.
-                    log.info("Removing job: " + detail.getKey());
+                    log.info("Removing job: {}", detail.getKey());
                     sched.deleteJob(detail.getKey());
                 } else {
                     throw e;
@@ -1026,7 +1025,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
 
             if ((dupeJ != null)) {
                 if(!isOverWriteExistingData() && isIgnoreDuplicates()) {
-                    log.info("Not overwriting existing job: " + dupeJ.getKey());
+                    log.info("Not overwriting existing job: {}", dupeJ.getKey());
                     continue; // just ignore the entry
                 }
                 if(!isOverWriteExistingData() && !isIgnoreDuplicates()) {
@@ -1035,9 +1034,9 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
             }
             
             if (dupeJ != null) {
-                log.info("Replacing job: " + detail.getKey());
+                log.info("Replacing job: {}", detail.getKey());
             } else {
-                log.info("Adding job: " + detail.getKey());
+                log.info("Adding job: {}", detail.getKey());
             }
             
             List<MutableTrigger> triggersOfJob = triggersByFQJobName.get(detail.getKey());
@@ -1080,11 +1079,10 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
                     if (dupeT != null) {
                         if (isOverWriteExistingData()) {
                             if (log.isDebugEnabled()) {
-                                log.debug(
-                                        "Rescheduling job: " + trigger.getJobKey() + " with updated trigger: " + trigger.getKey());
+                                log.debug("Rescheduling job: {} with updated trigger: {}", trigger.getJobKey(), trigger.getKey());
                             }
                         } else if (isIgnoreDuplicates()) {
-                            log.info("Not overwriting existing trigger: " + dupeT.getKey());
+                            log.info("Not overwriting existing trigger: {}", dupeT.getKey());
                             continue; // just ignore the trigger (and possibly job)
                         } else {
                             throw new ObjectAlreadyExistsException(trigger);
@@ -1097,8 +1095,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
                         sched.rescheduleJob(trigger.getKey(), trigger);
                     } else {
                         if (log.isDebugEnabled()) {
-                            log.debug(
-                                    "Scheduling job: " + trigger.getJobKey() + " with trigger: " + trigger.getKey());
+                            log.debug("Scheduling job: {} with trigger: {}", trigger.getJobKey(), trigger.getKey());
                         }
 
                         try {
@@ -1110,11 +1107,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
                             }
                         } catch (ObjectAlreadyExistsException e) {
                             if (log.isDebugEnabled()) {
-                                log.debug(
-                                        "Adding trigger: " + trigger.getKey() + " for job: " + detail.getKey() +
-                                                " failed because the trigger already existed.  " +
-                                                "This is likely due to a race condition between multiple instances " +
-                                                "in the cluster.  Will try to reschedule instead.");
+                                log.debug("Adding trigger: {} for job: {} failed because the trigger already existed.  This is likely due to a race condition between multiple instances in the cluster.  Will try to reschedule instead.", trigger.getKey(), detail.getKey());
                             }
 
                             // Let's try one more time as reschedule.
@@ -1136,12 +1129,11 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
             if (dupeT != null) {
                 if(isOverWriteExistingData()) {
                     if (log.isDebugEnabled()) {
-                        log.debug(
-                            "Rescheduling job: " + trigger.getJobKey() + " with updated trigger: " + trigger.getKey());
+                        log.debug("Rescheduling job: {} with updated trigger: {}", trigger.getJobKey(), trigger.getKey());
                     }
                 }
                 else if(isIgnoreDuplicates()) {
-                    log.info("Not overwriting existing trigger: " + dupeT.getKey());
+                    log.info("Not overwriting existing trigger: {}", dupeT.getKey());
                     continue; // just ignore the trigger 
                 }
                 else {
@@ -1155,19 +1147,14 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
                 sched.rescheduleJob(trigger.getKey(), trigger);
             } else {
                 if (log.isDebugEnabled()) {
-                    log.debug(
-                        "Scheduling job: " + trigger.getJobKey() + " with trigger: " + trigger.getKey());
+                    log.debug("Scheduling job: {} with trigger: {}", trigger.getJobKey(), trigger.getKey());
                 }
 
                 try {
                     sched.scheduleJob(trigger);
                 } catch (ObjectAlreadyExistsException e) {
                     if (log.isDebugEnabled()) {
-                        log.debug(
-                            "Adding trigger: " + trigger.getKey() + " for job: " +trigger.getJobKey() + 
-                            " failed because the trigger already existed.  " +
-                            "This is likely due to a race condition between multiple instances " + 
-                            "in the cluster.  Will try to reschedule instead.");
+                        log.debug("Adding trigger: {} for job: {} failed because the trigger already existed.  This is likely due to a race condition between multiple instances in the cluster.  Will try to reschedule instead.", trigger.getKey(), trigger.getJobKey());
                     }
 
                     // Let's rescheduleJob one more time.

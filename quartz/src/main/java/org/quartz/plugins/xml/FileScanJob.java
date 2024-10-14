@@ -121,16 +121,16 @@ public class FileScanJob implements Job {
         long newDate = getLastModifiedDate(fileName);
         
         if(newDate < 0) {
-            log.warn("File '"+fileName+"' does not exist.");
+            log.warn("File '{}' does not exist.", fileName);
             return;
         }
         
         if(lastDate > 0 && (newDate > lastDate && newDate < maxAgeDate)) {
             // notify call back...
-            log.info("File '"+fileName+"' updated, notifying listener.");
+            log.info("File '{}' updated, notifying listener.", fileName);
             listener.fileUpdated(fileName); 
         } else if (log.isDebugEnabled()) {
-            log.debug("File '"+fileName+"' unchanged.");
+            log.debug("File '{}' unchanged.", fileName);
         }
         
         // It is the JobDataMap on the JobDetail which is actually stateful

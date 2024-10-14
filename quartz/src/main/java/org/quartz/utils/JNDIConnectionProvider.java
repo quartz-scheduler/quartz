@@ -124,8 +124,7 @@ public class JNDIConnectionProvider implements ConnectionProvider {
 
                 datasource = (DataSource) ctx.lookup(url);
             } catch (Exception e) {
-                getLog().error(
-                        "Error looking up datasource: " + e.getMessage(), e);
+                getLog().error("Error looking up datasource: {}", e.getMessage(), e);
             } finally {
                 if (ctx != null) {
                     try { ctx.close(); } catch(Exception ignore) {}

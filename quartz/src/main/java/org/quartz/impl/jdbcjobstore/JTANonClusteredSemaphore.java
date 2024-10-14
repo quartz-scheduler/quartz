@@ -118,16 +118,12 @@ public class JTANonClusteredSemaphore implements Semaphore {
         lockName = lockName.intern();
 
         if(log.isDebugEnabled()) {
-            log.debug(
-                "Lock '" + lockName + "' is desired by: "
-                        + Thread.currentThread().getName());
+            log.debug("Lock '{}' is desired by: {}", lockName, Thread.currentThread().getName());
         }
 
         if (!isLockOwner(conn, lockName)) {
             if(log.isDebugEnabled()) {
-                log.debug(
-                    "Lock '" + lockName + "' is being obtained: "
-                            + Thread.currentThread().getName());
+                log.debug("Lock '{}' is being obtained: {}", lockName, Thread.currentThread().getName());
             }
             
             while (locks.contains(lockName)) {
@@ -135,9 +131,7 @@ public class JTANonClusteredSemaphore implements Semaphore {
                     this.wait();
                 } catch (InterruptedException ie) {
                     if(log.isDebugEnabled()) {
-                        log.debug(
-                            "Lock '" + lockName + "' was not obtained by: "
-                                    + Thread.currentThread().getName());
+                        log.debug("Lock '{}' was not obtained by: {}", lockName, Thread.currentThread().getName());
                     }
                 }
             }
@@ -154,20 +148,14 @@ public class JTANonClusteredSemaphore implements Semaphore {
             }
             
             if(log.isDebugEnabled()) {
-                log.debug(
-                    "Lock '" + lockName + "' given to: "
-                            + Thread.currentThread().getName());
+                log.debug("Lock '{}' given to: {}", lockName, Thread.currentThread().getName());
             }
             
             
             getThreadLocks().add(lockName);
             locks.add(lockName);
         } else if(log.isDebugEnabled()) {
-            log.debug(
-                "Lock '" + lockName + "' already owned by: "
-                        + Thread.currentThread().getName()
-                        + " -- but not owner!",
-                new Exception("stack-trace of wrongful returner"));
+            log.debug("Lock '{}' already owned by: {} -- but not owner!", lockName, Thread.currentThread().getName(), new Exception("stack-trace of wrongful returner"));
         }
 
         return true;
@@ -231,9 +219,7 @@ public class JTANonClusteredSemaphore implements Semaphore {
                 Transaction t = getTransaction();
                 if (t != null) {
                     if(getLog().isDebugEnabled()) {
-                        getLog().debug(
-                            "Lock '" + lockName + "' is in a JTA transaction.  " + 
-                            "Return deferred by: " + Thread.currentThread().getName());
+                        getLog().debug("Lock '{}' is in a JTA transaction.  Return deferred by: {}", lockName, Thread.currentThread().getName());
                     }
                     
                     // If we are still in a transaction, then we don't want to 
@@ -243,19 +229,13 @@ public class JTANonClusteredSemaphore implements Semaphore {
             }
             
             if(getLog().isDebugEnabled()) {
-                getLog().debug(
-                    "Lock '" + lockName + "' returned by: "
-                            + Thread.currentThread().getName());
+                getLog().debug("Lock '{}' returned by: {}", lockName, Thread.currentThread().getName());
             }
             getThreadLocks().remove(lockName);
             locks.remove(lockName);
             this.notify();
         } else if (getLog().isDebugEnabled()) {
-            getLog().debug(
-                "Lock '" + lockName + "' attempt to return by: "
-                        + Thread.currentThread().getName()
-                        + " -- but not owner!",
-                new Exception("stack-trace of wrongful returner"));
+            getLog().debug("Lock '{}' attempt to return by: {} -- but not owner!", lockName, Thread.currentThread().getName(), new Exception("stack-trace of wrongful returner"));
         }
     }
 

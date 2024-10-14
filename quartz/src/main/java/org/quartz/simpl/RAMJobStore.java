@@ -1667,12 +1667,11 @@ public class RAMJobStore implements JobStore {
                     timeTriggers.remove(tw);
                     signaler.signalSchedulingChange(0L);
                 } else if(triggerInstCode == CompletedExecutionInstruction.SET_TRIGGER_ERROR) {
-                    getLog().info("Trigger " + trigger.getKey() + " set to ERROR state.");
+                    getLog().info("Trigger {} set to ERROR state.", trigger.getKey());
                     tw.state = TriggerWrapper.STATE_ERROR;
                     signaler.signalSchedulingChange(0L);
                 } else if (triggerInstCode == CompletedExecutionInstruction.SET_ALL_JOB_TRIGGERS_ERROR) {
-                    getLog().info("All triggers of Job " 
-                            + trigger.getJobKey() + " set to ERROR state.");
+                    getLog().info("All triggers of Job {} set to ERROR state.", trigger.getJobKey());
                     setAllTriggersOfJobToState(trigger.getJobKey(), TriggerWrapper.STATE_ERROR);
                     signaler.signalSchedulingChange(0L);
                 } else if (triggerInstCode == CompletedExecutionInstruction.SET_ALL_JOB_TRIGGERS_COMPLETE) {

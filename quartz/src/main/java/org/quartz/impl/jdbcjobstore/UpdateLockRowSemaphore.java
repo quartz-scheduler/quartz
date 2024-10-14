@@ -116,7 +116,7 @@ public class UpdateLockRowSemaphore extends DBSemaphore {
         PreparedStatement ps = conn.prepareStatement(sql);
         try {
             ps.setString(1, lockName);
-            getLog().debug("Lock '" + lockName + "' is being obtained: " + Thread.currentThread().getName());
+            getLog().debug("Lock '{}' is being obtained: {}", lockName, Thread.currentThread().getName());
             return ps.executeUpdate() >= 1;
         } finally {
             ps.close();
@@ -124,7 +124,7 @@ public class UpdateLockRowSemaphore extends DBSemaphore {
     }
 
     private void lockViaInsert(Connection conn, String lockName, String sql) throws SQLException {
-        getLog().debug("Inserting new lock row for lock: '" + lockName + "' being obtained by thread: " + Thread.currentThread().getName());
+        getLog().debug("Inserting new lock row for lock: '{}' being obtained by thread: {}", lockName, Thread.currentThread().getName());
         PreparedStatement ps = conn.prepareStatement(sql);
         try {
             ps.setString(1, lockName);

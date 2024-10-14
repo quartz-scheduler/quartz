@@ -94,12 +94,12 @@ public class JobChainingJobListener extends JobListenerSupport {
             return;
         }
 
-        getLog().info("Job '" + context.getJobDetail().getKey() + "' will now chain to Job '" + sj + "'");
+        getLog().info("Job '{}' will now chain to Job '{}'", context.getJobDetail().getKey(), sj);
 
         try {
              context.getScheduler().triggerJob(sj);
         } catch(SchedulerException se) {
-            getLog().error("Error encountered during chaining to Job '" + sj + "'", se);
+            getLog().error("Error encountered during chaining to Job '{}'", sj, se);
         }
     }
 }

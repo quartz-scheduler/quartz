@@ -226,8 +226,8 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
         addInternalSchedulerListener(errLogger);
 
         signaler = new SchedulerSignalerImpl(this, this.schedThread);
-        
-        getLog().info("Quartz Scheduler v" + getVersion() + " created.");
+
+        getLog().info("Quartz Scheduler v{} created.", getVersion());
     }
 
     public void initialize() throws SchedulerException {
@@ -291,14 +291,13 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
         // }
         // }
 
-        
-        getLog().info("Scheduler meta-data: " +
-                (new SchedulerMetaData(getSchedulerName(),
-                        getSchedulerInstanceId(), getClass(), boundRemotely, runningSince() != null, 
-                        isInStandbyMode(), isShutdown(), runningSince(), 
-                        numJobsExecuted(), getJobStoreClass(), 
-                        supportsPersistence(), isClustered(), getThreadPoolClass(), 
-                        getThreadPoolSize(), getVersion())));
+
+        getLog().info("Scheduler meta-data: {}", new SchedulerMetaData(getSchedulerName(),
+                getSchedulerInstanceId(), getClass(), boundRemotely, runningSince() != null,
+                isInStandbyMode(), isShutdown(), runningSince(),
+                numJobsExecuted(), getJobStoreClass(),
+                supportsPersistence(), isClustered(), getThreadPoolClass(),
+                getThreadPoolSize(), getVersion()));
     }
     
     /*
@@ -352,7 +351,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
         MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
         mbs.unregisterMBean(new ObjectName(jmxObjectName));
         jmxBean.setSampledStatisticsEnabled(false);
-        getLog().info("Scheduler unregistered from name '" + jmxObjectName + "' in the local MBeanServer.");
+        getLog().info("Scheduler unregistered from name '{}' in the local MBeanServer.", jmxObjectName);
     }
 
     /**
@@ -419,7 +418,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
         
         boundRemotely = true;
 
-        getLog().info("Scheduler bound to RMI registry under name '" + bindName + "'");
+        getLog().info("Scheduler bound to RMI registry under name '{}'", bindName);
     }
 
     /**
@@ -445,7 +444,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
         } catch (java.rmi.NotBoundException nbe) {
         }
 
-        getLog().info("Scheduler un-bound from name '" + bindName + "' in RMI registry");
+        getLog().info("Scheduler un-bound from name '{}' in RMI registry", bindName);
     }
 
     /**
@@ -545,8 +544,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
 
         schedThread.togglePause(false);
 
-        getLog().info(
-                "Scheduler " + resources.getUniqueIdentifier() + " started.");
+        getLog().info("Scheduler {} started.", resources.getUniqueIdentifier());
         
         notifySchedulerListenersStarted();
     }
@@ -583,8 +581,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
     public void standby() {
         resources.getJobStore().schedulerPaused();
         schedThread.togglePause(true);
-        getLog().info(
-                "Scheduler " + resources.getUniqueIdentifier() + " paused.");
+        getLog().info("Scheduler {} paused.", resources.getUniqueIdentifier());
         notifySchedulerListenersInStandbyMode();        
     }
 
@@ -664,9 +661,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
         
         shuttingDown = true;
 
-        getLog().info(
-                "Scheduler " + resources.getUniqueIdentifier()
-                        + " shutting down.");
+        getLog().info("Scheduler {} shutting down.", resources.getUniqueIdentifier());
         // boolean removeMgmtSvr = false;
         // if (registeredManagementServerBind != null) {
         // ManagementServer standaloneRestServer =
@@ -737,10 +732,8 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
         SchedulerRepository.getInstance().remove(resources.getName());
 
         holdToPreventGC.clear();
-        
-        getLog().info(
-                "Scheduler " + resources.getUniqueIdentifier()
-                        + " shutdown complete.");
+
+        getLog().info("Scheduler {} shutdown complete.", resources.getUniqueIdentifier());
     }
 
     /**
@@ -1988,8 +1981,7 @@ J     *
                         .error(
                                 "Error while notifying SchedulerListener of error: ",
                                 e);
-                getLog().error(
-                        "  Original error (for notification) was: " + msg, se);
+                getLog().error("  Original error (for notification) was: {}", msg, se);
             }
         }
     }
@@ -2003,9 +1995,7 @@ J     *
             try {
                 sl.jobScheduled(trigger);
             } catch (Exception e) {
-                getLog().error(
-                        "Error while notifying SchedulerListener of scheduled job."
-                                + "  Triger=" + trigger.getKey(), e);
+                getLog().error("Error while notifying SchedulerListener of scheduled job.  Triger={}", trigger.getKey(), e);
             }
         }
     }
@@ -2022,9 +2012,7 @@ J     *
                 else
                     sl.jobUnscheduled(triggerKey);
             } catch (Exception e) {
-                getLog().error(
-                        "Error while notifying SchedulerListener of unscheduled job."
-                                + "  Triger=" + (triggerKey == null ? "ALL DATA" : triggerKey), e);
+                getLog().error("Error while notifying SchedulerListener of unscheduled job.  Triger={}", triggerKey == null ? "ALL DATA" : triggerKey, e);
             }
         }
     }
@@ -2038,9 +2026,7 @@ J     *
             try {
                 sl.triggerFinalized(trigger);
             } catch (Exception e) {
-                getLog().error(
-                        "Error while notifying SchedulerListener of finalized trigger."
-                                + "  Triger=" + trigger.getKey(), e);
+                getLog().error("Error while notifying SchedulerListener of finalized trigger.  Triger={}", trigger.getKey(), e);
             }
         }
     }
@@ -2054,9 +2040,7 @@ J     *
             try {
                 sl.triggerPaused(triggerKey);
             } catch (Exception e) {
-                getLog().error(
-                        "Error while notifying SchedulerListener of paused trigger: "
-                                + triggerKey, e);
+                getLog().error("Error while notifying SchedulerListener of paused trigger: {}", triggerKey, e);
             }
         }
     }
@@ -2070,9 +2054,7 @@ J     *
             try {
                 sl.triggersPaused(group);
             } catch (Exception e) {
-                getLog().error(
-                        "Error while notifying SchedulerListener of paused trigger group."
-                                + group, e);
+                getLog().error("Error while notifying SchedulerListener of paused trigger group.{}", group, e);
             }
         }
     }
@@ -2086,9 +2068,7 @@ J     *
             try {
                 sl.triggerResumed(key);
             } catch (Exception e) {
-                getLog().error(
-                        "Error while notifying SchedulerListener of resumed trigger: "
-                                + key, e);
+                getLog().error("Error while notifying SchedulerListener of resumed trigger: {}", key, e);
             }
         }
     }
@@ -2102,9 +2082,7 @@ J     *
             try {
                 sl.triggersResumed(group);
             } catch (Exception e) {
-                getLog().error(
-                        "Error while notifying SchedulerListener of resumed group: "
-                                + group, e);
+                getLog().error("Error while notifying SchedulerListener of resumed group: {}", group, e);
             }
         }
     }
@@ -2118,9 +2096,7 @@ J     *
             try {
                 sl.jobPaused(key);
             } catch (Exception e) {
-                getLog().error(
-                        "Error while notifying SchedulerListener of paused job: "
-                                + key, e);
+                getLog().error("Error while notifying SchedulerListener of paused job: {}", key, e);
             }
         }
     }
@@ -2134,9 +2110,7 @@ J     *
             try {
                 sl.jobsPaused(group);
             } catch (Exception e) {
-                getLog().error(
-                        "Error while notifying SchedulerListener of paused job group: "
-                                + group, e);
+                getLog().error("Error while notifying SchedulerListener of paused job group: {}", group, e);
             }
         }
     }
@@ -2150,9 +2124,7 @@ J     *
             try {
                 sl.jobResumed(key);
             } catch (Exception e) {
-                getLog().error(
-                        "Error while notifying SchedulerListener of resumed job: "
-                                + key, e);
+                getLog().error("Error while notifying SchedulerListener of resumed job: {}", key, e);
             }
         }
     }
@@ -2166,9 +2138,7 @@ J     *
             try {
                 sl.jobsResumed(group);
             } catch (Exception e) {
-                getLog().error(
-                        "Error while notifying SchedulerListener of resumed job group: "
-                                + group, e);
+                getLog().error("Error while notifying SchedulerListener of resumed job group: {}", group, e);
             }
         }
     }
@@ -2291,7 +2261,7 @@ J     *
             throw new IllegalArgumentException("JobFactory cannot be set to null!");
         }
 
-        getLog().info("JobFactory set to: " + factory);
+        getLog().info("JobFactory set to: {}", factory);
 
         this.jobFactory = factory;
     }

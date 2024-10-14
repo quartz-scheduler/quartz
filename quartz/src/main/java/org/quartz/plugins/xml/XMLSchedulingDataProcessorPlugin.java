@@ -318,7 +318,7 @@ public class XMLSchedulingDataProcessorPlugin
                     jobFile.getFileName(), // systemId 
                     getScheduler());
         } catch (Exception e) {
-            getLog().error("Error scheduling jobs: " + e.getMessage(), e);
+            getLog().error("Error scheduling jobs: {}", e.getMessage(), e);
         }
     }
     
@@ -398,7 +398,7 @@ public class XMLSchedulingDataProcessorPlugin
                         throw new SchedulerException(
                             "File named '" + getFileName() + "' does not exist.");
                     } else {
-                        getLog().warn("File named '" + getFileName() + "' does not exist.");
+                        getLog().warn("File named '{}' does not exist.", getFileName());
                     }
                 } else {
                     fileFound = true;
@@ -411,7 +411,7 @@ public class XMLSchedulingDataProcessorPlugin
                         f.close();
                     }
                 } catch (IOException ioe) {
-                    getLog().warn("Error closing jobs file " + getFileName(), ioe);
+                    getLog().warn("Error closing jobs file {}", getFileName(), ioe);
                 }
             }
         }
