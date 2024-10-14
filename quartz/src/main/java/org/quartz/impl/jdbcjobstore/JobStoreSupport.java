@@ -925,9 +925,9 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         public static final RecoverMisfiredJobsResult NO_OP =
             new RecoverMisfiredJobsResult(false, 0, Long.MAX_VALUE);
         
-        private boolean _hasMoreMisfiredTriggers;
-        private int _processedMisfiredTriggerCount;
-        private long _earliestNewTime;
+        private final boolean _hasMoreMisfiredTriggers;
+        private final int _processedMisfiredTriggerCount;
+        private final long _earliestNewTime;
         
         public RecoverMisfiredJobsResult(
             boolean hasMoreMisfiredTriggers, int processedMisfiredTriggerCount, long earliestNewTime) {

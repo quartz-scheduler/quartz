@@ -66,13 +66,13 @@ public class QuartzSchedulerThread extends Thread {
 
     private boolean paused;
 
-    private AtomicBoolean halted;
+    private final AtomicBoolean halted;
 
-    private Random random = new Random(System.currentTimeMillis());
+    private final Random random = new Random(System.currentTimeMillis());
 
     // When the scheduler finds there is no current trigger to fire, how long
     // it should wait until checking again...
-    private static long DEFAULT_IDLE_WAIT_TIME = 30L * 1000L;
+    private static final long DEFAULT_IDLE_WAIT_TIME = 30L * 1000L;
 
     private long idleWaitTime = DEFAULT_IDLE_WAIT_TIME;
 

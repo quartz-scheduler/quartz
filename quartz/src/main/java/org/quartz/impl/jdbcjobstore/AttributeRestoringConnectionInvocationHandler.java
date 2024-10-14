@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * @see org.quartz.impl.jdbcjobstore.JobStoreCMT#getNonManagedTXConnection()
  */
 public class AttributeRestoringConnectionInvocationHandler implements InvocationHandler {
-    private Connection conn;
+    private final Connection conn;
     
     private boolean overwroteOriginalAutoCommitValue;
     private boolean overwroteOriginalTxIsolationValue;

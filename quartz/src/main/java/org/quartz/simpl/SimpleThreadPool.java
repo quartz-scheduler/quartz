@@ -75,8 +75,8 @@ public class SimpleThreadPool implements ThreadPool {
     private final Object nextRunnableLock = new Object();
 
     private List<WorkerThread> workers;
-    private LinkedList<WorkerThread> availWorkers = new LinkedList<WorkerThread>();
-    private LinkedList<WorkerThread> busyWorkers = new LinkedList<WorkerThread>();
+    private final LinkedList<WorkerThread> availWorkers = new LinkedList<WorkerThread>();
+    private final LinkedList<WorkerThread> busyWorkers = new LinkedList<WorkerThread>();
 
     private String threadNamePrefix;
 
@@ -494,9 +494,9 @@ public class SimpleThreadPool implements ThreadPool {
         private final Object lock = new Object();
 
         // A flag that signals the WorkerThread to terminate.
-        private AtomicBoolean run = new AtomicBoolean(true);
+        private final AtomicBoolean run = new AtomicBoolean(true);
 
-        private SimpleThreadPool tp;
+        private final SimpleThreadPool tp;
 
         private Runnable runnable = null;
         

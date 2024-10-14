@@ -43,7 +43,7 @@ public class SchedulerRepository {
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      */
 
-    private HashMap<String, Scheduler> schedulers;
+    private final HashMap<String, Scheduler> schedulers;
 
     private static SchedulerRepository inst;
 

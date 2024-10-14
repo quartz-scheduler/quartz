@@ -39,35 +39,35 @@ public class SchedulerMetaData implements java.io.Serializable {
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      */
 
-    private String schedName;
+    private final String schedName;
 
-    private String schedInst;
+    private final String schedInst;
 
-    private Class<?> schedClass;
+    private final Class<?> schedClass;
 
-    private boolean isRemote;
+    private final boolean isRemote;
 
-    private boolean started;
+    private final boolean started;
 
-    private boolean isInStandbyMode;
+    private final boolean isInStandbyMode;
 
-    private boolean shutdown;
+    private final boolean shutdown;
 
-    private Date startTime;
+    private final Date startTime;
 
-    private int numJobsExec;
+    private final int numJobsExec;
 
-    private Class<?> jsClass;
+    private final Class<?> jsClass;
 
-    private boolean jsPersistent;
+    private final boolean jsPersistent;
 
-    private boolean jsClustered;
+    private final boolean jsClustered;
 
-    private Class<?> tpClass;
+    private final Class<?> tpClass;
 
-    private int tpSize;
+    private final int tpSize;
 
-    private String version;
+    private final String version;
 
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

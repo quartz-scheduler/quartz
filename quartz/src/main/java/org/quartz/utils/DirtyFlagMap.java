@@ -224,7 +224,7 @@ public class DirtyFlagMap<K,V> implements Map<K,V>, Cloneable, java.io.Serializa
      * the underlying Collection is modified.
      */
     private class DirtyFlagCollection<T> implements Collection<T> {
-        private Collection<T> collection;
+        private final Collection<T> collection;
 
         public DirtyFlagCollection(final Collection<T> c) {
             collection = c;
@@ -299,7 +299,7 @@ public class DirtyFlagMap<K,V> implements Map<K,V>, Cloneable, java.io.Serializa
      * element is removed.
      */
     private class DirtyFlagIterator<T> implements Iterator<T> {
-        private Iterator<T> iterator;
+        private final Iterator<T> iterator;
 
         public DirtyFlagIterator(final Iterator<T> iterator) {
             this.iterator = iterator;
@@ -382,7 +382,7 @@ public class DirtyFlagMap<K,V> implements Map<K,V>, Cloneable, java.io.Serializa
      * a value is set.
      */
     private class DirtyFlagMapEntry implements Map.Entry<K,V> {
-        private Map.Entry<K,V> entry;
+        private final Map.Entry<K,V> entry;
 
         public DirtyFlagMapEntry(final Map.Entry<K,V> entry) {
             this.entry = entry;

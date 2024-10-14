@@ -126,7 +126,7 @@ public class DirectSchedulerFactory implements SchedulerFactory {
 
     private boolean initialized = false;
 
-    private static DirectSchedulerFactory instance = new DirectSchedulerFactory();
+    private static final DirectSchedulerFactory instance = new DirectSchedulerFactory();
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 

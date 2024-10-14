@@ -42,8 +42,8 @@ import org.quartz.JobListener;
  */
 public class BroadcastJobListener implements JobListener {
 
-    private String name;
-    private List<JobListener> listeners;
+    private final String name;
+    private final List<JobListener> listeners;
 
     /**
      * Construct an instance with the given name.

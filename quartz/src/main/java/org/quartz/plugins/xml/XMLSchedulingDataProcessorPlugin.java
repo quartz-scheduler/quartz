@@ -94,7 +94,7 @@ public class XMLSchedulingDataProcessorPlugin
     private String fileNames = XMLSchedulingDataProcessor.QUARTZ_XML_DEFAULT_FILE_NAME;
 
     // Populated by initialization
-    private Map<String, JobFile> jobFiles = new LinkedHashMap<String, JobFile>();
+    private final Map<String, JobFile> jobFiles = new LinkedHashMap<String, JobFile>();
 
     private long scanInterval = 0; 
     
@@ -102,7 +102,7 @@ public class XMLSchedulingDataProcessorPlugin
     
     protected ClassLoadHelper classLoadHelper = null;
 
-    private Set<String> jobTriggerNameSet = new HashSet<String>();
+    private final Set<String> jobTriggerNameSet = new HashSet<String>();
     
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -339,7 +339,7 @@ public class XMLSchedulingDataProcessorPlugin
     }
     
     class JobFile {
-        private String fileName;
+        private final String fileName;
 
         // These are set by initialize()
         private String filePath;

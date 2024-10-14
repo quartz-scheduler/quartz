@@ -44,8 +44,8 @@ import org.quartz.SchedulerException;
  */
 public class JobChainingJobListener extends JobListenerSupport {
 
-    private String name;
-    private Map<JobKey, JobKey> chainLinks;
+    private final String name;
+    private final Map<JobKey, JobKey> chainLinks;
 
 
     /**

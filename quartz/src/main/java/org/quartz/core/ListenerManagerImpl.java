@@ -19,15 +19,15 @@ import org.quartz.impl.matchers.EverythingMatcher;
 
 public class ListenerManagerImpl implements ListenerManager {
 
-    private Map<String, JobListener> globalJobListeners = new LinkedHashMap<String, JobListener>(10);
+    private final Map<String, JobListener> globalJobListeners = new LinkedHashMap<String, JobListener>(10);
 
-    private Map<String, TriggerListener> globalTriggerListeners = new LinkedHashMap<String, TriggerListener>(10);
+    private final Map<String, TriggerListener> globalTriggerListeners = new LinkedHashMap<String, TriggerListener>(10);
 
-    private Map<String, List<Matcher<JobKey>>> globalJobListenersMatchers = new LinkedHashMap<String, List<Matcher<JobKey>>>(10);
+    private final Map<String, List<Matcher<JobKey>>> globalJobListenersMatchers = new LinkedHashMap<String, List<Matcher<JobKey>>>(10);
 
-    private Map<String, List<Matcher<TriggerKey>>> globalTriggerListenersMatchers = new LinkedHashMap<String, List<Matcher<TriggerKey>>>(10);
+    private final Map<String, List<Matcher<TriggerKey>>> globalTriggerListenersMatchers = new LinkedHashMap<String, List<Matcher<TriggerKey>>>(10);
 
-    private ArrayList<SchedulerListener> schedulerListeners = new ArrayList<SchedulerListener>(10);
+    private final ArrayList<SchedulerListener> schedulerListeners = new ArrayList<SchedulerListener>(10);
 
     
     public void addJobListener(JobListener jobListener, Matcher<JobKey> ... matchers) {

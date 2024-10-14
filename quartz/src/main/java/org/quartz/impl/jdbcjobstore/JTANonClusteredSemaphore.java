@@ -282,7 +282,7 @@ public class JTANonClusteredSemaphore implements Semaphore {
      * will be released when the transaction completes.
      */
     private class SemaphoreSynchronization implements Synchronization {
-        private String lockName;
+        private final String lockName;
         
         public SemaphoreSynchronization(String lockName) {
             this.lockName = lockName;

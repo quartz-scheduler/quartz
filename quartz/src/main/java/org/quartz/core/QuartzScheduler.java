@@ -146,21 +146,21 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      */
 
-    private QuartzSchedulerResources resources;
+    private final QuartzSchedulerResources resources;
 
-    private QuartzSchedulerThread schedThread;
+    private final QuartzSchedulerThread schedThread;
 
     private ThreadGroup threadGroup;
 
-    private SchedulerContext context = new SchedulerContext();
+    private final SchedulerContext context = new SchedulerContext();
 
-    private ListenerManager listenerManager = new ListenerManagerImpl();
+    private final ListenerManager listenerManager = new ListenerManagerImpl();
     
-    private HashMap<String, JobListener> internalJobListeners = new HashMap<String, JobListener>(10);
+    private final HashMap<String, JobListener> internalJobListeners = new HashMap<String, JobListener>(10);
 
-    private HashMap<String, TriggerListener> internalTriggerListeners = new HashMap<String, TriggerListener>(10);
+    private final HashMap<String, TriggerListener> internalTriggerListeners = new HashMap<String, TriggerListener>(10);
 
-    private ArrayList<SchedulerListener> internalSchedulerListeners = new ArrayList<SchedulerListener>(10);
+    private final ArrayList<SchedulerListener> internalSchedulerListeners = new ArrayList<SchedulerListener>(10);
 
     private JobFactory jobFactory = new PropertySettingJobFactory();
     
@@ -168,11 +168,11 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
 
     ErrorLogger errLogger = null;
 
-    private SchedulerSignaler signaler;
+    private final SchedulerSignaler signaler;
 
-    private Random random = new Random();
+    private final Random random = new Random();
 
-    private ArrayList<Object> holdToPreventGC = new ArrayList<Object>(5);
+    private final ArrayList<Object> holdToPreventGC = new ArrayList<Object>(5);
 
     private boolean signalOnSchedulingChange = true;
 

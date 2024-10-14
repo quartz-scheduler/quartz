@@ -68,11 +68,11 @@ public class RemoteScheduler implements Scheduler {
 
     private RemotableQuartzScheduler rsched;
 
-    private String schedId;
+    private final String schedId;
 
-    private String rmiHost;
+    private final String rmiHost;
 
-    private int rmiPort;
+    private final int rmiPort;
 
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
