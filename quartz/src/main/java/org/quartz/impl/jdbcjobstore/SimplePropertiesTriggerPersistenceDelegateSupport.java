@@ -160,8 +160,8 @@ public abstract class SimplePropertiesTriggerPersistenceDelegateSupport implemen
                 properties.setString3(rs.getString(COL_STR_PROP_3));
                 properties.setInt1(rs.getInt(COL_INT_PROP_1));
                 properties.setInt2(rs.getInt(COL_INT_PROP_2));
-                properties.setLong1(rs.getInt(COL_LONG_PROP_1));
-                properties.setLong2(rs.getInt(COL_LONG_PROP_2));
+                properties.setLong1(rs.getLong(COL_LONG_PROP_1));
+                properties.setLong2(rs.getLong(COL_LONG_PROP_2));
                 properties.setDecimal1(rs.getBigDecimal(COL_DEC_PROP_1));
                 properties.setDecimal2(rs.getBigDecimal(COL_DEC_PROP_2));
                 properties.setBoolean1(rs.getBoolean(COL_BOOL_PROP_1));
