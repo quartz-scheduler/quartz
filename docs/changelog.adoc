@@ -4,7 +4,7 @@ For a details of release notes see https://github.com/quartz-scheduler/quartz/re
 
 == quartz-2.4.0
 
-This release is still work in progress under `master` branch!
+This release line is maintained under 'quartz-2.4.x' branch.
 
 Most Significant Changes This Release:
 
