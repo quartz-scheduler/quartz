@@ -22,9 +22,6 @@ import java.io.ByteArrayOutputStream;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import org.quartz.spi.ClassLoadHelper;
-import org.slf4j.Logger;
-
 /**
  * Quartz JDBC delegate for DB2 v7 databases.
  * <p>

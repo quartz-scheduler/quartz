@@ -25,9 +25,6 @@ import java.io.ObjectInputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.quartz.spi.ClassLoadHelper;
-import org.slf4j.Logger;
-
 /**
  * <p>
  * This is a driver delegate for the HSQLDB database.

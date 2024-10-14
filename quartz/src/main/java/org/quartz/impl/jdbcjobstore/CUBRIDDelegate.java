@@ -22,8 +22,6 @@ import com.mchange.v2.c3p0.C3P0ProxyConnection;
 import java.io.*;
 import java.lang.reflect.Method;
 import java.sql.*;
-import org.quartz.spi.ClassLoadHelper;
-import org.slf4j.Logger;
 
 /**
  * <p> This is a driver delegate for the CUBRID JDBC driver. For Quartz 2.x </p>

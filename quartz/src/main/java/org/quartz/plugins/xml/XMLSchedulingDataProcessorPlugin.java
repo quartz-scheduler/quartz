@@ -34,12 +34,9 @@ import java.util.StringTokenizer;
 
 import javax.transaction.UserTransaction;
 
-import org.quartz.impl.JobDetailImpl;
-import org.quartz.impl.triggers.SimpleTriggerImpl;
 import org.quartz.plugins.xml.FileScanJob;
 import org.quartz.plugins.xml.FileScanListener;
 import org.quartz.plugins.SchedulerPluginWithUserTransactionSupport;
-import org.quartz.simpl.CascadingClassLoadHelper;
 import org.quartz.spi.ClassLoadHelper;
 import org.quartz.xml.XMLSchedulingDataProcessor;
 

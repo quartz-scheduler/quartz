@@ -23,7 +23,6 @@ import java.util.Set;
 
 import org.quartz.DailyTimeIntervalScheduleBuilder;
 import org.quartz.DailyTimeIntervalTrigger;
-import org.quartz.DateBuilder;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.ScheduleBuilder;
