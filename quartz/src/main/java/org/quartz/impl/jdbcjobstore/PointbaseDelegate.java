@@ -444,8 +444,7 @@ public class PointbaseDelegate extends StdJDBCDelegate {
             if(data == null) {
                 return null;
             }
-            InputStream binaryInput = new ByteArrayInputStream(data);
-            return binaryInput;
+            return new ByteArrayInputStream(data);
         }
 
         return getObjectFromBlob(rs, colName);

@@ -2129,9 +2129,8 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         try {
             ps = conn.prepareStatement(rtp(INSERT_PAUSED_TRIGGER_GROUP));
             ps.setString(1, groupName);
-            int rows = ps.executeUpdate();
 
-            return rows;
+            return ps.executeUpdate();
         } finally {
             closeStatement(ps);
         }
@@ -2144,9 +2143,8 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         try {
             ps = conn.prepareStatement(rtp(DELETE_PAUSED_TRIGGER_GROUP));
             ps.setString(1, groupName);
-            int rows = ps.executeUpdate();
 
-            return rows;
+            return ps.executeUpdate();
         } finally {
             closeStatement(ps);
         }
@@ -2159,9 +2157,8 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         try {
             ps = conn.prepareStatement(rtp(DELETE_PAUSED_TRIGGER_GROUP));
             ps.setString(1, toSqlLikeClause(matcher));
-            int rows = ps.executeUpdate();
 
-            return rows;
+            return ps.executeUpdate();
         } finally {
             closeStatement(ps);
         }
@@ -2173,9 +2170,8 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
 
         try {
             ps = conn.prepareStatement(rtp(DELETE_PAUSED_TRIGGER_GROUPS));
-            int rows = ps.executeUpdate();
 
-            return rows;
+            return ps.executeUpdate();
         } finally {
             closeStatement(ps);
         }
@@ -3219,8 +3215,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         if (canUseProperties()) {
             Blob blobLocator = rs.getBlob(colName);
             if (blobLocator != null) {
-                InputStream binaryInput = blobLocator.getBinaryStream();
-                return binaryInput;
+                return blobLocator.getBinaryStream();
             } else {
                 return null;
             }

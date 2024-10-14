@@ -54,10 +54,9 @@ public class SimpleJobFactory implements JobFactory {
             
             return jobClass.newInstance();
         } catch (Exception e) {
-            SchedulerException se = new SchedulerException(
+            throw new SchedulerException(
                     "Problem instantiating class '"
                             + jobDetail.getJobClass().getName() + "'", e);
-            throw se;
         }
     }
 

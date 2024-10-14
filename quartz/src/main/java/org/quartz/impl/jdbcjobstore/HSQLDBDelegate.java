@@ -78,8 +78,7 @@ public class HSQLDBDelegate extends StdJDBCDelegate {
     protected Object getJobDataFromBlob(ResultSet rs, String colName)
         throws ClassNotFoundException, IOException, SQLException {
         if (canUseProperties()) {
-            InputStream binaryInput = rs.getBinaryStream(colName);
-            return binaryInput;
+            return rs.getBinaryStream(colName);
         }
         return getObjectFromBlob(rs, colName);
     }

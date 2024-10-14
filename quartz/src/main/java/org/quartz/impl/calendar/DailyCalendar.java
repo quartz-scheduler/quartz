@@ -450,8 +450,7 @@ public class DailyCalendar extends BaseCalendar {
 
     @Override
     public Object clone() {
-        DailyCalendar clone = (DailyCalendar) super.clone();
-        return clone;
+        return (DailyCalendar) super.clone();
     }
     
     /**
