@@ -121,7 +121,7 @@ public class CronCalendar extends BaseCalendar {
     @Override
     public boolean isTimeIncluded(long timeInMillis) {        
         if ((getBaseCalendar() != null) && 
-                (getBaseCalendar().isTimeIncluded(timeInMillis) == false)) {
+                (!getBaseCalendar().isTimeIncluded(timeInMillis))) {
             return false;
         }
         

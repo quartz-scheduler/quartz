@@ -209,7 +209,7 @@ public class XMLSchedulingDataProcessorPlugin
     @Override
     public void start(UserTransaction userTransaction) {
         try {
-            if (jobFiles.isEmpty() == false) {
+            if (!jobFiles.isEmpty()) {
                 
                 if (scanInterval > 0) {
                     getScheduler().getContext().put(JOB_INITIALIZATION_PLUGIN_NAME + '_' + getName(), this);
@@ -271,7 +271,7 @@ public class XMLSchedulingDataProcessorPlugin
         // If there is a conflict, keep incrementing a _# suffix on the name (being sure
         // not to get too long), until we find a unique name.
         int currentIndex = 1;
-        while (jobTriggerNameSet.add(jobTriggerName) == false) {
+        while (!jobTriggerNameSet.add(jobTriggerName)) {
             // If not our first time through, then strip off old numeric suffix
             if (currentIndex > 1) {
                 jobTriggerName = jobTriggerName.substring(0, jobTriggerName.lastIndexOf('_'));

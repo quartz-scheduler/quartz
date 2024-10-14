@@ -150,13 +150,13 @@ public class WeeklyCalendar extends BaseCalendar implements Calendar,
      */
     @Override
     public boolean isTimeIncluded(long timeStamp) {
-        if (excludeAll == true) {
+        if (excludeAll) {
             return false;
         }
 
         // Test the base calendar first. Only if the base calendar not already
         // excludes the time/date, continue evaluating this calendar instance.
-        if (super.isTimeIncluded(timeStamp) == false) { return false; }
+        if (!super.isTimeIncluded(timeStamp)) { return false; }
 
         java.util.Calendar cl = createJavaCalendar(timeStamp);
         int wday = cl.get(java.util.Calendar.DAY_OF_WEEK);
@@ -177,7 +177,7 @@ public class WeeklyCalendar extends BaseCalendar implements Calendar,
      */
     @Override
     public long getNextIncludedTime(long timeStamp) {
-        if (excludeAll == true) {
+        if (excludeAll) {
             return 0;
         }
 
@@ -195,7 +195,7 @@ public class WeeklyCalendar extends BaseCalendar implements Calendar,
             return timeStamp; // return the original value
         }
 
-        while (isDayExcluded(wday) == true) {
+        while (isDayExcluded(wday)) {
             cl.add(java.util.Calendar.DATE, 1);
             wday = cl.get(java.util.Calendar.DAY_OF_WEEK);
         }

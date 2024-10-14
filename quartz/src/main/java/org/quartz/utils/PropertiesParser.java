@@ -385,12 +385,12 @@ public class PropertiesParser {
                 
                 boolean exclude = false;
                 if (excludedPrefixes != null) {
-                    for (int i = 0; (i < excludedPrefixes.length) && (exclude == false); i++) {
+                    for (int i = 0; (i < excludedPrefixes.length) && (!exclude); i++) {
                         exclude = key.startsWith(excludedPrefixes[i]);
                     }
                 }
 
-                if (exclude == false) {
+                if (!exclude) {
                     String value = getStringProperty(key, "");
                     
                     if (stripPrefix) { 

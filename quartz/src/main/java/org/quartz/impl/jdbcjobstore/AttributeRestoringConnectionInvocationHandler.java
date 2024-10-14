@@ -94,7 +94,7 @@ public class AttributeRestoringConnectionInvocationHandler implements Invocation
         boolean currentAutoCommitValue = conn.getAutoCommit();
             
         if (autoCommit != currentAutoCommitValue) {
-            if (overwroteOriginalAutoCommitValue == false) {
+            if (!overwroteOriginalAutoCommitValue) {
                 overwroteOriginalAutoCommitValue = true;
                 originalAutoCommitValue = currentAutoCommitValue;
             }
@@ -112,7 +112,7 @@ public class AttributeRestoringConnectionInvocationHandler implements Invocation
         int currentLevel = conn.getTransactionIsolation();
         
         if (level != currentLevel) {
-            if (overwroteOriginalTxIsolationValue == false) {
+            if (!overwroteOriginalTxIsolationValue) {
                 overwroteOriginalTxIsolationValue = true;
                 originalTxIsolationValue = currentLevel;
             }

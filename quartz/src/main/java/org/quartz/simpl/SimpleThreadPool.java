@@ -344,7 +344,7 @@ public class SimpleThreadPool implements ThreadPool {
             // current job.
             nextRunnableLock.notifyAll();
 
-            if (waitForJobsToComplete == true) {
+            if (waitForJobsToComplete) {
 
                 boolean interrupted = false;
                 try {

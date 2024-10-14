@@ -215,7 +215,7 @@ public class JTANonClusteredSemaphore implements Semaphore {
 
         if (isLockOwner(null, lockName)) {
             
-            if (fromSynchronization == false) {
+            if (!fromSynchronization) {
                 Transaction t = getTransaction();
                 if (t != null) {
                     if(getLog().isDebugEnabled()) {

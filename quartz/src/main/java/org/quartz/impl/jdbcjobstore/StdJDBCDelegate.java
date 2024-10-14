@@ -357,7 +357,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             rs = ps.executeQuery();
 
             boolean hasReachedLimit = false;
-            while (rs.next() && (hasReachedLimit == false)) {
+            while (rs.next() && (!hasReachedLimit)) {
                 if (resultList.size() == count) {
                     hasReachedLimit = true;
                 } else {

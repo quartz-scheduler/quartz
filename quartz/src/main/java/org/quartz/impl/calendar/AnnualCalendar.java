@@ -99,7 +99,7 @@ public class AnnualCalendar extends BaseCalendar implements Calendar,
         int dmonth = day.get(java.util.Calendar.MONTH);
         int dday = day.get(java.util.Calendar.DAY_OF_MONTH);
 
-        if (dataSorted == false) {
+        if (!dataSorted) {
             Collections.sort(excludeDays, new CalendarComparator());
             dataSorted = true;
         }
@@ -224,7 +224,7 @@ public class AnnualCalendar extends BaseCalendar implements Calendar,
     public boolean isTimeIncluded(long timeStamp) {
         // Test the base calendar first. Only if the base calendar not already
         // excludes the time/date, continue evaluating this calendar instance.
-        if (super.isTimeIncluded(timeStamp) == false) { return false; }
+        if (!super.isTimeIncluded(timeStamp)) { return false; }
 
         java.util.Calendar day = createJavaCalendar(timeStamp);
 
@@ -252,11 +252,11 @@ public class AnnualCalendar extends BaseCalendar implements Calendar,
 
         // Get timestamp for 00:00:00
         java.util.Calendar day = getStartOfDayJavaCalendar(timeStamp);
-        if (isDayExcluded(day) == false) { 
+        if (!isDayExcluded(day)) {
             return timeStamp; // return the original value
         }
 
-        while (isDayExcluded(day) == true) {
+        while (isDayExcluded(day)) {
             day.add(java.util.Calendar.DATE, 1);
         }
 

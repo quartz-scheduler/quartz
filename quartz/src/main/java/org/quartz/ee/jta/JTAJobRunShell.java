@@ -115,7 +115,7 @@ public class JTAJobRunShell extends JobRunShell {
             throw new SchedulerException(
                     "JTAJobRunShell could not start UserTransaction.", nse);
         } finally {
-            if (beganSuccessfully == false) {
+            if (!beganSuccessfully) {
                 cleanupUserTransaction();
             }
         }

@@ -83,7 +83,7 @@ public class HolidayCalendar extends BaseCalendar implements Calendar,
      */
     @Override
     public boolean isTimeIncluded(long timeStamp) {
-        if (super.isTimeIncluded(timeStamp) == false) {
+        if (!super.isTimeIncluded(timeStamp)) {
             return false;
         }
 
@@ -113,7 +113,7 @@ public class HolidayCalendar extends BaseCalendar implements Calendar,
 
         // Get timestamp for 00:00:00
         java.util.Calendar day = getStartOfDayJavaCalendar(timeStamp);
-        while (isTimeIncluded(day.getTime().getTime()) == false) {
+        while (!isTimeIncluded(day.getTime().getTime())) {
             day.add(java.util.Calendar.DATE, 1);
         }
 

@@ -263,7 +263,7 @@ public class DirtyFlagMap<K,V> implements Map<K,V>, Cloneable, java.io.Serializa
         }
 
         public void clear() {
-            if (collection.isEmpty() == false) {
+            if (!collection.isEmpty()) {
                 dirty = true;
             }
             collection.clear();
@@ -339,7 +339,7 @@ public class DirtyFlagMap<K,V> implements Map<K,V>, Cloneable, java.io.Serializa
         @SuppressWarnings("unchecked") // suppress warnings on both U[] and U casting.
         @Override
         public <U> U[] toArray(final U[] array) {
-            if (array.getClass().getComponentType().isAssignableFrom(Map.Entry.class) == false) {
+            if (!array.getClass().getComponentType().isAssignableFrom(Entry.class)) {
                 throw new IllegalArgumentException("Array must be of type assignable from Map.Entry");
             }
 

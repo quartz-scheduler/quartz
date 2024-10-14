@@ -167,7 +167,7 @@ public abstract class SchedulerPluginWithUserTransactionSupport implements
      * will return null.
      */
     private UserTransaction startUserTransaction() {
-        if (wrapInUserTransaction == false) {
+        if (!wrapInUserTransaction) {
             return null;
         }
         
