@@ -141,8 +141,8 @@ public class FileScanJob implements Job {
         URL resource = Thread.currentThread().getContextClassLoader().getResource(fileName);
         
         // Get the absolute path.
-        String filePath = (resource == null) ? fileName : URLDecoder.decode(resource.getFile()); ;
-        
+        String filePath = (resource == null) ? fileName : URLDecoder.decode(resource.getFile());
+
         // If the jobs file is inside a jar point to the jar file (to get it modification date).
         // Otherwise continue as usual.
         int jarIndicator = filePath.indexOf('!');
