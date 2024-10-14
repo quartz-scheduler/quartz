@@ -3523,7 +3523,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                                         "recover_"
                                                 + rec.getSchedulerInstanceId()
                                                 + "_"
-                                                + String.valueOf(recoverIds++),
+                                                + recoverIds++,
                                         Scheduler.DEFAULT_RECOVERY_GROUP,
                                         new Date(ftRec.getScheduleTimestamp()));
                                 rcvryTrig.setJobName(jKey.getName());

@@ -485,7 +485,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
                 int priority = rs.getInt(COL_PRIORITY);
                 @SuppressWarnings("deprecation")
                 SimpleTriggerImpl rcvryTrig = new SimpleTriggerImpl("recover_"
-                        + instanceId + "_" + String.valueOf(dumId++),
+                        + instanceId + "_" + dumId++,
                         Scheduler.DEFAULT_RECOVERY_GROUP, new Date(scheduledTime));
                 rcvryTrig.setJobName(jobName);
                 rcvryTrig.setJobGroup(jobGroup);
