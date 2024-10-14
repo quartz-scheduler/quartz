@@ -10,7 +10,7 @@ dependencies {
     runtimeOnly "org.slf4j:slf4j-log4j12:$slf4jVersion"
 
     compileOnly 'jakarta.jms:jakarta.jms-api:3.1.0'
-    compileOnly 'jakarta.mail:jakarta.mail-api:2.1.1'
+    compileOnly 'jakarta.mail:jakarta.mail-api:2.1.3'
     compileOnly 'jakarta.ejb:jakarta.ejb-api:4.0.1'
     compileOnly 'org.glassfish.corba:rmic:4.2.4'
 
@@ -18,7 +18,7 @@ dependencies {
     testImplementation 'commons-io:commons-io:2.7'
     testImplementation "junit:junit:$junitVersion"
     testImplementation 'org.hamcrest:hamcrest-library:1.2'
-    testImplementation 'jakarta.mail:jakarta.mail-api:2.1.1'
+    testImplementation 'jakarta.mail:jakarta.mail-api:2.1.3'
 
     testImplementation 'org.subethamail:subethasmtp:3.1.7'
 }
