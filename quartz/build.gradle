@@ -34,7 +34,7 @@ dependencies {
     testImplementation "junit:junit:$junitVersion"
     testImplementation 'asm:asm:3.3.1'
     testImplementation 'org.mockito:mockito-core:1.9.5'
-    testImplementation 'org.hamcrest:hamcrest-library:1.2'
+    testImplementation 'org.hamcrest:hamcrest-library:3.0'
 
     testImplementation "org.apache.derby:derby:$derbyVersion"
     testImplementation "org.apache.derby:derbynet:$derbyVersion"
