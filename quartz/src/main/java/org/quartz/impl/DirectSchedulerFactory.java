@@ -126,7 +126,7 @@ public class DirectSchedulerFactory implements SchedulerFactory {
 
     private boolean initialized = false;
 
-    private static DirectSchedulerFactory instance = new DirectSchedulerFactory();
+    private static final DirectSchedulerFactory instance = new DirectSchedulerFactory();
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -545,8 +545,8 @@ public class DirectSchedulerFactory implements SchedulerFactory {
         
         // add plugins
         if (schedulerPluginMap != null) {
-            for (Iterator<SchedulerPlugin> pluginIter = schedulerPluginMap.values().iterator(); pluginIter.hasNext();) {
-                qrs.addSchedulerPlugin(pluginIter.next());
+            for (SchedulerPlugin schedulerPlugin : schedulerPluginMap.values()) {
+                qrs.addSchedulerPlugin(schedulerPlugin);
             }
         }
 
@@ -568,16 +568,14 @@ public class DirectSchedulerFactory implements SchedulerFactory {
 
         // Initialize plugins now that we have a Scheduler instance.
         if (schedulerPluginMap != null) {
-            for (Iterator<Entry<String, SchedulerPlugin>> pluginEntryIter = schedulerPluginMap.entrySet().iterator(); pluginEntryIter.hasNext();) {
-                Entry<String, SchedulerPlugin> pluginEntry = pluginEntryIter.next();
-
+            for (Entry<String, SchedulerPlugin> pluginEntry : schedulerPluginMap.entrySet()) {
                 pluginEntry.getValue().initialize(pluginEntry.getKey(), scheduler, cch);
             }
         }
 
-        getLog().info("Quartz scheduler '" + scheduler.getSchedulerName());
+        getLog().info("Quartz scheduler '{}", scheduler.getSchedulerName());
 
-        getLog().info("Quartz scheduler version: " + qs.getVersion());
+        getLog().info("Quartz scheduler version: {}", qs.getVersion());
 
         SchedulerRepository schedRep = SchedulerRepository.getInstance();
 

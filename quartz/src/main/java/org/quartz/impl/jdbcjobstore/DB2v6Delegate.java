@@ -24,8 +24,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.quartz.JobKey;
-import org.quartz.spi.ClassLoadHelper;
-import org.slf4j.Logger;
 
 /**
  * Quartz JDBC delegate for DB2 v6 databases. <code>select count(name)</code>

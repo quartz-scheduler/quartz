@@ -25,9 +25,6 @@ import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.quartz.spi.ClassLoadHelper;
-import org.slf4j.Logger;
-
 /**
  * <p>
  * This is a driver delegate for the WebLogic JDBC driver.
@@ -75,11 +72,8 @@ public class WebLogicDelegate extends StdJDBCDelegate {
         }
 
         if (null != binaryInput) {
-            ObjectInputStream in = new ObjectInputStream(binaryInput);
-            try {
+            try (ObjectInputStream in = new ObjectInputStream(binaryInput)) {
                 obj = in.readObject();
-            } finally {
-                in.close();
             }
         }
 

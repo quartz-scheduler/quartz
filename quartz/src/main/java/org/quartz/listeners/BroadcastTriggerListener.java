@@ -42,8 +42,8 @@ import org.quartz.Trigger.CompletedExecutionInstruction;
  */
 public class BroadcastTriggerListener implements TriggerListener {
 
-    private String name;
-    private List<TriggerListener> listeners;
+    private final String name;
+    private final List<TriggerListener> listeners;
 
     /**
      * Construct an instance with the given name.
@@ -57,7 +57,7 @@ public class BroadcastTriggerListener implements TriggerListener {
             throw new IllegalArgumentException("Listener name cannot be null!");
         }
         this.name = name;
-        listeners = new LinkedList<TriggerListener>();
+        listeners = new LinkedList<>();
     }
 
     /**

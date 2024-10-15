@@ -46,35 +46,35 @@ public class JobExecutionContextImpl implements java.io.Serializable, JobExecuti
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      */
 
-    private transient Scheduler scheduler;
+    private final transient Scheduler scheduler;
 
-    private Trigger trigger;
+    private final Trigger trigger;
 
-    private JobDetail jobDetail;
+    private final JobDetail jobDetail;
     
-    private JobDataMap jobDataMap;
+    private final JobDataMap jobDataMap;
 
-    private transient Job job;
+    private final transient Job job;
     
-    private Calendar calendar;
+    private final Calendar calendar;
 
     private boolean recovering = false;
 
     private int numRefires = 0;
 
-    private Date fireTime;
+    private final Date fireTime;
 
-    private Date scheduledFireTime;
+    private final Date scheduledFireTime;
 
-    private Date prevFireTime;
+    private final Date prevFireTime;
 
-    private Date nextFireTime;
+    private final Date nextFireTime;
     
     private long jobRunTime = -1;
     
     private Object result;
     
-    private HashMap<Object, Object> data = new HashMap<Object, Object>();
+    private final HashMap<Object, Object> data = new HashMap<>();
 
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

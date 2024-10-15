@@ -62,7 +62,7 @@ import org.quartz.spi.MutableTrigger;
  */
 public class CronScheduleBuilder extends ScheduleBuilder<CronTrigger> {
 
-    private CronExpression cronExpression;
+    private final CronExpression cronExpression;
     private int misfireInstruction = CronTrigger.MISFIRE_INSTRUCTION_SMART_POLICY;
 
     protected CronScheduleBuilder(CronExpression cronExpression) {
@@ -210,13 +210,13 @@ public class CronScheduleBuilder extends ScheduleBuilder<CronTrigger> {
         DateBuilder.validateHour(hour);
         DateBuilder.validateMinute(minute);
 
-        String cronExpression = String.format("0 %d %d ? * %d", minute, hour,
-                daysOfWeek[0]);
+        StringBuilder cronExpression = new StringBuilder(String.format("0 %d %d ? * %d", minute, hour,
+                daysOfWeek[0]));
 
         for (int i = 1; i < daysOfWeek.length; i++)
-            cronExpression = cronExpression + "," + daysOfWeek[i];
+            cronExpression.append(",").append(daysOfWeek[i]);
 
-        return cronScheduleNoParseException(cronExpression);
+        return cronScheduleNoParseException(cronExpression.toString());
     }
 
     /**

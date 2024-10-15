@@ -18,9 +18,7 @@
 
 package org.quartz.impl.jdbcjobstore.oracle.weblogic;
 
-import org.slf4j.Logger;
 import org.quartz.impl.jdbcjobstore.oracle.OracleDelegate;
-import org.quartz.spi.ClassLoadHelper;
 
 import java.lang.reflect.Method;
 import java.sql.Blob;

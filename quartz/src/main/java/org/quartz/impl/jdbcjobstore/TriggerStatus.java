@@ -46,9 +46,9 @@ public class TriggerStatus {
 
     private JobKey jobKey;
 
-    private String status;
+    private final String status;
     
-    private Date nextFireTime;
+    private final Date nextFireTime;
 
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

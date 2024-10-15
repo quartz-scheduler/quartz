@@ -168,9 +168,9 @@ public final class Util {
     }
 
     private static java.lang.reflect.Method getSetMethod(String name, PropertyDescriptor[] props) {
-        for (int i = 0; i < props.length; i++) {
-            java.lang.reflect.Method wMeth = props[i].getWriteMethod();
-    
+        for (PropertyDescriptor prop : props) {
+            java.lang.reflect.Method wMeth = prop.getWriteMethod();
+
             if (wMeth != null && wMeth.getName().equals(name)) {
                 return wMeth;
             }

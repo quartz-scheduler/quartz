@@ -34,12 +34,9 @@ import java.util.StringTokenizer;
 
 import javax.transaction.UserTransaction;
 
-import org.quartz.impl.JobDetailImpl;
-import org.quartz.impl.triggers.SimpleTriggerImpl;
 import org.quartz.plugins.xml.FileScanJob;
 import org.quartz.plugins.xml.FileScanListener;
 import org.quartz.plugins.SchedulerPluginWithUserTransactionSupport;
-import org.quartz.simpl.CascadingClassLoadHelper;
 import org.quartz.spi.ClassLoadHelper;
 import org.quartz.xml.XMLSchedulingDataProcessor;
 
@@ -94,7 +91,7 @@ public class XMLSchedulingDataProcessorPlugin
     private String fileNames = XMLSchedulingDataProcessor.QUARTZ_XML_DEFAULT_FILE_NAME;
 
     // Populated by initialization
-    private Map<String, JobFile> jobFiles = new LinkedHashMap<String, JobFile>();
+    private final Map<String, JobFile> jobFiles = new LinkedHashMap<>();
 
     private long scanInterval = 0; 
     
@@ -102,7 +99,7 @@ public class XMLSchedulingDataProcessorPlugin
     
     protected ClassLoadHelper classLoadHelper = null;
 
-    private Set<String> jobTriggerNameSet = new HashSet<String>();
+    private final Set<String> jobTriggerNameSet = new HashSet<>();
     
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -212,7 +209,7 @@ public class XMLSchedulingDataProcessorPlugin
     @Override
     public void start(UserTransaction userTransaction) {
         try {
-            if (jobFiles.isEmpty() == false) {
+            if (!jobFiles.isEmpty()) {
                 
                 if (scanInterval > 0) {
                     getScheduler().getContext().put(JOB_INITIALIZATION_PLUGIN_NAME + '_' + getName(), this);
@@ -274,7 +271,7 @@ public class XMLSchedulingDataProcessorPlugin
         // If there is a conflict, keep incrementing a _# suffix on the name (being sure
         // not to get too long), until we find a unique name.
         int currentIndex = 1;
-        while (jobTriggerNameSet.add(jobTriggerName) == false) {
+        while (!jobTriggerNameSet.add(jobTriggerName)) {
             // If not our first time through, then strip off old numeric suffix
             if (currentIndex > 1) {
                 jobTriggerName = jobTriggerName.substring(0, jobTriggerName.lastIndexOf('_'));
@@ -321,7 +318,7 @@ public class XMLSchedulingDataProcessorPlugin
                     jobFile.getFileName(), // systemId 
                     getScheduler());
         } catch (Exception e) {
-            getLog().error("Error scheduling jobs: " + e.getMessage(), e);
+            getLog().error("Error scheduling jobs: {}", e.getMessage(), e);
         }
     }
     
@@ -339,7 +336,7 @@ public class XMLSchedulingDataProcessorPlugin
     }
     
     class JobFile {
-        private String fileName;
+        private final String fileName;
 
         // These are set by initialize()
         private String filePath;
@@ -401,7 +398,7 @@ public class XMLSchedulingDataProcessorPlugin
                         throw new SchedulerException(
                             "File named '" + getFileName() + "' does not exist.");
                     } else {
-                        getLog().warn("File named '" + getFileName() + "' does not exist.");
+                        getLog().warn("File named '{}' does not exist.", getFileName());
                     }
                 } else {
                     fileFound = true;
@@ -414,7 +411,7 @@ public class XMLSchedulingDataProcessorPlugin
                         f.close();
                     }
                 } catch (IOException ioe) {
-                    getLog().warn("Error closing jobs file " + getFileName(), ioe);
+                    getLog().warn("Error closing jobs file {}", getFileName(), ioe);
                 }
             }
         }

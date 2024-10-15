@@ -121,16 +121,16 @@ public class FileScanJob implements Job {
         long newDate = getLastModifiedDate(fileName);
         
         if(newDate < 0) {
-            log.warn("File '"+fileName+"' does not exist.");
+            log.warn("File '{}' does not exist.", fileName);
             return;
         }
         
         if(lastDate > 0 && (newDate > lastDate && newDate < maxAgeDate)) {
             // notify call back...
-            log.info("File '"+fileName+"' updated, notifying listener.");
+            log.info("File '{}' updated, notifying listener.", fileName);
             listener.fileUpdated(fileName); 
         } else if (log.isDebugEnabled()) {
-            log.debug("File '"+fileName+"' unchanged.");
+            log.debug("File '{}' unchanged.", fileName);
         }
         
         // It is the JobDataMap on the JobDetail which is actually stateful
@@ -141,8 +141,8 @@ public class FileScanJob implements Job {
         URL resource = Thread.currentThread().getContextClassLoader().getResource(fileName);
         
         // Get the absolute path.
-        String filePath = (resource == null) ? fileName : URLDecoder.decode(resource.getFile()); ;
-        
+        String filePath = (resource == null) ? fileName : URLDecoder.decode(resource.getFile());
+
         // If the jobs file is inside a jar point to the jar file (to get it modification date).
         // Otherwise continue as usual.
         int jarIndicator = filePath.indexOf('!');

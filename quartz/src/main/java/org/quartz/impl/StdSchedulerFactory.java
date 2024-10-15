@@ -660,7 +660,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
 
         userTXLocation = cfg.getStringProperty(PROP_SCHED_USER_TX_URL,
                 userTXLocation);
-        if (userTXLocation != null && userTXLocation.trim().length() == 0) {
+        if (userTXLocation != null && userTXLocation.trim().isEmpty()) {
             userTXLocation = null;
         }
 
@@ -921,7 +921,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
                     }
 
                     ((JobStoreSupport)js).setLockHandler(lockHandler);
-                    getLog().info("Using custom data access locking (synchronization): " + lockHandlerClass);
+                    getLog().info("Using custom data access locking (synchronization): {}", lockHandlerClass);
                 } catch (Exception e) {
                     initException = new SchedulerException("JobStore LockHandler class '" + lockHandlerClass
                             + "' could not be instantiated.", e);
@@ -934,14 +934,14 @@ public class StdSchedulerFactory implements SchedulerFactory {
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         String[] dsNames = cfg.getPropertyGroups(PROP_DATASOURCE_PREFIX);
-        for (int i = 0; i < dsNames.length; i++) {
+        for (String dsName : dsNames) {
             PropertiesParser pp = new PropertiesParser(cfg.getPropertyGroup(
-                    PROP_DATASOURCE_PREFIX + "." + dsNames[i], true));
+                    PROP_DATASOURCE_PREFIX + "." + dsName, true));
 
             String cpClass = pp.getStringProperty(PROP_CONNECTION_PROVIDER_CLASS, null);
 
             // custom connectionProvider...
-            if(cpClass != null) {
+            if (cpClass != null) {
                 ConnectionProvider cp = null;
                 try {
                     cp = (ConnectionProvider) loadHelper.loadClass(cpClass).newInstance();
@@ -957,7 +957,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
                             PROP_CONNECTION_PROVIDER_CLASS);
 
                     if (cp instanceof PoolingConnectionProvider) {
-                        populateProviderWithExtraProps((PoolingConnectionProvider)cp, pp.getUnderlyingProperties());
+                        populateProviderWithExtraProps((PoolingConnectionProvider) cp, pp.getUnderlyingProperties());
                     } else {
                         setBeanProps(cp, pp.getUnderlyingProperties());
                     }
@@ -969,7 +969,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
                 }
 
                 dbMgr = DBConnectionManager.getInstance();
-                dbMgr.addConnectionProvider(dsNames[i], cp);
+                dbMgr.addConnectionProvider(dsName, cp);
             } else {
                 String dsJndi = pp.getStringProperty(PROP_DATASOURCE_JNDI_URL, null);
 
@@ -1008,7 +1008,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
                     JNDIConnectionProvider cp = new JNDIConnectionProvider(dsJndi,
                             props, dsAlwaysLookup);
                     dbMgr = DBConnectionManager.getInstance();
-                    dbMgr.addConnectionProvider(dsNames[i], cp);
+                    dbMgr.addConnectionProvider(dsName, cp);
                 } else {
                     String poolingProvider = pp.getStringProperty(PoolingConnectionProvider.POOLING_PROVIDER);
                     String dsDriver = pp.getStringProperty(PoolingConnectionProvider.DB_DRIVER);
@@ -1017,24 +1017,23 @@ public class StdSchedulerFactory implements SchedulerFactory {
                     if (dsDriver == null) {
                         initException = new SchedulerException(
                                 "Driver not specified for DataSource: "
-                                        + dsNames[i]);
+                                        + dsName);
                         throw initException;
                     }
                     if (dsURL == null) {
                         initException = new SchedulerException(
                                 "DB URL not specified for DataSource: "
-                                        + dsNames[i]);
+                                        + dsName);
                         throw initException;
                     }
                     // we load even these "core" providers by class name in order to avoid a static dependency on
                     // the c3p0 and hikaricp libraries
-                    if(poolingProvider != null && poolingProvider.equals(PoolingConnectionProvider.POOLING_PROVIDER_HIKARICP)) {
+                    if (poolingProvider != null && poolingProvider.equals(PoolingConnectionProvider.POOLING_PROVIDER_HIKARICP)) {
                         cpClass = "org.quartz.utils.HikariCpPoolingConnectionProvider";
-                    }
-                    else {
+                    } else {
                         cpClass = "org.quartz.utils.C3p0PoolingConnectionProvider";
                     }
-                    log.info("Using ConnectionProvider class '" + cpClass + "' for data source '" + dsNames[i] + "'");
+                    log.info("Using ConnectionProvider class '{}' for data source '{}'", cpClass, dsName);
 
                     try {
                         ConnectionProvider cp = null;
@@ -1047,13 +1046,13 @@ public class StdSchedulerFactory implements SchedulerFactory {
                             throw initException;
                         }
                         dbMgr = DBConnectionManager.getInstance();
-                        dbMgr.addConnectionProvider(dsNames[i], cp);
+                        dbMgr.addConnectionProvider(dsName, cp);
 
                         // Populate the underlying C3P0/HikariCP data source pool properties
-                        populateProviderWithExtraProps((PoolingConnectionProvider)cp, pp.getUnderlyingProperties());
+                        populateProviderWithExtraProps((PoolingConnectionProvider) cp, pp.getUnderlyingProperties());
                     } catch (Exception sqle) {
                         initException = new SchedulerException(
-                                "Could not initialize DataSource: " + dsNames[i],
+                                "Could not initialize DataSource: " + dsName,
                                 sqle);
                         throw initException;
                     }
@@ -1209,7 +1208,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
             tProps = cfg.getPropertyGroup(PROP_THREAD_EXECUTOR, true);
             try {
                 threadExecutor = (ThreadExecutor) loadHelper.loadClass(threadExecutorClass).newInstance();
-                log.info("Using custom implementation for ThreadExecutor: " + threadExecutorClass);
+                log.info("Using custom implementation for ThreadExecutor: {}", threadExecutorClass);
 
                 setBeanProps(threadExecutor, tProps);
             } catch (Exception e) {
@@ -1327,8 +1326,8 @@ public class StdSchedulerFactory implements SchedulerFactory {
             rsrcs.setJobStore(js);
     
             // add plugins
-            for (int i = 0; i < plugins.length; i++) {
-                rsrcs.addSchedulerPlugin(plugins[i]);
+            for (SchedulerPlugin plugin : plugins) {
+                rsrcs.addSchedulerPlugin(plugin);
             }
     
             qs = new QuartzScheduler(rsrcs, idleWaitTime, dbFailureRetry);
@@ -1348,11 +1347,11 @@ public class StdSchedulerFactory implements SchedulerFactory {
             }
     
             // add listeners
-            for (int i = 0; i < jobListeners.length; i++) {
-                qs.getListenerManager().addJobListener(jobListeners[i], EverythingMatcher.allJobs());
+            for (JobListener jobListener : jobListeners) {
+                qs.getListenerManager().addJobListener(jobListener, EverythingMatcher.allJobs());
             }
-            for (int i = 0; i < triggerListeners.length; i++) {
-                qs.getListenerManager().addTriggerListener(triggerListeners[i], EverythingMatcher.allTriggers());
+            for (TriggerListener triggerListener : triggerListeners) {
+                qs.getListenerManager().addTriggerListener(triggerListener, EverythingMatcher.allTriggers());
             }
     
             // set scheduler context data...
@@ -1371,12 +1370,10 @@ public class StdSchedulerFactory implements SchedulerFactory {
             jrsf.initialize(scheduler);
             
             qs.initialize();
-    
-            getLog().info(
-                    "Quartz scheduler '" + scheduler.getSchedulerName()
-                            + "' initialized from " + propSrc);
-    
-            getLog().info("Quartz scheduler version: " + qs.getVersion());
+
+            getLog().info("Quartz scheduler '{}' initialized from {}", scheduler.getSchedulerName(), propSrc);
+
+            getLog().info("Quartz scheduler version: {}", qs.getVersion());
     
             // prevents the repository from being garbage collected
             qs.addNoGCObject(schedRep);
@@ -1439,8 +1436,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
 
     protected Scheduler instantiate(QuartzSchedulerResources rsrcs, QuartzScheduler qs) {
 
-        Scheduler scheduler = new StdScheduler(qs);
-        return scheduler;
+        return new StdScheduler(qs);
     }
 
 
@@ -1504,15 +1500,15 @@ public class StdSchedulerFactory implements SchedulerFactory {
                 }
             } catch (NumberFormatException nfe) {
                 throw new SchedulerConfigException("Could not parse property '"
-                        + name + "' into correct data type: " + nfe.toString());
+                        + name + "' into correct data type: " + nfe);
             }
         }
     }
 
     private java.lang.reflect.Method getSetMethod(String name,
             PropertyDescriptor[] props) {
-        for (int i = 0; i < props.length; i++) {
-            java.lang.reflect.Method wMeth = props[i].getWriteMethod();
+        for (PropertyDescriptor prop : props) {
+            Method wMeth = prop.getWriteMethod();
 
             if (wMeth != null && wMeth.getName().equals(name)) {
                 return wMeth;

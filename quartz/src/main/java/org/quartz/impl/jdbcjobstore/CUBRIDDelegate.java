@@ -22,8 +22,6 @@ import com.mchange.v2.c3p0.C3P0ProxyConnection;
 import java.io.*;
 import java.lang.reflect.Method;
 import java.sql.*;
-import org.quartz.spi.ClassLoadHelper;
-import org.slf4j.Logger;
 
 /**
  * <p> This is a driver delegate for the CUBRID JDBC driver. For Quartz 2.x </p>
@@ -60,11 +58,8 @@ public class CUBRIDDelegate extends StdJDBCDelegate {
         if (bytes != null && bytes.length != 0) {
             binaryInput = new ByteArrayInputStream(bytes);
 
-            ObjectInputStream in = new ObjectInputStream(binaryInput);
-            try {
+            try (ObjectInputStream in = new ObjectInputStream(binaryInput)) {
                 obj = in.readObject();
-            } finally {
-                in.close();
             }
         }
 

@@ -167,7 +167,7 @@ public abstract class SchedulerPluginWithUserTransactionSupport implements
      * will return null.
      */
     private UserTransaction startUserTransaction() {
-        if (wrapInUserTransaction == false) {
+        if (!wrapInUserTransaction) {
             return null;
         }
         
@@ -178,7 +178,7 @@ public abstract class SchedulerPluginWithUserTransactionSupport implements
         } catch (Throwable t) {
             UserTransactionHelper.returnUserTransaction(userTransaction);
             userTransaction = null;
-            getLog().error("Failed to start UserTransaction for plugin: " + getName(), t);
+            getLog().error("Failed to start UserTransaction for plugin: {}", getName(), t);
         }
         
         return userTransaction;
@@ -197,7 +197,7 @@ public abstract class SchedulerPluginWithUserTransactionSupport implements
                     userTransaction.commit();
                 } 
             } catch (Throwable t) {
-                getLog().error("Failed to resolve UserTransaction for plugin: " + getName(), t);
+                getLog().error("Failed to resolve UserTransaction for plugin: {}", getName(), t);
             } finally {
                 UserTransactionHelper.returnUserTransaction(userTransaction);
             }

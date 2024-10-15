@@ -44,8 +44,8 @@ import org.quartz.SchedulerException;
  */
 public class JobChainingJobListener extends JobListenerSupport {
 
-    private String name;
-    private Map<JobKey, JobKey> chainLinks;
+    private final String name;
+    private final Map<JobKey, JobKey> chainLinks;
 
 
     /**
@@ -58,7 +58,7 @@ public class JobChainingJobListener extends JobListenerSupport {
             throw new IllegalArgumentException("Listener name cannot be null!");
         }
         this.name = name;
-        chainLinks = new HashMap<JobKey, JobKey>();
+        chainLinks = new HashMap<>();
     }
 
     public String getName() {
@@ -94,12 +94,12 @@ public class JobChainingJobListener extends JobListenerSupport {
             return;
         }
 
-        getLog().info("Job '" + context.getJobDetail().getKey() + "' will now chain to Job '" + sj + "'");
+        getLog().info("Job '{}' will now chain to Job '{}'", context.getJobDetail().getKey(), sj);
 
         try {
              context.getScheduler().triggerJob(sj);
         } catch(SchedulerException se) {
-            getLog().error("Error encountered during chaining to Job '" + sj + "'", se);
+            getLog().error("Error encountered during chaining to Job '{}'", sj, se);
         }
     }
 }

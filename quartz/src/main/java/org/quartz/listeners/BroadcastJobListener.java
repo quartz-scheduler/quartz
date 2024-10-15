@@ -42,8 +42,8 @@ import org.quartz.JobListener;
  */
 public class BroadcastJobListener implements JobListener {
 
-    private String name;
-    private List<JobListener> listeners;
+    private final String name;
+    private final List<JobListener> listeners;
 
     /**
      * Construct an instance with the given name.
@@ -57,7 +57,7 @@ public class BroadcastJobListener implements JobListener {
             throw new IllegalArgumentException("Listener name cannot be null!");
         }
         this.name = name;
-        listeners = new LinkedList<JobListener>();
+        listeners = new LinkedList<>();
     }
 
     /**

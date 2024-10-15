@@ -80,11 +80,8 @@ public class CacheDelegate extends StdJDBCDelegate {
                     } else if (binaryInput instanceof ByteArrayInputStream && ((ByteArrayInputStream) binaryInput).available() == 0 ) {
                         return null;
                     } else {
-                        ObjectInputStream in = new ObjectInputStream(binaryInput);
-                        try {
+                        try (ObjectInputStream in = new ObjectInputStream(binaryInput)) {
                             return in.readObject();
-                        } finally {
-                            in.close();
                         }
                     }
                 }

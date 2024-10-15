@@ -50,9 +50,9 @@ public interface TriggerPersistenceDelegate {
     
     class TriggerPropertyBundle {
         
-        private ScheduleBuilder<?> sb;
-        private String[] statePropertyNames;
-        private Object[] statePropertyValues;
+        private final ScheduleBuilder<?> sb;
+        private final String[] statePropertyNames;
+        private final Object[] statePropertyValues;
         
         public TriggerPropertyBundle(ScheduleBuilder<?> sb, String[] statePropertyNames, Object[] statePropertyValues) {
             this.sb = sb;

@@ -68,11 +68,11 @@ public class RemoteScheduler implements Scheduler {
 
     private RemotableQuartzScheduler rsched;
 
-    private String schedId;
+    private final String schedId;
 
-    private String rmiHost;
+    private final String rmiHost;
 
-    private int rmiPort;
+    private final int rmiPort;
 
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -115,10 +115,9 @@ public class RemoteScheduler implements Scheduler {
             rsched = (RemotableQuartzScheduler) registry.lookup(schedId);
 
         } catch (Exception e) {
-            SchedulerException initException = new SchedulerException(
+            throw new SchedulerException(
                     "Could not get handle to remote scheduler: "
                             + e.getMessage(), e);
-            throw initException;
         }
 
         return rsched;
@@ -127,8 +126,7 @@ public class RemoteScheduler implements Scheduler {
     protected SchedulerException invalidateHandleCreateException(String msg,
             Exception cause) {
         rsched = null;
-        SchedulerException ex = new SchedulerException(msg, cause);
-        return ex;
+        return new SchedulerException(msg, cause);
     }
 
     /**

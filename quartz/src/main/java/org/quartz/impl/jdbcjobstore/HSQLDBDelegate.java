@@ -25,9 +25,6 @@ import java.io.ObjectInputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.quartz.spi.ClassLoadHelper;
-import org.slf4j.Logger;
-
 /**
  * <p>
  * This is a driver delegate for the HSQLDB database.
@@ -69,12 +66,9 @@ public class HSQLDBDelegate extends StdJDBCDelegate {
         }
         
         Object obj = null;
-        
-        ObjectInputStream in = new ObjectInputStream(binaryInput);
-        try {
+
+        try (ObjectInputStream in = new ObjectInputStream(binaryInput)) {
             obj = in.readObject();
-        } finally {
-            in.close();
         }
 
         return obj;
@@ -84,8 +78,7 @@ public class HSQLDBDelegate extends StdJDBCDelegate {
     protected Object getJobDataFromBlob(ResultSet rs, String colName)
         throws ClassNotFoundException, IOException, SQLException {
         if (canUseProperties()) {
-            InputStream binaryInput = rs.getBinaryStream(colName);
-            return binaryInput;
+            return rs.getBinaryStream(colName);
         }
         return getObjectFromBlob(rs, colName);
     }

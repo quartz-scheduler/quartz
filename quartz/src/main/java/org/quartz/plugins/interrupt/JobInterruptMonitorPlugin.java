@@ -117,11 +117,10 @@ public class JobInterruptMonitorPlugin extends TriggerListenerSupport implements
                      jobDataDelay = context.getJobDetail().getJobDataMap().getLong(MAX_RUN_TIME);
                 }
                 future = monitorPlugin.scheduleJobInterruptMonitor(context.getJobDetail().getKey(), jobDataDelay);
-                getLog().debug("Job's Interrupt Monitor has been scheduled to interrupt with the delay :"
-                        + DEFAULT_MAX_RUNTIME);
+                getLog().debug("Job's Interrupt Monitor has been scheduled to interrupt with the delay :{}", DEFAULT_MAX_RUNTIME);
             }
         } catch (SchedulerException e) {
-            getLog().info("Error scheduling interrupt monitor " + e.getMessage(), e);
+            getLog().info("Error scheduling interrupt monitor {}", e.getMessage(), e);
         }
     }
 
@@ -167,10 +166,10 @@ public class JobInterruptMonitorPlugin extends TriggerListenerSupport implements
             try {
 
                 // Interrupt the job here - using Scheduler API that gets propagated to Job's interrupt
-                getLog().info("Interrupting Job as it ran more than the configured max time. Job Details [" + jobKey.getName() + ":" + jobKey.getGroup()+"]");
+                getLog().info("Interrupting Job as it ran more than the configured max time. Job Details [{}:{}]", jobKey.getName(), jobKey.getGroup());
                 scheduler.interrupt(jobKey);
             } catch (SchedulerException x) {
-                getLog().info("Error interrupting Job: " + x.getMessage(), x);
+                getLog().info("Error interrupting Job: {}", x.getMessage(), x);
             }
         }
     }

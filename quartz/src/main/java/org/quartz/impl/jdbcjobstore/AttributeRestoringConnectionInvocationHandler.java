@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * @see org.quartz.impl.jdbcjobstore.JobStoreCMT#getNonManagedTXConnection()
  */
 public class AttributeRestoringConnectionInvocationHandler implements InvocationHandler {
-    private Connection conn;
+    private final Connection conn;
     
     private boolean overwroteOriginalAutoCommitValue;
     private boolean overwroteOriginalTxIsolationValue;
@@ -63,20 +63,23 @@ public class AttributeRestoringConnectionInvocationHandler implements Invocation
     
     public Object invoke(Object proxy, Method method, Object[] args)
         throws Throwable {
-        if (method.getName().equals("setAutoCommit")) {
-            setAutoCommit(((Boolean)args[0]).booleanValue());
-        } else if (method.getName().equals("setTransactionIsolation")) {
-            setTransactionIsolation(((Integer)args[0]).intValue());
-        } else if (method.getName().equals("close")) {
-            close();
-        } else {
-            try {
-                return method.invoke(conn, args);
-            }
-            catch(InvocationTargetException ite) {
-                throw (ite.getCause() != null ? ite.getCause() : ite);
-            }
-            
+        switch (method.getName()) {
+            case "setAutoCommit":
+                setAutoCommit(((Boolean) args[0]).booleanValue());
+                break;
+            case "setTransactionIsolation":
+                setTransactionIsolation(((Integer) args[0]).intValue());
+                break;
+            case "close":
+                close();
+                break;
+            default:
+                try {
+                    return method.invoke(conn, args);
+                } catch (InvocationTargetException ite) {
+                    throw (ite.getCause() != null ? ite.getCause() : ite);
+                }
+
         }
         
         return null;
@@ -91,7 +94,7 @@ public class AttributeRestoringConnectionInvocationHandler implements Invocation
         boolean currentAutoCommitValue = conn.getAutoCommit();
             
         if (autoCommit != currentAutoCommitValue) {
-            if (overwroteOriginalAutoCommitValue == false) {
+            if (!overwroteOriginalAutoCommitValue) {
                 overwroteOriginalAutoCommitValue = true;
                 originalAutoCommitValue = currentAutoCommitValue;
             }
@@ -109,7 +112,7 @@ public class AttributeRestoringConnectionInvocationHandler implements Invocation
         int currentLevel = conn.getTransactionIsolation();
         
         if (level != currentLevel) {
-            if (overwroteOriginalTxIsolationValue == false) {
+            if (!overwroteOriginalTxIsolationValue) {
                 overwroteOriginalTxIsolationValue = true;
                 originalTxIsolationValue = currentLevel;
             }

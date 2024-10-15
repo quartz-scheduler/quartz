@@ -48,7 +48,7 @@ public class WorkManagerThreadExecutor implements ThreadExecutor {
         try {
             this.workManager.schedule(work);
         } catch (Exception e) {
-            log.error("Error attempting to schedule QuartzSchedulerThread: " + e.getMessage(), e);
+            log.error("Error attempting to schedule QuartzSchedulerThread: {}", e.getMessage(), e);
         }
     }
 

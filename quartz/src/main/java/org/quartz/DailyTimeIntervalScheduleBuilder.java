@@ -101,17 +101,17 @@ public class DailyTimeIntervalScheduleBuilder extends ScheduleBuilder<DailyTimeI
     public static final Set<Integer> SATURDAY_AND_SUNDAY;
     
     static {
-        Set<Integer> t = new HashSet<Integer>(7);
+        Set<Integer> t = new HashSet<>(7);
         for(int i=Calendar.SUNDAY; i <= Calendar.SATURDAY; i++)
             t.add(i);
         ALL_DAYS_OF_THE_WEEK = Collections.unmodifiableSet(t);
         
-        t = new HashSet<Integer>(5);
+        t = new HashSet<>(5);
         for(int i=Calendar.MONDAY; i <= Calendar.FRIDAY; i++)
             t.add(i);
         MONDAY_THROUGH_FRIDAY = Collections.unmodifiableSet(t);
         
-        t = new HashSet<Integer>(2);
+        t = new HashSet<>(2);
         t.add(Calendar.SUNDAY);
         t.add(Calendar.SATURDAY);
         SATURDAY_AND_SUNDAY = Collections.unmodifiableSet(t);
@@ -233,7 +233,7 @@ public class DailyTimeIntervalScheduleBuilder extends ScheduleBuilder<DailyTimeI
      * @return the updated DailyTimeIntervalScheduleBuilder
      */
     public DailyTimeIntervalScheduleBuilder onDaysOfTheWeek(Set<Integer> onDaysOfWeek) {
-        if(onDaysOfWeek == null || onDaysOfWeek.size() == 0)
+        if(onDaysOfWeek == null || onDaysOfWeek.isEmpty())
             throw new IllegalArgumentException("Days of week must be an non-empty set.");
         for (Integer day : onDaysOfWeek)
             if (!ALL_DAYS_OF_THE_WEEK.contains(day))
@@ -251,7 +251,7 @@ public class DailyTimeIntervalScheduleBuilder extends ScheduleBuilder<DailyTimeI
      * @return the updated DailyTimeIntervalScheduleBuilder
      */
     public DailyTimeIntervalScheduleBuilder onDaysOfTheWeek(Integer ... onDaysOfWeek) {
-        Set<Integer> daysAsSet = new HashSet<Integer>(12);
+        Set<Integer> daysAsSet = new HashSet<>(12);
         Collections.addAll(daysAsSet, onDaysOfWeek);
         return onDaysOfTheWeek(daysAsSet);
     }

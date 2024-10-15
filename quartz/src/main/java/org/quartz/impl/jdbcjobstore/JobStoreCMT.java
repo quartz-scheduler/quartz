@@ -19,7 +19,6 @@
 
 package org.quartz.impl.jdbcjobstore;
 
-import java.lang.String;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -171,12 +170,12 @@ public class JobStoreCMT extends JobStoreSupport {
             throw new JobPersistenceException(
                 "Failed to obtain DB connection from data source '"
                         + getNonManagedTXDataSource() + "': "
-                        + sqle.toString(), sqle);
+                        + sqle, sqle);
         } catch (Throwable e) {
             throw new JobPersistenceException(
                 "Failed to obtain DB connection from data source '"
                         + getNonManagedTXDataSource() + "': "
-                        + e.toString(), e);
+                        + e, e);
         }
 
         if (conn == null) { 

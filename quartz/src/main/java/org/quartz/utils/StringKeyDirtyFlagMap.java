@@ -120,8 +120,8 @@ public class StringKeyDirtyFlagMap extends DirtyFlagMap<String, Object> {
         }
     
         String[] keys = getKeys();
-        for (int i = 0; i < keys.length; i++) {
-            Object o = super.get(keys[i]);
+        for (String key : keys) {
+            Object o = super.get(key);
             if (!(o instanceof Serializable)) {
                 return true;
             }
@@ -145,10 +145,10 @@ public class StringKeyDirtyFlagMap extends DirtyFlagMap<String, Object> {
         }
     
         String[] keys = getKeys();
-        for (int i = 0; i < keys.length; i++) {
-            Object o = super.get(keys[i]);
+        for (String key : keys) {
+            Object o = super.get(key);
             if (!(o instanceof Serializable)) {
-                remove(keys[i]);
+                remove(key);
             }
         }
     }

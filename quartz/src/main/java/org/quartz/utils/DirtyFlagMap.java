@@ -63,7 +63,7 @@ public class DirtyFlagMap<K,V> implements Map<K,V>, Cloneable, java.io.Serializa
      * @see java.util.HashMap
      */
     public DirtyFlagMap() {
-        map = new HashMap<K,V>();
+        map = new HashMap<>();
     }
 
     /**
@@ -75,7 +75,7 @@ public class DirtyFlagMap<K,V> implements Map<K,V>, Cloneable, java.io.Serializa
      * @see java.util.HashMap
      */
     public DirtyFlagMap(final int initialCapacity) {
-        map = new HashMap<K,V>(initialCapacity);
+        map = new HashMap<>(initialCapacity);
     }
 
     /**
@@ -87,7 +87,7 @@ public class DirtyFlagMap<K,V> implements Map<K,V>, Cloneable, java.io.Serializa
      * @see java.util.HashMap
      */
     public DirtyFlagMap(final int initialCapacity, final float loadFactor) {
-        map = new HashMap<K,V>(initialCapacity, loadFactor);
+        map = new HashMap<>(initialCapacity, loadFactor);
     }
 
     /*
@@ -168,7 +168,7 @@ public class DirtyFlagMap<K,V> implements Map<K,V>, Cloneable, java.io.Serializa
     }
 
     public Set<K> keySet() {
-        return new DirtyFlagSet<K>(map.keySet());
+        return new DirtyFlagSet<>(map.keySet());
     }
 
     public V put(final K key, final V val) {
@@ -200,7 +200,7 @@ public class DirtyFlagMap<K,V> implements Map<K,V>, Cloneable, java.io.Serializa
     }
 
     public Collection<V> values() {
-        return new DirtyFlagCollection<V>(map.values());
+        return new DirtyFlagCollection<>(map.values());
     }
 
     @Override
@@ -224,7 +224,7 @@ public class DirtyFlagMap<K,V> implements Map<K,V>, Cloneable, java.io.Serializa
      * the underlying Collection is modified.
      */
     private class DirtyFlagCollection<T> implements Collection<T> {
-        private Collection<T> collection;
+        private final Collection<T> collection;
 
         public DirtyFlagCollection(final Collection<T> c) {
             collection = c;
@@ -235,7 +235,7 @@ public class DirtyFlagMap<K,V> implements Map<K,V>, Cloneable, java.io.Serializa
         }
 
         public Iterator<T> iterator() {
-            return new DirtyFlagIterator<T>(collection.iterator());
+            return new DirtyFlagIterator<>(collection.iterator());
         }
 
         public boolean remove(final Object o) {
@@ -263,7 +263,7 @@ public class DirtyFlagMap<K,V> implements Map<K,V>, Cloneable, java.io.Serializa
         }
 
         public void clear() {
-            if (collection.isEmpty() == false) {
+            if (!collection.isEmpty()) {
                 dirty = true;
             }
             collection.clear();
@@ -299,7 +299,7 @@ public class DirtyFlagMap<K,V> implements Map<K,V>, Cloneable, java.io.Serializa
      * element is removed.
      */
     private class DirtyFlagIterator<T> implements Iterator<T> {
-        private Iterator<T> iterator;
+        private final Iterator<T> iterator;
 
         public DirtyFlagIterator(final Iterator<T> iterator) {
             this.iterator = iterator;
@@ -339,7 +339,7 @@ public class DirtyFlagMap<K,V> implements Map<K,V>, Cloneable, java.io.Serializa
         @SuppressWarnings("unchecked") // suppress warnings on both U[] and U casting.
         @Override
         public <U> U[] toArray(final U[] array) {
-            if (array.getClass().getComponentType().isAssignableFrom(Map.Entry.class) == false) {
+            if (!array.getClass().getComponentType().isAssignableFrom(Entry.class)) {
                 throw new IllegalArgumentException("Array must be of type assignable from Map.Entry");
             }
 
@@ -382,7 +382,7 @@ public class DirtyFlagMap<K,V> implements Map<K,V>, Cloneable, java.io.Serializa
      * a value is set.
      */
     private class DirtyFlagMapEntry implements Map.Entry<K,V> {
-        private Map.Entry<K,V> entry;
+        private final Map.Entry<K,V> entry;
 
         public DirtyFlagMapEntry(final Map.Entry<K,V> entry) {
             this.entry = entry;

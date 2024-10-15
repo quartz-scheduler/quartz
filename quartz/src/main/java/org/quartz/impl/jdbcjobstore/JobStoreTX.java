@@ -18,7 +18,6 @@
 
 package org.quartz.impl.jdbcjobstore;
 
-import java.lang.String;
 import java.sql.Connection;
 
 import org.quartz.JobPersistenceException;

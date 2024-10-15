@@ -75,8 +75,8 @@ public class SimpleThreadPool implements ThreadPool {
     private final Object nextRunnableLock = new Object();
 
     private List<WorkerThread> workers;
-    private LinkedList<WorkerThread> availWorkers = new LinkedList<WorkerThread>();
-    private LinkedList<WorkerThread> busyWorkers = new LinkedList<WorkerThread>();
+    private final LinkedList<WorkerThread> availWorkers = new LinkedList<>();
+    private final LinkedList<WorkerThread> busyWorkers = new LinkedList<>();
 
     private String threadNamePrefix;
 
@@ -236,7 +236,7 @@ public class SimpleThreadPool implements ThreadPool {
 
     public void initialize() throws SchedulerConfigException {
 
-        if(workers != null && workers.size() > 0) // already initialized...
+        if(workers != null && !workers.isEmpty()) // already initialized...
             return;
         
         if (count <= 0) {
@@ -266,9 +266,7 @@ public class SimpleThreadPool implements ThreadPool {
 
 
         if (isThreadsInheritContextClassLoaderOfInitializingThread()) {
-            getLog().info(
-                    "Job execution threads will use class loader of thread: "
-                            + Thread.currentThread().getName());
+            getLog().info("Job execution threads will use class loader of thread: {}", Thread.currentThread().getName());
         }
 
         // create the worker threads and start them
@@ -281,7 +279,7 @@ public class SimpleThreadPool implements ThreadPool {
     }
 
     protected List<WorkerThread> createWorkerThreads(int createCount) {
-        workers = new LinkedList<WorkerThread>();
+        workers = new LinkedList<>();
         for (int i = 1; i<= createCount; ++i) {
             String threadPrefix = getThreadNamePrefix();
             if (threadPrefix == null) {
@@ -346,7 +344,7 @@ public class SimpleThreadPool implements ThreadPool {
             // current job.
             nextRunnableLock.notifyAll();
 
-            if (waitForJobsToComplete == true) {
+            if (waitForJobsToComplete) {
 
                 boolean interrupted = false;
                 try {
@@ -360,12 +358,10 @@ public class SimpleThreadPool implements ThreadPool {
                     }
 
                     // Wait until all worker threads are shut down
-                    while (busyWorkers.size() > 0) {
+                    while (!busyWorkers.isEmpty()) {
                         WorkerThread wt = (WorkerThread) busyWorkers.getFirst();
                         try {
-                            getLog().debug(
-                                    "Waiting for thread " + wt.getName()
-                                            + " to shut down");
+                            getLog().debug("Waiting for thread {} to shut down", wt.getName());
 
                             // note: with waiting infinite time the
                             // application may appear to 'hang'.
@@ -418,7 +414,7 @@ public class SimpleThreadPool implements ThreadPool {
             handoffPending = true;
 
             // Wait until a worker thread is available
-            while ((availWorkers.size() < 1) && !isShutdown) {
+            while ((availWorkers.isEmpty()) && !isShutdown) {
                 try {
                     nextRunnableLock.wait(500);
                 } catch (InterruptedException ignore) {
@@ -448,7 +444,7 @@ public class SimpleThreadPool implements ThreadPool {
     public int blockForAvailableThreads() {
         synchronized(nextRunnableLock) {
 
-            while((availWorkers.size() < 1 || handoffPending) && !isShutdown) {
+            while((availWorkers.isEmpty() || handoffPending) && !isShutdown) {
                 try {
                     nextRunnableLock.wait(500);
                 } catch (InterruptedException ignore) {
@@ -494,9 +490,9 @@ public class SimpleThreadPool implements ThreadPool {
         private final Object lock = new Object();
 
         // A flag that signals the WorkerThread to terminate.
-        private AtomicBoolean run = new AtomicBoolean(true);
+        private final AtomicBoolean run = new AtomicBoolean(true);
 
-        private SimpleThreadPool tp;
+        private final SimpleThreadPool tp;
 
         private Runnable runnable = null;
         

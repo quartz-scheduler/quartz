@@ -148,7 +148,7 @@ public class MonthlyCalendar extends BaseCalendar implements Calendar,
      */
     public boolean areAllDaysExcluded() {
         for (int i = 1; i <= MAX_DAYS_IN_MONTH; i++) {
-            if (isDayExcluded(i) == false) {
+            if (!isDayExcluded(i)) {
                 return false;
             }
         }
@@ -168,13 +168,13 @@ public class MonthlyCalendar extends BaseCalendar implements Calendar,
      */
     @Override
     public boolean isTimeIncluded(long timeStamp) {
-        if (excludeAll == true) {
+        if (excludeAll) {
             return false;
         }
 
         // Test the base calendar first. Only if the base calendar not already
         // excludes the time/date, continue evaluating this calendar instance.
-        if (super.isTimeIncluded(timeStamp) == false) { return false; }
+        if (!super.isTimeIncluded(timeStamp)) { return false; }
 
         java.util.Calendar cl = createJavaCalendar(timeStamp);
         int day = cl.get(java.util.Calendar.DAY_OF_MONTH);
@@ -195,7 +195,7 @@ public class MonthlyCalendar extends BaseCalendar implements Calendar,
      */
     @Override
     public long getNextIncludedTime(long timeStamp) {
-        if (excludeAll == true) {
+        if (excludeAll) {
             return 0;
         }
 
@@ -213,7 +213,7 @@ public class MonthlyCalendar extends BaseCalendar implements Calendar,
             return timeStamp; // return the original value
         }
 
-        while (isDayExcluded(day) == true) {
+        while (isDayExcluded(day)) {
             cl.add(java.util.Calendar.DATE, 1);
             day = cl.get(java.util.Calendar.DAY_OF_MONTH);
         }

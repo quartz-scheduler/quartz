@@ -199,18 +199,16 @@ public class JobRunShell extends SchedulerListenerSupport implements Runnable {
 
                 // execute the job
                 try {
-                    log.debug("Calling execute on job " + jobDetail.getKey());
+                    log.debug("Calling execute on job {}", jobDetail.getKey());
                     job.execute(jec);
                     endTime = System.currentTimeMillis();
                 } catch (JobExecutionException jee) {
                     endTime = System.currentTimeMillis();
                     jobExEx = jee;
-                    getLog().info("Job " + jobDetail.getKey() +
-                            " threw a JobExecutionException: ", jobExEx);
+                    getLog().info("Job {} threw a JobExecutionException: ", jobDetail.getKey(), jobExEx);
                 } catch (Throwable e) {
                     endTime = System.currentTimeMillis();
-                    getLog().error("Job " + jobDetail.getKey() +
-                            " threw an unhandled Exception: ", e);
+                    getLog().error("Job {} threw an unhandled Exception: ", jobDetail.getKey(), e);
                     SchedulerException se = new SchedulerException(
                             "Job threw an unhandled exception.", e);
                     qs.notifySchedulerListenersError("Job ("

@@ -450,8 +450,7 @@ public class DailyCalendar extends BaseCalendar {
 
     @Override
     public Object clone() {
-        DailyCalendar clone = (DailyCalendar) super.clone();
-        return clone;
+        return (DailyCalendar) super.clone();
     }
     
     /**
@@ -465,7 +464,7 @@ public class DailyCalendar extends BaseCalendar {
     @Override
     public boolean isTimeIncluded(long timeInMillis) {        
         if ((getBaseCalendar() != null) && 
-                (getBaseCalendar().isTimeIncluded(timeInMillis) == false)) {
+                (!getBaseCalendar().isTimeIncluded(timeInMillis))) {
             return false;
         }
         
@@ -653,7 +652,7 @@ public class DailyCalendar extends BaseCalendar {
      * Helper method to split the given string by the given delimiter.
      */
     private String[] split(String string, String delim) {
-        ArrayList<String> result = new ArrayList<String>();
+        ArrayList<String> result = new ArrayList<>();
         
         StringTokenizer stringTokenizer = new StringTokenizer(string, delim);
         while (stringTokenizer.hasMoreTokens()) {

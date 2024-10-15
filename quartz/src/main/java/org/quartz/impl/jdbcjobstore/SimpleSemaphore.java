@@ -41,9 +41,9 @@ public class SimpleSemaphore implements Semaphore {
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      */
 
-    ThreadLocal<HashSet<String>> lockOwners = new ThreadLocal<HashSet<String>>();
+    ThreadLocal<HashSet<String>> lockOwners = new ThreadLocal<>();
 
-    HashSet<String> locks = new HashSet<String>();
+    HashSet<String> locks = new HashSet<>();
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -62,7 +62,7 @@ public class SimpleSemaphore implements Semaphore {
     private HashSet<String> getThreadLocks() {
         HashSet<String> threadLocks = lockOwners.get();
         if (threadLocks == null) {
-            threadLocks = new HashSet<String>();
+            threadLocks = new HashSet<>();
             lockOwners.set(threadLocks);
         }
         return threadLocks;
@@ -79,42 +79,30 @@ public class SimpleSemaphore implements Semaphore {
         lockName = lockName.intern();
 
         if(log.isDebugEnabled()) {
-            log.debug(
-                "Lock '" + lockName + "' is desired by: "
-                        + Thread.currentThread().getName());
+            log.debug("Lock '{}' is desired by: {}", lockName, Thread.currentThread().getName());
         }
 
         if (!isLockOwner(lockName)) {
             if(log.isDebugEnabled()) {
-                log.debug(
-                    "Lock '" + lockName + "' is being obtained: "
-                            + Thread.currentThread().getName());
+                log.debug("Lock '{}' is being obtained: {}", lockName, Thread.currentThread().getName());
             }
             while (locks.contains(lockName)) {
                 try {
                     this.wait();
                 } catch (InterruptedException ie) {
                     if(log.isDebugEnabled()) {
-                        log.debug(
-                            "Lock '" + lockName + "' was not obtained by: "
-                                    + Thread.currentThread().getName());
+                        log.debug("Lock '{}' was not obtained by: {}", lockName, Thread.currentThread().getName());
                     }
                 }
             }
 
             if(log.isDebugEnabled()) {
-                log.debug(
-                    "Lock '" + lockName + "' given to: "
-                            + Thread.currentThread().getName());
+                log.debug("Lock '{}' given to: {}", lockName, Thread.currentThread().getName());
             }
             getThreadLocks().add(lockName);
             locks.add(lockName);
         } else if(log.isDebugEnabled()) {
-            log.debug(
-                "Lock '" + lockName + "' already owned by: "
-                        + Thread.currentThread().getName()
-                        + " -- but not owner!",
-                new Exception("stack-trace of wrongful returner"));
+            log.debug("Lock '{}' already owned by: {} -- but not owner!", lockName, Thread.currentThread().getName(), new Exception("stack-trace of wrongful returner"));
         }
 
         return true;
@@ -130,19 +118,13 @@ public class SimpleSemaphore implements Semaphore {
 
         if (isLockOwner(lockName)) {
             if(getLog().isDebugEnabled()) {
-                getLog().debug(
-                    "Lock '" + lockName + "' retuned by: "
-                            + Thread.currentThread().getName());
+                getLog().debug("Lock '{}' retuned by: {}", lockName, Thread.currentThread().getName());
             }
             getThreadLocks().remove(lockName);
             locks.remove(lockName);
             this.notifyAll();
         } else if (getLog().isDebugEnabled()) {
-            getLog().debug(
-                "Lock '" + lockName + "' attempt to retun by: "
-                        + Thread.currentThread().getName()
-                        + " -- but not owner!",
-                new Exception("stack-trace of wrongful returner"));
+            getLog().debug("Lock '{}' attempt to retun by: {} -- but not owner!", lockName, Thread.currentThread().getName(), new Exception("stack-trace of wrongful returner"));
         }
     }
 

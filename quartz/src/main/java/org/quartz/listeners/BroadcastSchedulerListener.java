@@ -26,10 +26,10 @@ import org.quartz.TriggerKey;
  */
 public class BroadcastSchedulerListener implements SchedulerListener {
 
-    private List<SchedulerListener> listeners;
+    private final List<SchedulerListener> listeners;
 
     public BroadcastSchedulerListener() {
-        listeners = new LinkedList<SchedulerListener>();
+        listeners = new LinkedList<>();
     }
 
     /**

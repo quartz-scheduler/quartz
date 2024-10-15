@@ -121,7 +121,7 @@ public class CronCalendar extends BaseCalendar {
     @Override
     public boolean isTimeIncluded(long timeInMillis) {        
         if ((getBaseCalendar() != null) && 
-                (getBaseCalendar().isTimeIncluded(timeInMillis) == false)) {
+                (!getBaseCalendar().isTimeIncluded(timeInMillis))) {
             return false;
         }
         
@@ -204,9 +204,8 @@ public class CronCalendar extends BaseCalendar {
      *         if the string expression cannot be parsed
      */
     public void setCronExpression(String expression) throws ParseException {
-        CronExpression newExp = new CronExpression(expression);
-        
-        this.cronExpression = newExp;
+
+        this.cronExpression = new CronExpression(expression);
     }
 
     /**

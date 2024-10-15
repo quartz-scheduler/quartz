@@ -74,7 +74,7 @@ public class QuartzSchedulerResources {
 
     private JobRunShellFactory jobRunShellFactory;
 
-    private List<SchedulerPlugin> schedulerPlugins = new ArrayList<SchedulerPlugin>(10);
+    private final List<SchedulerPlugin> schedulerPlugins = new ArrayList<>(10);
     
     private boolean makeSchedulerThreadDaemon = false;
 
@@ -140,7 +140,7 @@ public class QuartzSchedulerResources {
      *              if name is null or empty.
      */
     public void setName(String name) {
-        if (name == null || name.trim().length() == 0) {
+        if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException(
                     "Scheduler name cannot be empty.");
         }
@@ -171,7 +171,7 @@ public class QuartzSchedulerResources {
      *              if name is null or empty.
      */
     public void setInstanceId(String instanceId) {
-        if (instanceId == null || instanceId.trim().length() == 0) {
+        if (instanceId == null || instanceId.trim().isEmpty()) {
             throw new IllegalArgumentException(
                     "Scheduler instanceId cannot be empty.");
         }
@@ -275,7 +275,7 @@ public class QuartzSchedulerResources {
      *              if name is null or empty.
      */
     public void setThreadName(String threadName) {
-        if (threadName == null || threadName.trim().length() == 0) {
+        if (threadName == null || threadName.trim().isEmpty()) {
             throw new IllegalArgumentException(
                     "Scheduler thread name cannot be empty.");
         }
@@ -294,7 +294,7 @@ public class QuartzSchedulerResources {
      */
     public void setRMICreateRegistryStrategy(String rmiCreateRegistryStrategy) {
         if (rmiCreateRegistryStrategy == null
-                || rmiCreateRegistryStrategy.trim().length() == 0) {
+                || rmiCreateRegistryStrategy.trim().isEmpty()) {
             rmiCreateRegistryStrategy = CREATE_REGISTRY_NEVER;
         } else if (rmiCreateRegistryStrategy.equalsIgnoreCase("true")) {
             rmiCreateRegistryStrategy = CREATE_REGISTRY_AS_NEEDED;

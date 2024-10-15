@@ -47,7 +47,7 @@ public class WeblogicConnectionProvider implements ConnectionProvider {
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      */
 
-    private String poolName;
+    private final String poolName;
 
     private weblogic.jdbc.jts.Driver driver;
 

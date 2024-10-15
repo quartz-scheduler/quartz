@@ -89,7 +89,7 @@ public class PropertiesParser {
         
         val = val.trim();
         
-        return (val.length() == 0) ? def : val;
+        return (val.isEmpty()) ? def : val;
     }
 
     public String[] getStringArrayProperty(String name) {
@@ -103,7 +103,7 @@ public class PropertiesParser {
         }
 
         StringTokenizer stok = new StringTokenizer(vals, ",");
-        ArrayList<String> strs = new ArrayList<String>();
+        ArrayList<String> strs = new ArrayList<>();
         try {
             while (stok.hasMoreTokens()) {
                 strs.add(stok.nextToken().trim());
@@ -254,7 +254,7 @@ public class PropertiesParser {
         }
 
         StringTokenizer stok = new StringTokenizer(vals, ",");
-        ArrayList<Integer> ints = new ArrayList<Integer>();
+        ArrayList<Integer> ints = new ArrayList<>();
         try {
             while (stok.hasMoreTokens()) {
                 try {
@@ -330,7 +330,7 @@ public class PropertiesParser {
 
     public String[] getPropertyGroups(String prefix) {
         Enumeration<?> keys = props.propertyNames();
-        HashSet<String> groups = new HashSet<String>(10);
+        HashSet<String> groups = new HashSet<>(10);
 
         if (!prefix.endsWith(".")) {
             prefix += ".";
@@ -385,12 +385,12 @@ public class PropertiesParser {
                 
                 boolean exclude = false;
                 if (excludedPrefixes != null) {
-                    for (int i = 0; (i < excludedPrefixes.length) && (exclude == false); i++) {
+                    for (int i = 0; (i < excludedPrefixes.length) && (!exclude); i++) {
                         exclude = key.startsWith(excludedPrefixes[i]);
                     }
                 }
 
-                if (exclude == false) {
+                if (!exclude) {
                     String value = getStringProperty(key, "");
                     
                     if (stripPrefix) { 

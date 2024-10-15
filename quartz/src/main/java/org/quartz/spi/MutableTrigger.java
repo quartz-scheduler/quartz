@@ -27,8 +27,6 @@ import org.quartz.JobKey;
 import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
 import org.quartz.TriggerKey;
-import org.quartz.TriggerUtils;
-import org.quartz.spi.OperableTrigger;
 
 public interface MutableTrigger extends Trigger {
 
