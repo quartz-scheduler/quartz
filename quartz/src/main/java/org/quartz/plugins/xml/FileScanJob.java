@@ -19,7 +19,6 @@
 package org.quartz.plugins.xml;
 
 import org.quartz.*;
-import org.quartz.jobs.FileScanListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,7 +98,7 @@ public class FileScanJob implements Job {
                     FILE_SCAN_LISTENER_NAME + "' not found in merged JobDataMap");
         }
 
-        org.quartz.jobs.FileScanListener listener = (FileScanListener)schedCtxt.get(listenerName);
+        FileScanListener listener = (FileScanListener)schedCtxt.get(listenerName);
         
         if(listener == null) {
             throw new JobExecutionException("FileScanListener named '" + 
