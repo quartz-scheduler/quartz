@@ -37,7 +37,7 @@ import org.quartz.Calendar;
  */
 public class WeeklyCalendar extends BaseCalendar implements Calendar,
         Serializable {
-    static final long serialVersionUID = -6809298821229007586L;
+    private static final long serialVersionUID = -6809298821229007586L;
 
     // An array to store the week days which are to be excluded.
     // java.util.Calendar.MONDAY etc. are used as index.
