@@ -96,13 +96,13 @@ public class DateBuilder {
 
     public static final int DECEMBER = 12;
 
-    public static final long MILLISECONDS_IN_MINUTE = 60l * 1000l;
+    public static final long MILLISECONDS_IN_MINUTE = 60L * 1000L;
 
-    public static final long MILLISECONDS_IN_HOUR = 60l * 60l * 1000l;
+    public static final long MILLISECONDS_IN_HOUR = 60L * 60L * 1000L;
 
-    public static final long SECONDS_IN_MOST_DAYS = 24l * 60l * 60L;
+    public static final long SECONDS_IN_MOST_DAYS = 24L * 60L * 60L;
 
-    public static final long MILLISECONDS_IN_DAY = SECONDS_IN_MOST_DAYS * 1000l;
+    public static final long MILLISECONDS_IN_DAY = SECONDS_IN_MOST_DAYS * 1000L;
     
     private int month;
     private int day;

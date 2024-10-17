@@ -550,14 +550,12 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
                     "The Scheduler cannot be restarted after shutdown() has been called.");
         }
 
-        Thread t = new Thread(new Runnable() {
-            public void run() {
-                try { Thread.sleep(seconds * 1000L); }
-                catch(InterruptedException ignore) {}
-                try { start(); }
-                catch(SchedulerException se) {
-                    getLog().error("Unable to start scheduler after startup delay.", se);
-                }
+        Thread t = new Thread(() -> {
+            try { Thread.sleep(seconds * 1000L); }
+            catch(InterruptedException ignore) {}
+            try { start(); }
+            catch(SchedulerException se) {
+                getLog().error("Unable to start scheduler after startup delay.", se);
             }
         });
         t.start();
@@ -1851,10 +1849,9 @@ J     *
                     vetoedExecution = true;
                 }
             } catch (Exception e) {
-                SchedulerException se = new SchedulerException(
+                throw new SchedulerException(
                         "TriggerListener '" + tl.getName()
                                 + "' threw exception: " + e.getMessage(), e);
-                throw se;
             }
         }
         
@@ -1874,10 +1871,9 @@ J     *
                     continue;
                 tl.triggerMisfired(trigger);
             } catch (Exception e) {
-                SchedulerException se = new SchedulerException(
+                throw new SchedulerException(
                         "TriggerListener '" + tl.getName()
                                 + "' threw exception: " + e.getMessage(), e);
-                throw se;
             }
         }
     }    
@@ -1894,10 +1890,9 @@ J     *
                     continue;
                 tl.triggerComplete(jec.getTrigger(), jec, instCode);
             } catch (Exception e) {
-                SchedulerException se = new SchedulerException(
+                throw new SchedulerException(
                         "TriggerListener '" + tl.getName()
                                 + "' threw exception: " + e.getMessage(), e);
-                throw se;
             }
         }
     }
@@ -1914,10 +1909,9 @@ J     *
                     continue;
                 jl.jobToBeExecuted(jec);
             } catch (Exception e) {
-                SchedulerException se = new SchedulerException(
+                throw new SchedulerException(
                         "JobListener '" + jl.getName() + "' threw exception: "
                                 + e.getMessage(), e);
-                throw se;
             }
         }
     }
@@ -1934,10 +1928,9 @@ J     *
                     continue;
                 jl.jobExecutionVetoed(jec);
             } catch (Exception e) {
-                SchedulerException se = new SchedulerException(
+                throw new SchedulerException(
                         "JobListener '" + jl.getName() + "' threw exception: "
                         + e.getMessage(), e);
-                throw se;
             }
         }
     }
@@ -1954,10 +1947,9 @@ J     *
                     continue;
                 jl.jobWasExecuted(jec, je);
             } catch (Exception e) {
-                SchedulerException se = new SchedulerException(
+                throw new SchedulerException(
                         "JobListener '" + jl.getName() + "' threw exception: "
                                 + e.getMessage(), e);
-                throw se;
             }
         }
     }
@@ -2340,17 +2332,13 @@ J     *
     }
     
     private void shutdownPlugins() {
-        java.util.Iterator<SchedulerPlugin> itr = resources.getSchedulerPlugins().iterator();
-        while (itr.hasNext()) {
-            SchedulerPlugin plugin = itr.next();
+        for (SchedulerPlugin plugin : resources.getSchedulerPlugins()) {
             plugin.shutdown();
         }
     }
 
     private void startPlugins() {
-        java.util.Iterator<SchedulerPlugin> itr = resources.getSchedulerPlugins().iterator();
-        while (itr.hasNext()) {
-            SchedulerPlugin plugin = itr.next();
+        for (SchedulerPlugin plugin : resources.getSchedulerPlugins()) {
             plugin.start();
         }
     }

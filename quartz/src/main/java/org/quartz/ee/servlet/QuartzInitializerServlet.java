@@ -172,11 +172,11 @@ public class QuartzInitializerServlet extends HttpServlet {
             String shutdownPref = cfg.getInitParameter("shutdown-on-unload");
 
             if (shutdownPref != null) {
-                performShutdown = Boolean.valueOf(shutdownPref);
+                performShutdown = Boolean.parseBoolean(shutdownPref);
             }
             String shutdownWaitPref = cfg.getInitParameter("wait-on-shutdown");
             if (shutdownPref != null) {
-                waitOnShutdown  = Boolean.valueOf(shutdownWaitPref);
+                waitOnShutdown  = Boolean.parseBoolean(shutdownWaitPref);
             }
 
             factory = getSchedulerFactory(configFile);
@@ -204,7 +204,7 @@ public class QuartzInitializerServlet extends HttpServlet {
              * the scheduler will be started. This is to maintain backwards
              * compatability.
              */
-            if (startOnLoad == null || (Boolean.valueOf(startOnLoad))) {
+            if (startOnLoad == null || (Boolean.parseBoolean(startOnLoad))) {
                 if(startDelay <= 0) {
                     // Start now
                     scheduler.start();

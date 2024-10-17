@@ -105,7 +105,7 @@ public class RAMJobStore implements JobStore {
 
     protected final HashSet<JobKey> blockedJobs = new HashSet<>();
     
-    protected long misfireThreshold = 5000l;
+    protected long misfireThreshold = 5000L;
 
     protected SchedulerSignaler signaler;
 
@@ -280,11 +280,7 @@ public class RAMJobStore implements JobStore {
 
             if (!repl) {
                 // get job group
-                HashMap<JobKey, JobWrapper> grpMap = jobsByGroup.get(newJob.getKey().getGroup());
-                if (grpMap == null) {
-                    grpMap = new HashMap<>(100);
-                    jobsByGroup.put(newJob.getKey().getGroup(), grpMap);
-                }
+                HashMap<JobKey, JobWrapper> grpMap = jobsByGroup.computeIfAbsent(newJob.getKey().getGroup(), k -> new HashMap<>(100));
                 // add to jobs by group
                 grpMap.put(newJob.getKey(), jw);
                 // add to jobs by FQN map
@@ -422,19 +418,11 @@ public class RAMJobStore implements JobStore {
             }
 
             // add to triggers by job
-            List<TriggerWrapper> jobList = triggersByJob.get(tw.jobKey);
-            if(jobList == null) {
-                jobList = new ArrayList<>(1);
-                triggersByJob.put(tw.jobKey, jobList);
-            }
+            List<TriggerWrapper> jobList = triggersByJob.computeIfAbsent(tw.jobKey, k -> new ArrayList<>(1));
             jobList.add(tw);
             
             // add to triggers by group
-            HashMap<TriggerKey, TriggerWrapper> grpMap = triggersByGroup.get(newTrigger.getKey().getGroup());
-            if (grpMap == null) {
-                grpMap = new HashMap<>(100);
-                triggersByGroup.put(newTrigger.getKey().getGroup(), grpMap);
-            }
+            HashMap<TriggerKey, TriggerWrapper> grpMap = triggersByGroup.computeIfAbsent(newTrigger.getKey().getGroup(), k -> new HashMap<>(100));
             grpMap.put(newTrigger.getKey(), tw);
             // add to triggers by FQN map
             triggersByKey.put(tw.key, tw);
@@ -684,7 +672,7 @@ public class RAMJobStore implements JobStore {
 
             TriggerWrapper tw = triggersByKey.get(triggerKey);
             // does the trigger exist?
-            if (tw == null || tw.trigger == null) {
+            if (tw == null) {
                 return;
             }
             // is the trigger in error state?
@@ -1055,7 +1043,7 @@ public class RAMJobStore implements JobStore {
             TriggerWrapper tw = triggersByKey.get(triggerKey);
     
             // does the trigger exist?
-            if (tw == null || tw.trigger == null) {
+            if (tw == null) {
                 return;
             }
     
@@ -1202,7 +1190,7 @@ public class RAMJobStore implements JobStore {
             TriggerWrapper tw = triggersByKey.get(triggerKey);
     
             // does the trigger exist?
-            if (tw == null || tw.trigger == null) {
+            if (tw == null) {
                 return;
             }
     
@@ -1539,7 +1527,7 @@ public class RAMJobStore implements JobStore {
             for (OperableTrigger trigger : firedTriggers) {
                 TriggerWrapper tw = triggersByKey.get(trigger.getKey());
                 // was the trigger deleted since being acquired?
-                if (tw == null || tw.trigger == null) {
+                if (tw == null) {
                     continue;
                 }
                 // was the trigger completed, paused, blocked, etc. since being acquired?
@@ -1719,11 +1707,8 @@ public class RAMJobStore implements JobStore {
      * @see org.quartz.spi.JobStore#getPausedTriggerGroups()
      */
     public Set<String> getPausedTriggerGroups() throws JobPersistenceException {
-        HashSet<String> set = new HashSet<>();
-        
-        set.addAll(pausedTriggerGroups);
-        
-        return set;
+
+        return new HashSet<>(pausedTriggerGroups);
     }
 
     public void setInstanceId(String schedInstId) {

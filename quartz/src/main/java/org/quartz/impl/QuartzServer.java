@@ -91,7 +91,7 @@ public class QuartzServer extends SchedulerListenerSupport {
         sched.start();
 
         try {
-            Thread.sleep(3000l);
+            Thread.sleep(3000L);
         } catch (Exception ignore) {
         }
 

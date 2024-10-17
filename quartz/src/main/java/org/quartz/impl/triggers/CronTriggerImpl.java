@@ -534,7 +534,7 @@ public class CronTriggerImpl extends AbstractTrigger<CronTrigger> implements Cro
         }
 
         if (getStartTime().after(afterTime)) {
-            afterTime = new Date(getStartTime().getTime() - 1000l);
+            afterTime = new Date(getStartTime().getTime() - 1000L);
         }
 
         if (getEndTime() != null && (afterTime.compareTo(getEndTime()) >= 0)) {
@@ -564,7 +564,7 @@ public class CronTriggerImpl extends AbstractTrigger<CronTrigger> implements Cro
     public Date getFinalFireTime() {
         Date resultTime;
         if (getEndTime() != null) {
-            resultTime = getTimeBefore(new Date(getEndTime().getTime() + 1000l));
+            resultTime = getTimeBefore(new Date(getEndTime().getTime() + 1000L));
         } else {
             resultTime = (cronEx == null) ? null : cronEx.getFinalFireTime();
         }
@@ -780,7 +780,7 @@ public class CronTriggerImpl extends AbstractTrigger<CronTrigger> implements Cro
      */
     @Override
     public Date computeFirstFireTime(org.quartz.Calendar calendar) {
-        nextFireTime = getFireTimeAfter(new Date(getStartTime().getTime() - 1000l));
+        nextFireTime = getFireTimeAfter(new Date(getStartTime().getTime() - 1000L));
 
         while (nextFireTime != null && calendar != null
                 && !calendar.isTimeIncluded(nextFireTime.getTime())) {

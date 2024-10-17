@@ -204,8 +204,7 @@ public class OracleDelegate extends StdJDBCDelegate {
         throws ClassNotFoundException, IOException, SQLException {
         
         if (canUseProperties()) {
-            InputStream binaryInput = rs.getBinaryStream(colName);
-            return binaryInput;
+            return rs.getBinaryStream(colName);
         }
 
         return getObjectFromBlob(rs, colName);

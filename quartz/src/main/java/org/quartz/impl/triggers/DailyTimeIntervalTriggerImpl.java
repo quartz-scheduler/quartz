@@ -875,8 +875,6 @@ public class DailyTimeIntervalTriggerImpl extends AbstractTrigger<DailyTimeInter
     public void setDaysOfWeek(Set<Integer> daysOfWeek) {
         if(daysOfWeek == null || daysOfWeek.isEmpty())
             throw new IllegalArgumentException("DaysOfWeek set must be a set that contains at least one day.");
-        else if(daysOfWeek.isEmpty())
-            throw new IllegalArgumentException("DaysOfWeek set must contain at least one day.");
 
         this.daysOfWeek = daysOfWeek;
     }

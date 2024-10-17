@@ -21,7 +21,6 @@ package org.quartz.xml;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 
 /**
  * Reports JobSchedulingDataLoader validation exceptions.
@@ -127,10 +126,6 @@ public class ValidationException extends Exception {
         boolean first = true;
 
         for (Exception e : getValidationExceptions()) {
-            if (!first) {
-                sb.append('\n');
-                first = false;
-            }
 
             sb.append(e.getMessage());
         }

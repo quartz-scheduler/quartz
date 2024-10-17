@@ -27,7 +27,7 @@ import java.util.TimeZone;
  * @author Mike Funk, Aaron Craven
  */
 public class DailyCalendar extends BaseCalendar {
-    static final long serialVersionUID = -7561220099904944039L;
+    private static final long serialVersionUID = -7561220099904944039L;
     
     private static final String invalidHourOfDay = "Invalid hour of day: ";
     private static final String invalidMinute = "Invalid minute: ";
@@ -450,8 +450,7 @@ public class DailyCalendar extends BaseCalendar {
 
     @Override
     public Object clone() {
-        DailyCalendar clone = (DailyCalendar) super.clone();
-        return clone;
+        return (DailyCalendar) super.clone();
     }
     
     /**
@@ -538,7 +537,7 @@ public class DailyCalendar extends BaseCalendar {
                         getTimeRangeEndingTimeInMillis(nextIncludedTime)) {
                     //(move to start of next day)
                     nextIncludedTime = getEndOfDayJavaCalendar(nextIncludedTime).getTime().getTime();
-                    nextIncludedTime += 1l; 
+                    nextIncludedTime += 1L;
                 } else if ((getBaseCalendar() != null) && 
                         (!getBaseCalendar().isTimeIncluded(nextIncludedTime))){
                     nextIncludedTime = 

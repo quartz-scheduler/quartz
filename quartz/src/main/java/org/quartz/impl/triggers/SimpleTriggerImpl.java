@@ -313,7 +313,7 @@ public class SimpleTriggerImpl extends AbstractTrigger<SimpleTrigger> implements
         }
 
         Date eTime = getEndTime();
-        if (eTime != null && startTime != null && eTime.before(startTime)) {
+        if (eTime != null && eTime.before(startTime)) {
             throw new IllegalArgumentException(
                 "End time cannot be before start time");    
         }

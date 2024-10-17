@@ -409,7 +409,7 @@ public class PointbaseDelegate extends StdJDBCDelegate {
 
         InputStream binaryInput = new ByteArrayInputStream(binaryData);
 
-        if (null != binaryInput && binaryInput.available() != 0) {
+        if (binaryInput.available() != 0) {
             try (ObjectInputStream in = new ObjectInputStream(binaryInput)) {
                 obj = in.readObject();
             }
@@ -444,8 +444,7 @@ public class PointbaseDelegate extends StdJDBCDelegate {
             if(data == null) {
                 return null;
             }
-            InputStream binaryInput = new ByteArrayInputStream(data);
-            return binaryInput;
+            return new ByteArrayInputStream(data);
         }
 
         return getObjectFromBlob(rs, colName);

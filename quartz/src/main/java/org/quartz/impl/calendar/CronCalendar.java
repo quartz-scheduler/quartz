@@ -24,7 +24,7 @@ import org.quartz.CronExpression;
  * @author Aaron Craven
  */
 public class CronCalendar extends BaseCalendar {
-    static final long serialVersionUID = -8172103999750856831L;
+    private static final long serialVersionUID = -8172103999750856831L;
 
     CronExpression cronExpression;
 
@@ -204,9 +204,8 @@ public class CronCalendar extends BaseCalendar {
      *         if the string expression cannot be parsed
      */
     public void setCronExpression(String expression) throws ParseException {
-        CronExpression newExp = new CronExpression(expression);
-        
-        this.cronExpression = newExp;
+
+        this.cronExpression = new CronExpression(expression);
     }
 
     /**

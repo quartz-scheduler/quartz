@@ -113,9 +113,7 @@ public class TriggerSupport {
         List<CompositeData> result = new ArrayList<>();
         for(Trigger trigger : triggers) {
             CompositeData cData = TriggerSupport.toCompositeData(trigger);
-            if(cData != null) {
-                result.add(cData);
-            }
+            result.add(cData);
         }
         return result;
     }

@@ -18,7 +18,6 @@
 
 package org.quartz.simpl;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.net.URL;
 import java.io.InputStream;
@@ -107,9 +106,8 @@ public class CascadingClassLoadHelper implements ClassLoadHelper {
         Class<?> clazz = null;
         ClassLoadHelper loadHelper = null;
 
-        Iterator<ClassLoadHelper> iter = loadHelpers.iterator();
-        while (iter.hasNext()) {
-            loadHelper = iter.next();
+        for (ClassLoadHelper helper : loadHelpers) {
+            loadHelper = helper;
 
             try {
                 clazz = loadHelper.loadClass(name);
@@ -161,9 +159,8 @@ public class CascadingClassLoadHelper implements ClassLoadHelper {
 
         ClassLoadHelper loadHelper = null;
 
-        Iterator<ClassLoadHelper> iter = loadHelpers.iterator();
-        while (iter.hasNext()) {
-            loadHelper = iter.next();
+        for (ClassLoadHelper helper : loadHelpers) {
+            loadHelper = helper;
 
             result = loadHelper.getResource(name);
             if (result != null) {
@@ -197,9 +194,8 @@ public class CascadingClassLoadHelper implements ClassLoadHelper {
 
         ClassLoadHelper loadHelper = null;
 
-        Iterator<ClassLoadHelper> iter = loadHelpers.iterator();
-        while (iter.hasNext()) {
-            loadHelper = iter.next();
+        for (ClassLoadHelper helper : loadHelpers) {
+            loadHelper = helper;
 
             result = loadHelper.getResourceAsStream(name);
             if (result != null) {

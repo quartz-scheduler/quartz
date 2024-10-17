@@ -1428,8 +1428,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
 
     protected Scheduler instantiate(QuartzSchedulerResources rsrcs, QuartzScheduler qs) {
 
-        Scheduler scheduler = new StdScheduler(qs);
-        return scheduler;
+        return new StdScheduler(qs);
     }
 
 
@@ -1475,15 +1474,15 @@ public class StdSchedulerFactory implements SchedulerFactory {
                     refName = name;
                 
                 if (params[0].equals(int.class)) {
-                    setMeth.invoke(obj, new Object[]{Integer.valueOf(refProps.getIntProperty(refName))});
+                    setMeth.invoke(obj, new Object[]{refProps.getIntProperty(refName)});
                 } else if (params[0].equals(long.class)) {
-                    setMeth.invoke(obj, new Object[]{Long.valueOf(refProps.getLongProperty(refName))});
+                    setMeth.invoke(obj, new Object[]{refProps.getLongProperty(refName)});
                 } else if (params[0].equals(float.class)) {
-                    setMeth.invoke(obj, new Object[]{Float.valueOf(refProps.getFloatProperty(refName))});
+                    setMeth.invoke(obj, new Object[]{refProps.getFloatProperty(refName)});
                 } else if (params[0].equals(double.class)) {
-                    setMeth.invoke(obj, new Object[]{Double.valueOf(refProps.getDoubleProperty(refName))});
+                    setMeth.invoke(obj, new Object[]{refProps.getDoubleProperty(refName)});
                 } else if (params[0].equals(boolean.class)) {
-                    setMeth.invoke(obj, new Object[]{Boolean.valueOf(refProps.getBooleanProperty(refName))});
+                    setMeth.invoke(obj, new Object[]{refProps.getBooleanProperty(refName)});
                 } else if (params[0].equals(String.class)) {
                     setMeth.invoke(obj, new Object[]{refProps.getStringProperty(refName)});
                 } else {

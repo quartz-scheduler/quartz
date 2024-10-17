@@ -214,15 +214,15 @@ public class XMLSchedulingDataProcessorPlugin
                 if (scanInterval > 0) {
                     getScheduler().getContext().put(JOB_INITIALIZATION_PLUGIN_NAME + '_' + getName(), this);
                 }
-                
+
                 Iterator<JobFile> iterator = jobFiles.values().iterator();
                 while (iterator.hasNext()) {
                     JobFile jobFile = iterator.next();
-                
+
                     if (scanInterval > 0) {
                         String jobTriggerName = buildJobTriggerName(jobFile.getFileBasename());
                         TriggerKey tKey = new TriggerKey(jobTriggerName, JOB_INITIALIZATION_PLUGIN_NAME);
-                        
+
                         // remove preexisting job/trigger, if any
                         getScheduler().unscheduleJob(tKey);
 
@@ -239,7 +239,7 @@ public class XMLSchedulingDataProcessorPlugin
                         getScheduler().scheduleJob(job, trig);
                         getLog().debug("Scheduled file scan job for data file: {}, at interval: {}", jobFile.getFileName(), scanInterval);
                     }
-                    
+
                     processFile(jobFile);
                 }
             }

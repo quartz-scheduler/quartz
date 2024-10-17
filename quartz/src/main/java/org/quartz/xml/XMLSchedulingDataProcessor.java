@@ -911,11 +911,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
         Map<JobKey, List<MutableTrigger>> triggersByFQJobName = new HashMap<>();
         
         for(MutableTrigger trigger: triggers) {
-            List<MutableTrigger> triggersOfJob = triggersByFQJobName.get(trigger.getJobKey());
-            if(triggersOfJob == null) {
-                triggersOfJob = new LinkedList<>();
-                triggersByFQJobName.put(trigger.getJobKey(), triggersOfJob);
-            }
+            List<MutableTrigger> triggersOfJob = triggersByFQJobName.computeIfAbsent(trigger.getJobKey(), k -> new LinkedList<>());
             triggersOfJob.add(trigger);
         }
 

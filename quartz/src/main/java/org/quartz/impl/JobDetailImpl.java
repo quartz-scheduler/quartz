@@ -449,13 +449,12 @@ public class JobDetailImpl implements Cloneable, java.io.Serializable, JobDetail
     }
 
     public JobBuilder getJobBuilder() {
-        JobBuilder b = JobBuilder.newJob()
+        return JobBuilder.newJob()
             .ofType(getJobClass())
             .requestRecovery(requestsRecovery())
             .storeDurably(isDurable())
             .usingJobData(getJobDataMap())
             .withDescription(getDescription())
             .withIdentity(getKey());
-        return b;
     }
 }

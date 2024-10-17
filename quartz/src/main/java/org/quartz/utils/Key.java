@@ -115,8 +115,8 @@ public class Key<T>  implements Serializable, Comparable<Key<T>> {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((group == null) ? 0 : group.hashCode());
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + group.hashCode();
+        result = prime * result + name.hashCode();
         return result;
     }
 
@@ -130,14 +130,9 @@ public class Key<T>  implements Serializable, Comparable<Key<T>> {
             return false;
         @SuppressWarnings("unchecked")
         Key<T> other = (Key<T>) obj;
-        if (group == null) {
-            if (other.group != null)
-                return false;
-        } else if (!group.equals(other.group))
+        if (!group.equals(other.group))
             return false;
-        if (name == null) {
-            return other.name == null;
-        } else return name.equals(other.name);
+        return name.equals(other.name);
     }
 
     public int compareTo(Key<T> o) {

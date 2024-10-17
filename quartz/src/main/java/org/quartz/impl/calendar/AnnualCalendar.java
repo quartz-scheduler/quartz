@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.TimeZone;
 
 import org.quartz.Calendar;
@@ -41,7 +40,7 @@ import org.quartz.Calendar;
 public class AnnualCalendar extends BaseCalendar implements Calendar,
         Serializable {
 
-    static final long serialVersionUID = 7346867105876610961L;
+    private static final long serialVersionUID = 7346867105876610961L;
 
     private ArrayList<java.util.Calendar> excludeDays = new ArrayList<>();
 
@@ -104,10 +103,7 @@ public class AnnualCalendar extends BaseCalendar implements Calendar,
             dataSorted = true;
         }
 
-        Iterator<java.util.Calendar> iter = excludeDays.iterator();
-        while (iter.hasNext()) {
-            java.util.Calendar cl = (java.util.Calendar) iter.next();
-
+        for (java.util.Calendar cl : excludeDays) {
             // remember, the list is sorted
             if (dmonth < cl.get(java.util.Calendar.MONTH)) {
                 return false;
@@ -190,10 +186,7 @@ public class AnnualCalendar extends BaseCalendar implements Calendar,
         
         // Since there is no guarantee that the given day is in the arraylist with the exact same year
         // search for the object based on month and day of month in the list and remove it
-        Iterator<java.util.Calendar> iter = excludeDays.iterator();
-        while (iter.hasNext()) {
-            java.util.Calendar cl = (java.util.Calendar) iter.next();
-
+        for (java.util.Calendar cl : excludeDays) {
             if (dmonth != cl.get(java.util.Calendar.MONTH)) {
                 continue;
             }

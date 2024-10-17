@@ -1,6 +1,5 @@
 package org.quartz.listeners;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -56,162 +55,122 @@ public class BroadcastSchedulerListener implements SchedulerListener {
     }
 
     public void jobAdded(JobDetail jobDetail) {
-        Iterator<SchedulerListener> itr = listeners.iterator();
-        while(itr.hasNext()) {
-            SchedulerListener l = itr.next();
+        for (SchedulerListener l : listeners) {
             l.jobAdded(jobDetail);
         }
     }
 
     public void jobDeleted(JobKey jobKey) {
-        Iterator<SchedulerListener> itr = listeners.iterator();
-        while(itr.hasNext()) {
-            SchedulerListener l = itr.next();
+        for (SchedulerListener l : listeners) {
             l.jobDeleted(jobKey);
         }
     }
     
     public void jobScheduled(Trigger trigger) {
-        Iterator<SchedulerListener> itr = listeners.iterator();
-        while(itr.hasNext()) {
-            SchedulerListener l = itr.next();
+        for (SchedulerListener l : listeners) {
             l.jobScheduled(trigger);
         }
     }
 
     public void jobUnscheduled(TriggerKey triggerKey) {
-        Iterator<SchedulerListener> itr = listeners.iterator();
-        while(itr.hasNext()) {
-            SchedulerListener l = itr.next();
+        for (SchedulerListener l : listeners) {
             l.jobUnscheduled(triggerKey);
         }
     }
 
     public void triggerFinalized(Trigger trigger) {
-        Iterator<SchedulerListener> itr = listeners.iterator();
-        while(itr.hasNext()) {
-            SchedulerListener l = itr.next();
+        for (SchedulerListener l : listeners) {
             l.triggerFinalized(trigger);
         }
     }
 
     public void triggerPaused(TriggerKey key) {
-        Iterator<SchedulerListener> itr = listeners.iterator();
-        while(itr.hasNext()) {
-            SchedulerListener l = itr.next();
+        for (SchedulerListener l : listeners) {
             l.triggerPaused(key);
         }
     }
 
     public void triggersPaused(String triggerGroup) {
-        Iterator<SchedulerListener> itr = listeners.iterator();
-        while(itr.hasNext()) {
-            SchedulerListener l = itr.next();
+        for (SchedulerListener l : listeners) {
             l.triggersPaused(triggerGroup);
         }
     }
 
     public void triggerResumed(TriggerKey key) {
-        Iterator<SchedulerListener> itr = listeners.iterator();
-        while(itr.hasNext()) {
-            SchedulerListener l = itr.next();
+        for (SchedulerListener l : listeners) {
             l.triggerResumed(key);
         }
     }
 
     public void triggersResumed(String triggerGroup) {
-        Iterator<SchedulerListener> itr = listeners.iterator();
-        while(itr.hasNext()) {
-            SchedulerListener l = itr.next();
+        for (SchedulerListener l : listeners) {
             l.triggersResumed(triggerGroup);
         }
     }
     
     public void schedulingDataCleared() {
-        Iterator<SchedulerListener> itr = listeners.iterator();
-        while(itr.hasNext()) {
-            SchedulerListener l = itr.next();
+        for (SchedulerListener l : listeners) {
             l.schedulingDataCleared();
         }
     }
 
     
     public void jobPaused(JobKey key) {
-        Iterator<SchedulerListener> itr = listeners.iterator();
-        while(itr.hasNext()) {
-            SchedulerListener l = itr.next();
+        for (SchedulerListener l : listeners) {
             l.jobPaused(key);
         }
     }
 
     public void jobsPaused(String jobGroup) {
-        Iterator<SchedulerListener> itr = listeners.iterator();
-        while(itr.hasNext()) {
-            SchedulerListener l = itr.next();
+        for (SchedulerListener l : listeners) {
             l.jobsPaused(jobGroup);
         }
     }
 
     public void jobResumed(JobKey key) {
-        Iterator<SchedulerListener> itr = listeners.iterator();
-        while(itr.hasNext()) {
-            SchedulerListener l = itr.next();
+        for (SchedulerListener l : listeners) {
             l.jobResumed(key);
         }
     }
 
     public void jobsResumed(String jobGroup) {
-        Iterator<SchedulerListener> itr = listeners.iterator();
-        while(itr.hasNext()) {
-            SchedulerListener l = itr.next();
+        for (SchedulerListener l : listeners) {
             l.jobsResumed(jobGroup);
         }
     }
     
     public void schedulerError(String msg, SchedulerException cause) {
-        Iterator<SchedulerListener> itr = listeners.iterator();
-        while(itr.hasNext()) {
-            SchedulerListener l = itr.next();
+        for (SchedulerListener l : listeners) {
             l.schedulerError(msg, cause);
         }
     }
 
     public void schedulerStarted() {
-        Iterator<SchedulerListener> itr = listeners.iterator();
-        while(itr.hasNext()) {
-            SchedulerListener l = itr.next();
+        for (SchedulerListener l : listeners) {
             l.schedulerStarted();
         }
     }
     
     public void schedulerStarting() {
-        Iterator<SchedulerListener> itr = listeners.iterator();
-        while (itr.hasNext()) {
-            SchedulerListener l = itr.next();
+        for (SchedulerListener l : listeners) {
             l.schedulerStarting();
         }
     }
 
     public void schedulerInStandbyMode() {
-        Iterator<SchedulerListener> itr = listeners.iterator();
-        while(itr.hasNext()) {
-            SchedulerListener l = itr.next();
+        for (SchedulerListener l : listeners) {
             l.schedulerInStandbyMode();
         }
     }
     
     public void schedulerShutdown() {
-        Iterator<SchedulerListener> itr = listeners.iterator();
-        while(itr.hasNext()) {
-            SchedulerListener l = itr.next();
+        for (SchedulerListener l : listeners) {
             l.schedulerShutdown();
         }
     }
     
     public void schedulerShuttingdown() {
-        Iterator<SchedulerListener> itr = listeners.iterator();
-        while(itr.hasNext()) {
-            SchedulerListener l = itr.next();
+        for (SchedulerListener l : listeners) {
             l.schedulerShuttingdown();
         }
     }

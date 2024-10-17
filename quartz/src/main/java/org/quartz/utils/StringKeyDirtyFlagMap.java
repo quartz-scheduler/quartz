@@ -30,7 +30,7 @@ import java.io.Serializable;
  * </p>
  */
 public class StringKeyDirtyFlagMap extends DirtyFlagMap<String, Object> {
-    static final long serialVersionUID = -9076749120524952280L;
+    private static final long serialVersionUID = -9076749120524952280L;
     
     /**
      * @deprecated JDBCJobStores no longer prune out transient data.  If you
@@ -180,7 +180,7 @@ public class StringKeyDirtyFlagMap extends DirtyFlagMap<String, Object> {
      * </p>
      */
     public void put(String key, int value) {
-        super.put(key, Integer.valueOf(value));
+        super.put(key, value);
     }
 
     /**
@@ -189,7 +189,7 @@ public class StringKeyDirtyFlagMap extends DirtyFlagMap<String, Object> {
      * </p>
      */
     public void put(String key, long value) {
-        super.put(key, Long.valueOf(value));
+        super.put(key, value);
     }
 
     /**
@@ -198,7 +198,7 @@ public class StringKeyDirtyFlagMap extends DirtyFlagMap<String, Object> {
      * </p>
      */
     public void put(String key, float value) {
-        super.put(key, Float.valueOf(value));
+        super.put(key, value);
     }
 
     /**
@@ -207,7 +207,7 @@ public class StringKeyDirtyFlagMap extends DirtyFlagMap<String, Object> {
      * </p>
      */
     public void put(String key, double value) {
-        super.put(key, Double.valueOf(value));
+        super.put(key, value);
     }
 
     /**
@@ -216,7 +216,7 @@ public class StringKeyDirtyFlagMap extends DirtyFlagMap<String, Object> {
      * </p>
      */
     public void put(String key, boolean value) {
-        super.put(key, Boolean.valueOf(value));
+        super.put(key, value);
     }
 
     /**
@@ -225,7 +225,7 @@ public class StringKeyDirtyFlagMap extends DirtyFlagMap<String, Object> {
      * </p>
      */
     public void put(String key, char value) {
-        super.put(key, Character.valueOf(value));
+        super.put(key, value);
     }
 
     /**

@@ -22,7 +22,6 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
@@ -93,9 +92,8 @@ public class PropertySettingJobFactory extends SimpleJobFactory {
         // Get the wrapped entry set so don't have to incur overhead of wrapping for
         // dirty flag checking since this is read only access
         for (Map.Entry<String, Object> stringObjectEntry : data.getWrappedMap().entrySet()) {
-            Map.Entry<?, ?> entry = (Map.Entry<?, ?>) stringObjectEntry;
 
-            String name = (String) entry.getKey();
+            String name = (String) ((Map.Entry<?, ?>) stringObjectEntry).getKey();
             String c = name.substring(0, 1).toUpperCase(Locale.US);
             String methName = "set" + c + name.substring(1);
 
@@ -113,7 +111,7 @@ public class PropertySettingJobFactory extends SimpleJobFactory {
                 }
 
                 paramType = setMeth.getParameterTypes()[0];
-                o = entry.getValue();
+                o = ((Map.Entry<?, ?>) stringObjectEntry).getValue();
 
                 Object parm = null;
                 if (paramType.isPrimitive()) {
@@ -171,7 +169,7 @@ public class PropertySettingJobFactory extends SimpleJobFactory {
                         if (o instanceof String) {
                             String str = (String) o;
                             if (str.length() == 1) {
-                                parm = Character.valueOf(str.charAt(0));
+                                parm = str.charAt(0);
                             }
                         } else if (o instanceof Character) {
                             parm = o;
