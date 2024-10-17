@@ -24,7 +24,7 @@ import org.quartz.CronExpression;
  * @author Aaron Craven
  */
 public class CronCalendar extends BaseCalendar {
-    static final long serialVersionUID = -8172103999750856831L;
+    private static final long serialVersionUID = -8172103999750856831L;
 
     CronExpression cronExpression;
 

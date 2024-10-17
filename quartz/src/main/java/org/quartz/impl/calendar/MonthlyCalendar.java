@@ -38,7 +38,7 @@ import org.quartz.Calendar;
 public class MonthlyCalendar extends BaseCalendar implements Calendar,
         Serializable {
 
-    static final long serialVersionUID = 419164961091807944L;
+    private static final long serialVersionUID = 419164961091807944L;
 
     private static final int MAX_DAYS_IN_MONTH = 31;
 

@@ -2375,9 +2375,9 @@ class ErrorLogger extends SchedulerListenerSupport {
 /////////////////////////////////////////////////////////////////////////////
 
 class ExecutingJobsManager implements JobListener {
-    HashMap<String, JobExecutionContext> executingJobs = new HashMap<>();
+    final HashMap<String, JobExecutionContext> executingJobs = new HashMap<>();
 
-    AtomicInteger numJobsFired = new AtomicInteger(0);
+    final AtomicInteger numJobsFired = new AtomicInteger(0);
 
     ExecutingJobsManager() {
     }

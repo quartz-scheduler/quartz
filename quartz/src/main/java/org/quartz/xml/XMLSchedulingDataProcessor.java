@@ -113,25 +113,25 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
      */
 
     // pre-processing commands
-    protected List<String> jobGroupsToDelete = new LinkedList<>();
-    protected List<String> triggerGroupsToDelete = new LinkedList<>();
-    protected List<JobKey> jobsToDelete = new LinkedList<>();
-    protected List<TriggerKey> triggersToDelete = new LinkedList<>();
+    protected final List<String> jobGroupsToDelete = new LinkedList<>();
+    protected final List<String> triggerGroupsToDelete = new LinkedList<>();
+    protected final List<JobKey> jobsToDelete = new LinkedList<>();
+    protected final List<TriggerKey> triggersToDelete = new LinkedList<>();
 
     // scheduling commands
-    protected List<JobDetail> loadedJobs = new LinkedList<>();
-    protected List<MutableTrigger> loadedTriggers = new LinkedList<>();
+    protected final List<JobDetail> loadedJobs = new LinkedList<>();
+    protected final List<MutableTrigger> loadedTriggers = new LinkedList<>();
     
     // directives
     private boolean overWriteExistingData = true;
     private boolean ignoreDuplicates = false;
 
-    protected Collection<Exception> validationExceptions = new ArrayList<>();
+    protected final Collection<Exception> validationExceptions = new ArrayList<>();
 
     
-    protected ClassLoadHelper classLoadHelper;
-    protected List<String> jobGroupsToNeverDelete = new LinkedList<>();
-    protected List<String> triggerGroupsToNeverDelete = new LinkedList<>();
+    protected final ClassLoadHelper classLoadHelper;
+    protected final List<String> jobGroupsToNeverDelete = new LinkedList<>();
+    protected final List<String> triggerGroupsToNeverDelete = new LinkedList<>();
     
     private DocumentBuilder docBuilder = null;
     private XPath xpath = null;

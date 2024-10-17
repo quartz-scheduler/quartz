@@ -39,7 +39,6 @@ import java.sql.Statement;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -99,7 +98,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
     
     protected ClassLoadHelper classLoadHelper;
 
-    protected List<TriggerPersistenceDelegate> triggerPersistenceDelegates = new LinkedList<>();
+    protected final List<TriggerPersistenceDelegate> triggerPersistenceDelegates = new LinkedList<>();
 
     
     /*

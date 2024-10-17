@@ -110,7 +110,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
     
     protected Class<? extends DriverDelegate> delegateClass = StdJDBCDelegate.class;
 
-    protected HashMap<String, Calendar> calendarCache = new HashMap<>();
+    protected final HashMap<String, Calendar> calendarCache = new HashMap<>();
 
     private DriverDelegate delegate;
 
@@ -3265,7 +3265,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         }
     }
 
-    protected ThreadLocal<Long> sigChangeForTxCompletion = new ThreadLocal<>();
+    protected final ThreadLocal<Long> sigChangeForTxCompletion = new ThreadLocal<>();
     protected void signalSchedulingChangeOnTxCompletion(long candidateNewNextFireTime) {
         Long sigTime = sigChangeForTxCompletion.get();
         if(sigTime == null && candidateNewNextFireTime >= 0L)

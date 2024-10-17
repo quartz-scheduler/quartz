@@ -27,7 +27,7 @@ import java.util.TimeZone;
  * @author Mike Funk, Aaron Craven
  */
 public class DailyCalendar extends BaseCalendar {
-    static final long serialVersionUID = -7561220099904944039L;
+    private static final long serialVersionUID = -7561220099904944039L;
     
     private static final String invalidHourOfDay = "Invalid hour of day: ";
     private static final String invalidMinute = "Invalid minute: ";

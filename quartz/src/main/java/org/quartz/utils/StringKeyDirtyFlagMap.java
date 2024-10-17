@@ -30,7 +30,7 @@ import java.io.Serializable;
  * </p>
  */
 public class StringKeyDirtyFlagMap extends DirtyFlagMap<String, Object> {
-    static final long serialVersionUID = -9076749120524952280L;
+    private static final long serialVersionUID = -9076749120524952280L;
     
     /**
      * @deprecated JDBCJobStores no longer prune out transient data.  If you
