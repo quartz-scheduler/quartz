@@ -19,8 +19,6 @@
 
 package org.quartz.impl.triggers;
 
-import java.util.Date;
-
 import org.quartz.Calendar;
 import org.quartz.CronTrigger;
 import org.quartz.JobDataMap;
@@ -34,7 +32,6 @@ import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
-import org.quartz.TriggerUtils;
 import org.quartz.spi.OperableTrigger;
 
 
@@ -87,7 +84,7 @@ public abstract class AbstractTrigger<T extends Trigger> implements OperableTrig
     private JobDataMap jobDataMap;
 
     @SuppressWarnings("unused")
-    private final boolean volatility = false; // still here for serialization backward compatibility
+    private static final boolean VOLATILITY = false; // still here for serialization backward compatibility
 
     private String calendarName = null;
 
@@ -121,7 +118,7 @@ public abstract class AbstractTrigger<T extends Trigger> implements OperableTrig
      * {@link Scheduler}.
      * </p>
      */
-    public AbstractTrigger() {
+    protected AbstractTrigger() {
         // do nothing...
     }
 
@@ -139,7 +136,7 @@ public abstract class AbstractTrigger<T extends Trigger> implements OperableTrig
      * @exception IllegalArgumentException
      *              if name is null or empty, or the group is an empty string.
      */
-    public AbstractTrigger(String name) {
+    protected AbstractTrigger(String name) {
         setName(name);
         setGroup(null);
     }
@@ -160,7 +157,7 @@ public abstract class AbstractTrigger<T extends Trigger> implements OperableTrig
      * @exception IllegalArgumentException
      *              if name is null or empty, or the group is an empty string.
      */
-    public AbstractTrigger(String name, String group) {
+    protected AbstractTrigger(String name, String group) {
         setName(name);
         setGroup(group);
     }
@@ -175,7 +172,7 @@ public abstract class AbstractTrigger<T extends Trigger> implements OperableTrig
      * @exception IllegalArgumentException
      *              if name is null or empty, or the group is an empty string.
      */
-    public AbstractTrigger(String name, String group, String jobName, String jobGroup) {
+    protected AbstractTrigger(String name, String group, String jobName, String jobGroup) {
         setName(name);
         setGroup(group);
         setJobName(jobName);
@@ -469,43 +466,6 @@ public abstract class AbstractTrigger<T extends Trigger> implements OperableTrig
         this.priority = priority;
     }
 
-    /**
-     * <p>
-     * This method should not be used by the Quartz client.
-     * </p>
-     * 
-     * <p>
-     * Called when the <code>{@link Scheduler}</code> has decided to 'fire'
-     * the trigger (execute the associated <code>Job</code>), in order to
-     * give the <code>Trigger</code> a chance to update itself for its next
-     * triggering (if any).
-     * </p>
-     * 
-     * @see #executionComplete(JobExecutionContext, JobExecutionException)
-     */
-    public abstract void triggered(Calendar calendar);
-
-    /**
-     * <p>
-     * This method should not be used by the Quartz client.
-     * </p>
-     * 
-     * <p>
-     * Called by the scheduler at the time a <code>Trigger</code> is first
-     * added to the scheduler, in order to have the <code>Trigger</code>
-     * compute its first fire time, based on any associated calendar.
-     * </p>
-     * 
-     * <p>
-     * After this method has been called, <code>getNextFireTime()</code>
-     * should return a valid answer.
-     * </p>
-     * 
-     * @return the first time at which the <code>Trigger</code> will be fired
-     *         by the scheduler, which is also the same value <code>getNextFireTime()</code>
-     *         will return (until after the first firing of the <code>Trigger</code>).
-     */
-    public abstract Date computeFirstFireTime(Calendar calendar);
 
     /**
      * <p>
@@ -550,109 +510,8 @@ public abstract class AbstractTrigger<T extends Trigger> implements OperableTrig
     
         return CompletedExecutionInstruction.NOOP;
     }
-    
-    /**
-     * <p>
-     * Used by the <code>{@link Scheduler}</code> to determine whether or not
-     * it is possible for this <code>Trigger</code> to fire again.
-     * </p>
-     * 
-     * <p>
-     * If the returned value is <code>false</code> then the <code>Scheduler</code>
-     * may remove the <code>Trigger</code> from the <code>{@link org.quartz.spi.JobStore}</code>.
-     * </p>
-     */
-    public abstract boolean mayFireAgain();
 
-    /**
-     * <p>
-     * Get the time at which the <code>Trigger</code> should occur.
-     * </p>
-     */
-    public abstract Date getStartTime();
 
-    /**
-     * <p>
-     * The time at which the trigger's scheduling should start.  May or may not
-     * be the first actual fire time of the trigger, depending upon the type of
-     * trigger and the settings of the other properties of the trigger.  However
-     * the first actual first time will not be before this date.
-     * </p>
-     * <p>
-     * Setting a value in the past may cause a new trigger to compute a first
-     * fire time that is in the past, which may cause an immediate misfire
-     * of the trigger.
-     * </p>
-     */
-    public abstract void setStartTime(Date startTime);
-
-    /**
-     * <p>
-     * Set the time at which the <code>Trigger</code> should quit repeating -
-     * regardless of any remaining repeats (based on the trigger's particular 
-     * repeat settings). 
-     * </p>
-     * 
-     * @see TriggerUtils#computeEndTimeToAllowParticularNumberOfFirings(org.quartz.spi.OperableTrigger, org.quartz.Calendar, int)
-     */ 
-    public abstract void setEndTime(Date endTime);
-
-    /**
-     * <p>
-     * Get the time at which the <code>Trigger</code> should quit repeating -
-     * regardless of any remaining repeats (based on the trigger's particular 
-     * repeat settings). 
-     * </p>
-     * 
-     * @see #getFinalFireTime()
-     */
-    public abstract Date getEndTime();
-
-    /**
-     * <p>
-     * Returns the next time at which the <code>Trigger</code> is scheduled to fire. If
-     * the trigger will not fire again, <code>null</code> will be returned.  Note that
-     * the time returned can possibly be in the past, if the time that was computed
-     * for the trigger to next fire has already arrived, but the scheduler has not yet
-     * been able to fire the trigger (which would likely be due to lack of resources
-     * e.g. threads).
-     * </p>
-     *
-     * <p>The value returned is not guaranteed to be valid until after the <code>Trigger</code>
-     * has been added to the scheduler.
-     * </p>
-     *
-     * @see TriggerUtils#computeFireTimesBetween(org.quartz.spi.OperableTrigger, org.quartz.Calendar, java.util.Date, java.util.Date)
-     */
-    public abstract Date getNextFireTime();
-
-    /**
-     * <p>
-     * Returns the previous time at which the <code>Trigger</code> fired.
-     * If the trigger has not yet fired, <code>null</code> will be returned.
-     */
-    public abstract Date getPreviousFireTime();
-
-    /**
-     * <p>
-     * Returns the next time at which the <code>Trigger</code> will fire,
-     * after the given time. If the trigger will not fire after the given time,
-     * <code>null</code> will be returned.
-     * </p>
-     */
-    public abstract Date getFireTimeAfter(Date afterTime);
-
-    /**
-     * <p>
-     * Returns the last time at which the <code>Trigger</code> will fire, if
-     * the Trigger will repeat indefinitely, null will be returned.
-     * </p>
-     * 
-     * <p>
-     * Note that the return time *may* be in the past.
-     * </p>
-     */
-    public abstract Date getFinalFireTime();
 
     /**
      * <p>
@@ -703,43 +562,6 @@ public abstract class AbstractTrigger<T extends Trigger> implements OperableTrig
     public int getMisfireInstruction() {
         return misfireInstruction;
     }
-
-    /**
-     * <p>
-     * This method should not be used by the Quartz client.
-     * </p>
-     * 
-     * <p>
-     * To be implemented by the concrete classes that extend this class.
-     * </p>
-     * 
-     * <p>
-     * The implementation should update the <code>Trigger</code>'s state
-     * based on the MISFIRE_INSTRUCTION_XXX that was selected when the <code>Trigger</code>
-     * was created.
-     * </p>
-     */
-    public abstract void updateAfterMisfire(Calendar cal);
-
-    /**
-     * <p>
-     * This method should not be used by the Quartz client.
-     * </p>
-     * 
-     * <p>
-     * To be implemented by the concrete class.
-     * </p>
-     * 
-     * <p>
-     * The implementation should update the <code>Trigger</code>'s state
-     * based on the given new version of the associated <code>Calendar</code>
-     * (the state should be updated so that it's next fire time is appropriate
-     * given the Calendar's new settings). 
-     * </p>
-     * 
-     * @param cal the modifying calendar
-     */
-    public abstract void updateWithNewCalendar(Calendar cal, long misfireThreshold);
 
     /**
      * <p>
