@@ -29,7 +29,7 @@ public class KeyMatcher<T extends Key<?>> implements Matcher<T> {
   
     private static final long serialVersionUID = 1230009869074992437L;
 
-    protected T compareTo;
+    protected final T compareTo;
     
     protected KeyMatcher(T compareTo) {
         this.compareTo = compareTo;

@@ -99,7 +99,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
     
     protected ClassLoadHelper classLoadHelper;
 
-    protected List<TriggerPersistenceDelegate> triggerPersistenceDelegates = new LinkedList<>();
+    protected final List<TriggerPersistenceDelegate> triggerPersistenceDelegates = new LinkedList<>();
 
     
     /*
