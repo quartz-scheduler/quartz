@@ -19,7 +19,6 @@
 package org.quartz.impl;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 

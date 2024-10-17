@@ -22,7 +22,6 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
