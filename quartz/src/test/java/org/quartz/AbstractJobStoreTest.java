@@ -74,19 +74,36 @@ public abstract class AbstractJobStoreTest extends TestCase {
     	
     	Date baseFireTimeDate = DateBuilder.evenMinuteDateAfterNow();
     	long baseFireTime = baseFireTimeDate.getTime();
-    	
-        OperableTrigger trigger1 = 
-            new SimpleTriggerImpl("trigger1", "triggerGroup1", this.fJobDetail.getName(), 
-                    this.fJobDetail.getGroup(), new Date(baseFireTime + 200000), 
-                    new Date(baseFireTime + 200000), 2, 2000);
-        OperableTrigger trigger2 = 
-            new SimpleTriggerImpl("trigger2", "triggerGroup1", this.fJobDetail.getName(), 
-                    this.fJobDetail.getGroup(), new Date(baseFireTime +  50000),
-                    new Date(baseFireTime + 200000), 2, 2000);
-        OperableTrigger trigger3 = 
-            new SimpleTriggerImpl("trigger1", "triggerGroup2", this.fJobDetail.getName(), 
-                    this.fJobDetail.getGroup(), new Date(baseFireTime + 100000), 
-                    new Date(baseFireTime + 200000), 2, 2000);
+
+        OperableTrigger trigger1 = (OperableTrigger)TriggerBuilder.newTrigger()
+                .withIdentity("trigger1", "triggerGroup1")
+                .forJob(this.fJobDetail)
+                .startAt(new Date(baseFireTime + 200000))
+                .endAt(new Date(baseFireTime + 200000))
+                .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                        .withRepeatCount(2)
+                        .withIntervalInMilliseconds(2000))
+                .build();
+
+        OperableTrigger trigger2 = (OperableTrigger)TriggerBuilder.newTrigger()
+                .withIdentity("trigger2", "triggerGroup1")
+                .forJob(this.fJobDetail)
+                .startAt(new Date(baseFireTime + 50000))
+                .endAt(new Date(baseFireTime + 200000))
+                .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                        .withRepeatCount(2)
+                        .withIntervalInMilliseconds(2000))
+                .build();
+
+        OperableTrigger trigger3 = (OperableTrigger)TriggerBuilder.newTrigger()
+                .withIdentity("trigger1", "triggerGroup2")
+                .forJob(this.fJobDetail)
+                .startAt(new Date(baseFireTime + 100000))
+                .endAt(new Date(baseFireTime + 200000))
+                .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                        .withRepeatCount(2)
+                        .withIntervalInMilliseconds(2000))
+                .build();
 
         trigger1.computeFirstFireTime(null);
         trigger2.computeFirstFireTime(null);
@@ -122,32 +139,66 @@ public abstract class AbstractJobStoreTest extends TestCase {
     public void testAcquireNextTriggerBatch() throws Exception {
     	
     	long baseFireTime = System.currentTimeMillis() - 1000;
-    	
-        OperableTrigger early =
-            new SimpleTriggerImpl("early", "triggerGroup1", this.fJobDetail.getName(),
-                    this.fJobDetail.getGroup(), new Date(baseFireTime),
-                    new Date(baseFireTime + 5), 2, 2000);
-        OperableTrigger trigger1 =
-            new SimpleTriggerImpl("trigger1", "triggerGroup1", this.fJobDetail.getName(),
-                    this.fJobDetail.getGroup(), new Date(baseFireTime + 200000),
-                    new Date(baseFireTime + 200005), 2, 2000);
-        OperableTrigger trigger2 =
-            new SimpleTriggerImpl("trigger2", "triggerGroup1", this.fJobDetail.getName(),
-                    this.fJobDetail.getGroup(), new Date(baseFireTime + 210000),
-                    new Date(baseFireTime + 210005), 2, 2000);
-        OperableTrigger trigger3 =
-            new SimpleTriggerImpl("trigger3", "triggerGroup1", this.fJobDetail.getName(),
-                    this.fJobDetail.getGroup(), new Date(baseFireTime + 220000),
-                    new Date(baseFireTime + 220005), 2, 2000);
-        OperableTrigger trigger4 =
-            new SimpleTriggerImpl("trigger4", "triggerGroup1", this.fJobDetail.getName(),
-                    this.fJobDetail.getGroup(), new Date(baseFireTime + 230000),
-                    new Date(baseFireTime + 230005), 2, 2000);
 
-        OperableTrigger trigger10 =
-            new SimpleTriggerImpl("trigger10", "triggerGroup2", this.fJobDetail.getName(),
-                    this.fJobDetail.getGroup(), new Date(baseFireTime + 500000),
-                    new Date(baseFireTime + 700000), 2, 2000);
+        OperableTrigger early = (OperableTrigger) TriggerBuilder.newTrigger()
+                .withIdentity("early", "triggerGroup1")
+                .forJob(this.fJobDetail)
+                .startAt(new Date(baseFireTime))
+                .endAt(new Date(baseFireTime + 5))
+                .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                        .withRepeatCount(2)
+                        .withIntervalInMilliseconds(2000))
+                .build();
+
+        OperableTrigger trigger1 = (OperableTrigger) TriggerBuilder.newTrigger()
+                .withIdentity("trigger1", "triggerGroup1")
+                .forJob(this.fJobDetail)
+                .startAt(new Date(baseFireTime + 200000))
+                .endAt(new Date(baseFireTime + 200005))
+                .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                        .withRepeatCount(2)
+                        .withIntervalInMilliseconds(2000))
+                .build();
+
+        OperableTrigger trigger2 = (OperableTrigger) TriggerBuilder.newTrigger()
+                .withIdentity("trigger2", "triggerGroup1")
+                .forJob(this.fJobDetail)
+                .startAt(new Date(baseFireTime + 210000))
+                .endAt(new Date(baseFireTime + 210005))
+                .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                        .withRepeatCount(2)
+                        .withIntervalInMilliseconds(2000))
+                .build();
+
+        OperableTrigger trigger3 = (OperableTrigger) TriggerBuilder.newTrigger()
+                .withIdentity("trigger3", "triggerGroup1")
+                .forJob(this.fJobDetail)
+                .startAt(new Date(baseFireTime + 220000))
+                .endAt(new Date(baseFireTime + 220005))
+                .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                        .withRepeatCount(2)
+                        .withIntervalInMilliseconds(2000))
+                .build();
+
+        OperableTrigger trigger4 = (OperableTrigger) TriggerBuilder.newTrigger()
+                .withIdentity("trigger4", "triggerGroup1")
+                .forJob(this.fJobDetail)
+                .startAt(new Date(baseFireTime + 230000))
+                .endAt(new Date(baseFireTime + 230005))
+                .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                        .withRepeatCount(2)
+                        .withIntervalInMilliseconds(2000))
+                .build();
+
+        OperableTrigger trigger10 = (OperableTrigger) TriggerBuilder.newTrigger()
+                .withIdentity("trigger10", "triggerGroup2")
+                .forJob(this.fJobDetail)
+                .startAt(new Date(baseFireTime + 500000))
+                .endAt(new Date(baseFireTime + 700000))
+                .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                        .withRepeatCount(2)
+                        .withIntervalInMilliseconds(2000))
+                .build();
 
         early.computeFirstFireTime(null);
         early.setMisfireInstruction(Trigger.MISFIRE_INSTRUCTION_IGNORE_MISFIRE_POLICY);
@@ -222,9 +273,15 @@ public abstract class AbstractJobStoreTest extends TestCase {
 
     @SuppressWarnings("deprecation")
     public void testTriggerStates() throws Exception {
-        OperableTrigger trigger = 
-            new SimpleTriggerImpl("trigger1", "triggerGroup1", this.fJobDetail.getName(), this.fJobDetail.getGroup(), 
-                    new Date(System.currentTimeMillis() + 100000), new Date(System.currentTimeMillis() + 200000), 2, 2000);
+        OperableTrigger trigger = (OperableTrigger) TriggerBuilder.newTrigger()
+                .withIdentity("trigger1", "triggerGroup1")
+                .forJob(this.fJobDetail)
+                .startAt(new Date(System.currentTimeMillis() + 100000))
+                .endAt(new Date(System.currentTimeMillis() + 200000))
+                .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                        .withRepeatCount(2)
+                        .withIntervalInMilliseconds(2000))
+                .build();
         trigger.computeFirstFireTime(null);
         assertEquals(TriggerState.NONE, this.fJobStore.getTriggerState(trigger.getKey()));
         this.fJobStore.storeTrigger(trigger, false);
@@ -258,7 +315,11 @@ public abstract class AbstractJobStoreTest extends TestCase {
  
         String trName = "StoreTriggerReplacesTrigger";
         String trGroup = "StoreTriggerReplacesTriggerGroup";
-        OperableTrigger tr = new SimpleTriggerImpl(trName ,trGroup, new Date());
+        OperableTrigger tr = (OperableTrigger) TriggerBuilder.newTrigger()
+                .withIdentity(trName, trGroup)
+                .startAt(new Date())
+                .forJob(new JobKey(jobName, jobGroup))
+                .build();
         tr.setJobKey(new JobKey(jobName, jobGroup));
         tr.setCalendarName(null);
  
@@ -300,7 +361,10 @@ public abstract class AbstractJobStoreTest extends TestCase {
     
     	String trName = "PauseJobGroupPausesNewJobTrigger";
     	String trGroup = "PauseJobGroupPausesNewJobTriggerGroup";
-    	OperableTrigger tr = new SimpleTriggerImpl(trName, trGroup, new Date());
+        OperableTrigger tr = (OperableTrigger) TriggerBuilder.newTrigger()
+                .withIdentity(trName, trGroup)
+                .startNow()
+                .build();
         tr.setJobKey(new JobKey(jobName2, jobGroup));
     	fJobStore.storeTrigger(tr, false);
     	assertEquals(TriggerState.PAUSED, fJobStore.getTriggerState(tr.getKey()));
