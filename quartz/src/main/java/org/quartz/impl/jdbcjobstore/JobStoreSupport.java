@@ -3518,14 +3518,10 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                             // handle jobs marked for recovery that were not fully
                             // executed..
                             if (jobExists(conn, jKey)) {
-                                @SuppressWarnings("deprecation")
-                                SimpleTriggerImpl rcvryTrig = new SimpleTriggerImpl(
-                                        "recover_"
-                                                + rec.getSchedulerInstanceId()
-                                                + "_"
-                                                + recoverIds++,
-                                        Scheduler.DEFAULT_RECOVERY_GROUP,
-                                        new Date(ftRec.getScheduleTimestamp()));
+                                SimpleTriggerImpl rcvryTrig = new SimpleTriggerImpl();
+                                rcvryTrig.setName("recover_" + rec.getSchedulerInstanceId() + "_" + recoverIds++);
+                                rcvryTrig.setGroup(Scheduler.DEFAULT_RECOVERY_GROUP);
+                                rcvryTrig.setStartTime(new Date(ftRec.getScheduleTimestamp()));
                                 rcvryTrig.setJobName(jKey.getName());
                                 rcvryTrig.setJobGroup(jKey.getGroup());
                                 rcvryTrig.setMisfireInstruction(SimpleTrigger.MISFIRE_INSTRUCTION_IGNORE_MISFIRE_POLICY);

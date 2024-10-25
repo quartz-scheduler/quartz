@@ -90,7 +90,7 @@ public class SimpleTriggerImpl extends AbstractTrigger<SimpleTrigger> implements
 
     private int timesTriggered = 0;
 
-    private final boolean complete = false;
+    private static final boolean COMPLETE = false;
 
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -313,7 +313,7 @@ public class SimpleTriggerImpl extends AbstractTrigger<SimpleTrigger> implements
         }
 
         Date eTime = getEndTime();
-        if (eTime != null && startTime != null && eTime.before(startTime)) {
+        if (eTime != null && eTime.before(startTime)) {
             throw new IllegalArgumentException(
                 "End time cannot be before start time");    
         }
@@ -324,7 +324,7 @@ public class SimpleTriggerImpl extends AbstractTrigger<SimpleTrigger> implements
     /**
      * <p>
      * Get the time at which the <code>SimpleTrigger</code> should quit
-     * repeating - even if repeastCount isn't yet satisfied.
+     * repeating - even if repeatCount isn't yet satisfied.
      * </p>
      * 
      * @see #getFinalFireTime()
@@ -432,11 +432,7 @@ public class SimpleTriggerImpl extends AbstractTrigger<SimpleTrigger> implements
             return false;
         }
 
-        if (misfireInstruction > MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_EXISTING_COUNT) {
-            return false;
-        }
-
-        return true;
+        return misfireInstruction <= MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_EXISTING_COUNT;
     }
 
     /**
@@ -476,7 +472,6 @@ public class SimpleTriggerImpl extends AbstractTrigger<SimpleTrigger> implements
             } else if (getRepeatCount() == REPEAT_INDEFINITELY) {
                 instr = MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_REMAINING_COUNT;
             } else {
-                // if (getRepeatCount() > 0)
                 instr = MISFIRE_INSTRUCTION_RESCHEDULE_NOW_WITH_EXISTING_REPEAT_COUNT;
             }
         } else if (instr == MISFIRE_INSTRUCTION_FIRE_NOW && getRepeatCount() != 0) {
@@ -738,7 +733,7 @@ public class SimpleTriggerImpl extends AbstractTrigger<SimpleTrigger> implements
      */
     @Override
     public Date getFireTimeAfter(Date afterTime) {
-        if (complete) {
+        if (COMPLETE) {
             return null;
         }
 

@@ -482,10 +482,11 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
                 long firedTime = rs.getLong(COL_FIRED_TIME);
                 long scheduledTime = rs.getLong(COL_SCHED_TIME);
                 int priority = rs.getInt(COL_PRIORITY);
-                @SuppressWarnings("deprecation")
-                SimpleTriggerImpl rcvryTrig = new SimpleTriggerImpl("recover_"
-                        + instanceId + "_" + dumId++,
-                        Scheduler.DEFAULT_RECOVERY_GROUP, new Date(scheduledTime));
+
+                SimpleTriggerImpl rcvryTrig = new SimpleTriggerImpl();
+                rcvryTrig.setName("recover_" + instanceId + "_" + dumId++);
+                rcvryTrig.setGroup(Scheduler.DEFAULT_RECOVERY_GROUP);
+                rcvryTrig.setStartTime(new Date(scheduledTime));
                 rcvryTrig.setJobName(jobName);
                 rcvryTrig.setJobGroup(jobGroup);
                 rcvryTrig.setPriority(priority);
