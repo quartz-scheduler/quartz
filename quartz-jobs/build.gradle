@@ -1,6 +1,7 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
+    id 'biz.aQute.bnd.builder'
 }
 
 dependencies {
