@@ -115,11 +115,8 @@ public abstract class StringMatcher<T extends Key<?>> implements Matcher<T> {
         } else if (!compareTo.equals(other.compareTo))
             return false;
         if (compareWith == null) {
-            if (other.compareWith != null)
-                return false;
-        } else if (!compareWith.equals(other.compareWith))
-            return false;
-        return true;
+            return other.compareWith == null;
+        } else return compareWith.equals(other.compareWith);
     }
 
     public String getCompareToValue() {

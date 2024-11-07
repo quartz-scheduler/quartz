@@ -1059,10 +1059,8 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
             
             
             if(dupeJ != null || detail.isDurable()) {
-                if (triggersOfJob != null && !triggersOfJob.isEmpty())
-                    sched.addJob(detail, true, true);  // add the job regardless is durable or not b/c we have trigger to add
-                else
-                    sched.addJob(detail, true, false); // add the job only if a replacement or durable, else exception will throw!
+                // add the job only if a replacement or durable, else exception will throw!
+                sched.addJob(detail, true, triggersOfJob != null && !triggersOfJob.isEmpty());  // add the job regardless is durable or not b/c we have trigger to add
             }
             else {
                 boolean addJobWithFirstSchedule = true;

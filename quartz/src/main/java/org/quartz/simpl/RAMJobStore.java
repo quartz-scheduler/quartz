@@ -1420,9 +1420,7 @@ public class RAMJobStore implements JobStore {
             synchronized (lock) {
                 timeTriggers.remove(tw);
             }
-        } else if (tnft.equals(tw.trigger.getNextFireTime())) {
-            return false;
-        }
+        } else return !tnft.equals(tw.trigger.getNextFireTime());
 
         return true;
     }
@@ -1794,9 +1792,7 @@ class JobWrapper {
     public boolean equals(Object obj) {
         if (obj instanceof JobWrapper) {
             JobWrapper jw = (JobWrapper) obj;
-            if (jw.key.equals(this.key)) {
-                return true;
-            }
+            return jw.key.equals(this.key);
         }
 
         return false;
@@ -1847,9 +1843,7 @@ class TriggerWrapper {
     public boolean equals(Object obj) {
         if (obj instanceof TriggerWrapper) {
             TriggerWrapper tw = (TriggerWrapper) obj;
-            if (tw.key.equals(this.key)) {
-                return true;
-            }
+            return tw.key.equals(this.key);
         }
 
         return false;

@@ -86,11 +86,8 @@ public class OrMatcher<T extends Key<?>> implements Matcher<T> {
         } else if (!leftOperand.equals(other.leftOperand))
             return false;
         if (rightOperand == null) {
-            if (other.rightOperand != null)
-                return false;
-        } else if (!rightOperand.equals(other.rightOperand))
-            return false;
-        return true;
+            return other.rightOperand == null;
+        } else return rightOperand.equals(other.rightOperand);
     }
 
 }
