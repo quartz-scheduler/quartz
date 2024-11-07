@@ -171,7 +171,7 @@ import java.util.TimeZone;
  */
 public interface CronTrigger extends Trigger {
 
-    public static final long serialVersionUID = -8644953146451592766L;
+    long serialVersionUID = -8644953146451592766L;
     
     /**
      * <p>
@@ -180,7 +180,7 @@ public interface CronTrigger extends Trigger {
      * by <code>Scheduler</code>.
      * </p>
      */
-    public static final int MISFIRE_INSTRUCTION_FIRE_ONCE_NOW = 1;
+    int MISFIRE_INSTRUCTION_FIRE_ONCE_NOW = 1;
     
     /**
      * <p>
@@ -191,9 +191,9 @@ public interface CronTrigger extends Trigger {
      * but it does not want to be fired now.
      * </p>
      */
-    public static final int MISFIRE_INSTRUCTION_DO_NOTHING = 2;
+    int MISFIRE_INSTRUCTION_DO_NOTHING = 2;
 
-    public String getCronExpression();
+    String getCronExpression();
 
     /**
      * <p>
@@ -201,9 +201,9 @@ public interface CronTrigger extends Trigger {
      * this <code>CronTrigger</code> will be resolved.
      * </p>
      */
-    public TimeZone getTimeZone();
+    TimeZone getTimeZone();
 
-    public String getExpressionSummary();
+    String getExpressionSummary();
 
     TriggerBuilder<CronTrigger> getTriggerBuilder();
 }

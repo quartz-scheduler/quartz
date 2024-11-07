@@ -31,32 +31,32 @@ public interface ManagementServer {
     /**
      * Start the management server
      */
-    public void start();
+    void start();
 
     /**
      * Stop the management server
      */
-    public void stop();
+    void stop();
 
     /**
      * Puts the submitted resource under the purview of this {@code ManagementServer}.
      *
      * @param managedResource the resource to be managed
      */
-    public void register(QuartzScheduler managedResource);
+    void register(QuartzScheduler managedResource);
 
     /**
      * Removes the submitted resource under the purview of this {@code ManagementServer}.
      *
      * @param managedResource the resource to be managed
      */
-    public void unregister(QuartzScheduler managedResource);
+    void unregister(QuartzScheduler managedResource);
 
     /**
      * Returns true if this {@code ManagementServer} has any resources registered.
      *
      * @return true if actively managing resources, false if not.
      */
-    public boolean hasRegistered();
+    boolean hasRegistered();
 
 }

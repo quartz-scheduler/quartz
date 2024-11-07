@@ -9,32 +9,32 @@ import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 
 public interface QuartzSchedulerMBean {
-    static final String SCHEDULER_STARTED = "schedulerStarted";
-    static final String SCHEDULER_PAUSED = "schedulerPaused";
-    static final String SCHEDULER_SHUTDOWN = "schedulerShutdown";
-    static final String SCHEDULER_ERROR = "schedulerError";
+    String SCHEDULER_STARTED = "schedulerStarted";
+    String SCHEDULER_PAUSED = "schedulerPaused";
+    String SCHEDULER_SHUTDOWN = "schedulerShutdown";
+    String SCHEDULER_ERROR = "schedulerError";
 
-    static final String JOB_ADDED = "jobAdded";
-    static final String JOB_DELETED = "jobDeleted";
-    static final String JOB_SCHEDULED = "jobScheduled";
-    static final String JOB_UNSCHEDULED = "jobUnscheduled";
+    String JOB_ADDED = "jobAdded";
+    String JOB_DELETED = "jobDeleted";
+    String JOB_SCHEDULED = "jobScheduled";
+    String JOB_UNSCHEDULED = "jobUnscheduled";
     
-    static final String JOBS_PAUSED = "jobsPaused";
-    static final String JOBS_RESUMED = "jobsResumed";
+    String JOBS_PAUSED = "jobsPaused";
+    String JOBS_RESUMED = "jobsResumed";
 
-    static final String JOB_EXECUTION_VETOED = "jobExecutionVetoed";
-    static final String JOB_TO_BE_EXECUTED = "jobToBeExecuted";
-    static final String JOB_WAS_EXECUTED = "jobWasExecuted";
+    String JOB_EXECUTION_VETOED = "jobExecutionVetoed";
+    String JOB_TO_BE_EXECUTED = "jobToBeExecuted";
+    String JOB_WAS_EXECUTED = "jobWasExecuted";
 
-    static final String TRIGGER_FINALIZED = "triggerFinalized";
+    String TRIGGER_FINALIZED = "triggerFinalized";
 
-    static final String TRIGGERS_PAUSED = "triggersPaused";
-    static final String TRIGGERS_RESUMED = "triggersResumed";
+    String TRIGGERS_PAUSED = "triggersPaused";
+    String TRIGGERS_RESUMED = "triggersResumed";
 
-    static final String SCHEDULING_DATA_CLEARED = "schedulingDataCleared";
+    String SCHEDULING_DATA_CLEARED = "schedulingDataCleared";
 
-    static final String SAMPLED_STATISTICS_ENABLED = "sampledStatisticsEnabled";
-    static final String SAMPLED_STATISTICS_RESET = "sampledStatisticsReset";
+    String SAMPLED_STATISTICS_ENABLED = "sampledStatisticsEnabled";
+    String SAMPLED_STATISTICS_RESET = "sampledStatisticsReset";
 
     String getSchedulerName();
 

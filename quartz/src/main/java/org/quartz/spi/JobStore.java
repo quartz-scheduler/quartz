@@ -150,7 +150,7 @@ public interface JobStore {
     void storeJob(JobDetail newJob, boolean replaceExisting) 
         throws ObjectAlreadyExistsException, JobPersistenceException;
 
-    public void storeJobsAndTriggers(Map<JobDetail, Set<? extends Trigger>> triggersAndJobs, boolean replace)
+    void storeJobsAndTriggers(Map<JobDetail, Set<? extends Trigger>> triggersAndJobs, boolean replace)
         throws ObjectAlreadyExistsException, JobPersistenceException;
 
     /**
@@ -170,7 +170,7 @@ public interface JobStore {
     boolean removeJob(JobKey jobKey) 
         throws JobPersistenceException;
     
-    public boolean removeJobs(List<JobKey> jobKeys) 
+    boolean removeJobs(List<JobKey> jobKeys)
         throws JobPersistenceException;
     
     /**
@@ -221,7 +221,7 @@ public interface JobStore {
      */
     boolean removeTrigger(TriggerKey triggerKey) throws JobPersistenceException;
 
-    public boolean removeTriggers(List<TriggerKey> triggerKeys)
+    boolean removeTriggers(List<TriggerKey> triggerKeys)
         throws JobPersistenceException;
 
     /**

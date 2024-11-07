@@ -49,7 +49,7 @@ import java.io.Serializable;
  */
 public interface JobDetail extends Serializable, Cloneable {
 
-    public JobKey getKey();
+    JobKey getKey();
 
     /**
      * <p>
@@ -59,21 +59,21 @@ public interface JobDetail extends Serializable, Cloneable {
      * 
      * @return null if no description was set.
      */
-    public String getDescription();
+    String getDescription();
 
     /**
      * <p>
      * Get the instance of <code>Job</code> that will be executed.
      * </p>
      */
-    public Class<? extends Job> getJobClass();
+    Class<? extends Job> getJobClass();
 
     /**
      * <p>
      * Get the <code>JobDataMap</code> that is associated with the <code>Job</code>.
      * </p>
      */
-    public JobDataMap getJobDataMap();
+    JobDataMap getJobDataMap();
 
     /**
      * <p>
@@ -88,19 +88,19 @@ public interface JobDetail extends Serializable, Cloneable {
      * @return <code>true</code> if the Job should remain persisted after
      *         being orphaned.
      */
-    public boolean isDurable();
+    boolean isDurable();
 
     /**
      * @see PersistJobDataAfterExecution
      * @return whether the associated Job class carries the {@link PersistJobDataAfterExecution} annotation.
      */
-    public boolean isPersistJobDataAfterExecution();
+    boolean isPersistJobDataAfterExecution();
 
     /**
      * @see DisallowConcurrentExecution
      * @return whether the associated Job class carries the {@link DisallowConcurrentExecution} annotation.
      */
-    public boolean isConcurrentExectionDisallowed();
+    boolean isConcurrentExectionDisallowed();
 
     /**
      * <p>
@@ -115,14 +115,14 @@ public interface JobDetail extends Serializable, Cloneable {
      * 
      * @see JobExecutionContext#isRecovering()
      */
-    public boolean requestsRecovery();
+    boolean requestsRecovery();
 
-    public Object clone();
+    Object clone();
     
     /**
      * Get a {@link JobBuilder} that is configured to produce a 
      * <code>JobDetail</code> identical to this one.
      */
-    public JobBuilder getJobBuilder();
+    JobBuilder getJobBuilder();
 
 }

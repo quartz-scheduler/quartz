@@ -73,7 +73,7 @@ public interface DriverDelegate {
      * @param initString of the format: settingName=settingValue|otherSettingName=otherSettingValue|...
      * @throws NoSuchDelegateException
      */
-    public void initialize(Logger logger, String tablePrefix, String schedName, String instanceId, ClassLoadHelper classLoadHelper, boolean useProperties, String initString) throws NoSuchDelegateException;
+    void initialize(Logger logger, String tablePrefix, String schedName, String instanceId, ClassLoadHelper classLoadHelper, boolean useProperties, String initString) throws NoSuchDelegateException;
 
     //---------------------------------------------------------------------------
     // startup / recovery
@@ -606,8 +606,8 @@ public interface DriverDelegate {
      * remove, we do not need to load the class, which in many cases, it's no longer exists.
      * </p>
      */
-    public JobDetail selectJobForTrigger(Connection conn, ClassLoadHelper loadHelper,
-        TriggerKey triggerKey, boolean loadJobClass) throws ClassNotFoundException, SQLException;
+    JobDetail selectJobForTrigger(Connection conn, ClassLoadHelper loadHelper,
+                                  TriggerKey triggerKey, boolean loadJobClass) throws ClassNotFoundException, SQLException;
 
     /**
      * <p>
@@ -946,7 +946,7 @@ public interface DriverDelegate {
      * @deprecated - This remained for compatibility reason. Use {@link #selectTriggerToAcquire(Connection, long, long, int)} instead. 
      */
     @Deprecated
-    public List<TriggerKey> selectTriggerToAcquire(Connection conn, long noLaterThan, long noEarlierThan)
+    List<TriggerKey> selectTriggerToAcquire(Connection conn, long noLaterThan, long noEarlierThan)
         throws SQLException;
     
     /**
@@ -966,7 +966,7 @@ public interface DriverDelegate {
      *          
      * @return A (never null, possibly empty) list of the identifiers (Key objects) of the next triggers to be fired.
      */
-    public List<TriggerKey> selectTriggerToAcquire(Connection conn, long noLaterThan, long noEarlierThan, int maxCount)
+    List<TriggerKey> selectTriggerToAcquire(Connection conn, long noLaterThan, long noEarlierThan, int maxCount)
         throws SQLException;
 
     /**

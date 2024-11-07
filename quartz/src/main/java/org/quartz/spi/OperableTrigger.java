@@ -24,7 +24,7 @@ public interface OperableTrigger extends MutableTrigger {
      * 
      * @see #executionComplete(JobExecutionContext, JobExecutionException)
      */
-    public void triggered(Calendar calendar);
+    void triggered(Calendar calendar);
 
     /**
      * <p>
@@ -46,7 +46,7 @@ public interface OperableTrigger extends MutableTrigger {
      *         by the scheduler, which is also the same value <code>getNextFireTime()</code>
      *         will return (until after the first firing of the <code>Trigger</code>).
      */
-    public Date computeFirstFireTime(Calendar calendar);
+    Date computeFirstFireTime(Calendar calendar);
 
     /**
      * <p>
@@ -70,7 +70,7 @@ public interface OperableTrigger extends MutableTrigger {
      * @see CompletedExecutionInstruction
      * @see #triggered(Calendar)
      */
-    public CompletedExecutionInstruction executionComplete(JobExecutionContext context, JobExecutionException result);
+    CompletedExecutionInstruction executionComplete(JobExecutionContext context, JobExecutionException result);
 
     /**
      * <p>
@@ -87,7 +87,7 @@ public interface OperableTrigger extends MutableTrigger {
      * was created.
      * </p>
      */
-    public void updateAfterMisfire(Calendar cal);
+    void updateAfterMisfire(Calendar cal);
 
     /**
      * <p>
@@ -107,7 +107,7 @@ public interface OperableTrigger extends MutableTrigger {
      * 
      * @param cal
      */
-    public void updateWithNewCalendar(Calendar cal, long misfireThreshold);
+    void updateWithNewCalendar(Calendar cal, long misfireThreshold);
 
     
     /**
@@ -119,7 +119,7 @@ public interface OperableTrigger extends MutableTrigger {
      *           if a required property (such as Name, Group, Class) is not
      *           set.
      */
-    public void validate() throws SchedulerException;
+    void validate() throws SchedulerException;
     
 
     /**
@@ -135,17 +135,17 @@ public interface OperableTrigger extends MutableTrigger {
      * 
      *  
      */
-    public void setFireInstanceId(String id);
+    void setFireInstanceId(String id);
     
     /**
      * <p>
      * This method should not be used by the Quartz client.
      * </p>
      */
-    public String getFireInstanceId();
+    String getFireInstanceId();
 
     
-    public void setNextFireTime(Date nextFireTime);
+    void setNextFireTime(Date nextFireTime);
     
-    public void setPreviousFireTime(Date previousFireTime);
+    void setPreviousFireTime(Date previousFireTime);
 }
