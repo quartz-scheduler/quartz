@@ -20,17 +20,8 @@ package org.quartz;
 
 import java.io.Serializable;
 import java.text.ParseException;
+import java.util.*;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.SortedSet;
-import java.util.StringTokenizer;
-import java.util.TimeZone;
-import java.util.TreeSet;
 
 /**
  * Provides a parser and evaluator for unix-like cron expressions. Cron 
@@ -209,23 +200,23 @@ public final class CronExpression implements Serializable, Cloneable {
 
     private static final long serialVersionUID = 12423409423L;
     
-    protected static final int SECOND = 0;
-    protected static final int MINUTE = 1;
-    protected static final int HOUR = 2;
-    protected static final int DAY_OF_MONTH = 3;
-    protected static final int MONTH = 4;
-    protected static final int DAY_OF_WEEK = 5;
-    protected static final int YEAR = 6;
-    protected static final int ALL_SPEC_INT = 99; // '*'
-    protected static final int NO_SPEC_INT = 98; // '?'
-    protected static final int MAX_LAST_DAY_OFFSET = 30;
-    protected static final int LAST_DAY_OFFSET_START = 32; // "L-30"
-    protected static final int LAST_DAY_OFFSET_END = LAST_DAY_OFFSET_START + MAX_LAST_DAY_OFFSET; // 'L'
-    protected static final Integer ALL_SPEC = ALL_SPEC_INT;
-    protected static final Integer NO_SPEC = NO_SPEC_INT;
+    private static final int SECOND = 0;
+    private static final int MINUTE = 1;
+    private static final int HOUR = 2;
+    private static final int DAY_OF_MONTH = 3;
+    private static final int MONTH = 4;
+    private static final int DAY_OF_WEEK = 5;
+    private static final int YEAR = 6;
+    private static final int ALL_SPEC_INT = 99; // '*'
+    private static final int NO_SPEC_INT = 98; // '?'
+    private static final int MAX_LAST_DAY_OFFSET = 30;
+    private static final int LAST_DAY_OFFSET_START = 32; // "L-30"
+    private static final int LAST_DAY_OFFSET_END = LAST_DAY_OFFSET_START + MAX_LAST_DAY_OFFSET; // 'L'
+    private static final Integer ALL_SPEC = ALL_SPEC_INT;
+    private static final Integer NO_SPEC = NO_SPEC_INT;
     
-    protected static final Map<String, Integer> monthMap = new HashMap<>(20);
-    protected static final Map<String, Integer> dayMap = new HashMap<>(60);
+    private static final Map<String, Integer> monthMap = new HashMap<>(20);
+    private static final Map<String, Integer> dayMap = new HashMap<>(60);
     static {
         monthMap.put("JAN", 0);
         monthMap.put("FEB", 1);
@@ -476,10 +467,9 @@ public final class CronExpression implements Serializable, Cloneable {
 
             int exprOn = SECOND;
 
-            StringTokenizer exprsTok = new StringTokenizer(expression, " \t",
-                    false);
+            StringTokenizer exprsTok = new StringTokenizer(expression, " \t", false);
 
-            if(exprsTok.countTokens() > 7) {
+            if (exprsTok.countTokens() > 7) {
                 throw new ParseException("Invalid expression has too many terms: " + expression, -1);
             }
 
@@ -487,13 +477,13 @@ public final class CronExpression implements Serializable, Cloneable {
                 String expr = exprsTok.nextToken().trim();
 
                 // throw an exception if L is used with other days of the week
-                if(exprOn == DAY_OF_WEEK && expr.indexOf('L') != -1 && expr.length() > 1  && expr.contains(",")) {
+                if (exprOn == DAY_OF_WEEK && expr.indexOf('L') != -1 && expr.length() > 1 && expr.contains(",")) {
                     throw new ParseException("Support for specifying 'L' with other days of the week is not implemented", -1);
                 }
-                if(exprOn == DAY_OF_WEEK && expr.indexOf('#') != -1 && expr.indexOf('#', expr.indexOf('#') +1) != -1) {
+                if (exprOn == DAY_OF_WEEK && expr.indexOf('#') != -1 && expr.indexOf('#', expr.indexOf('#') + 1) != -1) {
                     throw new ParseException("Support for specifying multiple \"nth\" days is not implemented.", -1);
                 }
-                
+
                 StringTokenizer vTok = new StringTokenizer(expr, ",");
                 while (vTok.hasMoreTokens()) {
                     String v = vTok.nextToken();
@@ -504,8 +494,7 @@ public final class CronExpression implements Serializable, Cloneable {
             }
 
             if (exprOn <= DAY_OF_WEEK) {
-                throw new ParseException("Unexpected end of expression.",
-                            expression.length());
+                throw new ParseException("Unexpected end of expression.", expression.length());
             }
 
             if (exprOn <= YEAR) {
@@ -519,17 +508,14 @@ public final class CronExpression implements Serializable, Cloneable {
             boolean dayOfMSpec = !dom.contains(NO_SPEC);
             boolean dayOfWSpec = !dow.contains(NO_SPEC);
 
-            if (!dayOfMSpec || dayOfWSpec) {
-                if (!dayOfWSpec || dayOfMSpec) {
-                    throw new ParseException(
-                            "Support for specifying both a day-of-week AND a day-of-month parameter is not implemented.", 0);
+            if ((!dayOfMSpec || dayOfWSpec) && (!dayOfWSpec || dayOfMSpec)) {
+                    throw new ParseException("Support for specifying both a day-of-week AND a day-of-month parameter is not implemented.", 0);
                 }
-            }
+
         } catch (ParseException pe) {
             throw pe;
         } catch (Exception e) {
-            throw new ParseException("Illegal cron expression format ("
-                    + e + ")", 0);
+            throw new ParseException("Illegal cron expression format (" + e + ")", 0);
         }
     }
 
@@ -542,6 +528,11 @@ public final class CronExpression implements Serializable, Cloneable {
             return i;
         }
         char c = s.charAt(i);
+        if (c == '~') {
+            int randomValue = getRandomValue(type);
+            addToSet(randomValue, -1, incr, type);
+            return i + 1;
+        }
         if ((c >= 'A') && (c <= 'Z') && (!s.equals("L")) && (!s.equals("LW")) && (!s.matches("^L-[0-9]*[W]?"))) {
             String sub = s.substring(i, i + 3);
             int sval = -1;
@@ -1623,7 +1614,26 @@ public final class CronExpression implements Serializable, Cloneable {
             buildExpression(cronExpression);
         } catch (Exception ignore) {
         } // never happens
-    }    
+    }
+
+    private int getRandomValue(int type) {
+        Random random = new Random();
+        switch (type) {
+            case SECOND:
+            case MINUTE:
+                return random.nextInt(60);
+            case HOUR:
+                return random.nextInt(24);
+            case DAY_OF_MONTH:
+                return random.nextInt(31) + 1;
+            case MONTH:
+                return random.nextInt(12) + 1;
+            case DAY_OF_WEEK:
+                return random.nextInt(7) + 1;
+            default:
+                throw new IllegalArgumentException("Unexpected type encountered");
+        }
+    }
     
     @Override
     @Deprecated
