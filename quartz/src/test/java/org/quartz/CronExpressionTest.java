@@ -528,7 +528,113 @@ public class CronExpressionTest extends SerializationTestSupport {
             assertEquals("'/' must be followed by an integer.", e.getMessage());
         }
     }
-    
+
+    /*
+     * QUARTZ-1074: Random startup time using ~ within cron expressions
+     * see: https://man.openbsd.org/crontab.5
+     */
+    @Test
+    void testRandomSeconds() throws ParseException {
+        CronExpression cronExpression = new CronExpression("~ 0 0 1 1 ?");
+        Date nextValidTime = cronExpression.getNextValidTimeAfter(new Date());
+        assertNotNull(nextValidTime);
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(nextValidTime);
+        assertEquals(0, cal.get(Calendar.MINUTE));
+        assertEquals(0, cal.get(Calendar.HOUR_OF_DAY));
+        assertEquals(1, cal.get(Calendar.DAY_OF_MONTH));
+        assertEquals(Calendar.JANUARY, cal.get(Calendar.MONTH));
+        assertTrue(cal.get(Calendar.SECOND) >= 0 && cal.get(Calendar.SECOND) < 60);
+    }
+
+    /*
+     * QUARTZ-1074: Random startup time using ~ within cron expressions
+     * see: https://man.openbsd.org/crontab.5
+     */
+    @Test
+    void testRandomMinutes() throws ParseException {
+        CronExpression cronExpression = new CronExpression("0 ~ 0 1 1 ?");
+        Date nextValidTime = cronExpression.getNextValidTimeAfter(new Date());
+        assertNotNull(nextValidTime);
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(nextValidTime);
+        assertEquals(0, cal.get(Calendar.SECOND));
+        assertEquals(0, cal.get(Calendar.HOUR_OF_DAY));
+        assertEquals(1, cal.get(Calendar.DAY_OF_MONTH));
+        assertEquals(Calendar.JANUARY, cal.get(Calendar.MONTH));
+        assertTrue(cal.get(Calendar.MINUTE) >= 0 && cal.get(Calendar.MINUTE) < 60);
+    }
+
+    /*
+     * QUARTZ-1074: Random startup time using ~ within cron expressions
+     * see: https://man.openbsd.org/crontab.5
+     */
+    @Test
+    void testRandomHours() throws ParseException {
+        CronExpression cronExpression = new CronExpression("0 0 ~ 1 1 ?");
+        Date nextValidTime = cronExpression.getNextValidTimeAfter(new Date());
+        assertNotNull(nextValidTime);
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(nextValidTime);
+        assertEquals(0, cal.get(Calendar.SECOND));
+        assertEquals(0, cal.get(Calendar.MINUTE));
+        assertEquals(1, cal.get(Calendar.DAY_OF_MONTH));
+        assertEquals(Calendar.JANUARY, cal.get(Calendar.MONTH));
+        assertTrue(cal.get(Calendar.HOUR_OF_DAY) >= 0 && cal.get(Calendar.HOUR_OF_DAY) < 24);
+    }
+
+    /*
+     * QUARTZ-1074: Random startup time using ~ within cron expressions
+     * see: https://man.openbsd.org/crontab.5
+     */
+    @Test
+    void testRandomDayOfMonth() throws ParseException {
+        CronExpression cronExpression = new CronExpression("* * * ~ * ?");
+        Date nextValidTime = cronExpression.getNextValidTimeAfter(new Date());
+        assertNotNull(nextValidTime);
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(nextValidTime);
+        int year = cal.get(Calendar.YEAR);
+        int month = cal.get(Calendar.MONTH);
+        int dayOfMonth = cal.get(Calendar.DAY_OF_MONTH);
+        int lastDayOfMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+
+        assertTrue(dayOfMonth <= lastDayOfMonth,
+                "Day of month " + dayOfMonth + " is out of range for month " + (month + 1) + " and year " + year);
+    }
+
+    /*
+     * QUARTZ-1074: Random startup time using ~ within cron expressions
+     * see: https://man.openbsd.org/crontab.5
+     */
+    @Test
+    void testRandomMonth() throws ParseException {
+        CronExpression cronExpression = new CronExpression("* * * * ~ ?");
+        Date nextValidTime = cronExpression.getNextValidTimeAfter(new Date());
+        assertNotNull(nextValidTime);
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(nextValidTime);
+        cal.get(Calendar.MONTH);
+        assertTrue(cal.get(Calendar.MONTH) <= Calendar.DECEMBER);
+    }
+
+    /*
+     * QUARTZ-1074: Random startup time using ~ within cron expressions
+     * see: https://man.openbsd.org/crontab.5
+     */
+    @Test
+    void testRandomDayOfWeek() throws ParseException {
+        CronExpression cronExpression = new CronExpression("0 0 12 ? * ~");
+        Date nextValidTime = cronExpression.getNextValidTimeAfter(new Date());
+        assertNotNull(nextValidTime);
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(nextValidTime);
+        assertEquals(0, cal.get(Calendar.SECOND));
+        assertEquals(0, cal.get(Calendar.MINUTE));
+        assertEquals(12, cal.get(Calendar.HOUR_OF_DAY));
+        assertTrue(cal.get(Calendar.DAY_OF_WEEK) >= Calendar.SUNDAY && cal.get(Calendar.DAY_OF_WEEK) <= Calendar.SATURDAY);
+    }
+
     // execute with version number to generate a new version's serialized form
     public static void main(String[] args) throws Exception {
         new CronExpressionTest().writeJobDataFile("1.5.2");
