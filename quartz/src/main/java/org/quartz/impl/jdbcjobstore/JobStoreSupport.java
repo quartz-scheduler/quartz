@@ -970,16 +970,26 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         }
 
         for (TriggerKey triggerKey: misfiredTriggers) {
-            
-            OperableTrigger trig = 
-                retrieveTrigger(conn, triggerKey);
+
+            OperableTrigger trig;
+
+            try {
+                trig = retrieveTrigger(conn, triggerKey);
+            } catch (Exception e) {
+                getLog().error("Error retrieving the misfired trigger: {}", triggerKey, e);
+                continue;
+            }
 
             if (trig == null) {
                 continue;
             }
 
-            doUpdateOfMisfiredTrigger(conn, trig, false, STATE_WAITING, recovering);
-
+            try {
+                doUpdateOfMisfiredTrigger(conn, trig, false, STATE_WAITING, recovering);
+            } catch (Exception e) {
+                getLog().error("Error updating misfired trigger: {}", trig.getKey(), e);
+                continue;
+            }
             if(trig.getNextFireTime() != null && trig.getNextFireTime().getTime() < earliestNewTime)
                 earliestNewTime = trig.getNextFireTime().getTime();
         }
