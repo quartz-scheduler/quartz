@@ -2361,10 +2361,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                 return;
             }
 
-            boolean blocked = false;
-            if(STATE_PAUSED_BLOCKED.equals(status.getStatus())) {
-                blocked = true;
-            }
+            boolean blocked = STATE_PAUSED_BLOCKED.equals(status.getStatus());
 
             String newState = checkBlockedState(conn, status.getJobKey(), STATE_WAITING);
 

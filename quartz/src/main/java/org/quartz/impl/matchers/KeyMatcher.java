@@ -70,11 +70,8 @@ public class KeyMatcher<T extends Key<?>> implements Matcher<T> {
             return false;
         KeyMatcher<?> other = (KeyMatcher<?>) obj;
         if (compareTo == null) {
-            if (other.compareTo != null)
-                return false;
-        } else if (!compareTo.equals(other.compareTo))
-            return false;
-        return true;
+            return other.compareTo == null;
+        } else return compareTo.equals(other.compareTo);
     }
     
 }

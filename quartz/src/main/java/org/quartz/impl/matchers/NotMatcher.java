@@ -72,10 +72,7 @@ public class NotMatcher<T extends Key<?>> implements Matcher<T> {
             return false;
         NotMatcher<?> other = (NotMatcher<?>) obj;
         if (operand == null) {
-            if (other.operand != null)
-                return false;
-        } else if (!operand.equals(other.operand))
-            return false;
-        return true;
+            return other.operand == null;
+        } else return operand.equals(other.operand);
     }
 }

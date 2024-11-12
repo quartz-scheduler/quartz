@@ -173,7 +173,7 @@ public class BaseCalendar implements Calendar, Serializable, Cloneable {
         }
 
         if (baseCalendar != null) {
-            if (!baseCalendar.isTimeIncluded(timeStamp)) { return false; }
+            return baseCalendar.isTimeIncluded(timeStamp);
         }
 
         return true;
