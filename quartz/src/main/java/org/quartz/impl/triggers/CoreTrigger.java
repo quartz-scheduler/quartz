@@ -25,6 +25,6 @@ import org.quartz.Trigger;
  */
 public interface CoreTrigger extends Trigger {
 
-    public boolean hasAdditionalProperties();
+    boolean hasAdditionalProperties();
     
 }

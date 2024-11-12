@@ -30,9 +30,9 @@ import org.quartz.TriggerKey;
 
 public interface MutableTrigger extends Trigger {
 
-    public void setKey(TriggerKey key);
+    void setKey(TriggerKey key);
 
-    public void setJobKey(JobKey key);
+    void setJobKey(JobKey key);
 
     /**
      * <p>
@@ -41,7 +41,7 @@ public interface MutableTrigger extends Trigger {
      * description has no meaning to Quartz.
      * </p>
      */
-    public void setDescription(String description);
+    void setDescription(String description);
 
     /**
      * <p>
@@ -52,7 +52,7 @@ public interface MutableTrigger extends Trigger {
      * @param calendarName
      *          use <code>null</code> to dis-associate a Calendar.
      */
-    public void setCalendarName(String calendarName);
+    void setCalendarName(String calendarName);
 
     /**
      * <p>
@@ -60,7 +60,7 @@ public interface MutableTrigger extends Trigger {
      * <code>Trigger</code>.
      * </p>
      */
-    public void setJobDataMap(JobDataMap jobDataMap);
+    void setJobDataMap(JobDataMap jobDataMap);
 
     /**
      * The priority of a <code>Trigger</code> acts as a tie breaker such that if 
@@ -74,7 +74,7 @@ public interface MutableTrigger extends Trigger {
      * 
      * @see #DEFAULT_PRIORITY
      */
-    public void setPriority(int priority);
+    void setPriority(int priority);
 
     /**
      * <p>
@@ -89,7 +89,7 @@ public interface MutableTrigger extends Trigger {
      * of the trigger.
      * </p>
      */
-    public void setStartTime(Date startTime);
+    void setStartTime(Date startTime);
 
     /**
      * <p>
@@ -100,7 +100,7 @@ public interface MutableTrigger extends Trigger {
      * 
      * @see org.quartz.TriggerUtils#computeEndTimeToAllowParticularNumberOfFirings(org.quartz.spi.OperableTrigger, org.quartz.Calendar, int) 
      */
-    public void setEndTime(Date endTime);
+    void setEndTime(Date endTime);
 
     /**
      * <p>
@@ -120,9 +120,9 @@ public interface MutableTrigger extends Trigger {
      * @see SimpleTrigger
      * @see CronTrigger
      */
-    public void setMisfireInstruction(int misfireInstruction);
+    void setMisfireInstruction(int misfireInstruction);
 
 
-    public Object clone();
+    Object clone();
 
 }

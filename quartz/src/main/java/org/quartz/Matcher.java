@@ -33,7 +33,7 @@ public interface Matcher<T extends Key<?>> extends Serializable {
 
     boolean isMatch(T key);
  
-    public int hashCode();
+    int hashCode();
 
-    public boolean equals(Object obj);
+    boolean equals(Object obj);
 }

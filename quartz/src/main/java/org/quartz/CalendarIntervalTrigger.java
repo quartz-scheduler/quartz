@@ -58,7 +58,7 @@ public interface CalendarIntervalTrigger extends Trigger {
      * fired now by <code>Scheduler</code>.
      * </p>
      */
-    public static final int MISFIRE_INSTRUCTION_FIRE_ONCE_NOW = 1;
+    int MISFIRE_INSTRUCTION_FIRE_ONCE_NOW = 1;
     /**
      * <p>
      * Instructs the <code>{@link Scheduler}</code> that upon a mis-fire
@@ -68,12 +68,12 @@ public interface CalendarIntervalTrigger extends Trigger {
      * but it does not want to be fired now.
      * </p>
      */
-    public static final int MISFIRE_INSTRUCTION_DO_NOTHING = 2;
+    int MISFIRE_INSTRUCTION_DO_NOTHING = 2;
 
     /**
      * <p>Get the interval unit - the time unit on with the interval applies.</p>
      */
-    public IntervalUnit getRepeatIntervalUnit();
+    IntervalUnit getRepeatIntervalUnit();
 
     /**
      * <p>
@@ -82,7 +82,7 @@ public interface CalendarIntervalTrigger extends Trigger {
      * next trigger repeat.
      * </p>
      */
-    public int getRepeatInterval();
+    int getRepeatInterval();
 
     /**
      * <p>
@@ -90,7 +90,7 @@ public interface CalendarIntervalTrigger extends Trigger {
      * fired.
      * </p>
      */
-    public int getTimesTriggered();
+    int getTimesTriggered();
 
     /**
      * <p>
@@ -102,7 +102,7 @@ public interface CalendarIntervalTrigger extends Trigger {
      * If null, the system default TimeZone will be used.
      * </p>
      */
-    public TimeZone getTimeZone();
+    TimeZone getTimeZone();
     
     
     /**
@@ -131,7 +131,7 @@ public interface CalendarIntervalTrigger extends Trigger {
      * @see #getStartTime()
      * @see #getTimeZone()
      */
-    public boolean isPreserveHourOfDayAcrossDaylightSavings();
+    boolean isPreserveHourOfDayAcrossDaylightSavings();
     
     /**
      * If intervals are a day or greater, and 
@@ -153,7 +153,7 @@ public interface CalendarIntervalTrigger extends Trigger {
      * 
      * @see #isPreserveHourOfDayAcrossDaylightSavings()
      */
-    public boolean isSkipDayIfHourDoesNotExist();
+    boolean isSkipDayIfHourDoesNotExist();
     
     
     TriggerBuilder<CalendarIntervalTrigger> getTriggerBuilder();

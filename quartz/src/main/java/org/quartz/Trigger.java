@@ -57,9 +57,9 @@ import java.util.Date;
  */
 public interface Trigger extends Serializable, Cloneable, Comparable<Trigger> {
 
-    public static final long serialVersionUID = -3904243490805975570L;
+    long serialVersionUID = -3904243490805975570L;
     
-    public enum TriggerState { NONE, NORMAL, PAUSED, COMPLETE, ERROR, BLOCKED }
+    enum TriggerState { NONE, NORMAL, PAUSED, COMPLETE, ERROR, BLOCKED }
     
     /**
      * <p><code>NOOP</code> Instructs the <code>{@link Scheduler}</code> that the 
@@ -88,7 +88,7 @@ public interface Trigger extends Serializable, Cloneable, Comparable<Trigger> {
      * <p><code>SET_ALL_JOB_TRIGGERS_ERROR</code> Instructs the <code>{@link Scheduler}</code> that 
      * the <code>Trigger</code> should be put in the <code>ERROR</code> state.</p>
      */
-    public enum CompletedExecutionInstruction { NOOP, RE_EXECUTE_JOB, SET_TRIGGER_COMPLETE, DELETE_TRIGGER, 
+    enum CompletedExecutionInstruction { NOOP, RE_EXECUTE_JOB, SET_TRIGGER_COMPLETE, DELETE_TRIGGER,
         SET_ALL_JOB_TRIGGERS_COMPLETE, SET_TRIGGER_ERROR, SET_ALL_JOB_TRIGGERS_ERROR }
 
     /**
@@ -103,7 +103,7 @@ public interface Trigger extends Serializable, Cloneable, Comparable<Trigger> {
      * on the particular <code>Trigger</code> implementation you are using.
      * </p>
      */
-    public static final int MISFIRE_INSTRUCTION_SMART_POLICY = 0;
+    int MISFIRE_INSTRUCTION_SMART_POLICY = 0;
     
     /**
      * Instructs the <code>{@link Scheduler}</code> that the 
@@ -118,16 +118,16 @@ public interface Trigger extends Serializable, Cloneable, Comparable<Trigger> {
      * misfired for 5 minutes will fire 20 times once it gets the chance to 
      * fire.</p>
      */
-    public static final int MISFIRE_INSTRUCTION_IGNORE_MISFIRE_POLICY = -1;
+    int MISFIRE_INSTRUCTION_IGNORE_MISFIRE_POLICY = -1;
     
     /**
      * The default value for priority.
      */
-    public static final int DEFAULT_PRIORITY = 5;
+    int DEFAULT_PRIORITY = 5;
 
-    public TriggerKey getKey();
+    TriggerKey getKey();
 
-    public JobKey getJobKey();
+    JobKey getJobKey();
     
     /**
      * Return the description given to the <code>Trigger</code> instance by
@@ -135,7 +135,7 @@ public interface Trigger extends Serializable, Cloneable, Comparable<Trigger> {
      * 
      * @return null if no description was set.
      */
-    public String getDescription();
+    String getDescription();
 
     /**
      * Get the name of the <code>{@link Calendar}</code> associated with this
@@ -143,7 +143,7 @@ public interface Trigger extends Serializable, Cloneable, Comparable<Trigger> {
      * 
      * @return <code>null</code> if there is no associated Calendar.
      */
-    public String getCalendarName();
+    String getCalendarName();
 
     /**
      * Get the <code>JobDataMap</code> that is associated with the 
@@ -154,7 +154,7 @@ public interface Trigger extends Serializable, Cloneable, Comparable<Trigger> {
      * in fact typically result in an <code>IllegalStateException</code>.
      * </p>
      */
-    public JobDataMap getJobDataMap();
+    JobDataMap getJobDataMap();
 
     /**
      * The priority of a <code>Trigger</code> acts as a tiebreaker such that if 
@@ -168,7 +168,7 @@ public interface Trigger extends Serializable, Cloneable, Comparable<Trigger> {
      * 
      * @see #DEFAULT_PRIORITY
      */
-    public int getPriority();
+    int getPriority();
 
     /**
      * Used by the <code>{@link Scheduler}</code> to determine whether or not
@@ -179,12 +179,12 @@ public interface Trigger extends Serializable, Cloneable, Comparable<Trigger> {
      * may remove the <code>Trigger</code> from the <code>{@link org.quartz.spi.JobStore}</code>.
      * </p>
      */
-    public boolean mayFireAgain();
+    boolean mayFireAgain();
 
     /**
      * Get the time at which the <code>Trigger</code> should occur.
      */
-    public Date getStartTime();
+    Date getStartTime();
 
     /**
      * Get the time at which the <code>Trigger</code> should quit repeating -
@@ -193,7 +193,7 @@ public interface Trigger extends Serializable, Cloneable, Comparable<Trigger> {
      * 
      * @see #getFinalFireTime()
      */
-    public Date getEndTime();
+    Date getEndTime();
 
     /**
      * Returns the next time at which the <code>Trigger</code> is scheduled to fire. If
@@ -209,20 +209,20 @@ public interface Trigger extends Serializable, Cloneable, Comparable<Trigger> {
      *
      * @see TriggerUtils#computeFireTimesBetween(org.quartz.spi.OperableTrigger, Calendar, java.util.Date, java.util.Date)
      */
-    public Date getNextFireTime();
+    Date getNextFireTime();
 
     /**
      * Returns the previous time at which the <code>Trigger</code> fired.
      * If the trigger has not yet fired, <code>null</code> will be returned.
      */
-    public Date getPreviousFireTime();
+    Date getPreviousFireTime();
 
     /**
      * Returns the next time at which the <code>Trigger</code> will fire,
      * after the given time. If the trigger will not fire after the given time,
      * <code>null</code> will be returned.
      */
-    public Date getFireTimeAfter(Date afterTime);
+    Date getFireTimeAfter(Date afterTime);
 
     /**
      * Returns the last time at which the <code>Trigger</code> will fire, if
@@ -232,7 +232,7 @@ public interface Trigger extends Serializable, Cloneable, Comparable<Trigger> {
      * Note that the return time *may* be in the past.
      * </p>
      */
-    public Date getFinalFireTime();
+    Date getFinalFireTime();
 
     /**
      * Get the instruction the <code>Scheduler</code> should be given for
@@ -249,7 +249,7 @@ public interface Trigger extends Serializable, Cloneable, Comparable<Trigger> {
      * @see SimpleTrigger
      * @see CronTrigger
      */
-    public int getMisfireInstruction();
+    int getMisfireInstruction();
 
     /**
      * Get a {@link TriggerBuilder} that is configured to produce a 
@@ -257,7 +257,7 @@ public interface Trigger extends Serializable, Cloneable, Comparable<Trigger> {
      * 
      * @see #getScheduleBuilder()
      */
-    public TriggerBuilder<? extends Trigger> getTriggerBuilder();
+    TriggerBuilder<? extends Trigger> getTriggerBuilder();
     
     /**
      * Get a {@link ScheduleBuilder} that is configured to produce a 
@@ -265,14 +265,14 @@ public interface Trigger extends Serializable, Cloneable, Comparable<Trigger> {
      * 
      * @see #getTriggerBuilder()
      */
-    public ScheduleBuilder<? extends Trigger> getScheduleBuilder();
+    ScheduleBuilder<? extends Trigger> getScheduleBuilder();
 
     /**
      * Trigger equality is based upon the equality of the TriggerKey.
      * 
      * @return true if the key of this Trigger equals that of the given Trigger.
      */
-    public boolean equals(Object other);
+    boolean equals(Object other);
     
     /**
      * <p>
@@ -281,7 +281,7 @@ public interface Trigger extends Serializable, Cloneable, Comparable<Trigger> {
      * according to the natural (i.e. alphabetical) order of their keys.
      * </p>
      */
-    public int compareTo(Trigger other);
+    int compareTo(Trigger other);
 
     /**
      * A Comparator that compares trigger's next fire times, or in other words,

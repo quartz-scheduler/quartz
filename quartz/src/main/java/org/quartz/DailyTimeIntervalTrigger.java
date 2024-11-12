@@ -60,7 +60,7 @@ public interface DailyTimeIntervalTrigger extends Trigger {
      * ending timestamp.
      * </p>
      */
-    public static final int REPEAT_INDEFINITELY = -1;
+    int REPEAT_INDEFINITELY = -1;
     
     /**
      * <p>
@@ -69,7 +69,7 @@ public interface DailyTimeIntervalTrigger extends Trigger {
      * fired now by <code>Scheduler</code>.
      * </p>
      */
-    public static final int MISFIRE_INSTRUCTION_FIRE_ONCE_NOW = 1;
+    int MISFIRE_INSTRUCTION_FIRE_ONCE_NOW = 1;
     
     /**
      * <p>
@@ -80,7 +80,7 @@ public interface DailyTimeIntervalTrigger extends Trigger {
      * but it does not want to be fired now.
      * </p>
      */
-    public static final int MISFIRE_INSTRUCTION_DO_NOTHING = 2;
+    int MISFIRE_INSTRUCTION_DO_NOTHING = 2;
 
     /**
      * <p>Get the interval unit - the time unit on with the interval applies.</p>
@@ -88,7 +88,7 @@ public interface DailyTimeIntervalTrigger extends Trigger {
      * <p>The only intervals that are valid for this type of trigger are {@link IntervalUnit#SECOND},
      * {@link IntervalUnit#MINUTE}, and {@link IntervalUnit#HOUR}.</p>
      */
-    public IntervalUnit getRepeatIntervalUnit();
+    IntervalUnit getRepeatIntervalUnit();
     
     /**
      * <p>
@@ -98,7 +98,7 @@ public interface DailyTimeIntervalTrigger extends Trigger {
      * 
      * @see #REPEAT_INDEFINITELY
      */
-    public int getRepeatCount();
+    int getRepeatCount();
 
     /**
      * <p>
@@ -107,17 +107,17 @@ public interface DailyTimeIntervalTrigger extends Trigger {
      * next trigger repeat.
      * </p>
      */
-    public int getRepeatInterval();
+    int getRepeatInterval();
     
     /**
      * The time of day to start firing at the given interval.
      */
-    public TimeOfDay getStartTimeOfDay();
+    TimeOfDay getStartTimeOfDay();
     
     /**
      * The time of day to complete firing at the given interval.
      */
-    public TimeOfDay getEndTimeOfDay();
+    TimeOfDay getEndTimeOfDay();
 
     /**
      * The days of the week upon which to fire.
@@ -125,7 +125,7 @@ public interface DailyTimeIntervalTrigger extends Trigger {
      * @return a Set containing the integers representing the days of the week, per the values 1-7 as defined by 
      * {@link java.util.Calendar#SUNDAY} - {@link java.util.Calendar#SATURDAY}. 
      */
-    public Set<Integer> getDaysOfWeek();
+    Set<Integer> getDaysOfWeek();
     
     /**
      * <p>
@@ -133,7 +133,7 @@ public interface DailyTimeIntervalTrigger extends Trigger {
      * fired.
      * </p>
      */
-    public int getTimesTriggered();
+    int getTimesTriggered();
 
-    public TriggerBuilder<DailyTimeIntervalTrigger> getTriggerBuilder();
+    TriggerBuilder<DailyTimeIntervalTrigger> getTriggerBuilder();
 }
