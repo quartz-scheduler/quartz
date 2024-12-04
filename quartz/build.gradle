@@ -43,7 +43,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-params'
     testImplementation 'org.mockito:mockito-core:5.14.2'
     testImplementation 'org.testcontainers:mssqlserver:1.20.3'
-    testImplementation 'com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11'
+    testImplementation 'com.microsoft.sqlserver:mssql-jdbc:12.9.0.jre11-preview'
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 
