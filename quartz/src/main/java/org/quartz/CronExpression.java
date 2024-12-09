@@ -1601,7 +1601,7 @@ public final class CronExpression implements Serializable, Cloneable {
 
         final int lastDay = getLastDayOfMonth(mon, year);
         // For "L", "L-1", etc.
-        int smallestDay = Optional.ofNullable(set.ceiling(LAST_DAY_OFFSET_END - (lastDay - day)))
+        final int smallestDay = Optional.ofNullable(set.ceiling(LAST_DAY_OFFSET_END - (lastDay - day)))
             .map(d -> d - LAST_DAY_OFFSET_START + 1)
             .orElse(Integer.MAX_VALUE);
 
@@ -1609,10 +1609,14 @@ public final class CronExpression implements Serializable, Cloneable {
         SortedSet<Integer> st = set.subSet(day, LAST_DAY_OFFSET_START);
         // make sure we don't over-run a short month, such as february
         if (!st.isEmpty() && st.first() < smallestDay && st.first() <= lastDay) {
-           smallestDay = st.first();
+           return Optional.of(st.first());
         }
 
-        return smallestDay == Integer.MAX_VALUE ? Optional.empty() : Optional.of(smallestDay);
+        if (smallestDay == Integer.MAX_VALUE) {
+            return Optional.empty();
+        } else {
+            return Optional.of(smallestDay + lastDay - LAST_DAY_OFFSET_START + 1);
+        }
     }
 
     private void readObject(java.io.ObjectInputStream stream)
