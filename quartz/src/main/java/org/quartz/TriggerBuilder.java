@@ -18,6 +18,9 @@
 
 package org.quartz;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 import org.quartz.spi.MutableTrigger;
@@ -25,41 +28,41 @@ import org.quartz.utils.Key;
 
 /**
  * <code>TriggerBuilder</code> is used to instantiate {@link Trigger}s.
- * 
- * <p>The builder will always try to keep itself in a valid state, with 
+ *
+ * <p>The builder will always try to keep itself in a valid state, with
  * reasonable defaults set for calling build() at any point.  For instance
  * if you do not invoke <i>withSchedule(..)</i> method, a default schedule
  * of firing once immediately will be used.  As another example, if you
  * do not invoked <i>withIdentity(..)</i> a trigger name will be generated
  * for you.</p>
- *  
+ *
  * <p>Quartz provides a builder-style API for constructing scheduling-related
  * entities via a Domain-Specific Language (DSL).  The DSL can best be
  * utilized through the usage of static imports of the methods on the classes
- * <code>TriggerBuilder</code>, <code>JobBuilder</code>, 
- * <code>DateBuilder</code>, <code>JobKey</code>, <code>TriggerKey</code> 
+ * <code>TriggerBuilder</code>, <code>JobBuilder</code>,
+ * <code>DateBuilder</code>, <code>JobKey</code>, <code>TriggerKey</code>
  * and the various <code>ScheduleBuilder</code> implementations.</p>
- * 
+ *
  * <p>Client code can then use the DSL to write code such as this:</p>
  * <pre>
  *         JobDetail job = newJob(MyJob.class)
  *             .withIdentity("myJob")
  *             .build();
- *             
- *         Trigger trigger = newTrigger() 
+ *
+ *         Trigger trigger = newTrigger()
  *             .withIdentity(triggerKey("myTrigger", "myTriggerGroup"))
  *             .withSchedule(simpleSchedule()
  *                 .withIntervalInHours(1)
  *                 .repeatForever())
  *             .startAt(futureDate(10, MINUTES))
  *             .build();
- *         
+ *
  *         scheduler.scheduleJob(job, trigger);
  * </pre>
- *  
+ *
  * @see JobBuilder
  * @see ScheduleBuilder
- * @see DateBuilder 
+ * @see DateBuilder
  * @see Trigger
  */
 public class TriggerBuilder<T extends Trigger> {
@@ -72,26 +75,26 @@ public class TriggerBuilder<T extends Trigger> {
     private String calendarName;
     private JobKey jobKey;
     private JobDataMap jobDataMap = new JobDataMap();
-    
+
     private ScheduleBuilder<?> scheduleBuilder = null;
-    
+
     private TriggerBuilder() {
-        
+
     }
-    
+
     /**
-     * Create a new TriggerBuilder with which to define a 
+     * Create a new TriggerBuilder with which to define a
      * specification for a Trigger.
-     * 
+     *
      * @return the new TriggerBuilder
      */
     public static TriggerBuilder<Trigger> newTrigger() {
         return new TriggerBuilder<>();
     }
-    
+
     /**
      * Produce the <code>Trigger</code>.
-     * 
+     *
      * @return a Trigger that meets the specifications of the builder.
      */
     @SuppressWarnings("unchecked")
@@ -100,31 +103,31 @@ public class TriggerBuilder<T extends Trigger> {
         if(scheduleBuilder == null)
             scheduleBuilder = SimpleScheduleBuilder.simpleSchedule();
         MutableTrigger trig = scheduleBuilder.build();
-        
+
         trig.setCalendarName(calendarName);
         trig.setDescription(description);
         trig.setStartTime(startTime);
         trig.setEndTime(endTime);
         if(key == null)
             key = new TriggerKey(Key.createUniqueName(null), null);
-        trig.setKey(key); 
+        trig.setKey(key);
         if(jobKey != null)
             trig.setJobKey(jobKey);
         trig.setPriority(priority);
-        
+
         if(!jobDataMap.isEmpty())
             trig.setJobDataMap(jobDataMap);
-        
+
         return (T) trig;
     }
 
     /**
      * Use a <code>TriggerKey</code> with the given name and default group to
      * identify the Trigger.
-     * 
+     *
      * <p>If none of the 'withIdentity' methods are set on the TriggerBuilder,
      * then a random, unique TriggerKey will be generated.</p>
-     * 
+     *
      * @param name the name element for the Trigger's TriggerKey
      * @return the updated TriggerBuilder
      * @see TriggerKey
@@ -133,15 +136,15 @@ public class TriggerBuilder<T extends Trigger> {
     public TriggerBuilder<T> withIdentity(String name) {
         key = new TriggerKey(name, null);
         return this;
-    }  
-    
+    }
+
     /**
      * Use a TriggerKey with the given name and group to
      * identify the Trigger.
-     * 
+     *
      * <p>If none of the 'withIdentity' methods are set on the TriggerBuilder,
      * then a random, unique TriggerKey will be generated.</p>
-     * 
+     *
      * @param name the name element for the Trigger's TriggerKey
      * @param group the group element for the Trigger's TriggerKey
      * @return the updated TriggerBuilder
@@ -152,13 +155,13 @@ public class TriggerBuilder<T extends Trigger> {
         key = new TriggerKey(name, group);
         return this;
     }
-    
+
     /**
-     * Use the given TriggerKey to identify the Trigger.  
-     * 
+     * Use the given TriggerKey to identify the Trigger.
+     *
      * <p>If none of the 'withIdentity' methods are set on the TriggerBuilder,
      * then a random, unique TriggerKey will be generated.</p>
-     * 
+     *
      * @param triggerKey the TriggerKey for the Trigger to be built
      * @return the updated TriggerBuilder
      * @see TriggerKey
@@ -171,7 +174,7 @@ public class TriggerBuilder<T extends Trigger> {
 
     /**
      * Set the given (human-meaningful) description of the Trigger.
-     * 
+     *
      * @param triggerDescription the description for the Trigger
      * @return the updated TriggerBuilder
      * @see Trigger#getDescription()
@@ -180,12 +183,12 @@ public class TriggerBuilder<T extends Trigger> {
         this.description = triggerDescription;
         return this;
     }
-    
+
     /**
      * Set the Trigger's priority.  When more than one Trigger have the same
      * fire time, the scheduler will fire the one with the highest priority
      * first.
-     * 
+     *
      * @param triggerPriority the priority for the Trigger
      * @return the updated TriggerBuilder
      * @see Trigger#DEFAULT_PRIORITY
@@ -199,7 +202,7 @@ public class TriggerBuilder<T extends Trigger> {
     /**
      * Set the name of the {@link Calendar} that should be applied to this
      * Trigger's schedule.
-     * 
+     *
      * @param calName the name of the Calendar to reference.
      * @return the updated TriggerBuilder
      * @see Calendar
@@ -209,13 +212,13 @@ public class TriggerBuilder<T extends Trigger> {
         this.calendarName = calName;
         return this;
     }
-    
+
     /**
      * Set the time the Trigger should start at - the trigger may or may
      * not fire at this time - depending upon the schedule configured for
      * the Trigger.  However the Trigger will NOT fire before this time,
      * regardless of the Trigger's schedule.
-     *  
+     *
      * @param triggerStartTime the start time for the Trigger.
      * @return the updated TriggerBuilder
      * @see Trigger#getStartTime()
@@ -223,6 +226,34 @@ public class TriggerBuilder<T extends Trigger> {
      */
     public TriggerBuilder<T> startAt(Date triggerStartTime) {
         this.startTime = triggerStartTime;
+        return this;
+    }
+
+    /**
+     * Change the LocalDateTime type to Date type to set the trigger start at.
+     * The ID of the Time Zone you want to set must also be delivered.
+     *
+     * @param triggerStartTime the start time for the Trigger but type is LocalDateTime
+     * @param triggerZoneId The time zone ID you want to set
+     * @return the updated TriggerBuilder
+     * @see Trigger#getStartTime()
+     * @see DateBuilder
+     */
+    public TriggerBuilder<T> startAt(LocalDateTime triggerStartTime, ZoneId triggerZoneId){
+        this.startTime = Date.from(triggerStartTime.atZone(triggerZoneId).toInstant());
+        return this;
+    }
+
+    /**
+     * Change the ZonedDateTime type to Date type to set the trigger start at.
+     *
+     * @param triggerStartTime the start time for the Trigger but type is ZonedDateTime
+     * @return the updated TriggerBuilder
+     * @see Trigger#getStartTime()
+     * @see DateBuilder
+     */
+    public TriggerBuilder<T> startAt(ZonedDateTime triggerStartTime){
+        this.startTime = Date.from(triggerStartTime.toInstant());
         return this;
     }
     
