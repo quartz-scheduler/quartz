@@ -21,6 +21,9 @@ import static org.quartz.DateBuilder.evenSecondDateAfterNow;
 import static org.quartz.DateBuilder.futureDate;
 import static org.quartz.TriggerBuilder.newTrigger;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 
@@ -101,6 +104,32 @@ public class TriggerBuilderTest  {
                 .endAt(new Date(System.currentTimeMillis() - 100000000))
                 .withSchedule(CronScheduleBuilder.cronSchedule("0 0 0 * * ?"))
                 .build();
+    }
+
+    @Test
+    void testTriggerBuilderWithLocalDateTime() throws InterruptedException {
+        LocalDateTime localDateTime = LocalDateTime.now().plusSeconds(3);
+        Trigger trigger = TriggerBuilder.newTrigger()
+                .withIdentity("triggerTest LocalDateTime", "triggerTest LocalDateTime group")
+                .forJob("test job LocalDateTime", "test job LocalDateTime group")
+                .startAt(localDateTime, ZoneId.systemDefault())
+                .build();
+        assertEquals(Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()), trigger.getStartTime());
+        Thread.sleep(5000);
+        assertEquals(Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()), trigger.getFinalFireTime());
+    }
+
+    @Test
+    void testTriggerBuilderWithZonedDateTime() throws InterruptedException {
+        ZonedDateTime zonedDateTime = ZonedDateTime.now().plusSeconds(3);
+        Trigger trigger = TriggerBuilder.newTrigger()
+                .withIdentity("triggerTest ", "triggerTest LocalDateTime group")
+                .forJob("test job LocalDateTime", "test job LocalDateTime group")
+                .startAt(zonedDateTime)
+                .build();
+        assertEquals(Date.from(zonedDateTime.toInstant()),trigger.getStartTime());
+        Thread.sleep(5000);
+        assertEquals(Date.from(zonedDateTime.toInstant()),trigger.getFinalFireTime());
     }
 
 }
