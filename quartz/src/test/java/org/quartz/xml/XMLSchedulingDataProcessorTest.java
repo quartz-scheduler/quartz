@@ -29,6 +29,7 @@ import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.jobs.NoOpJob;
 import org.quartz.simpl.CascadingClassLoadHelper;
 import org.quartz.spi.ClassLoadHelper;
+import org.xml.sax.SAXParseException;
 
 /**
  * Unit test for XMLSchedulingDataProcessor.
@@ -109,6 +110,31 @@ public class XMLSchedulingDataProcessorTest extends TestCase {
 				outStream.close();
 			if (inStream != null)
 				inStream.close();
+		}
+	}
+
+	public void testXmlParserConfiguration() throws Exception {
+		Scheduler scheduler = null;
+		try {
+		  StdSchedulerFactory factory = new StdSchedulerFactory("org/quartz/xml/quartz-test.properties");
+		  scheduler = factory.getScheduler();
+		  ClassLoadHelper clhelper = new CascadingClassLoadHelper();
+		  clhelper.initialize();
+		  XMLSchedulingDataProcessor processor = new XMLSchedulingDataProcessor(clhelper);
+		  processor.processFileAndScheduleJobs("org/quartz/xml/bad-job-config.xml", scheduler);
+	
+	
+		  final JobKey jobKey = scheduler.getJobKeys(GroupMatcher.jobGroupEquals("native")).iterator().next();
+		  final JobDetail jobDetail = scheduler.getJobDetail(jobKey);
+		  final String description = jobDetail.getDescription();
+	
+	
+		  fail("Expected parser configuration to block DOCTYPE. The following was injected into the job description field: " + description);
+		} catch (SAXParseException e) {
+		  assertTrue(e.getMessage().contains("DOCTYPE is disallowed"));
+		} finally {
+		  if (scheduler != null)
+			scheduler.shutdown();
 		}
 	}
 	
