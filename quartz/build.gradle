@@ -62,7 +62,7 @@ javadoc {
         splitIndex = false
         author = true;
         windowTitle = "Quartz Enterprise Job Scheduler $project.version API"
-        bottom = 'Copyright Super iPaaS Integration LLC, an IBM Company 2024'
+        bottom = 'Copyright IBM Corp. 2024, 2025'
     }
 }
 
