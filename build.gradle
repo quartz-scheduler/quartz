@@ -61,7 +61,7 @@ allprojects {
                             developer {
                                 name = "Terracotta Engineers"
                                 email = "tc-oss@wwpdl.vnet.ibm.com"
-                                organization = "Super iPaaS Integration LLC, an IBM Company"
+                                organization = "IBM Corp."
                                 organizationUrl = "http://www.quartz-scheduler.org/"
                             }
                         }
