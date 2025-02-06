@@ -18,9 +18,7 @@
 
 package org.quartz;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.Date;
 
 import org.quartz.spi.MutableTrigger;
@@ -231,30 +229,15 @@ public class TriggerBuilder<T extends Trigger> {
 
 
     /**
-     * Change the LocalDateTime type to Date type to set the trigger start at.
-     * The ID of the Time Zone you want to set must also be delivered.
+     * Change the Instant type to Date type to set the trigger start at.
      *
-     * @param triggerStartTime the start time for the Trigger but type is LocalDateTime
-     * @param triggerZoneId The time zone ID you want to set
+     * @param triggerStartTime the start time for the Trigger but type is Instant
      * @return the updated TriggerBuilder
      * @see Trigger#getStartTime()
      * @see DateBuilder
      */
-    public TriggerBuilder<T> startAt(LocalDateTime triggerStartTime, ZoneId triggerZoneId){
-        this.startTime = Date.from(triggerStartTime.atZone(triggerZoneId).toInstant());
-        return this;
-    }
-
-    /**
-     * Change the ZonedDateTime type to Date type to set the trigger start at.
-     *
-     * @param triggerStartTime the start time for the Trigger but type is ZonedDateTime
-     * @return the updated TriggerBuilder
-     * @see Trigger#getStartTime()
-     * @see DateBuilder
-     */
-    public TriggerBuilder<T> startAt(ZonedDateTime triggerStartTime){
-        this.startTime = Date.from(triggerStartTime.toInstant());
+    public TriggerBuilder<T> startAt(Instant triggerStartTime){
+        this.startTime = Date.from(triggerStartTime);
         return this;
     }
     
