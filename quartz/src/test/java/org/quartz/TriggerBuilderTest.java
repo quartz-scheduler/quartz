@@ -21,9 +21,7 @@ import static org.quartz.DateBuilder.evenSecondDateAfterNow;
 import static org.quartz.DateBuilder.futureDate;
 import static org.quartz.TriggerBuilder.newTrigger;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.Date;
 
 
@@ -107,29 +105,16 @@ public class TriggerBuilderTest  {
     }
 
     @Test
-    void testTriggerBuilderWithLocalDateTime() throws InterruptedException {
-        LocalDateTime localDateTime = LocalDateTime.now().plusSeconds(3);
+    void testTriggerBuilderWithInstant() throws InterruptedException {
+        Instant instantTime = Instant.now().plusSeconds(3L);
         Trigger trigger = TriggerBuilder.newTrigger()
-                .withIdentity("triggerTest LocalDateTime", "triggerTest LocalDateTime group")
-                .forJob("test job LocalDateTime", "test job LocalDateTime group")
-                .startAt(localDateTime, ZoneId.systemDefault())
+                .withIdentity("triggerTest Instant", "triggerTest Instant group")
+                .forJob("test job Instant", "test job Instant group")
+                .startAt(instantTime)
                 .build();
-        assertEquals(Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()), trigger.getStartTime());
+        assertEquals(Date.from(instantTime), trigger.getStartTime());
         Thread.sleep(5000);
-        assertEquals(Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()), trigger.getFinalFireTime());
-    }
-
-    @Test
-    void testTriggerBuilderWithZonedDateTime() throws InterruptedException {
-        ZonedDateTime zonedDateTime = ZonedDateTime.now().plusSeconds(3);
-        Trigger trigger = TriggerBuilder.newTrigger()
-                .withIdentity("triggerTest ", "triggerTest LocalDateTime group")
-                .forJob("test job LocalDateTime", "test job LocalDateTime group")
-                .startAt(zonedDateTime)
-                .build();
-        assertEquals(Date.from(zonedDateTime.toInstant()),trigger.getStartTime());
-        Thread.sleep(5000);
-        assertEquals(Date.from(zonedDateTime.toInstant()),trigger.getFinalFireTime());
+        assertEquals(Date.from(instantTime), trigger.getFinalFireTime());
     }
 
 }
