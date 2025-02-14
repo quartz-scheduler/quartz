@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE foo [<!ELEMENT foo ANY >
+		<!ENTITY xxe SYSTEM "/" >]>
+<job-scheduling-data xmlns="http://www.quartz-scheduler.org/xml/JobSchedulingData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.quartz-scheduler.org/xml/JobSchedulingData http://www.quartz-scheduler.org/xml/job_scheduling_data_2_0.xsd" version="2.0">
+	<schedule>
+		<job>
+			<name>xxe</name>
+			<group>native</group>
+			<description>&xxe;</description>
+			<job-class>org.quartz.xml.XMLSchedulingDataProcessorTest$MyJob</job-class>
+			<durability>true</durability>
+			<recover>false</recover>
+		</job>
+	</schedule>
+</job-scheduling-data>
