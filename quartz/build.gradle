@@ -40,7 +40,7 @@ dependencies {
     testImplementation "org.apache.derby:derby:$derbyVersion"
     testImplementation "org.apache.derby:derbynet:$derbyVersion"
     testImplementation "org.apache.derby:derbyclient:$derbyVersion"
-    testImplementation 'org.testcontainers:mssqlserver:1.20.3'
+    testImplementation 'org.testcontainers:mssqlserver:1.20.4'
     testImplementation 'com.microsoft.sqlserver:mssql-jdbc:12.9.0.jre8-preview'
 }
 
@@ -62,7 +62,7 @@ javadoc {
         splitIndex = false
         author = true;
         windowTitle = "Quartz Enterprise Job Scheduler $project.version API"
-        bottom = 'Copyright Super iPaaS Integration LLC, an IBM Company 2024'
+        bottom = 'Copyright IBM Corp. 2024, 2025'
     }
 }
 
