@@ -21,6 +21,7 @@ import static org.quartz.DateBuilder.evenSecondDateAfterNow;
 import static org.quartz.DateBuilder.futureDate;
 import static org.quartz.TriggerBuilder.newTrigger;
 
+import java.time.Instant;
 import java.util.Date;
 
 
@@ -101,6 +102,19 @@ public class TriggerBuilderTest  {
                 .endAt(new Date(System.currentTimeMillis() - 100000000))
                 .withSchedule(CronScheduleBuilder.cronSchedule("0 0 0 * * ?"))
                 .build();
+    }
+
+    @Test
+    void testTriggerBuilderWithInstant() throws InterruptedException {
+        Instant instantTime = Instant.now().plusSeconds(3L);
+        Trigger trigger = TriggerBuilder.newTrigger()
+                .withIdentity("triggerTest Instant", "triggerTest Instant group")
+                .forJob("test job Instant", "test job Instant group")
+                .startAt(instantTime)
+                .build();
+        assertEquals(Date.from(instantTime), trigger.getStartTime());
+        Thread.sleep(5000);
+        assertEquals(Date.from(instantTime), trigger.getFinalFireTime());
     }
 
 }
