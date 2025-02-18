@@ -59,7 +59,7 @@ public class MisfireExample {
     log.info("------- Initializing -------------------");
 
     // First we must get a reference to a scheduler
-    SchedulerFactory sf = new StdSchedulerFactory();
+    SchedulerFactory sf = new StdSchedulerFactory("org/quartz/examples/example5/quartz_misfire.properties");
     Scheduler sched = sf.getScheduler();
 
     log.info("------- Initialization Complete -----------");
