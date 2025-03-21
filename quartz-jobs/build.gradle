@@ -13,7 +13,7 @@ dependencies {
     compileOnly 'javax.jms:javax.jms-api:2.0.1'
     compileOnly 'javax.mail:mail:1.4.7'
     compileOnly 'org.apache.openejb:javaee-api:6.0-6'
-    compileOnly 'org.glassfish.corba:rmic:4.2.5'
+    compileOnly 'org.glassfish.corba:rmic:5.0.0'
 
     testImplementation 'javax.transaction:javax.transaction-api:1.3'
     testImplementation 'commons-io:commons-io:2.18.0'
