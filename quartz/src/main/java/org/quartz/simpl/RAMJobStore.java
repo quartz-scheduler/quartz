@@ -45,6 +45,7 @@ import org.quartz.TriggerKey;
 import org.quartz.Trigger.CompletedExecutionInstruction;
 import org.quartz.Trigger.TriggerState;
 import org.quartz.Trigger.TriggerTimeComparator;
+import org.quartz.impl.jdbcjobstore.JobStoreSupport;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.impl.matchers.StringMatcher;
 import org.quartz.spi.ClassLoadHelper;
@@ -562,6 +563,56 @@ public class RAMJobStore implements JobStore {
             return (jw != null) ? (JobDetail)jw.jobDetail.clone() : null;
         }
     }
+
+    /**
+     * <p>
+     * Retrieve all the matched <code>{@link org.quartz.JobDetail}</code> for the given
+     * <code>{@link org.quartz.impl.matchers.GroupMatcher}</code>.
+     * </p>
+     *
+     * @return A list of all the matched <code>Job</code>s, or an empty list if there are no matches.
+     */
+    public List<JobDetail> getJobDetails(GroupMatcher<JobKey> matcher) {
+        List<JobDetail> outList = null;
+        synchronized (lock) {
+
+            StringMatcher.StringOperatorName operator = matcher.getCompareWithOperator();
+            String compareToValue = matcher.getCompareToValue();
+
+            switch(operator) {
+                case EQUALS:
+                    HashMap<JobKey, JobWrapper> grpMap = jobsByGroup.get(compareToValue);
+                    if (grpMap != null) {
+                        outList = new LinkedList<>();
+
+                        for (JobWrapper jw : grpMap.values()) {
+
+                            if (jw != null) {
+                                outList.add(jw.jobDetail);
+                            }
+                        }
+                    }
+                    break;
+
+                default:
+                    for (Map.Entry<String, HashMap<JobKey, JobWrapper>> entry : jobsByGroup.entrySet()) {
+                        if(operator.evaluate(entry.getKey(), compareToValue) && entry.getValue() != null) {
+                            if(outList == null) {
+                                outList = new LinkedList<>();
+                            }
+                            for (JobWrapper jobWrapper : entry.getValue().values()) {
+                                if(jobWrapper != null) {
+                                    outList.add(jobWrapper.jobDetail);
+                                }
+                            }
+                        }
+                    }
+            }
+        }
+
+        return outList == null ? java.util.Collections.emptyList() : outList;
+    }
+
 
     /**
      * <p>

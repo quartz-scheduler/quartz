@@ -30,12 +30,7 @@ import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
-import java.sql.Blob;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -840,25 +835,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             JobDetailImpl job = null;
 
             if (rs.next()) {
-                job = new JobDetailImpl();
-
-                job.setName(rs.getString(COL_JOB_NAME));
-                job.setGroup(rs.getString(COL_JOB_GROUP));
-                job.setDescription(rs.getString(COL_DESCRIPTION));
-                job.setJobClass( loadHelper.loadClass(rs.getString(COL_JOB_CLASS), Job.class));
-                job.setDurability(getBoolean(rs, COL_IS_DURABLE));
-                job.setRequestsRecovery(getBoolean(rs, COL_REQUESTS_RECOVERY));
-
-                Map<?, ?> map;
-                if (canUseProperties()) {
-                    map = getMapFromProperties(rs);
-                } else {
-                    map = (Map<?, ?>) getObjectFromBlob(rs, COL_JOB_DATAMAP);
-                }
-
-                if (null != map) {
-                    job.setJobDataMap(new JobDataMap(map));
-                }
+                job = handleJobDetails(rs, loadHelper, true);
             }
 
             return job;
@@ -887,26 +864,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             LinkedList<JobDetail> list = new LinkedList<>();
 
             if (rs.next()) {
-                JobDetailImpl job = new JobDetailImpl();
-
-                job.setName(rs.getString(COL_JOB_NAME));
-                job.setGroup(rs.getString(COL_JOB_GROUP));
-                job.setDescription(rs.getString(COL_DESCRIPTION));
-                job.setJobClass( loadHelper.loadClass(rs.getString(COL_JOB_CLASS), Job.class));
-                job.setDurability(getBoolean(rs, COL_IS_DURABLE));
-                job.setRequestsRecovery(getBoolean(rs, COL_REQUESTS_RECOVERY));
-
-                Map<?, ?> map;
-                if (canUseProperties()) {
-                    map = getMapFromProperties(rs);
-                } else {
-                    map = (Map<?, ?>) getObjectFromBlob(rs, COL_JOB_DATAMAP);
-                }
-
-                if (null != map) {
-                    job.setJobDataMap(new JobDataMap(map));
-                }
-
+                JobDetailImpl job = handleJobDetails(rs, loadHelper, true);
                 list.add(job);
             }
             return list;
@@ -919,9 +877,9 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
     /**
      * build Map from java.util.Properties encoding.
      */
-    private Map<?, ?> getMapFromProperties(ResultSet rs) throws ClassNotFoundException, IOException, SQLException {
+    private Map<?, ?> getMapFromProperties(ResultSet rs, String columnPrefix) throws ClassNotFoundException, IOException, SQLException {
         Map<?, ?> map;
-        try (InputStream is = (InputStream) getJobDataFromBlob(rs, COL_JOB_DATAMAP)) {
+        try (InputStream is = (InputStream) getJobDataFromBlob(rs, columnPrefix + COL_JOB_DATAMAP)) {
             if (is == null) {
                 return null;
             }
@@ -930,6 +888,13 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             map = convertFromProperty(properties);
         }
         return map;
+    }
+
+    /**
+     * build Map from java.util.Properties encoding.
+     */
+    private Map<?, ?> getMapFromProperties(ResultSet rs) throws ClassNotFoundException, IOException, SQLException {
+        return getMapFromProperties(rs, "");
     }
 
     /**
@@ -1653,8 +1618,43 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
      * @throws ClassNotFoundException
      */
     public JobDetail selectJobForTrigger(Connection conn, ClassLoadHelper loadHelper,
-        TriggerKey triggerKey) throws ClassNotFoundException, SQLException {
+        TriggerKey triggerKey) throws ClassNotFoundException, SQLException, IOException {
         return selectJobForTrigger(conn, loadHelper, triggerKey, true);
+    }
+
+    private JobDetailImpl handleJobDetails(ResultSet rs, ClassLoadHelper loadHelper, boolean loadJobClass)
+        throws SQLException, ClassNotFoundException, IOException {
+        return handleJobDetails(rs, loadHelper, loadJobClass, "");
+    }
+
+    private JobDetailImpl handleJobDetails(ResultSet rs, ClassLoadHelper loadHelper, boolean loadJobClass, String columnPrefix)
+        throws SQLException, ClassNotFoundException, IOException {
+
+        JobDetailImpl job = new JobDetailImpl();
+        job.setName(rs.getString(columnPrefix + COL_JOB_NAME));
+        job.setGroup(rs.getString(columnPrefix + COL_JOB_GROUP));
+        if (containsColumnName(rs, columnPrefix + COL_DESCRIPTION)) {
+            job.setDescription(rs.getString(columnPrefix + COL_DESCRIPTION));
+        }
+        job.setDurability(rs.getBoolean(COL_IS_DURABLE));
+        if (loadJobClass) {
+            job.setJobClass(loadHelper.loadClass(rs.getString(COL_JOB_CLASS), Job.class));
+        }
+        job.setRequestsRecovery(rs.getBoolean(COL_REQUESTS_RECOVERY));
+        if (containsColumnName(rs, columnPrefix + COL_JOB_DATAMAP)) {
+            Map<?, ?> map;
+            if (canUseProperties()) {
+                map = getMapFromProperties(rs, columnPrefix);
+            } else {
+                map = (Map<?, ?>) getObjectFromBlob(rs, columnPrefix + COL_JOB_DATAMAP);
+            }
+
+            if (null != map) {
+                job.setJobDataMap(new JobDataMap(map));
+            }
+        }
+
+        return job;
     }
 
     /**
@@ -1672,7 +1672,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
      * @throws ClassNotFoundException
      */
     public JobDetail selectJobForTrigger(Connection conn, ClassLoadHelper loadHelper,
-            TriggerKey triggerKey, boolean loadJobClass) throws ClassNotFoundException, SQLException {
+            TriggerKey triggerKey, boolean loadJobClass) throws ClassNotFoundException, SQLException, IOException {
         PreparedStatement ps = null;
         ResultSet rs = null;
 
@@ -1683,15 +1683,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             rs = ps.executeQuery();
 
             if (rs.next()) {
-                JobDetailImpl job = new JobDetailImpl();
-                job.setName(rs.getString(1));
-                job.setGroup(rs.getString(2));
-                job.setDurability(getBoolean(rs, 3));
-                if (loadJobClass)
-                    job.setJobClass(loadHelper.loadClass(rs.getString(4), Job.class));
-                job.setRequestsRecovery(getBoolean(rs, 5));
-                
-                return job;
+                return handleJobDetails(rs, loadHelper, loadJobClass, "J.");
             } else {
                 if (logger.isDebugEnabled()) {
                     logger.debug("No job for trigger '{}'.", triggerKey);
@@ -3340,6 +3332,20 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
      */
     protected void setBytes(PreparedStatement ps, int index, ByteArrayOutputStream baos) throws SQLException {
         ps.setBytes(index, (baos == null) ? new byte[0] : baos.toByteArray());
+    }
+
+    private static  boolean containsColumnName(ResultSet rs, String colName) throws SQLException {
+        ResultSetMetaData rsmd = rs.getMetaData();
+        int columnCount = rsmd.getColumnCount();
+
+        for (int i = 1; i <= columnCount; i++ ) {
+            String name = rsmd.getColumnName(i);
+            if (colName.equals(name)) {
+                return true;
+            }
+            // Do stuff with name
+        }
+        return false;
     }
 }
 

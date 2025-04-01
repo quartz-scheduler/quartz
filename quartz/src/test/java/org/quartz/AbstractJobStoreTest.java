@@ -16,9 +16,11 @@
  */
 package org.quartz;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 import org.junit.jupiter.api.AfterEach;
@@ -285,8 +287,7 @@ public abstract class AbstractJobStoreTest  {
 
     @SuppressWarnings("deprecation")
     @Test
-    void testPauseJobGroupPausesNewJob() throws Exception
-    {
+    void testPauseJobGroupPausesNewJob() throws Exception {
     	// Pausing job groups in JDBCJobStore is broken, see QTZ-208
     	if (fJobStore instanceof JobStoreSupport)
     		return;
@@ -312,7 +313,7 @@ public abstract class AbstractJobStoreTest  {
     	assertEquals(TriggerState.PAUSED, fJobStore.getTriggerState(tr.getKey()));
     }
     
-@Test
+    @Test
     void testStoreAndRetrieveJobs() throws Exception {
         SchedulerSignaler schedSignaler = new SampleSignaler();
         ClassLoadHelper loadHelper = new CascadingClassLoadHelper();
@@ -334,10 +335,53 @@ public abstract class AbstractJobStoreTest  {
 			JobDetail storedJob = store.retrieveJob(jobKey);
 			assertEquals(jobKey, storedJob.getKey());
 		}
-       // Retrieve by group
-    assertEquals(5, store.getJobKeys(GroupMatcher.jobGroupEquals("a")).size(), "Wrong number of jobs in group 'a'");
-    assertEquals(5, store.getJobKeys(GroupMatcher.jobGroupEquals("b")).size(), "Wrong number of jobs in group 'b'");
-}
+        // Retrieve by group
+        assertEquals(5, store.getJobKeys(GroupMatcher.jobGroupEquals("a")).size(), "Wrong number of jobs in group 'a'");
+        assertEquals(5, store.getJobKeys(GroupMatcher.jobGroupEquals("b")).size(), "Wrong number of jobs in group 'b'");
+    }
+
+    @Test
+    void testStoreAndRetrieveJobsGroups() throws Exception {
+        SchedulerSignaler schedSignaler = new SampleSignaler();
+        ClassLoadHelper loadHelper = new CascadingClassLoadHelper();
+        loadHelper.initialize();
+
+        JobStore store = createJobStore("testStoreAndRetrieveJobsGroups");
+        store.initialize(loadHelper, schedSignaler);
+
+        List<JobDetail> expectedJobs = new ArrayList<>(10);
+        // these will NOT be in order because of hashmap
+        // Store jobs.
+        for (int i=0; i < 10; i++) {
+            String group =  i < 5 ? "a" : "b";
+            JobDetail job = JobBuilder.newJob(MyJob.class).withIdentity("job" + i, group).build();
+            store.storeJob(job, false);
+            expectedJobs.add(job);
+        }
+        List<JobKey> expectedKey = expectedJobs.stream().map(JobDetail::getKey).collect(Collectors.toList());
+        List<JobDetail> actual = store.getJobDetails(GroupMatcher.anyGroup());
+        Set<JobKey> jobKeys = actual.stream().map(JobDetail::getKey).collect(Collectors.toSet());
+        // Retrieve jobs.
+        for (int i=0; i < 10; i++) {
+            assertTrue(jobKeys.contains(actual.get(i).getKey()));
+            //assertEquals(expectedJobs.get(i).getKey(), actual.get(i).getKey(), "Job does not matche expected");
+        }
+
+        List<JobDetail> listA = store.getJobDetails(GroupMatcher.jobGroupEquals("a"));
+        jobKeys = listA.stream().map(JobDetail::getKey).collect(Collectors.toSet());
+        assertEquals(5, listA.size(), "Wrong number of jobs in group 'a'");
+        for (int i=0; i < 5; i++) {
+            assertTrue(jobKeys.contains(expectedKey.get(i)));
+        }
+        List<JobDetail> listB = store.getJobDetails(GroupMatcher.jobGroupEquals("b"));
+        jobKeys = listB.stream().map(JobDetail::getKey).collect(Collectors.toSet());
+
+        // Retrieve by group
+        assertEquals(5, listB.size(), "Wrong number of jobs in group 'b'");
+        for (int i=5; i < 10; i++) {
+            assertTrue(jobKeys.contains(expectedKey.get(i)));
+        }
+    }
 
 	@Test
 	void testStoreAndRetrieveTriggers() throws Exception {

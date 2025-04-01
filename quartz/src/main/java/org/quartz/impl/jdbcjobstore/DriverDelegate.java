@@ -618,7 +618,7 @@ public interface DriverDelegate {
      */
     JobDetail selectJobForTrigger(Connection conn, ClassLoadHelper loadHelper,
         TriggerKey triggerKey) 
-        throws ClassNotFoundException, SQLException;
+        throws ClassNotFoundException, SQLException, IOException;
 
     /**
      * <p>
@@ -627,7 +627,7 @@ public interface DriverDelegate {
      * </p>
      */
     JobDetail selectJobForTrigger(Connection conn, ClassLoadHelper loadHelper,
-                                  TriggerKey triggerKey, boolean loadJobClass) throws ClassNotFoundException, SQLException;
+                                  TriggerKey triggerKey, boolean loadJobClass) throws ClassNotFoundException, SQLException, IOException;
 
     /**
      * <p>

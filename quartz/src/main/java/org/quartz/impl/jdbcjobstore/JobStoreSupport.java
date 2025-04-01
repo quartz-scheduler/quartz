@@ -1372,6 +1372,30 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         return (JobDetail)executeWithoutLock( // no locks necessary for read...
                 (TransactionCallback) conn -> retrieveJob(conn, jobKey));
     }
+
+    public List<JobDetail> getJobDetails(GroupMatcher<JobKey> matcher)
+        throws JobPersistenceException {
+        return (List<JobDetail>) executeWithoutLock(
+                (TransactionCallback) conn -> retrieveJobs(conn, matcher));
+    }
+
+    protected List<JobDetail> retrieveJobs(Connection conn, GroupMatcher<JobKey> matcher) throws JobPersistenceException {
+        try {
+            return getDelegate().selectJobDetails(conn, matcher,
+                getClassLoadHelper());
+        } catch (ClassNotFoundException e) {
+            throw new JobPersistenceException(
+                "Couldn't retrieve job because a required class was not found: "
+                    + e.getMessage(), e);
+        } catch (IOException e) {
+            throw new JobPersistenceException(
+                "Couldn't retrieve job because the BLOB couldn't be deserialized: "
+                    + e.getMessage(), e);
+        } catch (SQLException e) {
+            throw new JobPersistenceException("Couldn't retrieve job: "
+                + e.getMessage(), e);
+        }
+    }
     
     protected JobDetail retrieveJob(Connection conn, JobKey key) throws JobPersistenceException {
         try {
@@ -1444,7 +1468,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                     deleteJobAndChildren(conn, job.getKey());
                 }
             }
-        } catch (ClassNotFoundException | SQLException e) {
+        } catch (ClassNotFoundException | SQLException | IOException e) {
             throw new JobPersistenceException("Couldn't remove trigger: "
                     + e.getMessage(), e);
         }
@@ -1489,7 +1513,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
             storeTrigger(conn, newTrigger, job, false, STATE_WAITING, false, false);
 
             return removedTrigger;
-        } catch (ClassNotFoundException | SQLException e) {
+        } catch (ClassNotFoundException | SQLException | IOException e) {
             throw new JobPersistenceException("Couldn't remove trigger: "
                     + e.getMessage(), e);
         }

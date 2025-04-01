@@ -778,6 +778,11 @@ public abstract class RemoteMBeanScheduler implements Scheduler {
         }
     }
 
+    public List<JobDetail> getJobDetails(GroupMatcher<JobKey> matcher)
+        throws SchedulerException {
+            throw new SchedulerException("Operation not supported for remote schedulers.");
+    }
+
     /**
      * <p>
      * Calls the equivalent method on the 'proxied' <code>QuartzScheduler</code>.

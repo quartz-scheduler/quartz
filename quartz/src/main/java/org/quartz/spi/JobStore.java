@@ -18,6 +18,7 @@
 
 package org.quartz.spi;
 
+import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -181,6 +182,20 @@ public interface JobStore {
      */
     JobDetail retrieveJob(JobKey jobKey) 
         throws JobPersistenceException;
+
+    /**
+     * Gets all the <code>{@link org.quartz.JobDetail}s</code>
+     * in the matching groups.
+     * </p>
+     * These will NOT necessarily be in lexicographical order, particularly on {@link org.quartz.simpl.RAMJobStore}
+     * You may need to re-sort them yourself.
+     * @param matcher Matcher to evaluate against known groups
+     * @return List of all JobDetail matching
+     * @throws JobPersistenceException On error
+     */
+    List<JobDetail> getJobDetails(GroupMatcher<JobKey> matcher)
+        throws JobPersistenceException;
+
 
     /**
      * Store the given <code>{@link org.quartz.Trigger}</code>.
