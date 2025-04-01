@@ -31,14 +31,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
 import java.sql.*;
+import java.util.*;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
 
 import org.quartz.Calendar;
 import org.quartz.Job;
@@ -863,7 +857,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
 
             LinkedList<JobDetail> list = new LinkedList<>();
 
-            if (rs.next()) {
+            while (rs.next()) {
                 JobDetailImpl job = handleJobDetails(rs, loadHelper, true);
                 list.add(job);
             }
@@ -1631,22 +1625,30 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         throws SQLException, ClassNotFoundException, IOException {
 
         JobDetailImpl job = new JobDetailImpl();
-        job.setName(rs.getString(columnPrefix + COL_JOB_NAME));
-        job.setGroup(rs.getString(columnPrefix + COL_JOB_GROUP));
+        job.setName(getString(rs, COL_JOB_NAME, columnPrefix + COL_JOB_NAME));
+        job.setGroup(getString(rs, COL_JOB_GROUP, columnPrefix + COL_JOB_GROUP));
         if (containsColumnName(rs, columnPrefix + COL_DESCRIPTION)) {
-            job.setDescription(rs.getString(columnPrefix + COL_DESCRIPTION));
+            job.setDescription(getString(rs, COL_DESCRIPTION, columnPrefix + COL_DESCRIPTION));
         }
-        job.setDurability(rs.getBoolean(COL_IS_DURABLE));
+        job.setDurability(getBoolean(rs, COL_IS_DURABLE ,columnPrefix + COL_IS_DURABLE));
         if (loadJobClass) {
-            job.setJobClass(loadHelper.loadClass(rs.getString(COL_JOB_CLASS), Job.class));
+            job.setJobClass(loadHelper.loadClass(getString(rs, COL_JOB_CLASS, columnPrefix + COL_JOB_CLASS), Job.class));
         }
-        job.setRequestsRecovery(rs.getBoolean(COL_REQUESTS_RECOVERY));
-        if (containsColumnName(rs, columnPrefix + COL_JOB_DATAMAP)) {
+        job.setRequestsRecovery(getBoolean(rs, COL_REQUESTS_RECOVERY, columnPrefix + COL_REQUESTS_RECOVERY));
+        if (containsColumnName(rs, COL_JOB_DATAMAP) || containsColumnName(rs, columnPrefix + COL_JOB_DATAMAP)) {
             Map<?, ?> map;
             if (canUseProperties()) {
-                map = getMapFromProperties(rs, columnPrefix);
+                if (containsColumnName(rs, columnPrefix + COL_JOB_DATAMAP)) {
+                    map = getMapFromProperties(rs, columnPrefix);
+                } else {
+                    map = getMapFromProperties(rs, "");
+                }
             } else {
-                map = (Map<?, ?>) getObjectFromBlob(rs, columnPrefix + COL_JOB_DATAMAP);
+                if (containsColumnName(rs, columnPrefix + COL_JOB_DATAMAP)) {
+                    map = (Map<?, ?>) getObjectFromBlob(rs, columnPrefix + COL_JOB_DATAMAP);
+                } else {
+                    map = (Map<?, ?>) getObjectFromBlob(rs, COL_JOB_DATAMAP);
+                }
             }
 
             if (null != map) {
@@ -3334,7 +3336,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         ps.setBytes(index, (baos == null) ? new byte[0] : baos.toByteArray());
     }
 
-    private static  boolean containsColumnName(ResultSet rs, String colName) throws SQLException {
+    private static boolean containsColumnName(ResultSet rs, String colName) throws SQLException {
         ResultSetMetaData rsmd = rs.getMetaData();
         int columnCount = rsmd.getColumnCount();
 
@@ -3346,6 +3348,24 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             // Do stuff with name
         }
         return false;
+    }
+
+    private static String getString(ResultSet resultSet, String... columnNames) throws SQLException {
+        for (String columnName : columnNames) {
+            if (containsColumnName(resultSet, columnName)) {
+                return resultSet.getString(columnName);
+            }
+        }
+        throw new SQLException("Missing columns in result set: " + Arrays.toString(columnNames));
+    }
+
+    private static boolean getBoolean(ResultSet resultSet, String... columnNames) throws SQLException {
+        for (String columnName : columnNames) {
+            if (containsColumnName(resultSet, columnName)) {
+                return resultSet.getBoolean(columnName);
+            }
+        }
+        throw new SQLException("Missing columns in result set: " + Arrays.toString(columnNames));
     }
 }
 
