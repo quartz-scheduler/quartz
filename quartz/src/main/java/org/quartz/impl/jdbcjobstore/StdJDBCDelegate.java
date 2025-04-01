@@ -868,6 +868,54 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         }
     }
 
+    public List<JobDetail> selectJobDetails(Connection conn, GroupMatcher<JobKey> matcher,
+            ClassLoadHelper loadHelper) throws ClassNotFoundException, IOException, SQLException {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            if(isMatcherEquals(matcher)) {
+                ps = conn.prepareStatement(rtp(SELECT_JOB_DETAILS));
+                ps.setString(1, toSqlEqualsClause(matcher));
+            }
+            else {
+                ps = conn.prepareStatement(rtp(SELECT_JOB_DETAILS_LIKE));
+                ps.setString(1, toSqlLikeClause(matcher));
+            }
+            rs = ps.executeQuery();
+
+            LinkedList<JobDetail> list = new LinkedList<>();
+
+            if (rs.next()) {
+                JobDetailImpl job = new JobDetailImpl();
+
+                job.setName(rs.getString(COL_JOB_NAME));
+                job.setGroup(rs.getString(COL_JOB_GROUP));
+                job.setDescription(rs.getString(COL_DESCRIPTION));
+                job.setJobClass( loadHelper.loadClass(rs.getString(COL_JOB_CLASS), Job.class));
+                job.setDurability(getBoolean(rs, COL_IS_DURABLE));
+                job.setRequestsRecovery(getBoolean(rs, COL_REQUESTS_RECOVERY));
+
+                Map<?, ?> map;
+                if (canUseProperties()) {
+                    map = getMapFromProperties(rs);
+                } else {
+                    map = (Map<?, ?>) getObjectFromBlob(rs, COL_JOB_DATAMAP);
+                }
+
+                if (null != map) {
+                    job.setJobDataMap(new JobDataMap(map));
+                }
+
+                list.add(job);
+            }
+            return list;
+        } finally {
+            closeResultSet(rs);
+            closeStatement(ps);
+        }
+    }
+
     /**
      * build Map from java.util.Properties encoding.
      */

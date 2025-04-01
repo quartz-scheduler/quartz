@@ -185,7 +185,17 @@ public interface StdJDBCConstants extends Constants {
             + COL_SCHEDULER_NAME + " = " + SCHED_NAME_SUBST 
             + " AND " + COL_JOB_NAME
             + " = ? AND " + COL_JOB_GROUP + " = ?";
-            
+
+    String SELECT_JOB_DETAILS_LIKE = "SELECT *" + " FROM " +
+        TABLE_PREFIX_SUBST + TABLE_JOB_DETAILS + " WHERE "
+        + COL_SCHEDULER_NAME + " = " + SCHED_NAME_SUBST
+        + " AND " + COL_JOB_GROUP + " LIKE ?";
+
+    String SELECT_JOB_DETAILS = "SELECT *" + " FROM " +
+        TABLE_PREFIX_SUBST + TABLE_JOB_DETAILS + " WHERE "
+        + COL_SCHEDULER_NAME + " = " + SCHED_NAME_SUBST
+        + " AND " + COL_JOB_GROUP + " LIKE ?";
+
 
     String SELECT_NUM_JOBS = "SELECT COUNT(" + COL_JOB_NAME
             + ") " + " FROM " + TABLE_PREFIX_SUBST + TABLE_JOB_DETAILS + " WHERE "

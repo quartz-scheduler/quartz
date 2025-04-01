@@ -341,6 +341,26 @@ public interface DriverDelegate {
 
     /**
      * <p>
+     * Select all the JobDetail object for a given job name / group name.
+     * </p>
+     *
+     * @param conn
+     *          the DB Connection
+     * @param matcher
+     *          the group matcher to evaluate against the known jobs
+     * @return A list of populated JobDetail objects
+     * @throws ClassNotFoundException
+     *           if a class found during deserialization cannot be found or if
+     *           the job class could not be found
+     * @throws IOException
+     *           if deserialization causes an error
+     */
+    List<JobDetail> selectJobDetails(Connection conn, GroupMatcher<JobKey> matcher,
+         ClassLoadHelper loadHelper)
+        throws ClassNotFoundException, IOException, SQLException;
+
+    /**
+     * <p>
      * Select the total number of jobs stored.
      * </p>
      * 
