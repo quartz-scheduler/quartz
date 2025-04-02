@@ -18,6 +18,7 @@ package org.quartz.impl.jdbcjobstore;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.quartz.JobDetail;
@@ -46,8 +47,15 @@ public interface TriggerPersistenceDelegate {
     int deleteExtendedTriggerProperties(Connection conn, TriggerKey triggerKey) throws SQLException;
 
     TriggerPropertyBundle loadExtendedTriggerProperties(Connection conn, TriggerKey triggerKey) throws SQLException;
-    
-    
+
+    default TriggerPropertyBundle loadExtendedTriggerPropertiesFromResultSet(ResultSet resultSet, TriggerKey triggerKey) throws SQLException {
+        throw new UnsupportedOperationException("This delegate does not support loading from ResultSet");
+    }
+
+    default boolean hasInlinedResultSetProperties() {
+        return false;
+    }
+
     class TriggerPropertyBundle {
         
         private final ScheduleBuilder<?> sb;

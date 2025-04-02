@@ -23,9 +23,11 @@ import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.Locale;
 
 import org.quartz.JobPersistenceException;
@@ -177,6 +179,57 @@ public final class Util {
         }
     
         return null;
+    }
+
+    static boolean containsColumnName(ResultSet rs, String colName) throws SQLException {
+        ResultSetMetaData rsmd = rs.getMetaData();
+        int columnCount = rsmd.getColumnCount();
+
+        for (int i = 1; i <= columnCount; i++ ) {
+            String name = rsmd.getColumnName(i);
+            if (colName.equals(name)) {
+                return true;
+            }
+            // Do stuff with name
+        }
+        return false;
+    }
+
+    static String getString(ResultSet resultSet, String... columnNames) throws SQLException {
+        for (String columnName : columnNames) {
+            if (containsColumnName(resultSet, columnName)) {
+                return resultSet.getString(columnName);
+            }
+        }
+        throw new SQLException("Missing columns in result set: " + Arrays.toString(columnNames));
+    }
+
+    static boolean getBoolean(ResultSet resultSet, String... columnNames) throws SQLException {
+        for (String columnName : columnNames) {
+            if (containsColumnName(resultSet, columnName)) {
+                return resultSet.getBoolean(columnName);
+            }
+        }
+        throw new SQLException("Missing columns in result set: " + Arrays.toString(columnNames));
+    }
+
+    /**
+     * Checks if all columns are null in the result set.
+     * @param resultSet the result set
+     * @param columnNames columns names to check
+     * @return true if all columns are null, false otherwise
+     * @throws SQLException
+     */
+    static boolean areNull(ResultSet resultSet, String... columnNames) throws SQLException {
+        //TODO: check if resultSet is closed?
+        for (String columnName : columnNames) {
+            if (containsColumnName(resultSet, columnName)) {
+                if (resultSet.getObject(columnName) != null) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
 }

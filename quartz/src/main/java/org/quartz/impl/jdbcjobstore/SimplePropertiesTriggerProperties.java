@@ -103,6 +103,4 @@ public class SimplePropertiesTriggerProperties {
     public void setBoolean2(boolean boolean2) {
         this.boolean2 = boolean2;
     }
-
-    
 }
