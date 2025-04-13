@@ -642,23 +642,6 @@ public interface DriverDelegate {
      * <p>
      * Select the triggers for a calendar
      * </p>
-     *
-     * @param conn
-     *          the DB Connection
-     * @param calName
-     *          the name of the calendar
-     * @return an array of <code>(@link org.quartz.Trigger)</code> objects
-     *         associated with the given calendar.
-     * @throws SQLException
-     * @throws JobPersistenceException
-     */
-    List<OperableTrigger> selectTriggersForCalendarV2(Connection conn, String calName)
-        throws SQLException, ClassNotFoundException, IOException, JobPersistenceException;
-
-    /**
-     * <p>
-     * Select the triggers for a calendar
-     * </p>
      * 
      * @param conn
      *          the DB Connection
@@ -1167,6 +1150,23 @@ public interface DriverDelegate {
      */
     void clearData(Connection conn)
         throws SQLException;
+
+
+    /**
+     * Returns true if enhanced statements for the database operations is enabled
+     * @return true if using enhanced statements
+     */
+    default boolean isUsingEnhancedStatements() {
+        return false;
+    }
+
+    /**
+     * Set to true to use enhanced statements for the database operations
+     * @param useEnhancedStatements true to use enhanced statements
+     */
+    default void setUseEnhancedStatements(boolean useEnhancedStatements) {
+        //no-op
+    }
     
 }
 

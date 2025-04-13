@@ -75,6 +75,8 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
 
     protected final List<TriggerPersistenceDelegate> triggerPersistenceDelegates = new LinkedList<>();
 
+    protected boolean enabledBulkLoaders = false;
+
     
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1727,6 +1729,9 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
 
     public List<OperableTrigger> selectTriggersForCalendar(Connection conn, String calName)
         throws SQLException, ClassNotFoundException, IOException, JobPersistenceException {
+        if(enabledBulkLoaders) {
+            return selectBulkTriggersForCalendar(conn, calName);
+        }
 
         LinkedList<OperableTrigger> trigList = new LinkedList<>();
         PreparedStatement ps = null;
@@ -1748,7 +1753,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         return trigList;
     }
 
-    public List<OperableTrigger> selectTriggersForCalendarV2(Connection conn, String calName)
+    public List<OperableTrigger> selectBulkTriggersForCalendar(Connection conn, String calName)
         throws SQLException, ClassNotFoundException, IOException, JobPersistenceException {
         LinkedList<OperableTrigger> trigList = new LinkedList<>();
         PreparedStatement ps = null;
@@ -3438,6 +3443,14 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
      */
     protected void setBytes(PreparedStatement ps, int index, ByteArrayOutputStream baos) throws SQLException {
         ps.setBytes(index, (baos == null) ? new byte[0] : baos.toByteArray());
+    }
+
+    public boolean isEnabledBulkLoaders() {
+        return enabledBulkLoaders;
+    }
+
+    public void setEnabledBulkLoaders(boolean enabledBulkLoaders) {
+        this.enabledBulkLoaders = enabledBulkLoaders;
     }
 }
 

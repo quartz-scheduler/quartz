@@ -18,25 +18,15 @@
 
 package org.quartz.spi;
 
-import java.rmi.RemoteException;
+import org.quartz.*;
+import org.quartz.Trigger.CompletedExecutionInstruction;
+import org.quartz.Trigger.TriggerState;
+import org.quartz.impl.matchers.GroupMatcher;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.quartz.Calendar;
-import org.quartz.Job;
-import org.quartz.JobDetail;
-import org.quartz.JobKey;
-import org.quartz.JobPersistenceException;
-import org.quartz.ObjectAlreadyExistsException;
-import org.quartz.SchedulerConfigException;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-import org.quartz.TriggerKey;
-import org.quartz.Trigger.CompletedExecutionInstruction;
-import org.quartz.Trigger.TriggerState;
-import org.quartz.impl.matchers.GroupMatcher;
 
 /**
  * <p>
@@ -681,4 +671,17 @@ public interface JobStore {
      * @return the time (in milliseconds) to wait before trying again
      */
     long getAcquireRetryDelay(int failureCount);
+
+    /**
+     * Returns true if enhanced statements for the database operations is enabled
+     * @return true if using enhanced statements
+     */
+    boolean isUsingEnhancedStatements();
+
+    /**
+     * Set to true to use enhanced statements for the database operations
+     * @param useEnhancedStatements true to use enhanced statements
+     */
+    void setUseEnhancedStatements(boolean useEnhancedStatements);
+
 }

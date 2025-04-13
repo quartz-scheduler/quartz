@@ -136,8 +136,6 @@ public abstract class JobStoreSupport implements JobStore, Constants {
     
     private volatile boolean schedulerRunning = false;
     private volatile boolean shutdown = false;
-
-    protected boolean useEnhancedStatements = false;
     
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1662,11 +1660,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                 
                 if(updateTriggers) {
                     List<OperableTrigger> trigs;
-                    if (isUsingEnhancedStatements()) {
-                        trigs = getDelegate().selectTriggersForCalendarV2(conn, calName);
-                    } else {
-                        trigs = getDelegate().selectTriggersForCalendar(conn, calName);
-                    }
+                    trigs = getDelegate().selectTriggersForCalendar(conn, calName);
 
                     for(OperableTrigger trigger: trigs) {
                         trigger.updateWithNewCalendar(calendar, getMisfireThreshold());
@@ -3637,7 +3631,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
      * @return true if using enhanced statements
      */
     public boolean isUsingEnhancedStatements() {
-        return this.useEnhancedStatements;
+        return this.delegate.isUsingEnhancedStatements();
     }
 
     /**
@@ -3645,7 +3639,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
      * @param useEnhancedStatements true to use enhanced statements
      */
     public void setUseEnhancedStatements(boolean useEnhancedStatements) {
-        this.useEnhancedStatements = useEnhancedStatements;
+        this.delegate.setUseEnhancedStatements(useEnhancedStatements);
     }
 
     /**
