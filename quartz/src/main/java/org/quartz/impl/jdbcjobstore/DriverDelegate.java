@@ -669,6 +669,23 @@ public interface DriverDelegate {
         IOException, JobPersistenceException;
 
     /**
+     * Gets a list of trigger by job and trigger group matchers
+     * <br>
+     * Note: This requires the use of enhanced statements
+     * @param conn the connection
+     * @param jobMatcher Job Group Matcher
+     * @param triggerMatcher Trigger group matcher
+     * @return list of trigger, or empty list if no trigger found
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     * @throws IOException
+     * @throws JobPersistenceException
+     */
+
+    List<OperableTrigger> getTriggersByJobAndTriggerGroup(Connection conn, GroupMatcher<JobKey> jobMatcher, GroupMatcher<TriggerKey> triggerMatcher) throws SQLException, ClassNotFoundException,
+        IOException, JobPersistenceException;
+
+    /**
      * <p>
      * Select a trigger's JobDataMap.
      * </p>

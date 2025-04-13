@@ -416,13 +416,39 @@ public interface JobStore {
         throws JobPersistenceException;
 
     /**
-     * Get all of the Triggers that are associated to the given Job.
+     * Get all the Triggers that are associated to the given Job.
      *
      * <p>
      * If there are no matches, a zero-length array should be returned.
      * </p>
      */
     List<OperableTrigger> getTriggersForJob(JobKey jobKey) throws JobPersistenceException;
+
+    /**
+     * Get all the Triggers that are associated with the Job Group
+     *
+     * <p>
+     * If there are no matches, a zero-length array should be returned.
+     * </p>
+     * @throws JobPersistenceException thrown if there is an error
+     */
+    default List<OperableTrigger> getTriggersByJobGroup(GroupMatcher<JobKey> matcher) throws JobPersistenceException {
+        return getTriggersByJobAndTriggerGroup(matcher, GroupMatcher.anyGroup());
+    }
+
+    /**
+     * Get all the Triggers that are associated with the Job Group
+     *
+     * <p>
+     * If there are no matches, a zero-length array should be returned.
+     * </p>
+     * @throws JobPersistenceException thrown if there is an error
+     */
+    default List<OperableTrigger> getTriggersByTriggerGroup(GroupMatcher<TriggerKey> matcher) throws JobPersistenceException {
+        return getTriggersByJobAndTriggerGroup(GroupMatcher.anyGroup(), matcher);
+    }
+
+    List<OperableTrigger> getTriggersByJobAndTriggerGroup(GroupMatcher<JobKey> jobMatcher, GroupMatcher<TriggerKey> triggerMatcher) throws JobPersistenceException;
 
     /**
      * Get the current state of the identified <code>{@link Trigger}</code>.
@@ -524,6 +550,11 @@ public interface JobStore {
     Collection<String> resumeTriggers(GroupMatcher<TriggerKey> matcher)
         throws JobPersistenceException;
 
+    /**
+     * Gets the set of all the paused trigger group names.
+     * @return a set of paused trigger group names.
+     * @throws JobPersistenceException thrown if there is an error
+     */
     Set<String> getPausedTriggerGroups()
         throws JobPersistenceException;
 

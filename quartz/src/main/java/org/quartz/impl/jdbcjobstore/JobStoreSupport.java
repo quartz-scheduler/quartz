@@ -1376,7 +1376,6 @@ public abstract class JobStoreSupport implements JobStore, Constants {
     
     protected JobDetail retrieveJob(Connection conn, JobKey key) throws JobPersistenceException {
         try {
-
             return getDelegate().selectJobDetail(conn, key,
                     getClassLoadHelper());
         } catch (ClassNotFoundException e) {
@@ -1659,6 +1658,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                 }
                 
                 if(updateTriggers) {
+                    // FUTURE_TODO: make this more efficient with a true bulk operation...
                     List<OperableTrigger> trigs;
                     trigs = getDelegate().selectTriggersForCalendar(conn, calName);
 
@@ -2113,6 +2113,23 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         }
 
         return list;
+    }
+
+    public List<OperableTrigger> getTriggersByJobAndTriggerGroup(GroupMatcher<JobKey> jobMatcher, GroupMatcher<TriggerKey> triggerMatcher) throws JobPersistenceException {
+        return (List<OperableTrigger>)executeWithoutLock( // no locks necessary for read...
+            (TransactionCallback) conn -> getTriggersByJobAndTriggerGroup(conn, jobMatcher, triggerMatcher));
+    }
+
+    protected List<OperableTrigger> getTriggersByJobAndTriggerGroup(Connection conn, GroupMatcher<JobKey> jobMatcher, GroupMatcher<TriggerKey> triggerMatcher) throws JobPersistenceException {
+        GroupMatcher<JobKey> jMatcher = jobMatcher == null ? GroupMatcher.anyGroup() : jobMatcher;
+        GroupMatcher<TriggerKey> tMatcher = triggerMatcher == null ? GroupMatcher.anyGroup() : triggerMatcher;
+        try {
+            return getDelegate().getTriggersByJobAndTriggerGroup(conn, jobMatcher, triggerMatcher);
+        } catch (JobPersistenceException jpe) {
+            throw jpe;
+        } catch (Exception e) {
+            throw new JobPersistenceException("Couldn't obtain triggers for job: " + e.getMessage(), e);
+        }
     }
 
     /**
@@ -3635,7 +3652,8 @@ public abstract class JobStoreSupport implements JobStore, Constants {
     }
 
     /**
-     * Set to true to use enhanced statements for the database operations
+     * Set to true to use enhanced bulk statements for the database operations
+     *
      * @param useEnhancedStatements true to use enhanced statements
      */
     public void setUseEnhancedStatements(boolean useEnhancedStatements) {

@@ -76,7 +76,6 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
     protected final List<TriggerPersistenceDelegate> triggerPersistenceDelegates = new LinkedList<>();
 
     protected boolean enabledBulkLoaders = false;
-
     
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -654,8 +653,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
      * 
      * @param conn
      *          the DB Connection
-     * @return an array of <code>{@link
-     * org.quartz.utils.Key}</code> objects
+     * @return an array of <code>{@link org.quartz.utils.Key}</code> objects
      */
     public List<TriggerKey> selectTriggerKeysForJob(Connection conn, JobKey jobKey) throws SQLException {
         PreparedStatement ps = null;
@@ -836,8 +834,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             if(isMatcherEquals(matcher)) {
                 ps = conn.prepareStatement(rtp(SELECT_JOB_DETAILS));
                 ps.setString(1, toSqlEqualsClause(matcher));
-            }
-            else {
+            } else {
                 ps = conn.prepareStatement(rtp(SELECT_JOB_DETAILS_LIKE));
                 ps.setString(1, toSqlLikeClause(matcher));
             }
@@ -1619,7 +1616,6 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         if (containsColumnNames(rs, columnPrefix + COL_DESCRIPTION)) {
             job.setDescription(rs.getString(COL_DESCRIPTION));
         }
-//        job.setDurability(getBoolean(rs, COL_IS_DURABLE ,columnPrefix + COL_IS_DURABLE));
         job.setDurability(rs.getBoolean(COL_IS_DURABLE));
         if (loadJobClass) {
             job.setJobClass(loadHelper.loadClass(rs.getString(COL_JOB_CLASS), Job.class));
@@ -1700,8 +1696,12 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
      * @throws SQLException
      * @throws JobPersistenceException 
      */
-    public List<OperableTrigger> selectTriggersForJob(Connection conn, JobKey jobKey) throws SQLException, ClassNotFoundException,
-            IOException, JobPersistenceException {
+    public List<OperableTrigger> selectTriggersForJob(Connection conn, JobKey jobKey) throws SQLException,
+        ClassNotFoundException, IOException, JobPersistenceException {
+
+        if (isEnabledBulkLoaders()) {
+            return selectBulkTriggersForJob(conn, jobKey);
+        }
 
         LinkedList<OperableTrigger> trigList = new LinkedList<>();
         PreparedStatement ps = null;
@@ -1727,9 +1727,33 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         return trigList;
     }
 
+    protected List<OperableTrigger> selectBulkTriggersForJob(Connection conn, JobKey jobKey) throws SQLException,
+        ClassNotFoundException, IOException, JobPersistenceException {
+        LinkedList<OperableTrigger> trigList = new LinkedList<>();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            ps = conn.prepareStatement(rtp(SELECT_TRIGGERS_FOR_JOB_V2));
+            ps.setString(1, jobKey.getName());
+            ps.setString(2, jobKey.getGroup());
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                trigList.add(handleTriggerV2(rs, conn, triggerKey(rs.getString(COL_TRIGGER_NAME), rs.getString(COL_TRIGGER_GROUP))));
+            }
+        } finally {
+            closeResultSet(rs);
+            closeStatement(ps);
+        }
+
+        return trigList;
+    }
+
+
     public List<OperableTrigger> selectTriggersForCalendar(Connection conn, String calName)
         throws SQLException, ClassNotFoundException, IOException, JobPersistenceException {
-        if(enabledBulkLoaders) {
+        if(isEnabledBulkLoaders()) {
             return selectBulkTriggersForCalendar(conn, calName);
         }
 
@@ -1753,15 +1777,77 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         return trigList;
     }
 
-    public List<OperableTrigger> selectBulkTriggersForCalendar(Connection conn, String calName)
+    protected List<OperableTrigger> selectBulkTriggersForCalendar(Connection conn, String calName)
         throws SQLException, ClassNotFoundException, IOException, JobPersistenceException {
         LinkedList<OperableTrigger> trigList = new LinkedList<>();
         PreparedStatement ps = null;
         ResultSet rs = null;
 
         try {
-            ps = conn.prepareStatement(rtp(SELECT_TRIGGERS_FOR_JOB_V2));
+            ps = conn.prepareStatement(rtp(SELECT_TRIGGERS_FOR_CALENDAR_V2));
             ps.setString(1, calName);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                trigList.add(handleTriggerV2(rs, conn, triggerKey(rs.getString(COL_TRIGGER_NAME), rs.getString(COL_TRIGGER_GROUP))));
+            }
+        } finally {
+            closeResultSet(rs);
+            closeStatement(ps);
+        }
+
+        return trigList;
+    }
+
+    public List<OperableTrigger> getTriggersByJobAndTriggerGroup(Connection conn, GroupMatcher<JobKey> jobMatcher, GroupMatcher<TriggerKey> triggerMatcher) throws SQLException, ClassNotFoundException,
+        IOException, JobPersistenceException {
+
+        String baseStatement = SELECT_BULK_TRIGGERS_BASE;
+        boolean hasMatcher = false;
+        List<PreparedStatementConsumer> columnSetters = new LinkedList<>();
+
+        if (jobMatcher == null) {
+            throw new IllegalArgumentException("jobMatcher cannot be null");
+        }
+
+        if (triggerMatcher == null) {
+            throw new IllegalArgumentException("triggerMatcher cannot be null");
+        }
+
+        if (jobMatcher.getCompareWithOperator() != StringMatcher.StringOperatorName.ANYTHING) {
+            hasMatcher = true;
+            if (isMatcherEquals(jobMatcher)) {
+                baseStatement += " WHERE " + "T." + COL_JOB_GROUP + " = ?";
+                columnSetters.add(ps -> ps.setString(1, toSqlEqualsClause(jobMatcher)));
+            } else {
+                baseStatement += " WHERE " + "T." + COL_JOB_GROUP + " LIKE ?";
+                columnSetters.add(ps -> ps.setString(1, toSqlLikeClause(jobMatcher)));
+            }
+        }
+
+        if (jobMatcher.getCompareWithOperator() != StringMatcher.StringOperatorName.ANYTHING) {
+            final int columnIndex = hasMatcher ? 2 : 1;
+            if (hasMatcher) {
+                baseStatement += " AND ";
+            }
+            if (isMatcherEquals(triggerMatcher)) {
+                baseStatement += " WHERE " + "T." + COL_TRIGGER_GROUP + " = ?";
+                columnSetters.add(ps -> ps.setString(columnIndex, toSqlEqualsClause(triggerMatcher)));
+            } else {
+                baseStatement += " WHERE " + "T." +  COL_TRIGGER_GROUP + " LIKE ?";
+                columnSetters.add(ps -> ps.setString(columnIndex, toSqlLikeClause(triggerMatcher)));
+            }
+        }
+
+        LinkedList<OperableTrigger> trigList = new LinkedList<>();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            ps = conn.prepareStatement(rtp(baseStatement));
+            for (PreparedStatementConsumer setter : columnSetters) {
+                setter.accept(ps);
+            }
             rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -3451,6 +3537,11 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
 
     public void setEnabledBulkLoaders(boolean enabledBulkLoaders) {
         this.enabledBulkLoaders = enabledBulkLoaders;
+    }
+
+    @FunctionalInterface
+    protected interface PreparedStatementConsumer {
+        void accept(PreparedStatement ps) throws SQLException;
     }
 }
 

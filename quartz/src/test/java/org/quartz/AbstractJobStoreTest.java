@@ -32,6 +32,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.quartz.DailyTimeIntervalScheduleBuilder.MONDAY_THROUGH_FRIDAY;
 
 
 /**
@@ -417,6 +418,72 @@ public abstract class AbstractJobStoreTest  {
         // Retrieve by group
         assertEquals(5, store.getJobKeys(GroupMatcher.jobGroupEquals("a")).size(), "Wrong number of jobs in group 'a'");
         assertEquals(5, store.getJobKeys(GroupMatcher.jobGroupEquals("b")).size(), "Wrong number of jobs in group 'b'");
+    }
+
+    @Test
+    void testStoreAndRetrieveTriggersMultipleTypes() throws Exception {
+        SchedulerSignaler schedSignaler = new SampleSignaler();
+        ClassLoadHelper loadHelper = new CascadingClassLoadHelper();
+        loadHelper.initialize();
+
+        JobStore store = createJobStore("testStoreAndRetrieveTriggers");
+        store.initialize(loadHelper, schedSignaler);
+
+        // Store jobs and triggers.
+        for (int i=0; i < 10; i++) {
+            String group =  i < 5 ? "a" : "b";
+            JobDetail job = JobBuilder.newJob(MyJob.class).withIdentity("job" + i, group).build();
+            store.storeJob(job, true);
+            Trigger trigger;
+            if (i == 0 || i == 5) {
+                trigger = TriggerBuilder.newTrigger()
+                    .withIdentity("job" + i, group)
+                    .withSchedule(CalendarIntervalScheduleBuilder.calendarIntervalSchedule().withIntervalInDays(1))
+                    .forJob(job)
+                    .build();
+            } else if (i == 1 || i == 6) {
+                trigger = TriggerBuilder.newTrigger()
+                    .withIdentity("job" + i, group)
+                    .withSchedule(CronScheduleBuilder.cronSchedule("0 0 12 * * ?"))
+                    .forJob(job)
+                    .build();
+            } else if (i == 2 || i == 7) {
+                trigger = TriggerBuilder.newTrigger()
+                    .withIdentity("job" + i, group)
+                    .withSchedule(DailyTimeIntervalScheduleBuilder.dailyTimeIntervalSchedule()
+                        .startingDailyAt(TimeOfDay.hourAndMinuteOfDay(9, 0))
+                        .endingDailyAt(TimeOfDay.hourAndMinuteOfDay(17, 0))
+                        .onDaysOfTheWeek(MONDAY_THROUGH_FRIDAY)
+                        .withIntervalInHours(1))
+                    .forJob(job)
+                    .build();
+            } else if (i == 3 || i  == 8){
+                trigger = TriggerBuilder.newTrigger()
+                    .withIdentity("job" + i, group)
+                    .withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInMinutes(15).repeatForever())
+                    .forJob(job)
+                    .build();
+            } else {
+                continue;
+            }
+            store.storeTrigger((OperableTrigger)trigger, true);
+        }
+        // Retrieve job and trigger.
+        for (int i=0; i < 10; i++) {
+            String group =  i < 5 ? "a" : "b";
+            JobKey jobKey = JobKey.jobKey("job" + i, group);
+            JobDetail storedJob = store.retrieveJob(jobKey);
+            assertEquals(jobKey, storedJob.getKey());
+
+            TriggerKey triggerKey = TriggerKey.triggerKey("job" + i, group);
+            Trigger storedTrigger = store.retrieveTrigger(triggerKey);
+            assertEquals(triggerKey, storedTrigger.getKey());
+        }
+        // Retrieve by group
+        //TODO: get by matcher
+        assertEquals(4, store.getJobKeys(GroupMatcher.jobGroupEquals("a")).size(), "Wrong number of jobs in group 'a'");
+
+        assertEquals(4, store.getJobKeys(GroupMatcher.jobGroupEquals("b")).size(), "Wrong number of jobs in group 'b'");
     }
 
     @Test

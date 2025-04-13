@@ -18,44 +18,20 @@
 
 package org.quartz.simpl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicLong;
-
+import org.quartz.*;
 import org.quartz.Calendar;
-import org.quartz.Job;
-import org.quartz.JobDataMap;
-import org.quartz.JobDetail;
-import org.quartz.JobKey;
-import org.quartz.JobPersistenceException;
-import org.quartz.ObjectAlreadyExistsException;
-import org.quartz.Trigger;
-import org.quartz.TriggerKey;
 import org.quartz.Trigger.CompletedExecutionInstruction;
 import org.quartz.Trigger.TriggerState;
 import org.quartz.Trigger.TriggerTimeComparator;
-import org.quartz.impl.jdbcjobstore.JobStoreSupport;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.impl.matchers.StringMatcher;
-import org.quartz.spi.ClassLoadHelper;
-import org.quartz.spi.JobStore;
-import org.quartz.spi.OperableTrigger;
-import org.quartz.spi.SchedulerSignaler;
-import org.quartz.spi.TriggerFiredBundle;
-import org.quartz.spi.TriggerFiredResult;
+import org.quartz.spi.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * <p>
@@ -611,6 +587,30 @@ public class RAMJobStore implements JobStore {
         }
 
         return outList == null ? java.util.Collections.emptyList() : outList;
+    }
+
+    public List<OperableTrigger> getTriggersByJobAndTriggerGroup(GroupMatcher<JobKey> jobMatcher, GroupMatcher<TriggerKey> triggerMatcher) throws JobPersistenceException {
+        List<OperableTrigger> matchingTriggers = new ArrayList<>();
+
+        synchronized (lock) {
+            // Get all matching jobs
+            Set<JobKey> matchingJobKeys = getJobKeys(jobMatcher);
+
+            for (JobKey jobKey : matchingJobKeys) {
+                // Get triggers for the job
+                List<OperableTrigger> jobTriggers = getTriggersForJob(jobKey);
+
+                for (OperableTrigger trigger : jobTriggers) {
+
+                    // Check if the trigger matches the trigger group
+                    if (triggerMatcher.getCompareWithOperator().evaluate(trigger.getKey().getGroup(), triggerMatcher.getCompareToValue())) {
+                        matchingTriggers.add(trigger);
+                    }
+                }
+            }
+        }
+
+        return matchingTriggers;
     }
 
 
