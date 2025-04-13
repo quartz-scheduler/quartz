@@ -420,13 +420,12 @@ public abstract class AbstractJobStoreTest  {
         assertEquals(5, store.getJobKeys(GroupMatcher.jobGroupEquals("b")).size(), "Wrong number of jobs in group 'b'");
     }
 
-    @Test
-    void testStoreAndRetrieveTriggersMultipleTypes() throws Exception {
+    private JobStore createVariedTriggers(String testStoreName) throws JobPersistenceException, SchedulerConfigException{
         SchedulerSignaler schedSignaler = new SampleSignaler();
         ClassLoadHelper loadHelper = new CascadingClassLoadHelper();
         loadHelper.initialize();
 
-        JobStore store = createJobStore("testStoreAndRetrieveTriggers");
+        JobStore store = createJobStore(testStoreName);
         store.initialize(loadHelper, schedSignaler);
 
         // Store jobs and triggers.
@@ -468,6 +467,12 @@ public abstract class AbstractJobStoreTest  {
             }
             store.storeTrigger((OperableTrigger)trigger, true);
         }
+        return store;
+    }
+
+    @Test
+    void testStoreAndRetrieveTriggersBasic() throws Exception {
+        JobStore store = createVariedTriggers("testStoreAndRetrieveTriggersBasic");
         // Retrieve job and trigger.
         for (int i=0; i < 10; i++) {
             String group =  i < 5 ? "a" : "b";
@@ -477,13 +482,43 @@ public abstract class AbstractJobStoreTest  {
 
             TriggerKey triggerKey = TriggerKey.triggerKey("job" + i, group);
             Trigger storedTrigger = store.retrieveTrigger(triggerKey);
-            assertEquals(triggerKey, storedTrigger.getKey());
+            if (i != 4 && i != 9) {
+                assertEquals(triggerKey, storedTrigger.getKey());
+            } else {
+                assertNull(storedTrigger);
+            }
         }
         // Retrieve by group
-        //TODO: get by matcher
-        assertEquals(4, store.getJobKeys(GroupMatcher.jobGroupEquals("a")).size(), "Wrong number of jobs in group 'a'");
+    }
 
-        assertEquals(4, store.getJobKeys(GroupMatcher.jobGroupEquals("b")).size(), "Wrong number of jobs in group 'b'");
+    @Test
+    void testStoreAndRetrieveTriggersJustTriggerGroupMatchers() throws Exception {
+        JobStore store = createVariedTriggers("testStoreAndRetrieveTriggersJustTriggerGroupMatchers");
+        //TODO: get by matcher
+        List<OperableTrigger> aTriggers = store.getTriggersByTriggerGroup(GroupMatcher.triggerGroupEquals("a"));
+        List<OperableTrigger> bTriggers = store.getTriggersByTriggerGroup(GroupMatcher.triggerGroupEquals("b"));
+        assertEquals(4, aTriggers.size(), "Wrong number of jobs in group 'a'");
+        assertEquals(4, bTriggers.size(), "Wrong number of jobs in group 'b'");
+    }
+
+    @Test
+    void testStoreAndRetrieveTriggersJustTriggerJobMatchers() throws Exception {
+        JobStore store = createVariedTriggers("testStoreAndRetrieveTriggersJustTriggerJobMatchers");
+        //TODO: get by matcher
+        List<OperableTrigger> aTriggers = store.getTriggersByJobGroup(GroupMatcher.jobGroupEquals("a"));
+        List<OperableTrigger> bTriggers = store.getTriggersByJobGroup(GroupMatcher.jobGroupEquals("b"));
+        assertEquals(4, aTriggers.size(), "Wrong number of jobs in group 'a'");
+        assertEquals(4, bTriggers.size(), "Wrong number of jobs in group 'b'");
+    }
+
+    @Test
+    void testStoreAndRetrieveTriggersBothMatchers() throws Exception {
+        JobStore store = createVariedTriggers("testStoreAndRetrieveTriggersJustGroupMatchers");
+        //TODO: get by matcher
+        List<OperableTrigger> aTriggers = store.getTriggersByJobAndTriggerGroup(GroupMatcher.jobGroupEquals("a"), GroupMatcher.triggerGroupEquals("a"));
+        List<OperableTrigger> bTriggers = store.getTriggersByJobAndTriggerGroup(GroupMatcher.jobGroupEquals("b"), GroupMatcher.triggerGroupEquals("b"));
+        assertEquals(4, aTriggers.size(), "Wrong number of jobs in group 'a'");
+        assertEquals(4, bTriggers.size(), "Wrong number of jobs in group 'b'");
     }
 
     @Test

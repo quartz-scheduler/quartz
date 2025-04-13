@@ -431,7 +431,9 @@ public interface JobStore {
      * If there are no matches, a zero-length array should be returned.
      * </p>
      * @throws JobPersistenceException thrown if there is an error
-     */
+     * @see #getTriggersByTriggerGroup(GroupMatcher)
+     * @see #getTriggersByJobAndTriggerGroup(GroupMatcher, GroupMatcher)
+     * */
     default List<OperableTrigger> getTriggersByJobGroup(GroupMatcher<JobKey> matcher) throws JobPersistenceException {
         return getTriggersByJobAndTriggerGroup(matcher, GroupMatcher.anyGroup());
     }
@@ -443,11 +445,23 @@ public interface JobStore {
      * If there are no matches, a zero-length array should be returned.
      * </p>
      * @throws JobPersistenceException thrown if there is an error
-     */
+     * @see #getTriggersByJobGroup(GroupMatcher)
+     * @see #getTriggersByJobAndTriggerGroup(GroupMatcher, GroupMatcher)      */
     default List<OperableTrigger> getTriggersByTriggerGroup(GroupMatcher<TriggerKey> matcher) throws JobPersistenceException {
         return getTriggersByJobAndTriggerGroup(GroupMatcher.anyGroup(), matcher);
     }
 
+    /**
+     * Get all the Triggers that are associated with the Job & trigger groupmatcher
+     * <br>
+     * note: requires the use of enhanced statements
+     * @param jobMatcher
+     * @param triggerMatcher
+     * @return
+     * @throws JobPersistenceException
+     * @see #getTriggersByJobGroup(GroupMatcher)
+     * @see #getTriggersByTriggerGroup(GroupMatcher)
+     */
     List<OperableTrigger> getTriggersByJobAndTriggerGroup(GroupMatcher<JobKey> jobMatcher, GroupMatcher<TriggerKey> triggerMatcher) throws JobPersistenceException;
 
     /**

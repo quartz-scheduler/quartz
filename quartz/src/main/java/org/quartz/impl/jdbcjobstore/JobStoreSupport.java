@@ -2124,7 +2124,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         GroupMatcher<JobKey> jMatcher = jobMatcher == null ? GroupMatcher.anyGroup() : jobMatcher;
         GroupMatcher<TriggerKey> tMatcher = triggerMatcher == null ? GroupMatcher.anyGroup() : triggerMatcher;
         try {
-            return getDelegate().getTriggersByJobAndTriggerGroup(conn, jobMatcher, triggerMatcher);
+            return getDelegate().getTriggersByJobAndTriggerGroup(conn, jMatcher, tMatcher);
         } catch (JobPersistenceException jpe) {
             throw jpe;
         } catch (Exception e) {
