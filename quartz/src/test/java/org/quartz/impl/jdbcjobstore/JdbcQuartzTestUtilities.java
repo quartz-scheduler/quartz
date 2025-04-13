@@ -16,6 +16,9 @@
  */
 package org.quartz.impl.jdbcjobstore;
 
+import org.quartz.utils.ConnectionProvider;
+import org.quartz.utils.DBConnectionManager;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,17 +32,19 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-import org.quartz.utils.ConnectionProvider;
-import org.quartz.utils.DBConnectionManager;
-
 public final class JdbcQuartzTestUtilities {
 
     public enum DatabaseType {
-        DERBY("org/quartz/impl/jdbcjobstore/tables_derby.sql", StdJDBCDelegate.class.getName()),
-        MSSQL("org/quartz/impl/jdbcjobstore/tables_sqlServer.sql", MSSQLDelegate.class.getName());
+        DERBY("org/quartz/impl/jdbcjobstore/tables_derby.sql"),
+        MSSQL("org/quartz/impl/jdbcjobstore/tables_sqlServer.sql", MSSQLDelegate.class.getName()),
+        MYSQL("org/quartz/impl/jdbcjobstore/tables_mysql_innodb.sql");
 
         private final String scriptResource;
         private final String delegateClassName;
+
+        DatabaseType(String scriptResource) {
+            this(scriptResource, StdJDBCDelegate.class.getName());
+        }
 
         DatabaseType(String scriptResource, String delegateClassName) {
             this.scriptResource = scriptResource;
@@ -95,9 +100,10 @@ public final class JdbcQuartzTestUtilities {
         case DERBY:
             DBConnectionManager.getInstance().addConnectionProvider(name, new DerbyEmbeddedConnectionProvider(name));
             break;
+        case MYSQL:
         case MSSQL:
             DBConnectionManager.getInstance().addConnectionProvider(name,
-                    new TestContainerEmbeddedConnectionProvider("jdbc:tc:sqlserver:latest:///" + name));
+                    new TestContainerEmbeddedConnectionProvider(databaseType, name));
             break;
         default:
             throw new AssertionError("Unsupported database type: " + databaseType);
@@ -115,6 +121,7 @@ public final class JdbcQuartzTestUtilities {
                 }
             }
             break;
+        case MYSQL:
         case MSSQL:
             shutdownDatabase(name, databaseType);
             break;
@@ -134,6 +141,7 @@ public final class JdbcQuartzTestUtilities {
                 }
             }
             break;
+        case MYSQL:
         case MSSQL:
             DBConnectionManager.getInstance().shutdown(name);
             break;
@@ -183,6 +191,29 @@ public final class JdbcQuartzTestUtilities {
         private final String jdbcUrl;
         //we keep a connection open to keep the testcontainer container alive
         private final Connection conn;
+
+        TestContainerEmbeddedConnectionProvider(DatabaseType databaseType, String name) throws SQLException {
+            if (databaseType == DatabaseType.MYSQL) {
+                this.jdbcUrl = "jdbc:tc:mysql:8:///" + name;
+            } else if (databaseType == DatabaseType.MSSQL) {
+                this.jdbcUrl = "jdbc:tc:sqlserver:latest:///" + name;
+            } else {
+                throw new IllegalArgumentException("Unsupported database type: " + databaseType);
+            }
+            this.conn = DriverManager.getConnection(this.jdbcUrl);
+
+            Statement statement = conn.createStatement();
+            if (databaseType == DatabaseType.MYSQL) {
+                for (String command : getDatabaseSetupScript(DatabaseType.MSSQL)) {
+                    statement.addBatch(command);
+                }
+            } else {
+                for (String command : getDatabaseSetupScript(DatabaseType.MSSQL)) {
+                    statement.addBatch(command.replace("GO", ";").replace("[enter_db_name_here]", "[master]"));
+                }
+            }
+            statement.executeBatch();
+        }
 
         TestContainerEmbeddedConnectionProvider(String jdbcUrl) throws SQLException {
             this.jdbcUrl = jdbcUrl;

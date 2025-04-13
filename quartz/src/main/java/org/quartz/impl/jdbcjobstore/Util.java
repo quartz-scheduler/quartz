@@ -19,6 +19,8 @@
 
 package org.quartz.impl.jdbcjobstore;
 
+import org.quartz.JobPersistenceException;
+
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
@@ -29,8 +31,6 @@ import java.sql.Statement;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Locale;
-
-import org.quartz.JobPersistenceException;
 
 /**
  * <p>
@@ -181,14 +181,16 @@ public final class Util {
         return null;
     }
 
-    static boolean containsColumnName(ResultSet rs, String colName) throws SQLException {
+    static boolean containsColumnNames(ResultSet rs, String... colNames) throws SQLException {
         ResultSetMetaData rsmd = rs.getMetaData();
         int columnCount = rsmd.getColumnCount();
 
         for (int i = 1; i <= columnCount; i++ ) {
             String name = rsmd.getColumnName(i);
-            if (colName.equals(name)) {
-                return true;
+            for (String colName : colNames) {
+                if (colName.equals(name)) {
+                    return true;
+                }
             }
             // Do stuff with name
         }
@@ -197,7 +199,7 @@ public final class Util {
 
     static String getString(ResultSet resultSet, String... columnNames) throws SQLException {
         for (String columnName : columnNames) {
-            if (containsColumnName(resultSet, columnName)) {
+            if (containsColumnNames(resultSet, columnName)) {
                 return resultSet.getString(columnName);
             }
         }
@@ -206,7 +208,7 @@ public final class Util {
 
     static boolean getBoolean(ResultSet resultSet, String... columnNames) throws SQLException {
         for (String columnName : columnNames) {
-            if (containsColumnName(resultSet, columnName)) {
+            if (containsColumnNames(resultSet, columnName)) {
                 return resultSet.getBoolean(columnName);
             }
         }
@@ -223,7 +225,7 @@ public final class Util {
     static boolean areNull(ResultSet resultSet, String... columnNames) throws SQLException {
         //TODO: check if resultSet is closed?
         for (String columnName : columnNames) {
-            if (containsColumnName(resultSet, columnName)) {
+            if (containsColumnNames(resultSet, columnName)) {
                 if (resultSet.getObject(columnName) != null) {
                     return false;
                 }

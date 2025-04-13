@@ -18,25 +18,18 @@
 
 package org.quartz.impl.jdbcjobstore;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Set;
-
-import org.quartz.Calendar;
-import org.quartz.Job;
-import org.quartz.JobDataMap;
-import org.quartz.JobDetail;
-import org.quartz.JobKey;
-import org.quartz.JobPersistenceException;
-import org.quartz.Trigger;
-import org.quartz.TriggerKey;
+import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.spi.ClassLoadHelper;
 import org.quartz.spi.OperableTrigger;
 import org.quartz.utils.Key;
 import org.slf4j.Logger;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Set;
 
 /**
  * <p>
@@ -644,6 +637,23 @@ public interface DriverDelegate {
      */
     List<OperableTrigger> selectTriggersForJob(Connection conn, JobKey jobKey) throws SQLException, ClassNotFoundException,
         IOException, JobPersistenceException;
+
+    /**
+     * <p>
+     * Select the triggers for a calendar
+     * </p>
+     *
+     * @param conn
+     *          the DB Connection
+     * @param calName
+     *          the name of the calendar
+     * @return an array of <code>(@link org.quartz.Trigger)</code> objects
+     *         associated with the given calendar.
+     * @throws SQLException
+     * @throws JobPersistenceException
+     */
+    List<OperableTrigger> selectTriggersForCalendarV2(Connection conn, String calName)
+        throws SQLException, ClassNotFoundException, IOException, JobPersistenceException;
 
     /**
      * <p>

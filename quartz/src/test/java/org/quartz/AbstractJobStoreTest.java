@@ -16,13 +16,6 @@
  */
 package org.quartz;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -34,6 +27,9 @@ import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.impl.triggers.SimpleTriggerImpl;
 import org.quartz.simpl.CascadingClassLoadHelper;
 import org.quartz.spi.*;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -64,12 +60,18 @@ public abstract class AbstractJobStoreTest  {
 
     @AfterEach
     protected void tearDown() {
+        if (fJobStore instanceof JobStoreSupport) {
+            //default to false
+            ((JobStoreSupport) fJobStore).setUseEnhancedStatements(false);
+        }
         destroyJobStore("AbstractJobStoreTest");
     }
 
     protected abstract JobStore createJobStore(String name);
 
     protected abstract void destroyJobStore(String name);
+
+    protected abstract Map<String, ? extends JobStore> stores();
 
     @SuppressWarnings("deprecation")
     @Test
@@ -575,7 +577,8 @@ public abstract class AbstractJobStoreTest  {
 			assertEquals("job" + i, triggers.get(i).getKey().getName());
 		}
 	}
-@Test
+
+    @Test
     void testResetErrorTrigger() throws Exception {
 
         Date baseFireTimeDate = DateBuilder.evenMinuteDateAfterNow();

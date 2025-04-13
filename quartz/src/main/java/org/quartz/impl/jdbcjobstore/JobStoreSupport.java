@@ -18,50 +18,27 @@
 
 package org.quartz.impl.jdbcjobstore;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.quartz.*;
 import org.quartz.Calendar;
-import org.quartz.Job;
-import org.quartz.JobDataMap;
-import org.quartz.JobDetail;
-import org.quartz.JobKey;
-import org.quartz.JobPersistenceException;
-import org.quartz.ObjectAlreadyExistsException;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerConfigException;
-import org.quartz.SchedulerException;
-import org.quartz.SimpleTrigger;
-import org.quartz.Trigger;
 import org.quartz.Trigger.CompletedExecutionInstruction;
 import org.quartz.Trigger.TriggerState;
-import org.quartz.TriggerKey;
 import org.quartz.impl.DefaultThreadExecutor;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.impl.matchers.StringMatcher;
 import org.quartz.impl.matchers.StringMatcher.StringOperatorName;
 import org.quartz.impl.triggers.SimpleTriggerImpl;
-import org.quartz.spi.ClassLoadHelper;
-import org.quartz.spi.JobStore;
-import org.quartz.spi.OperableTrigger;
-import org.quartz.spi.SchedulerSignaler;
-import org.quartz.spi.ThreadExecutor;
-import org.quartz.spi.TriggerFiredBundle;
-import org.quartz.spi.TriggerFiredResult;
+import org.quartz.spi.*;
 import org.quartz.utils.DBConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Proxy;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.*;
 
 
 /**
@@ -159,6 +136,8 @@ public abstract class JobStoreSupport implements JobStore, Constants {
     
     private volatile boolean schedulerRunning = false;
     private volatile boolean shutdown = false;
+
+    protected boolean useEnhancedStatements = false;
     
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1682,8 +1661,13 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                 }
                 
                 if(updateTriggers) {
-                    List<OperableTrigger> trigs = getDelegate().selectTriggersForCalendar(conn, calName);
-                    
+                    List<OperableTrigger> trigs;
+                    if (isUsingEnhancedStatements()) {
+                        trigs = getDelegate().selectTriggersForCalendarV2(conn, calName);
+                    } else {
+                        trigs = getDelegate().selectTriggersForCalendar(conn, calName);
+                    }
+
                     for(OperableTrigger trigger: trigs) {
                         trigger.updateWithNewCalendar(calendar, getMisfireThreshold());
                         storeTrigger(conn, trigger, null, true, STATE_WAITING, false, false);
@@ -3120,11 +3104,11 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                         delegateClass = getClassLoadHelper().loadClass(delegateClassName, DriverDelegate.class);
                     }
 
-                    delegate = delegateClass.newInstance();
+                    delegate = delegateClass.getDeclaredConstructor().newInstance();
 
                     delegate.initialize(getLog(), tablePrefix, instanceName, instanceId, getClassLoadHelper(), canUseProperties(), getDriverDelegateInitString());
-
-                } catch (InstantiationException | IllegalAccessException e) {
+                } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
+                         InvocationTargetException e) {
                     throw new NoSuchDelegateException("Couldn't create delegate: "
                             + e.getMessage(), e);
                 } catch (ClassNotFoundException e) {
@@ -3647,7 +3631,23 @@ public abstract class JobStoreSupport implements JobStore, Constants {
             }
         }
     }
-    
+
+    /**
+     * Returns true if enhanced statements for the database operations is enabled
+     * @return true if using enhanced statements
+     */
+    public boolean isUsingEnhancedStatements() {
+        return this.useEnhancedStatements;
+    }
+
+    /**
+     * Set to true to use enhanced statements for the database operations
+     * @param useEnhancedStatements true to use enhanced statements
+     */
+    public void setUseEnhancedStatements(boolean useEnhancedStatements) {
+        this.useEnhancedStatements = useEnhancedStatements;
+    }
+
     /**
      * Implement this interface to provide the code to execute within
      * the a transaction template.  If no return value is required, execute

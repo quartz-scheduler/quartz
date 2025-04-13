@@ -18,34 +18,8 @@
 
 package org.quartz.impl.jdbcjobstore;
 
-import static org.quartz.JobKey.jobKey;
-import static org.quartz.TriggerBuilder.newTrigger;
-import static org.quartz.TriggerKey.triggerKey;
-import static org.quartz.impl.jdbcjobstore.Util.*;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.NotSerializableException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.math.BigDecimal;
-import java.sql.*;
-import java.util.*;
-import java.util.Date;
-
+import org.quartz.*;
 import org.quartz.Calendar;
-import org.quartz.Job;
-import org.quartz.JobDataMap;
-import org.quartz.JobDetail;
-import org.quartz.JobKey;
-import org.quartz.JobPersistenceException;
-import org.quartz.Scheduler;
-import org.quartz.SimpleTrigger;
-import org.quartz.Trigger;
-import org.quartz.TriggerBuilder;
-import org.quartz.TriggerKey;
 import org.quartz.impl.JobDetailImpl;
 import org.quartz.impl.jdbcjobstore.TriggerPersistenceDelegate.TriggerPropertyBundle;
 import org.quartz.impl.matchers.GroupMatcher;
@@ -54,6 +28,17 @@ import org.quartz.impl.triggers.SimpleTriggerImpl;
 import org.quartz.spi.ClassLoadHelper;
 import org.quartz.spi.OperableTrigger;
 import org.slf4j.Logger;
+
+import java.io.*;
+import java.math.BigDecimal;
+import java.sql.*;
+import java.util.*;
+import java.util.Date;
+
+import static org.quartz.JobKey.jobKey;
+import static org.quartz.TriggerBuilder.newTrigger;
+import static org.quartz.TriggerKey.triggerKey;
+import static org.quartz.impl.jdbcjobstore.Util.containsColumnNames;
 
 /**
  * <p>
@@ -129,8 +114,9 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         this.classLoadHelper = classLoadHelper;
         addDefaultTriggerPersistenceDelegates();
 
-        if(initString == null)
+        if(initString == null) {
             return;
+        }
 
         String[] settings = initString.split("\\|");
         
@@ -141,7 +127,6 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
                 continue;
 
             if(name.equals("triggerPersistenceDelegateClasses")) {
-                
                 String[] trigDelegates = parts[1].split(",");
                 
                 for(String trigDelClassName: trigDelegates) {
@@ -1627,27 +1612,27 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         throws SQLException, ClassNotFoundException, IOException {
 
         JobDetailImpl job = new JobDetailImpl();
-        job.setName(getString(rs, COL_JOB_NAME, columnPrefix + COL_JOB_NAME));
-        job.setGroup(getString(rs, COL_JOB_GROUP, columnPrefix + COL_JOB_GROUP));
-        if (containsColumnName(rs, columnPrefix + COL_DESCRIPTION)) {
-            job.setDescription(getString(rs, COL_DESCRIPTION, columnPrefix + COL_DESCRIPTION));
+        job.setName(rs.getString(COL_JOB_NAME));
+        job.setGroup(rs.getString(COL_JOB_GROUP));
+        if (containsColumnNames(rs, columnPrefix + COL_DESCRIPTION)) {
+            job.setDescription(rs.getString(COL_DESCRIPTION));
         }
 //        job.setDurability(getBoolean(rs, COL_IS_DURABLE ,columnPrefix + COL_IS_DURABLE));
         job.setDurability(rs.getBoolean(COL_IS_DURABLE));
         if (loadJobClass) {
-            job.setJobClass(loadHelper.loadClass(getString(rs, COL_JOB_CLASS, columnPrefix + COL_JOB_CLASS), Job.class));
+            job.setJobClass(loadHelper.loadClass(rs.getString(COL_JOB_CLASS), Job.class));
         }
         job.setRequestsRecovery(rs.getBoolean(COL_REQUESTS_RECOVERY));
-        if (containsColumnName(rs, COL_JOB_DATAMAP) || containsColumnName(rs, columnPrefix + COL_JOB_DATAMAP)) {
+        if (containsColumnNames(rs, COL_JOB_DATAMAP) || containsColumnNames(rs, columnPrefix + COL_JOB_DATAMAP)) {
             Map<?, ?> map;
             if (canUseProperties()) {
-                if (containsColumnName(rs, columnPrefix + COL_JOB_DATAMAP)) {
+                if (containsColumnNames(rs, columnPrefix + COL_JOB_DATAMAP)) {
                     map = getMapFromProperties(rs, columnPrefix);
                 } else {
                     map = getMapFromProperties(rs, "");
                 }
             } else {
-                if (containsColumnName(rs, columnPrefix + COL_JOB_DATAMAP)) {
+                if (containsColumnNames(rs, columnPrefix + COL_JOB_DATAMAP)) {
                     map = (Map<?, ?>) getObjectFromBlob(rs, columnPrefix + COL_JOB_DATAMAP);
                 } else {
                     map = (Map<?, ?>) getObjectFromBlob(rs, COL_JOB_DATAMAP);
@@ -1754,6 +1739,28 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
 
             while (rs.next()) {
                 trigList.add(selectTrigger(conn, triggerKey(rs.getString(COL_TRIGGER_NAME), rs.getString(COL_TRIGGER_GROUP))));
+            }
+        } finally {
+            closeResultSet(rs);
+            closeStatement(ps);
+        }
+
+        return trigList;
+    }
+
+    public List<OperableTrigger> selectTriggersForCalendarV2(Connection conn, String calName)
+        throws SQLException, ClassNotFoundException, IOException, JobPersistenceException {
+        LinkedList<OperableTrigger> trigList = new LinkedList<>();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            ps = conn.prepareStatement(rtp(SELECT_TRIGGERS_FOR_JOB_V2));
+            ps.setString(1, calName);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                trigList.add(handleTriggerV2(rs, conn, triggerKey(rs.getString(COL_TRIGGER_NAME), rs.getString(COL_TRIGGER_GROUP))));
             }
         } finally {
             closeResultSet(rs);
@@ -1893,7 +1900,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         }
 
         if (triggerType.equals(TTYPE_BLOB)) {
-            if (containsColumnName(rs, COL_JOB_DATAMAP)) {
+            if (containsColumnNames(rs, COL_JOB_DATAMAP)) {
                 trigger = (OperableTrigger) getObjectFromBlob(rs, COL_BLOB);
             }
         } else {
