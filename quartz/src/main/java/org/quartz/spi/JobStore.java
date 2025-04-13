@@ -672,16 +672,4 @@ public interface JobStore {
      */
     long getAcquireRetryDelay(int failureCount);
 
-    /**
-     * Returns true if enhanced statements for the database operations is enabled
-     * @return true if using enhanced statements
-     */
-    boolean isUsingEnhancedStatements();
-
-    /**
-     * Set to true to use enhanced statements for the database operations
-     * @param useEnhancedStatements true to use enhanced statements
-     */
-    void setUseEnhancedStatements(boolean useEnhancedStatements);
-
 }
