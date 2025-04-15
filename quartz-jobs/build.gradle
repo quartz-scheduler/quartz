@@ -16,7 +16,7 @@ dependencies {
     compileOnly 'org.glassfish.corba:rmic:4.2.5'
 
     testImplementation 'jakarta.transaction:jakarta.transaction-api:2.0.1'
-    testImplementation 'commons-io:commons-io:2.18.0'
+    testImplementation 'commons-io:commons-io:2.19.0'
     testImplementation "junit:junit:$junitVersion"
     testImplementation 'org.hamcrest:hamcrest-library:3.0'
     testImplementation 'jakarta.mail:jakarta.mail-api:2.1.3'
