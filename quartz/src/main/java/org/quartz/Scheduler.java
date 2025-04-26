@@ -19,15 +19,15 @@
 
 package org.quartz;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.quartz.Trigger.TriggerState;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.spi.JobFactory;
 import org.quartz.utils.Key;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This is the main interface of a Quartz Scheduler.
@@ -808,7 +808,7 @@ public interface Scheduler {
         throws SchedulerException;
 
     /**
-     * Gets all the <code>{@link org.quartz.JobDetail}s</code>
+     * Gets all the {@link org.quartz.JobDetail Jobdetails}
      * in the matching groups.
      *
      * <p>The returned JobDetail objects will be a snap-shot of the actual stored

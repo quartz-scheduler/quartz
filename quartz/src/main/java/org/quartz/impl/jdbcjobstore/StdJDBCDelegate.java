@@ -75,7 +75,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
 
     protected final List<TriggerPersistenceDelegate> triggerPersistenceDelegates = new LinkedList<>();
 
-    protected boolean enabledBulkLoaders = false;
+    protected boolean useEnhancedStatements = false;
     
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -853,12 +853,16 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         }
     }
 
-    /**
-     * build Map from java.util.Properties encoding.
-     */
+        /**
+         * build Map from java.util.Properties encoding.
+         */
     private Map<?, ?> getMapFromProperties(ResultSet rs, String columnPrefix) throws ClassNotFoundException, IOException, SQLException {
         Map<?, ?> map;
-        try (InputStream is = (InputStream) getJobDataFromBlob(rs, columnPrefix + COL_JOB_DATAMAP)) {
+        String colName = COL_JOB_DATAMAP;
+        if (columnPrefix != null && !columnPrefix.isEmpty()) {
+            colName = columnPrefix + COL_JOB_DATAMAP;
+        }
+        try (InputStream is = (InputStream) getJobDataFromBlob(rs, colName)) {
             if (is == null) {
                 return null;
             }
@@ -873,7 +877,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
      * build Map from java.util.Properties encoding.
      */
     private Map<?, ?> getMapFromProperties(ResultSet rs) throws ClassNotFoundException, IOException, SQLException {
-        return getMapFromProperties(rs, "");
+        return getMapFromProperties(rs, null);
     }
 
     /**
@@ -1604,16 +1608,11 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
 
     private JobDetailImpl handleJobDetails(ResultSet rs, ClassLoadHelper loadHelper, boolean loadJobClass)
         throws SQLException, ClassNotFoundException, IOException {
-        return handleJobDetails(rs, loadHelper, loadJobClass, "");
-    }
-
-    private JobDetailImpl handleJobDetails(ResultSet rs, ClassLoadHelper loadHelper, boolean loadJobClass, String columnPrefix)
-        throws SQLException, ClassNotFoundException, IOException {
 
         JobDetailImpl job = new JobDetailImpl();
         job.setName(rs.getString(COL_JOB_NAME));
         job.setGroup(rs.getString(COL_JOB_GROUP));
-        if (containsColumnNames(rs, columnPrefix + COL_DESCRIPTION)) {
+        if (containsColumnNames(rs, COL_DESCRIPTION)) {
             job.setDescription(rs.getString(COL_DESCRIPTION));
         }
         job.setDurability(rs.getBoolean(COL_IS_DURABLE));
@@ -1621,18 +1620,14 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             job.setJobClass(loadHelper.loadClass(rs.getString(COL_JOB_CLASS), Job.class));
         }
         job.setRequestsRecovery(rs.getBoolean(COL_REQUESTS_RECOVERY));
-        if (containsColumnNames(rs, COL_JOB_DATAMAP) || containsColumnNames(rs, columnPrefix + COL_JOB_DATAMAP)) {
-            Map<?, ?> map;
+        if (containsColumnNames(rs, COL_JOB_DATAMAP) || containsColumnNames(rs, COL_JOB_DATAMAP)) {
+            Map<?, ?> map = null;
             if (canUseProperties()) {
-                if (containsColumnNames(rs, columnPrefix + COL_JOB_DATAMAP)) {
-                    map = getMapFromProperties(rs, columnPrefix);
-                } else {
-                    map = getMapFromProperties(rs, "");
+                if (containsColumnNames(rs,  COL_JOB_DATAMAP)) {
+                    map = getMapFromProperties(rs);
                 }
             } else {
-                if (containsColumnNames(rs, columnPrefix + COL_JOB_DATAMAP)) {
-                    map = (Map<?, ?>) getObjectFromBlob(rs, columnPrefix + COL_JOB_DATAMAP);
-                } else {
+                if (containsColumnNames(rs, COL_JOB_DATAMAP)) {
                     map = (Map<?, ?>) getObjectFromBlob(rs, COL_JOB_DATAMAP);
                 }
             }
@@ -1649,12 +1644,11 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
      * <p>
      * Select the job to which the trigger is associated. Allow option to load actual job class or not. When case of
      * remove, we do not need to load the class, which in many cases, it's no longer exists.
-     *
      * </p>
      * 
      * @param conn
      *          the DB Connection
-     * @return the <code>{@link org.quartz.JobDetail}</code> object
+     * @return the {@link org.quartz.JobDetail} object
      *         associated with the given trigger
      * @throws SQLException
      * @throws ClassNotFoundException
@@ -1671,7 +1665,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             rs = ps.executeQuery();
 
             if (rs.next()) {
-                return handleJobDetails(rs, loadHelper, loadJobClass, "J.");
+                return handleJobDetails(rs, loadHelper, loadJobClass);
             } else {
                 if (logger.isDebugEnabled()) {
                     logger.debug("No job for trigger '{}'.", triggerKey);
@@ -1691,7 +1685,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
      * 
      * @param conn
      *          the DB Connection
-     * @return an array of <code>(@link org.quartz.Trigger)</code> objects
+     * @return an array of {@link org.quartz.Trigger} objects
      *         associated with a given job.
      * @throws SQLException
      * @throws JobPersistenceException 
@@ -1699,7 +1693,8 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
     public List<OperableTrigger> selectTriggersForJob(Connection conn, JobKey jobKey) throws SQLException,
         ClassNotFoundException, IOException, JobPersistenceException {
 
-        if (isEnabledBulkLoaders()) {
+
+        if (useEnhancedStatements) {
             return selectBulkTriggersForJob(conn, jobKey);
         }
 
@@ -1750,10 +1745,9 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         return trigList;
     }
 
-
     public List<OperableTrigger> selectTriggersForCalendar(Connection conn, String calName)
         throws SQLException, ClassNotFoundException, IOException, JobPersistenceException {
-        if(isEnabledBulkLoaders()) {
+        if(useEnhancedStatements) {
             return selectBulkTriggersForCalendar(conn, calName);
         }
 
@@ -1815,26 +1809,30 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         }
 
         if (jobMatcher.getCompareWithOperator() != StringMatcher.StringOperatorName.ANYTHING) {
+            baseStatement += " WHERE " + "T." + COL_JOB_GROUP;
             hasMatcher = true;
             if (isMatcherEquals(jobMatcher)) {
-                baseStatement += " WHERE " + "T." + COL_JOB_GROUP + " = ?";
+                baseStatement += " = ?";
                 columnSetters.add(ps -> ps.setString(1, toSqlEqualsClause(jobMatcher)));
             } else {
-                baseStatement += " WHERE " + "T." + COL_JOB_GROUP + " LIKE ?";
+                baseStatement += " LIKE ?";
                 columnSetters.add(ps -> ps.setString(1, toSqlLikeClause(jobMatcher)));
             }
         }
 
-        if (jobMatcher.getCompareWithOperator() != StringMatcher.StringOperatorName.ANYTHING) {
+        if (triggerMatcher.getCompareWithOperator() != StringMatcher.StringOperatorName.ANYTHING) {
             final int columnIndex = hasMatcher ? 2 : 1;
             if (hasMatcher) {
-                baseStatement += " AND ";
+                baseStatement += "\n AND ";
+            } else {
+                baseStatement += "\n WHERE ";
             }
+            baseStatement += "T." + COL_TRIGGER_GROUP;
             if (isMatcherEquals(triggerMatcher)) {
-                baseStatement += " WHERE " + "T." + COL_TRIGGER_GROUP + " = ?";
+                baseStatement += " = ?";
                 columnSetters.add(ps -> ps.setString(columnIndex, toSqlEqualsClause(triggerMatcher)));
             } else {
-                baseStatement += " WHERE " + "T." +  COL_TRIGGER_GROUP + " LIKE ?";
+                baseStatement += " LIKE ?";
                 columnSetters.add(ps -> ps.setString(columnIndex, toSqlLikeClause(triggerMatcher)));
             }
         }
@@ -3531,14 +3529,15 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         ps.setBytes(index, (baos == null) ? new byte[0] : baos.toByteArray());
     }
 
-    public boolean isEnabledBulkLoaders() {
-        return enabledBulkLoaders;
+    @Override
+    public boolean isUsingEnhancedStatements() {
+        return this.useEnhancedStatements;
     }
 
-    public void setEnabledBulkLoaders(boolean enabledBulkLoaders) {
-        this.enabledBulkLoaders = enabledBulkLoaders;
+    @Override
+    public void setUseEnhancedStatements(boolean useEnhancedStatements) {
+        this.useEnhancedStatements = useEnhancedStatements;
     }
-
     @FunctionalInterface
     protected interface PreparedStatementConsumer {
         void accept(PreparedStatement ps) throws SQLException;

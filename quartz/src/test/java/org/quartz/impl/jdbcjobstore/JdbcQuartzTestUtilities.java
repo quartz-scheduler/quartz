@@ -204,7 +204,7 @@ public final class JdbcQuartzTestUtilities {
 
             Statement statement = conn.createStatement();
             if (databaseType == DatabaseType.MYSQL) {
-                for (String command : getDatabaseSetupScript(DatabaseType.MSSQL)) {
+                for (String command : getDatabaseSetupScript(DatabaseType.MYSQL)) {
                     statement.addBatch(command);
                 }
             } else {

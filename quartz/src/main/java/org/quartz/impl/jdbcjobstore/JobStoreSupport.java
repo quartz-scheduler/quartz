@@ -116,6 +116,8 @@ public abstract class JobStoreSupport implements JobStore, Constants {
     private SchedulerSignaler schedSignaler;
 
     protected int maxToRecoverAtATime = 20;
+
+    private boolean useEnhancedStatements = false;
     
     private boolean setTxIsolationLevelSequential = false;
     
@@ -3118,6 +3120,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                     delegate = delegateClass.getDeclaredConstructor().newInstance();
 
                     delegate.initialize(getLog(), tablePrefix, instanceName, instanceId, getClassLoadHelper(), canUseProperties(), getDriverDelegateInitString());
+                    delegate.setUseEnhancedStatements(this.useEnhancedStatements);
                 } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
                          InvocationTargetException e) {
                     throw new NoSuchDelegateException("Couldn't create delegate: "
@@ -3648,7 +3651,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
      * @return true if using enhanced statements
      */
     public boolean isUsingEnhancedStatements() {
-        return this.delegate.isUsingEnhancedStatements();
+        return this.useEnhancedStatements;
     }
 
     /**
@@ -3657,7 +3660,10 @@ public abstract class JobStoreSupport implements JobStore, Constants {
      * @param useEnhancedStatements true to use enhanced statements
      */
     public void setUseEnhancedStatements(boolean useEnhancedStatements) {
-        this.delegate.setUseEnhancedStatements(useEnhancedStatements);
+        this.useEnhancedStatements = useEnhancedStatements;
+        if (delegate != null) {
+            delegate.setUseEnhancedStatements(useEnhancedStatements);
+        }
     }
 
     /**
