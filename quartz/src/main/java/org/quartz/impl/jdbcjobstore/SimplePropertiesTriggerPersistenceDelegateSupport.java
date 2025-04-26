@@ -153,28 +153,43 @@ public abstract class SimplePropertiesTriggerPersistenceDelegateSupport implemen
             rs = ps.executeQuery();
     
             if (rs.next()) {
-                SimplePropertiesTriggerProperties properties = new SimplePropertiesTriggerProperties();
-                    
-                properties.setString1(rs.getString(COL_STR_PROP_1));
-                properties.setString2(rs.getString(COL_STR_PROP_2));
-                properties.setString3(rs.getString(COL_STR_PROP_3));
-                properties.setInt1(rs.getInt(COL_INT_PROP_1));
-                properties.setInt2(rs.getInt(COL_INT_PROP_2));
-                properties.setLong1(rs.getLong(COL_LONG_PROP_1));
-                properties.setLong2(rs.getLong(COL_LONG_PROP_2));
-                properties.setDecimal1(rs.getBigDecimal(COL_DEC_PROP_1));
-                properties.setDecimal2(rs.getBigDecimal(COL_DEC_PROP_2));
-                properties.setBoolean1(rs.getBoolean(COL_BOOL_PROP_1));
-                properties.setBoolean2(rs.getBoolean(COL_BOOL_PROP_2));
-                
-                return getTriggerPropertyBundle(properties);
+                return loadExtendedTriggerPropertiesFromResultSet(rs, triggerKey);
             }
-            
-            throw new IllegalStateException("No record found for selection of Trigger with key: '" + triggerKey + "' and statement: " + Util.rtp(SELECT_SIMPLE_TRIGGER, tablePrefix, schedNameLiteral));
+
+            throw new NoRecordFoundException(triggerKey, schedNameLiteral, Util.rtp(SELECT_SIMPLE_TRIGGER, tablePrefix, schedNameLiteral));
         } finally {
             Util.closeResultSet(rs);
             Util.closeStatement(ps);
         }
+    }
+
+    public TriggerPropertyBundle loadExtendedTriggerPropertiesFromResultSet(ResultSet rs, TriggerKey triggerKey) throws SQLException {
+        SimplePropertiesTriggerProperties properties = new SimplePropertiesTriggerProperties();
+        if (Util.areNull(rs, COL_STR_PROP_1, COL_STR_PROP_2, COL_STR_PROP_3,
+                COL_INT_PROP_1, COL_INT_PROP_2,
+                COL_LONG_PROP_1, COL_LONG_PROP_2,
+                COL_DEC_PROP_1, COL_DEC_PROP_2,
+                COL_BOOL_PROP_1, COL_BOOL_PROP_2)) {
+            throw new NoRecordFoundException(triggerKey, schedNameLiteral, this.getClass());
+        }
+
+        properties.setString1(rs.getString(COL_STR_PROP_1));
+        properties.setString2(rs.getString(COL_STR_PROP_2));
+        properties.setString3(rs.getString(COL_STR_PROP_3));
+        properties.setInt1(rs.getInt(COL_INT_PROP_1));
+        properties.setInt2(rs.getInt(COL_INT_PROP_2));
+        properties.setLong1(rs.getLong(COL_LONG_PROP_1));
+        properties.setLong2(rs.getLong(COL_LONG_PROP_2));
+        properties.setDecimal1(rs.getBigDecimal(COL_DEC_PROP_1));
+        properties.setDecimal2(rs.getBigDecimal(COL_DEC_PROP_2));
+        properties.setBoolean1(rs.getBoolean(COL_BOOL_PROP_1));
+        properties.setBoolean2(rs.getBoolean(COL_BOOL_PROP_2));
+
+        return getTriggerPropertyBundle(properties);
+    }
+
+    public boolean hasInlinedResultSetProperties() {
+        return true;
     }
 
     public int updateExtendedTriggerProperties(Connection conn, OperableTrigger trigger, String state, JobDetail jobDetail) throws SQLException, IOException {

@@ -18,24 +18,15 @@
 
 package org.quartz.spi;
 
+import org.quartz.*;
+import org.quartz.Trigger.CompletedExecutionInstruction;
+import org.quartz.Trigger.TriggerState;
+import org.quartz.impl.matchers.GroupMatcher;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.quartz.Calendar;
-import org.quartz.Job;
-import org.quartz.JobDetail;
-import org.quartz.JobKey;
-import org.quartz.JobPersistenceException;
-import org.quartz.ObjectAlreadyExistsException;
-import org.quartz.SchedulerConfigException;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-import org.quartz.TriggerKey;
-import org.quartz.Trigger.CompletedExecutionInstruction;
-import org.quartz.Trigger.TriggerState;
-import org.quartz.impl.matchers.GroupMatcher;
 
 /**
  * <p>
@@ -181,6 +172,20 @@ public interface JobStore {
      */
     JobDetail retrieveJob(JobKey jobKey) 
         throws JobPersistenceException;
+
+    /**
+     * Gets all the <code>{@link org.quartz.JobDetail}s</code>
+     * in the matching groups.
+     * </p>
+     * These will NOT necessarily be in lexicographical order, particularly on {@link org.quartz.simpl.RAMJobStore}
+     * You may need to re-sort them yourself.
+     * @param matcher Matcher to evaluate against known groups
+     * @return List of all JobDetail matching
+     * @throws JobPersistenceException On error
+     */
+    List<JobDetail> getJobDetails(GroupMatcher<JobKey> matcher)
+        throws JobPersistenceException;
+
 
     /**
      * Store the given <code>{@link org.quartz.Trigger}</code>.
@@ -411,13 +416,53 @@ public interface JobStore {
         throws JobPersistenceException;
 
     /**
-     * Get all of the Triggers that are associated to the given Job.
+     * Get all the Triggers that are associated to the given Job.
      *
      * <p>
      * If there are no matches, a zero-length array should be returned.
      * </p>
      */
     List<OperableTrigger> getTriggersForJob(JobKey jobKey) throws JobPersistenceException;
+
+    /**
+     * Get all the Triggers that are associated with the Job Group
+     *
+     * <p>
+     * If there are no matches, a zero-length array should be returned.
+     * </p>
+     * @throws JobPersistenceException thrown if there is an error
+     * @see #getTriggersByTriggerGroup(GroupMatcher)
+     * @see #getTriggersByJobAndTriggerGroup(GroupMatcher, GroupMatcher)
+     * */
+    default List<OperableTrigger> getTriggersByJobGroup(GroupMatcher<JobKey> matcher) throws JobPersistenceException {
+        return getTriggersByJobAndTriggerGroup(matcher, GroupMatcher.anyGroup());
+    }
+
+    /**
+     * Get all the Triggers that are associated with the Job Group
+     *
+     * <p>
+     * If there are no matches, a zero-length array should be returned.
+     * </p>
+     * @throws JobPersistenceException thrown if there is an error
+     * @see #getTriggersByJobGroup(GroupMatcher)
+     * @see #getTriggersByJobAndTriggerGroup(GroupMatcher, GroupMatcher)      */
+    default List<OperableTrigger> getTriggersByTriggerGroup(GroupMatcher<TriggerKey> matcher) throws JobPersistenceException {
+        return getTriggersByJobAndTriggerGroup(GroupMatcher.anyGroup(), matcher);
+    }
+
+    /**
+     * Get all the Triggers that are associated with the Job & trigger groupmatcher
+     * <br>
+     * note: requires the use of enhanced statements
+     * @param jobMatcher
+     * @param triggerMatcher
+     * @return
+     * @throws JobPersistenceException
+     * @see #getTriggersByJobGroup(GroupMatcher)
+     * @see #getTriggersByTriggerGroup(GroupMatcher)
+     */
+    List<OperableTrigger> getTriggersByJobAndTriggerGroup(GroupMatcher<JobKey> jobMatcher, GroupMatcher<TriggerKey> triggerMatcher) throws JobPersistenceException;
 
     /**
      * Get the current state of the identified <code>{@link Trigger}</code>.
@@ -519,6 +564,11 @@ public interface JobStore {
     Collection<String> resumeTriggers(GroupMatcher<TriggerKey> matcher)
         throws JobPersistenceException;
 
+    /**
+     * Gets the set of all the paused trigger group names.
+     * @return a set of paused trigger group names.
+     * @throws JobPersistenceException thrown if there is an error
+     */
     Set<String> getPausedTriggerGroups()
         throws JobPersistenceException;
 
@@ -666,4 +716,5 @@ public interface JobStore {
      * @return the time (in milliseconds) to wait before trying again
      */
     long getAcquireRetryDelay(int failureCount);
+
 }

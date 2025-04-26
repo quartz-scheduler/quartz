@@ -1479,6 +1479,16 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
         return resources.getJobStore().retrieveJob(jobKey);
     }
 
+    public List<JobDetail> getJobDetails(GroupMatcher<JobKey> matcher) throws SchedulerException {
+        validateState();
+
+        if(matcher == null) {
+            matcher = GroupMatcher.groupEquals(Scheduler.DEFAULT_GROUP);
+        }
+        return resources.getJobStore().getJobDetails(matcher);
+    }
+
+
     /**
      * <p>
      * Get the <code>{@link Trigger}</code> instance with the given name and

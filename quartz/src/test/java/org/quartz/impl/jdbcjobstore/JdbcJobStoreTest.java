@@ -16,12 +16,13 @@
  */
 package org.quartz.impl.jdbcjobstore;
 
-import java.sql.SQLException;
-import java.util.HashMap;
-
 import org.quartz.AbstractJobStoreTest;
 import org.quartz.impl.jdbcjobstore.JdbcQuartzTestUtilities.DatabaseType;
 import org.quartz.spi.JobStore;
+
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class JdbcJobStoreTest extends AbstractJobStoreTest {
 
@@ -67,5 +68,9 @@ public class JdbcJobStoreTest extends AbstractJobStoreTest {
         } catch (SQLException e) {
             throw new AssertionError(e);
         }
+    }
+
+    protected Map<String, JobStoreSupport> stores() {
+        return stores;
     }
 }

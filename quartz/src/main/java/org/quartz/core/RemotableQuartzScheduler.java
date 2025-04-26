@@ -145,6 +145,8 @@ public interface RemotableQuartzScheduler extends Remote {
 
     JobDetail getJobDetail(JobKey jobKey) throws SchedulerException, RemoteException;
 
+    List<JobDetail> getJobDetails(GroupMatcher<JobKey> matcher) throws SchedulerException, RemoteException;
+
     Trigger getTrigger(TriggerKey triggerKey) throws SchedulerException, RemoteException;
 
     TriggerState getTriggerState(TriggerKey triggerKey) throws SchedulerException, RemoteException;

@@ -18,50 +18,27 @@
 
 package org.quartz.impl.jdbcjobstore;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.quartz.*;
 import org.quartz.Calendar;
-import org.quartz.Job;
-import org.quartz.JobDataMap;
-import org.quartz.JobDetail;
-import org.quartz.JobKey;
-import org.quartz.JobPersistenceException;
-import org.quartz.ObjectAlreadyExistsException;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerConfigException;
-import org.quartz.SchedulerException;
-import org.quartz.SimpleTrigger;
-import org.quartz.Trigger;
 import org.quartz.Trigger.CompletedExecutionInstruction;
 import org.quartz.Trigger.TriggerState;
-import org.quartz.TriggerKey;
 import org.quartz.impl.DefaultThreadExecutor;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.impl.matchers.StringMatcher;
 import org.quartz.impl.matchers.StringMatcher.StringOperatorName;
 import org.quartz.impl.triggers.SimpleTriggerImpl;
-import org.quartz.spi.ClassLoadHelper;
-import org.quartz.spi.JobStore;
-import org.quartz.spi.OperableTrigger;
-import org.quartz.spi.SchedulerSignaler;
-import org.quartz.spi.ThreadExecutor;
-import org.quartz.spi.TriggerFiredBundle;
-import org.quartz.spi.TriggerFiredResult;
+import org.quartz.spi.*;
 import org.quartz.utils.DBConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Proxy;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.*;
 
 
 /**
@@ -139,6 +116,8 @@ public abstract class JobStoreSupport implements JobStore, Constants {
     private SchedulerSignaler schedSignaler;
 
     protected int maxToRecoverAtATime = 20;
+
+    private boolean useEnhancedStatements = false;
     
     private boolean setTxIsolationLevelSequential = false;
     
@@ -1372,10 +1351,33 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         return (JobDetail)executeWithoutLock( // no locks necessary for read...
                 (TransactionCallback) conn -> retrieveJob(conn, jobKey));
     }
+
+    public List<JobDetail> getJobDetails(GroupMatcher<JobKey> matcher)
+        throws JobPersistenceException {
+        return (List<JobDetail>) executeWithoutLock(
+                (TransactionCallback) conn -> retrieveJobs(conn, matcher));
+    }
+
+    protected List<JobDetail> retrieveJobs(Connection conn, GroupMatcher<JobKey> matcher) throws JobPersistenceException {
+        try {
+            return getDelegate().selectJobDetails(conn, matcher,
+                getClassLoadHelper());
+        } catch (ClassNotFoundException e) {
+            throw new JobPersistenceException(
+                "Couldn't retrieve job because a required class was not found: "
+                    + e.getMessage(), e);
+        } catch (IOException e) {
+            throw new JobPersistenceException(
+                "Couldn't retrieve job because the BLOB couldn't be deserialized: "
+                    + e.getMessage(), e);
+        } catch (SQLException e) {
+            throw new JobPersistenceException("Couldn't retrieve job: "
+                + e.getMessage(), e);
+        }
+    }
     
     protected JobDetail retrieveJob(Connection conn, JobKey key) throws JobPersistenceException {
         try {
-
             return getDelegate().selectJobDetail(conn, key,
                     getClassLoadHelper());
         } catch (ClassNotFoundException e) {
@@ -1444,7 +1446,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                     deleteJobAndChildren(conn, job.getKey());
                 }
             }
-        } catch (ClassNotFoundException | SQLException e) {
+        } catch (ClassNotFoundException | SQLException | IOException e) {
             throw new JobPersistenceException("Couldn't remove trigger: "
                     + e.getMessage(), e);
         }
@@ -1489,7 +1491,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
             storeTrigger(conn, newTrigger, job, false, STATE_WAITING, false, false);
 
             return removedTrigger;
-        } catch (ClassNotFoundException | SQLException e) {
+        } catch (ClassNotFoundException | SQLException | IOException e) {
             throw new JobPersistenceException("Couldn't remove trigger: "
                     + e.getMessage(), e);
         }
@@ -1658,8 +1660,10 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                 }
                 
                 if(updateTriggers) {
-                    List<OperableTrigger> trigs = getDelegate().selectTriggersForCalendar(conn, calName);
-                    
+                    // FUTURE_TODO: make this more efficient with a true bulk operation...
+                    List<OperableTrigger> trigs;
+                    trigs = getDelegate().selectTriggersForCalendar(conn, calName);
+
                     for(OperableTrigger trigger: trigs) {
                         trigger.updateWithNewCalendar(calendar, getMisfireThreshold());
                         storeTrigger(conn, trigger, null, true, STATE_WAITING, false, false);
@@ -2111,6 +2115,23 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         }
 
         return list;
+    }
+
+    public List<OperableTrigger> getTriggersByJobAndTriggerGroup(GroupMatcher<JobKey> jobMatcher, GroupMatcher<TriggerKey> triggerMatcher) throws JobPersistenceException {
+        return (List<OperableTrigger>)executeWithoutLock( // no locks necessary for read...
+            (TransactionCallback) conn -> getTriggersByJobAndTriggerGroup(conn, jobMatcher, triggerMatcher));
+    }
+
+    protected List<OperableTrigger> getTriggersByJobAndTriggerGroup(Connection conn, GroupMatcher<JobKey> jobMatcher, GroupMatcher<TriggerKey> triggerMatcher) throws JobPersistenceException {
+        GroupMatcher<JobKey> jMatcher = jobMatcher == null ? GroupMatcher.anyGroup() : jobMatcher;
+        GroupMatcher<TriggerKey> tMatcher = triggerMatcher == null ? GroupMatcher.anyGroup() : triggerMatcher;
+        try {
+            return getDelegate().getTriggersByJobAndTriggerGroup(conn, jMatcher, tMatcher);
+        } catch (JobPersistenceException jpe) {
+            throw jpe;
+        } catch (Exception e) {
+            throw new JobPersistenceException("Couldn't obtain triggers for job: " + e.getMessage(), e);
+        }
     }
 
     /**
@@ -3096,11 +3117,12 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                         delegateClass = getClassLoadHelper().loadClass(delegateClassName, DriverDelegate.class);
                     }
 
-                    delegate = delegateClass.newInstance();
+                    delegate = delegateClass.getDeclaredConstructor().newInstance();
 
                     delegate.initialize(getLog(), tablePrefix, instanceName, instanceId, getClassLoadHelper(), canUseProperties(), getDriverDelegateInitString());
-
-                } catch (InstantiationException | IllegalAccessException e) {
+                    delegate.setUseEnhancedStatements(this.useEnhancedStatements);
+                } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
+                         InvocationTargetException e) {
                     throw new NoSuchDelegateException("Couldn't create delegate: "
                             + e.getMessage(), e);
                 } catch (ClassNotFoundException e) {
@@ -3623,7 +3645,27 @@ public abstract class JobStoreSupport implements JobStore, Constants {
             }
         }
     }
-    
+
+    /**
+     * Returns true if enhanced statements for the database operations is enabled
+     * @return true if using enhanced statements
+     */
+    public boolean isUsingEnhancedStatements() {
+        return this.useEnhancedStatements;
+    }
+
+    /**
+     * Set to true to use enhanced bulk statements for the database operations
+     *
+     * @param useEnhancedStatements true to use enhanced statements
+     */
+    public void setUseEnhancedStatements(boolean useEnhancedStatements) {
+        this.useEnhancedStatements = useEnhancedStatements;
+        if (delegate != null) {
+            delegate.setUseEnhancedStatements(useEnhancedStatements);
+        }
+    }
+
     /**
      * Implement this interface to provide the code to execute within
      * the a transaction template.  If no return value is required, execute
