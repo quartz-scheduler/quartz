@@ -58,21 +58,15 @@ public class PostgreSQLDelegate extends StdJDBCDelegate {
     @Override           
     protected Object getObjectFromBlob(ResultSet rs, String colName)
         throws ClassNotFoundException, IOException, SQLException {
-        InputStream binaryInput;
         byte[] bytes = rs.getBytes(colName);
-        
-        Object obj = null;
-        
-        if(bytes != null && bytes.length != 0) {
-            binaryInput = new ByteArrayInputStream(bytes);
-
-            try (ObjectInputStream in = new ObjectInputStream(binaryInput)) {
-                obj = in.readObject();
-            }
-
+        if (bytes == null || bytes.length == 0) {
+            return null;
         }
-        
-        return obj;
+
+        try (ObjectInputStream in = new ObjectInputStream(
+                new ByteArrayInputStream(bytes))) {
+            return in.readObject();
+        }
     }
 
     @Override           
