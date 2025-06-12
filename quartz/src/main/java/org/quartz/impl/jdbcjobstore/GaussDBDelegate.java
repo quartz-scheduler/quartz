@@ -30,9 +30,9 @@ import java.sql.SQLException;
  * This is a driver delegate for the PostgreSQL JDBC driver.
  * </p>
  * 
- * @author <a href="mailto:jeff@binaryfeed.org">Jeffrey Wescott</a>
+ * @author <a href="mailto:chenzhida@apache.org">chen zhida</a>
  */
-public class PostgreSQLDelegate extends StdJDBCDelegate {
+public class GaussDBDelegate extends StdJDBCDelegate {
 
     //---------------------------------------------------------------------------
     // protected methods that can be overridden by subclasses
