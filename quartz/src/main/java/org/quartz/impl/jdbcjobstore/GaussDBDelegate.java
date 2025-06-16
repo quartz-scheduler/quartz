@@ -27,7 +27,7 @@ import java.sql.SQLException;
 
 /**
  * <p>
- * This is a driver delegate for the PostgreSQL JDBC driver.
+ * This is a driver delegate for the GaussDB JDBC driver.
  * </p>
  * 
  * @author <a href="mailto:chenzhida@apache.org">chen zhida</a>
