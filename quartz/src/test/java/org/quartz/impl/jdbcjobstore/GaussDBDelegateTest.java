@@ -52,7 +52,7 @@ public class GaussDBDelegateTest {
 
         when(resultSet.next()).thenReturn(true).thenReturn(false);
         when(resultSet.getString(Constants.COL_TRIGGER_TYPE)).thenReturn(Constants.TTYPE_BLOB);
-        when(resultSet.getBytes(Constants.COL_JOB_DATAMAP)).thenReturn(null); // 无JobDataMap
+        when(resultSet.getBytes(Constants.COL_JOB_DATAMAP)).thenReturn(null);
 
         OperableTrigger trigger = jdbcDelegate.selectTrigger(conn, TriggerKey.triggerKey("test"));
         assertNull(trigger);
@@ -86,7 +86,7 @@ public class GaussDBDelegateTest {
         when(resultSet.getString(Constants.COL_TRIGGER_GROUP)).thenReturn("DEFAULT");
         when(resultSet.getString(Constants.COL_JOB_NAME)).thenReturn("testJob");
         when(resultSet.getString(Constants.COL_JOB_GROUP)).thenReturn("DEFAULT");
-        when(resultSet.getBytes(Constants.COL_JOB_DATAMAP)).thenReturn(new byte[0]); // 空BLOB
+        when(resultSet.getBytes(Constants.COL_JOB_DATAMAP)).thenReturn(new byte[0]);
 
         trigger = jdbcDelegate.selectTrigger(conn, TriggerKey.triggerKey("testEmptyJobData"));
         assertNull(trigger);
