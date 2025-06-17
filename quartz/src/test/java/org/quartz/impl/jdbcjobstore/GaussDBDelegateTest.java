@@ -38,7 +38,7 @@ import static org.mockito.Mockito.*;
 public class GaussDBDelegateTest {
 
     @Test
-    void testSelectBlobTriggerWithNoBlobContent() throws Exception {
+    void testSelectBlobTriggerWithBlobContent() throws Exception {
         StdJDBCDelegate jdbcDelegate = new GaussDBDelegate();
         jdbcDelegate.initialize(LoggerFactory.getLogger(getClass()), "QRTZ_", "TESTSCHED", "INSTANCE",
                 new SimpleClassLoadHelper(), false, "");
