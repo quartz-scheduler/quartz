@@ -28,6 +28,8 @@ import java.sql.SQLException;
 /**
  * <p>
  * This is a driver delegate for the GaussDB JDBC driver.
+ * Notes: Original code of this file is based on PostgreSQLDelegate.
+ *
  * </p>
  * 
  * @author <a href="mailto:chenzhida@apache.org">chen zhida</a>
