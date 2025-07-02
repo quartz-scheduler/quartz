@@ -40,7 +40,7 @@ dependencies {
     testImplementation "org.apache.derby:derby:$derbyVersion"
     testImplementation "org.apache.derby:derbynet:$derbyVersion"
     testImplementation "org.apache.derby:derbyclient:$derbyVersion"
-    testImplementation 'org.testcontainers:mssqlserver:1.20.4'
+    testImplementation 'org.testcontainers:mssqlserver:1.21.3'
     testImplementation 'com.microsoft.sqlserver:mssql-jdbc:12.10.0.jre8'
 }
 
