@@ -18,6 +18,7 @@
 
 package org.quartz;
 
+import java.time.Instant;
 import java.util.Date;
 
 import org.quartz.spi.MutableTrigger;
@@ -223,6 +224,20 @@ public class TriggerBuilder<T extends Trigger> {
      */
     public TriggerBuilder<T> startAt(Date triggerStartTime) {
         this.startTime = triggerStartTime;
+        return this;
+    }
+
+
+    /**
+     * Change the Instant type to Date type to set the trigger start at.
+     *
+     * @param triggerStartTime the start time for the Trigger but type is Instant
+     * @return the updated TriggerBuilder
+     * @see Trigger#getStartTime()
+     * @see DateBuilder
+     */
+    public TriggerBuilder<T> startAt(Instant triggerStartTime){
+        this.startTime = Date.from(triggerStartTime);
         return this;
     }
     
