@@ -568,6 +568,39 @@ public abstract class AbstractJobStoreTest  {
         assertEquals(TriggerState.NORMAL, state);
     }
 
+    @Test
+    void testStoreJobReplaceExistingWithIdenticalData() throws Exception {
+
+        JobDetailImpl job = new JobDetailImpl("testJob", "testGroup", MyJob.class);
+        job.setDescription("Test job description");
+        job.setDurability(true);
+
+        // First store - should succeed
+        assertDoesNotThrow(() -> {
+            this.fJobStore.storeJob(job, false);
+        });
+
+        // Verify job exists
+        JobDetail retrievedJob = this.fJobStore.retrieveJob(job.getKey());
+        assertNotNull(retrievedJob);
+        assertEquals(job.getKey(), retrievedJob.getKey());
+        assertEquals(job.getDescription(), retrievedJob.getDescription());
+
+        JobDetailImpl identicalJob = new JobDetailImpl("testJob", "testGroup", MyJob.class);
+        identicalJob.setDescription("Test job description");
+        identicalJob.setDurability(true);
+
+        assertDoesNotThrow(() -> {
+            this.fJobStore.storeJob(identicalJob, true);
+        }, "storeJob with replaceExisting=true should not fail when data is identical");
+
+        // Verify job still exists and data is correct
+        JobDetail finalJob = this.fJobStore.retrieveJob(job.getKey());
+        assertNotNull(finalJob);
+        assertEquals(job.getKey(), finalJob.getKey());
+        assertEquals(job.getDescription(), finalJob.getDescription());
+    }
+
     public static class SampleSignaler implements SchedulerSignaler {
         volatile int fMisfireCount = 0;
 

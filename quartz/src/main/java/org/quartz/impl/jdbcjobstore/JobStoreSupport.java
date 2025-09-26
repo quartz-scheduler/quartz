@@ -1097,22 +1097,22 @@ public abstract class JobStoreSupport implements JobStore, Constants {
      * Insert or update a job.
      * </p>
      */
-    protected void storeJob(Connection conn, 
+    protected void storeJob(Connection conn,
             JobDetail newJob, boolean replaceExisting)
         throws JobPersistenceException {
 
         boolean existingJob = jobExists(conn, newJob.getKey());
         try {
             if (existingJob) {
-                if (!replaceExisting) { 
-                    throw new ObjectAlreadyExistsException(newJob); 
+                if (!replaceExisting) {
+                    throw new ObjectAlreadyExistsException(newJob);
                 }
-                if (getDelegate().updateJobDetail(conn, newJob) > 0) {
-                    return;
+                getDelegate().updateJobDetail(conn, newJob);
+                return;
+            } else {
+                if (getDelegate().insertJobDetail(conn, newJob) < 1) {
+                    throw new JobPersistenceException("Couldn't store job. Insert failed.");
                 }
-            }
-            if (getDelegate().insertJobDetail(conn, newJob) < 1) {
-                throw new JobPersistenceException("Couldn't store job. Insert failed.");
             }
         } catch (IOException | SQLException e) {
             throw new JobPersistenceException("Couldn't store job: "
