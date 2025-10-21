@@ -36,7 +36,8 @@ public final class JdbcQuartzTestUtilities {
 
     public enum DatabaseType {
         DERBY("org/quartz/impl/jdbcjobstore/tables_derby.sql", StdJDBCDelegate.class.getName()),
-        MSSQL("org/quartz/impl/jdbcjobstore/tables_sqlServer.sql", MSSQLDelegate.class.getName());
+        MSSQL("org/quartz/impl/jdbcjobstore/tables_sqlServer.sql", MSSQLDelegate.class.getName()),
+        MARIADB("org/quartz/impl/jdbcjobstore/tables_mysql.sql", StdJDBCDelegate.class.getName());
 
         private final String scriptResource;
         private final String delegateClassName;
@@ -99,6 +100,10 @@ public final class JdbcQuartzTestUtilities {
             DBConnectionManager.getInstance().addConnectionProvider(name,
                     new TestContainerEmbeddedConnectionProvider("jdbc:tc:sqlserver:latest:///" + name));
             break;
+        case MARIADB:
+            DBConnectionManager.getInstance().addConnectionProvider(name,
+                    new TestContainerEmbeddedConnectionProvider("jdbc:tc:mariadb:latest:///" + name));
+            break;
         default:
             throw new AssertionError("Unsupported database type: " + databaseType);
         }
@@ -118,6 +123,9 @@ public final class JdbcQuartzTestUtilities {
         case MSSQL:
             shutdownDatabase(name, databaseType);
             break;
+        case MARIADB:
+                shutdownDatabase(name, databaseType);
+                break;
         default:
             throw new AssertionError("Unsupported database type: " + databaseType);
         }

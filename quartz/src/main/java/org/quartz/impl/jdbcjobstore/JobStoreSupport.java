@@ -1107,11 +1107,9 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                 if (!replaceExisting) { 
                     throw new ObjectAlreadyExistsException(newJob); 
                 }
-                if (getDelegate().updateJobDetail(conn, newJob) > 0) {
-                    return;
-                }
+                getDelegate().updateJobDetail(conn, newJob);
             }
-            if (getDelegate().insertJobDetail(conn, newJob) < 1) {
+            else if (getDelegate().insertJobDetail(conn, newJob) < 1) {
                 throw new JobPersistenceException("Couldn't store job. Insert failed.");
             }
         } catch (IOException | SQLException e) {
