@@ -52,6 +52,7 @@ public class JdbcJobStoreTest extends AbstractJobStoreTest {
 
             return jdbcJobStore;
         } catch (Exception e) {
+            e.printStackTrace(System.err);
             throw new AssertionError(e);
         }
     }
