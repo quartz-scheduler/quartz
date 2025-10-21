@@ -68,7 +68,7 @@ public final class JdbcQuartzTestUtilities {
                         String line = r.readLine();
                         if (line == null) {
                             break;
-                        } else if (!line.startsWith("--")) {
+                        } else if (!line.startsWith("--") && !line.startsWith("#")) {
                             // update script for some database like sql server to be executable with jdbc
                             sb.append(line).append("\n");
                         }
@@ -145,6 +145,9 @@ public final class JdbcQuartzTestUtilities {
         case MSSQL:
             DBConnectionManager.getInstance().shutdown(name);
             break;
+        case MARIADB:
+                DBConnectionManager.getInstance().shutdown(name);
+                break;
         default:
             throw new AssertionError("Unsupported database type: " + databaseType);
         }
@@ -197,8 +200,15 @@ public final class JdbcQuartzTestUtilities {
             this.conn = DriverManager.getConnection(this.jdbcUrl);
 
             Statement statement = conn.createStatement();
-            for (String command : getDatabaseSetupScript(DatabaseType.MSSQL)) {
-                statement.addBatch(command.replace("GO", ";").replace("[enter_db_name_here]", "[master]"));
+            if(jdbcUrl.contains("sqlserver")) {
+                for (String command : getDatabaseSetupScript(DatabaseType.MSSQL)) {
+                    statement.addBatch(command.replace("GO", ";").replace("[enter_db_name_here]", "[master]"));
+                }
+            }
+            else if(jdbcUrl.contains("mariadb")) {
+                for (String command : getDatabaseSetupScript(DatabaseType.MARIADB)) {
+                    statement.addBatch(command);
+                }
             }
             statement.executeBatch();
         }
