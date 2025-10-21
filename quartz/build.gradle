@@ -27,7 +27,7 @@ dependencies {
     compileOnly "jboss:jboss-jmx:$jbossVersion"
     compileOnly "org.apache.geronimo.specs:geronimo-commonj_1.1_spec:$commonjVersion"
 
-    implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.2'
+    implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.4'
 
     compileOnly 'jakarta.transaction:jakarta.transaction-api:2.0.1'
     testImplementation 'jakarta.transaction:jakarta.transaction-api:2.0.1'
