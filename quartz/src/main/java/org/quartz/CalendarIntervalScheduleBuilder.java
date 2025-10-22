@@ -104,14 +104,18 @@ public class CalendarIntervalScheduleBuilder extends ScheduleBuilder<CalendarInt
      * Specify the time unit and interval for the Trigger to be produced.
      * 
      * @param timeInterval the interval at which the trigger should repeat.
-     * @param unit  the time unit (IntervalUnit) of the interval.
+     * @param unit  the time unit (IntervalUnit) of the interval.  Cannot be less than IntervalUnit.SECOND .
      * @return the updated CalendarIntervalScheduleBuilder
      * @see CalendarIntervalTrigger#getRepeatInterval()
      * @see CalendarIntervalTrigger#getRepeatIntervalUnit()
+     * @throws IllegalArgumentException if unit is null or is IntervalUnit.MILLISECOND
      */
     public CalendarIntervalScheduleBuilder withInterval(int timeInterval, IntervalUnit unit) {
         if(unit == null)
             throw new IllegalArgumentException("TimeUnit must be specified.");
+        if(unit.equals(IntervalUnit.MILLISECOND))
+            throw new IllegalArgumentException("TimeUnit cannot be less than SECOND.");
+        
         validateInterval(timeInterval);
         this.interval = timeInterval;
         this.intervalUnit = unit;
