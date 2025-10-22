@@ -568,6 +568,41 @@ public abstract class AbstractJobStoreTest  {
         assertEquals(TriggerState.NORMAL, state);
     }
 
+
+    @Test
+    void testStoreJobReplacesJob() throws Exception {
+
+        JobDetailImpl testJob = new JobDetailImpl("testDupeJob", "testDupeGroup", MyJob.class);
+        testJob.setDescription("123abc");
+        testJob.setDurability(true);
+
+        assertDoesNotThrow(() -> {
+            fJobStore.storeJob(testJob, false);
+        });
+
+        JobDetail origJob = fJobStore.retrieveJob(testJob.getKey());
+        assertNotNull(origJob);
+        assertEquals(testJob.getKey(), origJob.getKey());
+        assertEquals(testJob.getDescription(), origJob.getDescription());
+
+        JobDetailImpl dupeJob = new JobDetailImpl("testDupeJob", "testDupeGroup", MyJob.class);
+        dupeJob.setDescription("123abc");
+        dupeJob.setDurability(true);
+
+        assertThrows(SchedulerException.class, () -> {
+            fJobStore.storeJob(dupeJob, false);
+        }, "storing a duplicate job should not succeed with replaceExisting=false");
+
+        assertDoesNotThrow(() -> {
+            fJobStore.storeJob(dupeJob, true);
+        }, "storing a duplicate job should succeed with replaceExisting=true");
+
+        JobDetail reloadedJob = fJobStore.retrieveJob(testJob.getKey());
+        assertNotNull(reloadedJob);
+        assertEquals(testJob.getKey(), reloadedJob.getKey());
+        assertEquals(testJob.getDescription(), reloadedJob.getDescription());
+    }
+
     public static class SampleSignaler implements SchedulerSignaler {
         volatile int fMisfireCount = 0;
 
