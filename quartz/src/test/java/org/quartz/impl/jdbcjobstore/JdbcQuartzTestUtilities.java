@@ -35,9 +35,9 @@ import java.util.Map;
 public final class JdbcQuartzTestUtilities {
 
     public enum DatabaseType {
-        DERBY("org/quartz/impl/jdbcjobstore/tables_derby.sql"),
+        DERBY("org/quartz/impl/jdbcjobstore/tables_derby.sql", StdJDBCDelegate.class.getName()),
         MSSQL("org/quartz/impl/jdbcjobstore/tables_sqlServer.sql", MSSQLDelegate.class.getName()),
-        MYSQL("org/quartz/impl/jdbcjobstore/tables_mysql_innodb.sql");
+        MARIADB("org/quartz/impl/jdbcjobstore/tables_mysql.sql", StdJDBCDelegate.class.getName());
 
         private final String scriptResource;
         private final String delegateClassName;
@@ -72,7 +72,7 @@ public final class JdbcQuartzTestUtilities {
                         String line = r.readLine();
                         if (line == null) {
                             break;
-                        } else if (!line.startsWith("--")) {
+                        } else if (!line.startsWith("--") && !line.startsWith("#")) {
                             // update script for some database like sql server to be executable with jdbc
                             sb.append(line).append("\n");
                         }
@@ -105,6 +105,10 @@ public final class JdbcQuartzTestUtilities {
             DBConnectionManager.getInstance().addConnectionProvider(name,
                     new TestContainerEmbeddedConnectionProvider(databaseType, name));
             break;
+        case MARIADB:
+            DBConnectionManager.getInstance().addConnectionProvider(name,
+                    new TestContainerEmbeddedConnectionProvider("jdbc:tc:mariadb:latest:///" + name));
+            break;
         default:
             throw new AssertionError("Unsupported database type: " + databaseType);
         }
@@ -125,6 +129,9 @@ public final class JdbcQuartzTestUtilities {
         case MSSQL:
             shutdownDatabase(name, databaseType);
             break;
+        case MARIADB:
+                shutdownDatabase(name, databaseType);
+                break;
         default:
             throw new AssertionError("Unsupported database type: " + databaseType);
         }
@@ -145,6 +152,9 @@ public final class JdbcQuartzTestUtilities {
         case MSSQL:
             DBConnectionManager.getInstance().shutdown(name);
             break;
+        case MARIADB:
+                DBConnectionManager.getInstance().shutdown(name);
+                break;
         default:
             throw new AssertionError("Unsupported database type: " + databaseType);
         }
@@ -220,8 +230,15 @@ public final class JdbcQuartzTestUtilities {
             this.conn = DriverManager.getConnection(this.jdbcUrl);
 
             Statement statement = conn.createStatement();
-            for (String command : getDatabaseSetupScript(DatabaseType.MSSQL)) {
-                statement.addBatch(command.replace("GO", ";").replace("[enter_db_name_here]", "[master]"));
+            if(jdbcUrl.contains("sqlserver")) {
+                for (String command : getDatabaseSetupScript(DatabaseType.MSSQL)) {
+                    statement.addBatch(command.replace("GO", ";").replace("[enter_db_name_here]", "[master]"));
+                }
+            }
+            else if(jdbcUrl.contains("mariadb")) {
+                for (String command : getDatabaseSetupScript(DatabaseType.MARIADB)) {
+                    statement.addBatch(command);
+                }
             }
             statement.executeBatch();
         }

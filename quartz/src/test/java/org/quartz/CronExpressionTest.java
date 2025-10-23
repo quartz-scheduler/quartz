@@ -89,6 +89,9 @@ public class CronExpressionTest extends SerializationTestSupport {
         cal.set(2005, Calendar.JUNE, 1, 10, 15, 0);
         assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
         
+        cal.set(Calendar.DAY_OF_MONTH, 30);
+        assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
+
         cal.set(Calendar.YEAR, 2006);
         assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
 
@@ -98,6 +101,147 @@ public class CronExpressionTest extends SerializationTestSupport {
 
         cal = Calendar.getInstance();
         cal.set(2005, Calendar.JUNE, 1, 10, 14, 0);
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        // Test for March
+        cal = Calendar.getInstance();
+        cal.set(2005, Calendar.MARCH, 1, 10, 15, 0);
+        assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(Calendar.DAY_OF_MONTH, 31);
+        assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal = Calendar.getInstance();
+        cal.set(2005, Calendar.MARCH, 1, 10, 16, 0);
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal = Calendar.getInstance();
+        cal.set(2005, Calendar.MARCH, 1, 10, 14, 0);
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        // Test for February
+        cal = Calendar.getInstance();
+        cal.set(2005, Calendar.FEBRUARY, 1, 10, 15, 0);
+        assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(Calendar.DAY_OF_MONTH, 28);
+        assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal = Calendar.getInstance();
+        cal.set(2005, Calendar.FEBRUARY, 1, 10, 16, 0);
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal = Calendar.getInstance();
+        cal.set(2005, Calendar.FEBRUARY, 1, 10, 14, 0);
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        // Test specific day of month
+        cronExpression = new CronExpression("0 15 10 12 * ? 2005");
+        cal.set(2005, Calendar.DECEMBER, 12, 10, 15, 0);
+        assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(2005, Calendar.DECEMBER, 11, 10, 15, 0);
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(2005, Calendar.DECEMBER, 13, 10, 15, 0);
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+    }
+
+    @Test
+    void testIsSatisfiedByLastDayOfMonth() throws Exception {
+        Calendar cal = Calendar.getInstance();
+
+        // Test months with 31 days
+        CronExpression cronExpression = new CronExpression("0 15 10 L * ? 2005");
+        cal.set(2005, Calendar.DECEMBER, 31, 10, 15, 0); // December has 31 days
+        assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(2005, Calendar.DECEMBER, 30, 10, 15, 0); // Not the last day
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        // Test months with 30 days
+        cronExpression = new CronExpression("0 15 10 L * ? 2005");
+        cal.set(2005, Calendar.SEPTEMBER, 30, 10, 15, 0); // September has 30 days
+        assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(2005, Calendar.SEPTEMBER, 29, 10, 15, 0); // Not the last day
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        // Test February (non-leap year)
+        cronExpression = new CronExpression("0 15 10 L 2 ? 2005");
+        cal.set(2005, Calendar.FEBRUARY, 28, 10, 15, 0);
+        assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(2005, Calendar.FEBRUARY, 27, 10, 15, 0); // Not the last day
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        // Test February (leap year)
+        cronExpression = new CronExpression("0 15 10 L 2 ? 2004");
+        cal.set(2004, Calendar.FEBRUARY, 29, 10, 15, 0);
+        assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(2004, Calendar.FEBRUARY, 28, 10, 15, 0); // Not the last day
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+    }
+
+    @Test
+    void testIsSatisfiedByLastDayOfMonthWithOffset() throws Exception {
+        Calendar cal = Calendar.getInstance();
+
+        // Test months with 31 days
+        CronExpression cronExpression = new CronExpression("0 15 10 L-2 * ? 2005");
+        cal.set(2005, Calendar.DECEMBER, 29, 10, 15, 0); // December has 31 days, L-2 = 29th
+        assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(2005, Calendar.DECEMBER, 28, 10, 15, 0); // Not L-2
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(2005, Calendar.DECEMBER, 30, 10, 15, 0); // Not L-2
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(2005, Calendar.DECEMBER, 31, 10, 15, 0); // Not L-2
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        // Test months with 30 days
+        cronExpression = new CronExpression("0 15 10 L-1 * ? 2005");
+        cal.set(2005, Calendar.SEPTEMBER, 29, 10, 15, 0); // September has 30 days, L-1 = 29th
+        assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(2005, Calendar.SEPTEMBER, 27, 10, 15, 0); // Not L-1
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(2005, Calendar.SEPTEMBER, 28, 10, 15, 0); // Not L-1
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(2005, Calendar.SEPTEMBER, 30, 10, 15, 0); // Not L-1
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        // Test February (non-leap year)
+        cronExpression = new CronExpression("0 15 10 L-3 2 ? 2005");
+        cal.set(2005, Calendar.FEBRUARY, 25, 10, 15, 0); // February has 28 days in 2005, L-3 = 25th
+        assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(2005, Calendar.FEBRUARY, 24, 10, 15, 0); // Not L-3
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(2005, Calendar.FEBRUARY, 26, 10, 15, 0); // Not L-3
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(2005, Calendar.FEBRUARY, 28, 10, 15, 0); // Not L-3
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        // Test February (leap year)
+        cronExpression = new CronExpression("0 15 10 L-3 2 ? 2000");
+        cal.set(2000, Calendar.FEBRUARY, 26, 10, 15, 0); // February has 29 days in 2000, L-3 = 26th
+        assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(2000, Calendar.FEBRUARY, 25, 10, 15, 0); // Not L-3
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(2000, Calendar.FEBRUARY, 27, 10, 15, 0); // Not L-3
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(2000, Calendar.FEBRUARY, 29, 10, 15, 0); // Not L-3
         assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
     }
 
@@ -113,11 +257,38 @@ public class CronExpressionTest extends SerializationTestSupport {
         cal.set(2010, Calendar.OCTOBER, 28, 10, 15, 0);
         assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
         
+        cal.set(2010, Calendar.FEBRUARY, 26, 10, 15, 0); // last day - 2 for February
+        assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(2010, Calendar.FEBRUARY, 25, 10, 15, 0);
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(2010, Calendar.JUNE, 28, 10, 15, 0); // last day - 2 for June
+        assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(2010, Calendar.JUNE, 27, 10, 15, 0);
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+
         cronExpression = new CronExpression("0 15 10 L-5W * ? 2010");
         
         cal.set(2010, Calendar.OCTOBER, 26, 10, 15, 0); // last day - 5
         assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
         
+        cal.set(2010, Calendar.OCTOBER, 25, 10, 15, 0); // not last day - 5
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(2010, Calendar.OCTOBER, 27, 10, 15, 0); // not last day - 5
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(2010, Calendar.SEPTEMBER, 24, 10, 15, 0); // last day - 5 (September has 30 days)
+        assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(2010, Calendar.SEPTEMBER, 23, 10, 15, 0); // not last day - 5
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(2010, Calendar.SEPTEMBER, 25, 10, 15, 0); // not last day - 5
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+
         cronExpression = new CronExpression("0 15 10 L-1 * ? 2010");
         
         cal.set(2010, Calendar.OCTOBER, 30, 10, 15, 0); // last day - 1
@@ -139,12 +310,28 @@ public class CronExpressionTest extends SerializationTestSupport {
         cal.set(2010, Calendar.OCTOBER, 30, 10, 15, 0);
         assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
         
+        cal.set(2010, Calendar.FEBRUARY, 1, 10, 15, 0);
+        assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(2010, Calendar.FEBRUARY, 28, 10, 15, 0);
+        assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(2010, Calendar.FEBRUARY, 27, 10, 15, 0);
+        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+
         cronExpression = new CronExpression("0 15 10 L-1W,L-1 * ? 2010");
         
         cal.set(2010, Calendar.OCTOBER, 29, 10, 15, 0); // nearest weekday to last day - 1 (29th is a friday in 2010)
         assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
         
         cal.set(2010, Calendar.OCTOBER, 30, 10, 15, 0); // last day - 1
+        assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(2010, Calendar.FEBRUARY, 26, 10, 15, 0); // nearest weekday to last day - 1 (26th is a friday in 2010)
+        assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(2010, Calendar.FEBRUARY, 27, 10, 15, 0); // last day - 1
+        assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
         
         cronExpression = new CronExpression("0 15 10 2W,16 * ? 2010");
         
@@ -157,6 +344,11 @@ public class CronExpressionTest extends SerializationTestSupport {
         cal.set(2010, Calendar.OCTOBER, 16, 10, 15, 0);
         assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
         
+        cal.set(2010, Calendar.NOVEMBER, 2, 10, 15, 0); // 2nd is a Tuesday in November 2010
+        assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
+
+        cal.set(2010, Calendar.NOVEMBER, 16, 10, 15, 0);
+        assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
     }
 
     /*
@@ -318,7 +510,7 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("/120 0 8-18 ? * 2-6");
             fail("Cron did not validate bad range interval in '_blank/xxx' form");
         } catch (ParseException e) {
-            assertEquals("Increment > 60 : 120", e.getMessage());
+            assertEquals("Increment >= 60 : 120", e.getMessage());
         }
 
         // Test case 2
@@ -326,7 +518,7 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("0/120 0 8-18 ? * 2-6");
             fail("Cron did not validate bad range interval in in '0/xxx' form");
         } catch (ParseException e) {
-            assertEquals("Increment > 60 : 120", e.getMessage());
+            assertEquals("Increment >= 60 : 120", e.getMessage());
         }
 
         // Test case 3
@@ -344,6 +536,14 @@ public class CronExpressionTest extends SerializationTestSupport {
         } catch (ParseException e) {
             assertEquals("'/' must be followed by an integer.", e.getMessage());
         }
+
+        // Test case 5
+        try {
+            new CronExpression("/60 0 8-18 ? * 2-6");
+            fail("Cron did not validate bad range interval in '_blank/xxx' form");
+        } catch (ParseException e) {
+            assertEquals("Increment >= 60 : 60", e.getMessage());
+        }
     }
 
 
@@ -355,7 +555,7 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("0 /120 8-18 ? * 2-6");
             fail("Cron did not validate bad range interval in '_blank/xxx' form");
         } catch (ParseException e) {
-            assertEquals("Increment > 60 : 120", e.getMessage());
+            assertEquals("Increment >= 60 : 120", e.getMessage());
         }
 
         // Test case 2
@@ -363,7 +563,7 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("0 0/120 8-18 ? * 2-6");
             fail("Cron did not validate bad range interval in in '0/xxx' form");
         } catch (ParseException e) {
-            assertEquals("Increment > 60 : 120", e.getMessage());
+            assertEquals("Increment >= 60 : 120", e.getMessage());
         }
 
         // Test case 3
@@ -381,6 +581,14 @@ public class CronExpressionTest extends SerializationTestSupport {
         } catch (ParseException e) {
             assertEquals("'/' must be followed by an integer.", e.getMessage());
         }
+
+        // Test case 5
+        try {
+            new CronExpression("0 /60 8-18 ? * 2-6");
+            fail("Cron did not validate bad range interval in '_blank/xxx' form");
+        } catch (ParseException e) {
+            assertEquals("Increment >= 60 : 60", e.getMessage());
+        }
     }
 
     // Issue #58
@@ -391,7 +599,7 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("0 0 /120 ? * 2-6");
             fail("Cron did not validate bad range interval in '_blank/xxx' form");
         } catch (ParseException e) {
-            assertEquals("Increment > 24 : 120", e.getMessage());
+            assertEquals("Increment >= 24 : 120", e.getMessage());
         }
 
         // Test case 2
@@ -399,7 +607,7 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("0 0 0/120 ? * 2-6");
             fail("Cron did not validate bad range interval in in '0/xxx' form");
         } catch (ParseException e) {
-            assertEquals("Increment > 24 : 120", e.getMessage());
+            assertEquals("Increment >= 24 : 120", e.getMessage());
         }
 
         // Test case 3
@@ -417,6 +625,14 @@ public class CronExpressionTest extends SerializationTestSupport {
         } catch (ParseException e) {
             assertEquals("'/' must be followed by an integer.", e.getMessage());
         }
+
+        // Test case 5
+        try {
+            new CronExpression("0 0 /24 ? * 2-6");
+            fail("Cron did not validate bad range interval in '_blank/xxx' form");
+        } catch (ParseException e) {
+            assertEquals("Increment >= 24 : 24", e.getMessage());
+        }
     }
 
     // Issue #58
@@ -427,7 +643,7 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("0 0 0 /120 * 2-6");
             fail("Cron did not validate bad range interval in '_blank/xxx' form");
         } catch (ParseException e) {
-            assertEquals("Increment > 31 : 120", e.getMessage());
+            assertEquals("Increment >= 31 : 120", e.getMessage());
         }
 
         // Test case 2
@@ -435,7 +651,7 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("0 0 0 0/120 * 2-6");
             fail("Cron did not validate bad range interval in in '0/xxx' form");
         } catch (ParseException e) {
-            assertEquals("Increment > 31 : 120", e.getMessage());
+            assertEquals("Increment >= 31 : 120", e.getMessage());
         }
 
         // Test case 3
@@ -463,7 +679,7 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("0 0 0 ? /120 2-6");
             fail("Cron did not validate bad range interval in '_blank/xxx' form");
         } catch (ParseException e) {
-            assertEquals("Increment > 12 : 120", e.getMessage());
+            assertEquals("Increment >= 12 : 120", e.getMessage());
         }
 
         // Test case 2
@@ -471,7 +687,7 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("0 0 0 ? 0/120 2-6");
             fail("Cron did not validate bad range interval in in '0/xxx' form");
         } catch (ParseException e) {
-            assertEquals("Increment > 12 : 120", e.getMessage());
+            assertEquals("Increment >= 12 : 120", e.getMessage());
         }
 
         // Test case 3
@@ -489,6 +705,14 @@ public class CronExpressionTest extends SerializationTestSupport {
         } catch (ParseException e) {
             assertEquals("'/' must be followed by an integer.", e.getMessage());
         }
+
+        // Test case 5
+        try {
+            new CronExpression("0 0 0 ? /13 2-6");
+            fail("Cron did not validate bad range interval in '_blank/xxx' form");
+        } catch (ParseException e) {
+            assertEquals("Increment >= 12 : 13", e.getMessage());
+        }
     }
 
 
@@ -501,7 +725,7 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("0 0 0 ? * /120");
             fail("Cron did not validate bad range interval in '_blank/xxx' form");
         } catch (ParseException e) {
-            assertEquals("Increment > 7 : 120", e.getMessage());
+            assertEquals("Increment >= 7 : 120", e.getMessage());
         }
 
         // Test case 2
@@ -509,7 +733,7 @@ public class CronExpressionTest extends SerializationTestSupport {
             new CronExpression("0 0 0 ? * 0/120");
             fail("Cron did not validate bad range interval in in '0/xxx' form");
         } catch (ParseException e) {
-            assertEquals("Increment > 7 : 120", e.getMessage());
+            assertEquals("Increment >= 7 : 120", e.getMessage());
         }
 
         // Test case 3
@@ -526,6 +750,44 @@ public class CronExpressionTest extends SerializationTestSupport {
             fail("Cron did not validate bad range interval in '0/_blank'");
         } catch (ParseException e) {
             assertEquals("'/' must be followed by an integer.", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testGetTimeBefore() throws ParseException {
+        long now = System.currentTimeMillis();
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(now);
+        int year = cal.get(Calendar.YEAR);
+
+        Object[][] tests = {
+            { "* * * * * ? *", 1000L },
+            { "0 * * * * ? *", 60 * 1000L },
+            { "0/15 * * * * ? *", 15 * 1000L },
+            { "0 0 5 * * ? *", 24 * 60 * 60 * 1000L },
+            { "0 0 0 * * ? *", 24 * 60 * 60 * 1000L },
+            { "0/30 1 2 * * ? *", 24 * 60 * 60 * 1000L - 30000L, 30000L },
+            { "* * * * * ? " + (year + 2) },
+            { "* * * * * ? " + (year - 2), 24 * 60 * 60 * 1000L - 30000L, 30000L },
+        };
+        for (Object[] test : tests) {
+            String expression = (String)test[0];
+            long interval1 = test.length > 1 ? (long)test[1] : -1;
+            long interval2 = test.length > 2 ? (long)test[2] : interval1;
+            CronExpression exp = new CronExpression(expression);
+            Date after = exp.getTimeAfter(new Date(now));
+            if (after == null) { // matches only in the past
+                Date before = exp.getTimeBefore(new Date(now));
+                assertNotNull(before, "expression " + expression);
+            } else if (interval1 < 0) { // matches only in the future
+                Date before = exp.getTimeBefore(after);
+                assertNull(before, "expression " + expression);
+            } else { // matches at fixed intervals
+                Date before = exp.getTimeBefore(after);
+                Date after2 = exp.getTimeAfter(after);
+                assertEquals(interval1, after.getTime() - before.getTime(), "expression " + expression);
+                assertEquals(interval2, after2.getTime() - after.getTime(), "expression " + expression);
+            }
         }
     }
     
