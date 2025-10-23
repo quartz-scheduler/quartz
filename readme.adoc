@@ -12,10 +12,5 @@ image::https://dev.azure.com/TerracottaCI/quartz/_apis/build/status/quartz-sched
 
 == Quick Links
 
-* <<docs/license.adoc#>>
-* <<docs/changelog.adoc#>>
-* <<docs/downloads.adoc#>>
-* <<docs/quick-start-guide.adoc#>>
-* <<docs/configuration.adoc#>>
-* <<docs/contribute.adoc#>>
-* <<docs/build.adoc#>>
+https://www.quartz-scheduler.org/community/contribute.html
+
