@@ -478,6 +478,18 @@ public class CronExpressionTest extends SerializationTestSupport {
         }
     }
     
+    public void testIsValidExpression() throws Exception {
+
+        assertTrue(CronExpression.isValidExpression("* * * * * ?"));
+        assertTrue(CronExpression.isValidExpression("0 * 5 * * ?"));
+        assertTrue(CronExpression.isValidExpression("19 15 10 4 Apr ?"));
+        assertTrue(CronExpression.isValidExpression("0 15 10 L-1W * ? 2010"));
+        assertFalse(CronExpression.isValidExpression("Ralf 30 * * * ?"));
+        assertFalse(CronExpression.isValidExpression("0 30 Ralf * * ?"));
+        assertFalse(CronExpression.isValidExpression("kilroy was here"));
+        assertFalse(CronExpression.isValidExpression("L 30 * * * ?"));
+    }
+    
     // execute with version number to generate a new version's serialized form
     public static void main(String[] args) throws Exception {
         new CronExpressionTest().writeJobDataFile("1.5.2");
