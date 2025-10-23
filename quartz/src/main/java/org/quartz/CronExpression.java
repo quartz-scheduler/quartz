@@ -665,6 +665,10 @@ public final class CronExpression implements Serializable, Cloneable {
             addToSet(ALL_SPEC_INT, -1, incr, type);
             return i;
         } else if (c == 'L') {
+
+            if(type < DAY_OF_MONTH)
+                throw new ParseException("'L' not expected in seconds, minutes or hours fields.", i);
+
             i++;
             if (type == DAY_OF_WEEK) {
                 addToSet(7, 7, 0, type);

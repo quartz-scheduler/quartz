@@ -790,6 +790,18 @@ public class CronExpressionTest extends SerializationTestSupport {
             }
         }
     }
+
+    @Test
+    public void testIsValidExpression() throws Exception {
+
+        assertTrue(CronExpression.isValidExpression("* * * * * ?"));
+        assertTrue(CronExpression.isValidExpression("0 * 5 * * ?"));
+        assertTrue(CronExpression.isValidExpression("0 15 10 L-1W,L-1 * ? 2010"));
+        assertFalse(CronExpression.isValidExpression("Ralf 30 * * * ?"));
+        assertFalse(CronExpression.isValidExpression("0 30 Ralf * * ?"));
+        assertFalse(CronExpression.isValidExpression("kilroy was here"));
+        assertFalse(CronExpression.isValidExpression("L 30 * * * ?"));
+    }
     
     // execute with version number to generate a new version's serialized form
     public static void main(String[] args) throws Exception {
