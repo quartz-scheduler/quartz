@@ -18,18 +18,25 @@
 
 package org.quartz.impl.jdbcjobstore;
 
-import org.quartz.*;
-import org.quartz.impl.matchers.GroupMatcher;
-import org.quartz.spi.ClassLoadHelper;
-import org.quartz.spi.OperableTrigger;
-import org.quartz.utils.Key;
-import org.slf4j.Logger;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
+
+import org.quartz.Calendar;
+import org.quartz.Job;
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
+import org.quartz.JobKey;
+import org.quartz.JobPersistenceException;
+import org.quartz.Trigger;
+import org.quartz.TriggerKey;
+import org.quartz.impl.matchers.GroupMatcher;
+import org.quartz.spi.ClassLoadHelper;
+import org.quartz.spi.OperableTrigger;
+import org.quartz.utils.Key;
+import org.slf4j.Logger;
 
 /**
  * <p>

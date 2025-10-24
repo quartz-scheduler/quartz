@@ -18,8 +18,45 @@
 
 package org.quartz.impl.jdbcjobstore;
 
-import org.quartz.*;
+import static org.quartz.JobKey.jobKey;
+import static org.quartz.TriggerBuilder.newTrigger;
+import static org.quartz.TriggerKey.triggerKey;
+import static org.quartz.impl.jdbcjobstore.Util.containsColumnNames;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.NotSerializableException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.math.BigDecimal;
+import java.sql.Blob;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
 import org.quartz.Calendar;
+import org.quartz.Job;
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
+import org.quartz.JobKey;
+import org.quartz.JobPersistenceException;
+import org.quartz.Scheduler;
+import org.quartz.SimpleTrigger;
+import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
+import org.quartz.TriggerKey;
 import org.quartz.impl.JobDetailImpl;
 import org.quartz.impl.jdbcjobstore.TriggerPersistenceDelegate.TriggerPropertyBundle;
 import org.quartz.impl.matchers.GroupMatcher;
@@ -28,17 +65,6 @@ import org.quartz.impl.triggers.SimpleTriggerImpl;
 import org.quartz.spi.ClassLoadHelper;
 import org.quartz.spi.OperableTrigger;
 import org.slf4j.Logger;
-
-import java.io.*;
-import java.math.BigDecimal;
-import java.sql.*;
-import java.util.*;
-import java.util.Date;
-
-import static org.quartz.JobKey.jobKey;
-import static org.quartz.TriggerBuilder.newTrigger;
-import static org.quartz.TriggerKey.triggerKey;
-import static org.quartz.impl.jdbcjobstore.Util.containsColumnNames;
 
 /**
  * <p>
