@@ -18,15 +18,24 @@
 
 package org.quartz.spi;
 
-import org.quartz.*;
-import org.quartz.Trigger.CompletedExecutionInstruction;
-import org.quartz.Trigger.TriggerState;
-import org.quartz.impl.matchers.GroupMatcher;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.quartz.Calendar;
+import org.quartz.Job;
+import org.quartz.JobDetail;
+import org.quartz.JobKey;
+import org.quartz.JobPersistenceException;
+import org.quartz.ObjectAlreadyExistsException;
+import org.quartz.SchedulerConfigException;
+import org.quartz.SchedulerException;
+import org.quartz.Trigger;
+import org.quartz.Trigger.CompletedExecutionInstruction;
+import org.quartz.Trigger.TriggerState;
+import org.quartz.TriggerKey;
+import org.quartz.impl.matchers.GroupMatcher;
 
 /**
  * <p>
@@ -174,8 +183,8 @@ public interface JobStore {
         throws JobPersistenceException;
 
     /**
-     * Gets all the <code>{@link org.quartz.JobDetail}s</code>
-     * in the matching groups.
+     * <p>
+     * Gets all the <code>{@link org.quartz.JobDetail}s</code> in the matching groups.
      * </p>
      * These will NOT necessarily be in lexicographical order, particularly on {@link org.quartz.simpl.RAMJobStore}
      * You may need to re-sort them yourself.
@@ -430,6 +439,8 @@ public interface JobStore {
      * <p>
      * If there are no matches, a zero-length array should be returned.
      * </p>
+     * @param matcher A {@link GroupMatcher} to match job groups
+     * @return list of triggers - may be empty
      * @throws JobPersistenceException thrown if there is an error
      * @see #getTriggersByTriggerGroup(GroupMatcher)
      * @see #getTriggersByJobAndTriggerGroup(GroupMatcher, GroupMatcher)
@@ -444,21 +455,24 @@ public interface JobStore {
      * <p>
      * If there are no matches, a zero-length array should be returned.
      * </p>
+     * @param matcher A {@link GroupMatcher} to match job groups
+     * @return list of triggers - may be empty
      * @throws JobPersistenceException thrown if there is an error
      * @see #getTriggersByJobGroup(GroupMatcher)
-     * @see #getTriggersByJobAndTriggerGroup(GroupMatcher, GroupMatcher)      */
+     * @see #getTriggersByJobAndTriggerGroup(GroupMatcher, GroupMatcher)
+     * */
     default List<OperableTrigger> getTriggersByTriggerGroup(GroupMatcher<TriggerKey> matcher) throws JobPersistenceException {
         return getTriggersByJobAndTriggerGroup(GroupMatcher.anyGroup(), matcher);
     }
 
     /**
-     * Get all the Triggers that are associated with the Job & trigger groupmatcher
+     * Get all the Triggers that are associated with the Job &amp; trigger group matcher
      * <br>
      * note: requires the use of enhanced statements
-     * @param jobMatcher
-     * @param triggerMatcher
-     * @return
-     * @throws JobPersistenceException
+     * @param jobMatcher A {@link GroupMatcher} to match job groups
+     * @param triggerMatcher A {@link GroupMatcher} to match trigger groups
+     * @return list of triggers
+     * @throws JobPersistenceException thrown if there is an error saving the job
      * @see #getTriggersByJobGroup(GroupMatcher)
      * @see #getTriggersByTriggerGroup(GroupMatcher)
      */

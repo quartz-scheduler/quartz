@@ -16,11 +16,11 @@
  */
 package org.quartz.simpl;
 
-import org.quartz.AbstractJobStoreTest;
-import org.quartz.spi.JobStore;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.quartz.AbstractJobStoreTest;
+import org.quartz.spi.JobStore;
 
 public class RAMJobStoreTest extends AbstractJobStoreTest {
     private HashMap<String, JobStore> stores = new HashMap<>();

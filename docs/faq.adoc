@@ -155,19 +155,26 @@ Other trigger types that are based on sliding along a calendar (rather than exac
 How do I improve the performance of JDBC-JobStore?::
 
 There are a few known ways to speed up JDBC-JobStore, only one of which is very practical.
-+
-First, the obvious, but not-so-practical:
-+
+
+First, you can enable the use of <<configuration.adoc#enhanced_statements_property, bulk retrieval statements>>. This is done with this option in your quartz.properties file:
+----
+org.quartz.jobStore.useEnhancedStatements=true
+----
+
+Secondly, the obvious, but not-so-practical:
+
     * Buy a better (faster) network between the machine that runs Quartz, and the machine that runs your RDBMS.
     * Buy a better (more powerful) machine to run your database on.
     * Buy a better RDBMS.
-+
-Now for something simple, but effective: Build indexes on the Quartz tables.
-+
-Most database systems will automatically put indexes on the primary-key fields, many will also automatically do it for the foreign-key field. Make sure yours does this, or make the indexes on all key fields of every table manually.
-+
-Next, manually add some additional indexes: most important to index are the TRIGGER table's "next_fire_time" and "state" fields. Last (but not as important), add indexes to every column on the FIRED_TRIGGERS table.
-+
+
+Now for something simple, but effective: Build indexes on the Quartz tables. +
+
+Most database systems will automatically put indexes on the primary-key fields, many will also automatically do it for the foreign-key field.
+Make sure yours does this, or make the indexes on all key fields of every table manually. +
+
+Next, manually add some additional indexes: most important to index are the TRIGGER table's "next_fire_time" and "state"
+fields. Last (but not as important), add indexes to every column on the FIRED_TRIGGERS table. +
+
 ----
 create index idx_qrtz_t_next_fire_time on qrtz_triggers(NEXT_FIRE_TIME);
 create index idx_qrtz_t_state on qrtz_triggers(TRIGGER_STATE);
@@ -187,8 +194,11 @@ create index idx_qrtz_t_nf_st_misfire on \
 create index idx_qrtz_t_nf_st_misfire_grp on \
     qrtz_triggers(MISFIRE_INSTR,NEXT_FIRE_TIME,TRIGGER_GROUP,TRIGGER_STATE);
 ----
-+
-The clustering feature works best for scaling out long-running and/or cpu-intensive jobs (distributing the work-load over multiple nodes). If you need to scale out to support thousands of short-running (e.g 1 second) jobs, consider partitioning the set of jobs by using multiple distinct schedulers (and hence multiple sets of tables (with distinct prefixes)). Using one scheduler forces the use of a cluster-wide lock, a pattern that degrades performance as you add more clients.
+
+The clustering feature works best for scaling out long-running and/or cpu-intensive jobs (distributing the work-load over
+multiple nodes). If you need to scale out to support thousands of short-running (e.g 1 second) jobs, consider partitioning
+the set of jobs by using multiple distinct schedulers (and hence multiple sets of tables (with distinct prefixes)).
+Using one scheduler forces the use of a cluster-wide lock, a pattern that degrades performance as you add more clients. +
 
 My DB Connections don't recover properly if the database server is restarted.::
 

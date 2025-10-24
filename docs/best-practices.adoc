@@ -122,6 +122,12 @@ If a listener throws an exception, it may cause other listeners not to be notifi
 
 == Exposing Scheduler Functionality Through Applications
 
+=== Enabling bulk job retrieval operations
+
+You can use the new <<configuration.adoc#enhanced_statements_property, bulk retrieval methods>> (such as `Scheduler.getJobKeys(GroupMatcher<JobKey> matcher)`) to efficiently
+retrieve large numbers of jobs/triggers at once, rather than calling the single-item retrieval methods (such as
+`Scheduler.getJobDetail(JobKey jobKey)`) in a loop.
+
 === Be Careful of Security!
 
 Some users expose Quartz's Scheduler functionality through an application user interface. This can be very useful, though it can also be extremely dangerous.

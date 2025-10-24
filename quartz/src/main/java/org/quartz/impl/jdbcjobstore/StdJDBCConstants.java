@@ -18,9 +18,19 @@
 
 package org.quartz.impl.jdbcjobstore;
 
-import org.quartz.Trigger;
+import static org.quartz.impl.jdbcjobstore.SimplePropertiesTriggerPersistenceDelegateSupport.COL_BOOL_PROP_1;
+import static org.quartz.impl.jdbcjobstore.SimplePropertiesTriggerPersistenceDelegateSupport.COL_BOOL_PROP_2;
+import static org.quartz.impl.jdbcjobstore.SimplePropertiesTriggerPersistenceDelegateSupport.COL_DEC_PROP_1;
+import static org.quartz.impl.jdbcjobstore.SimplePropertiesTriggerPersistenceDelegateSupport.COL_DEC_PROP_2;
+import static org.quartz.impl.jdbcjobstore.SimplePropertiesTriggerPersistenceDelegateSupport.COL_INT_PROP_1;
+import static org.quartz.impl.jdbcjobstore.SimplePropertiesTriggerPersistenceDelegateSupport.COL_INT_PROP_2;
+import static org.quartz.impl.jdbcjobstore.SimplePropertiesTriggerPersistenceDelegateSupport.COL_LONG_PROP_1;
+import static org.quartz.impl.jdbcjobstore.SimplePropertiesTriggerPersistenceDelegateSupport.COL_LONG_PROP_2;
+import static org.quartz.impl.jdbcjobstore.SimplePropertiesTriggerPersistenceDelegateSupport.COL_STR_PROP_1;
+import static org.quartz.impl.jdbcjobstore.SimplePropertiesTriggerPersistenceDelegateSupport.COL_STR_PROP_2;
+import static org.quartz.impl.jdbcjobstore.SimplePropertiesTriggerPersistenceDelegateSupport.COL_STR_PROP_3;
 
-import static org.quartz.impl.jdbcjobstore.SimplePropertiesTriggerPersistenceDelegateSupport.*;
+import org.quartz.Trigger;
 
 /**
  * <p>

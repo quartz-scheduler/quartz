@@ -16,9 +16,6 @@
  */
 package org.quartz.impl.jdbcjobstore;
 
-import org.quartz.utils.ConnectionProvider;
-import org.quartz.utils.DBConnectionManager;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +29,9 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import org.quartz.utils.ConnectionProvider;
+import org.quartz.utils.DBConnectionManager;
+
 public final class JdbcQuartzTestUtilities {
 
     public enum DatabaseType {
@@ -41,10 +41,6 @@ public final class JdbcQuartzTestUtilities {
 
         private final String scriptResource;
         private final String delegateClassName;
-
-        DatabaseType(String scriptResource) {
-            this(scriptResource, StdJDBCDelegate.class.getName());
-        }
 
         DatabaseType(String scriptResource, String delegateClassName) {
             this.scriptResource = scriptResource;
@@ -97,71 +93,64 @@ public final class JdbcQuartzTestUtilities {
 
     public static void createDatabase(String name, DatabaseType databaseType) throws SQLException {
         switch (databaseType) {
-        case DERBY:
-            DBConnectionManager.getInstance().addConnectionProvider(name, new DerbyEmbeddedConnectionProvider(name));
-            break;
-        case MYSQL:
-        case MSSQL:
-            DBConnectionManager.getInstance().addConnectionProvider(name,
-                    new TestContainerEmbeddedConnectionProvider(databaseType, name));
-            break;
-        case MARIADB:
-            DBConnectionManager.getInstance().addConnectionProvider(name,
-                    new TestContainerEmbeddedConnectionProvider("jdbc:tc:mariadb:latest:///" + name));
-            break;
-        default:
-            throw new AssertionError("Unsupported database type: " + databaseType);
+            case DERBY:
+                DBConnectionManager.getInstance().addConnectionProvider(name, new DerbyEmbeddedConnectionProvider(name));
+                break;
+            case MSSQL:
+                DBConnectionManager.getInstance().addConnectionProvider(name,
+                        new TestContainerEmbeddedConnectionProvider("jdbc:tc:sqlserver:latest:///" + name));
+                break;
+            case MARIADB:
+                DBConnectionManager.getInstance().addConnectionProvider(name,
+                        new TestContainerEmbeddedConnectionProvider("jdbc:tc:mariadb:latest:///" + name));
+                break;
+            default:
+                throw new AssertionError("Unsupported database type: " + databaseType);
         }
     }
 
     public static void destroyDatabase(String name, DatabaseType databaseType) throws SQLException {
         switch (databaseType) {
-        case DERBY:
-            try {
-                DriverManager.getConnection("jdbc:derby:memory:" + name + ";drop=true").close();
-            } catch (SQLException e) {
-                if (!("Database 'memory:" + name + "' dropped.").equals(e.getMessage())) {
-                    throw e;
+            case DERBY:
+                try {
+                    DriverManager.getConnection("jdbc:derby:memory:" + name + ";drop=true").close();
+                } catch (SQLException e) {
+                    if (!("Database 'memory:" + name + "' dropped.").equals(e.getMessage())) {
+                        throw e;
+                    }
                 }
-            }
-            break;
-        case MYSQL:
-        case MSSQL:
-            shutdownDatabase(name, databaseType);
-            break;
-        case MARIADB:
+                break;
+            case MSSQL:
+            case MARIADB:
                 shutdownDatabase(name, databaseType);
                 break;
-        default:
-            throw new AssertionError("Unsupported database type: " + databaseType);
+            default:
+                throw new AssertionError("Unsupported database type: " + databaseType);
         }
     }
 
     public static void shutdownDatabase(String name, DatabaseType databaseType) throws SQLException {
         switch (databaseType) {
-        case DERBY:
-            try {
-                DriverManager.getConnection("jdbc:derby:;shutdown=true").close();
-            } catch (SQLException e) {
-                if (!("Derby system shutdown.").equals(e.getMessage())) {
-                    throw e;
+            case DERBY:
+                try {
+                    DriverManager.getConnection("jdbc:derby:;shutdown=true").close();
+                } catch (SQLException e) {
+                    if (!("Derby system shutdown.").equals(e.getMessage())) {
+                        throw e;
+                    }
                 }
-            }
-            break;
-        case MYSQL:
-        case MSSQL:
-            DBConnectionManager.getInstance().shutdown(name);
-            break;
-        case MARIADB:
+                break;
+            case MSSQL:
+            case MARIADB:
                 DBConnectionManager.getInstance().shutdown(name);
                 break;
-        default:
-            throw new AssertionError("Unsupported database type: " + databaseType);
+            default:
+                throw new AssertionError("Unsupported database type: " + databaseType);
         }
     }
 
     static class DerbyEmbeddedConnectionProvider implements ConnectionProvider {
-    
+
         private final String databaseName;
 
         DerbyEmbeddedConnectionProvider(String name) throws SQLException {
@@ -169,7 +158,7 @@ public final class JdbcQuartzTestUtilities {
                 Class.forName("org.apache.derby.jdbc.EmbeddedDriver").getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 throw new AssertionError(e);
-            }           
+            }
             this.databaseName = name;
             Connection conn = DriverManager.getConnection("jdbc:derby:memory:" + databaseName + ";create=true");
             try {
@@ -202,29 +191,6 @@ public final class JdbcQuartzTestUtilities {
         //we keep a connection open to keep the testcontainer container alive
         private final Connection conn;
 
-        TestContainerEmbeddedConnectionProvider(DatabaseType databaseType, String name) throws SQLException {
-            if (databaseType == DatabaseType.MYSQL) {
-                this.jdbcUrl = "jdbc:tc:mysql:8:///" + name;
-            } else if (databaseType == DatabaseType.MSSQL) {
-                this.jdbcUrl = "jdbc:tc:sqlserver:latest:///" + name;
-            } else {
-                throw new IllegalArgumentException("Unsupported database type: " + databaseType);
-            }
-            this.conn = DriverManager.getConnection(this.jdbcUrl);
-
-            Statement statement = conn.createStatement();
-            if (databaseType == DatabaseType.MYSQL) {
-                for (String command : getDatabaseSetupScript(DatabaseType.MYSQL)) {
-                    statement.addBatch(command);
-                }
-            } else {
-                for (String command : getDatabaseSetupScript(DatabaseType.MSSQL)) {
-                    statement.addBatch(command.replace("GO", ";").replace("[enter_db_name_here]", "[master]"));
-                }
-            }
-            statement.executeBatch();
-        }
-
         TestContainerEmbeddedConnectionProvider(String jdbcUrl) throws SQLException {
             this.jdbcUrl = jdbcUrl;
             this.conn = DriverManager.getConnection(this.jdbcUrl);
@@ -234,8 +200,7 @@ public final class JdbcQuartzTestUtilities {
                 for (String command : getDatabaseSetupScript(DatabaseType.MSSQL)) {
                     statement.addBatch(command.replace("GO", ";").replace("[enter_db_name_here]", "[master]"));
                 }
-            }
-            else if(jdbcUrl.contains("mariadb")) {
+            } else if(jdbcUrl.contains("mariadb")) {
                 for (String command : getDatabaseSetupScript(DatabaseType.MARIADB)) {
                     statement.addBatch(command);
                 }
