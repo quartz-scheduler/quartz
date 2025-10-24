@@ -565,6 +565,80 @@ public class RAMJobStore implements JobStore {
 
     /**
      * <p>
+     * Retrieve all the matched <code>{@link org.quartz.JobDetail}</code> for the given
+     * <code>{@link org.quartz.impl.matchers.GroupMatcher}</code>.
+     * </p>
+     *
+     * @return A list of all the matched <code>Job</code>s, or an empty list if there are no matches.
+     */
+    public List<JobDetail> getJobDetails(GroupMatcher<JobKey> matcher) {
+        List<JobDetail> outList = null;
+        synchronized (lock) {
+
+            StringMatcher.StringOperatorName operator = matcher.getCompareWithOperator();
+            String compareToValue = matcher.getCompareToValue();
+
+            switch(operator) {
+                case EQUALS:
+                    HashMap<JobKey, JobWrapper> grpMap = jobsByGroup.get(compareToValue);
+                    if (grpMap != null) {
+                        outList = new LinkedList<>();
+
+                        for (JobWrapper jw : grpMap.values()) {
+
+                            if (jw != null) {
+                                outList.add(jw.jobDetail);
+                            }
+                        }
+                    }
+                    break;
+
+                default:
+                    for (Map.Entry<String, HashMap<JobKey, JobWrapper>> entry : jobsByGroup.entrySet()) {
+                        if(operator.evaluate(entry.getKey(), compareToValue) && entry.getValue() != null) {
+                            if(outList == null) {
+                                outList = new LinkedList<>();
+                            }
+                            for (JobWrapper jobWrapper : entry.getValue().values()) {
+                                if(jobWrapper != null) {
+                                    outList.add(jobWrapper.jobDetail);
+                                }
+                            }
+                        }
+                    }
+            }
+        }
+
+        return outList == null ? java.util.Collections.emptyList() : outList;
+    }
+
+    public List<OperableTrigger> getTriggersByJobAndTriggerGroup(GroupMatcher<JobKey> jobMatcher, GroupMatcher<TriggerKey> triggerMatcher) throws JobPersistenceException {
+        List<OperableTrigger> matchingTriggers = new ArrayList<>();
+
+        synchronized (lock) {
+            // Get all matching jobs
+            Set<JobKey> matchingJobKeys = getJobKeys(jobMatcher);
+
+            for (JobKey jobKey : matchingJobKeys) {
+                // Get triggers for the job
+                List<OperableTrigger> jobTriggers = getTriggersForJob(jobKey);
+
+                for (OperableTrigger trigger : jobTriggers) {
+
+                    // Check if the trigger matches the trigger group
+                    if (triggerMatcher.getCompareWithOperator().evaluate(trigger.getKey().getGroup(), triggerMatcher.getCompareToValue())) {
+                        matchingTriggers.add(trigger);
+                    }
+                }
+            }
+        }
+
+        return matchingTriggers;
+    }
+
+
+    /**
+     * <p>
      * Retrieve the given <code>{@link org.quartz.Trigger}</code>.
      * </p>
      *

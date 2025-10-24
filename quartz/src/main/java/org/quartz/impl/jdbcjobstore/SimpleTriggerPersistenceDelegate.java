@@ -94,25 +94,35 @@ public class SimpleTriggerPersistenceDelegate implements TriggerPersistenceDeleg
             rs = ps.executeQuery();
     
             if (rs.next()) {
-                int repeatCount = rs.getInt(COL_REPEAT_COUNT);
-                long repeatInterval = rs.getLong(COL_REPEAT_INTERVAL);
-                int timesTriggered = rs.getInt(COL_TIMES_TRIGGERED);
-
-                SimpleScheduleBuilder sb = SimpleScheduleBuilder.simpleSchedule()
-                    .withRepeatCount(repeatCount)
-                    .withIntervalInMilliseconds(repeatInterval);
-                
-                String[] statePropertyNames = { "timesTriggered" };
-                Object[] statePropertyValues = { timesTriggered };
-                
-                return new TriggerPropertyBundle(sb, statePropertyNames, statePropertyValues);
+                return loadExtendedTriggerPropertiesFromResultSet(rs, triggerKey);
             }
-            
-            throw new IllegalStateException("No record found for selection of Trigger with key: '" + triggerKey + "' and statement: " + Util.rtp(SELECT_SIMPLE_TRIGGER, tablePrefix, schedNameLiteral));
+            throw new NoRecordFoundException(triggerKey, schedNameLiteral, Util.rtp(SELECT_SIMPLE_TRIGGER, tablePrefix, schedNameLiteral));
         } finally {
             Util.closeResultSet(rs);
             Util.closeStatement(ps);
         }
+    }
+
+    public TriggerPropertyBundle loadExtendedTriggerPropertiesFromResultSet(ResultSet rs, TriggerKey triggerKey) throws SQLException {
+        if (Util.areNull(rs, COL_REPEAT_COUNT, COL_REPEAT_INTERVAL, COL_TIMES_TRIGGERED)) {
+            throw new NoRecordFoundException(triggerKey, schedNameLiteral, this.getClass());
+        }
+        int repeatCount = rs.getInt(COL_REPEAT_COUNT);
+        long repeatInterval = rs.getLong(COL_REPEAT_INTERVAL);
+        int timesTriggered = rs.getInt(COL_TIMES_TRIGGERED);
+
+        SimpleScheduleBuilder sb = SimpleScheduleBuilder.simpleSchedule()
+            .withRepeatCount(repeatCount)
+            .withIntervalInMilliseconds(repeatInterval);
+
+        String[] statePropertyNames = { "timesTriggered" };
+        Object[] statePropertyValues = { timesTriggered };
+
+        return new TriggerPropertyBundle(sb, statePropertyNames, statePropertyValues);
+    }
+
+    public boolean hasInlinedResultSetProperties() {
+        return true;
     }
 
     public int updateExtendedTriggerProperties(Connection conn, OperableTrigger trigger, String state, JobDetail jobDetail) throws SQLException, IOException {

@@ -745,6 +745,21 @@ public class RemoteScheduler implements Scheduler {
      * Calls the equivalent method on the 'proxied' <code>QuartzScheduler</code>.
      * </p>
      */
+    public List<JobDetail> getJobDetails(GroupMatcher<JobKey> matcher)
+        throws SchedulerException {
+        try {
+            return getRemoteScheduler().getJobDetails(matcher);
+        } catch (RemoteException re) {
+            throw invalidateHandleCreateException(
+                "Error communicating with remote scheduler.", re);
+        }
+    }
+
+    /**
+     * <p>
+     * Calls the equivalent method on the 'proxied' <code>QuartzScheduler</code>.
+     * </p>
+     */
     public boolean checkExists(JobKey jobKey) throws SchedulerException {
         try {
             return getRemoteScheduler().checkExists(jobKey);

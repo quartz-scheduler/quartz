@@ -504,6 +504,16 @@ public class StdScheduler implements Scheduler {
      * Calls the equivalent method on the 'proxied' <code>QuartzScheduler</code>.
      * </p>
      */
+    public List<JobDetail> getJobDetails(GroupMatcher<JobKey> matcher)
+        throws SchedulerException {
+        return sched.getJobDetails(matcher);
+    }
+
+    /**
+     * <p>
+     * Calls the equivalent method on the 'proxied' <code>QuartzScheduler</code>.
+     * </p>
+     */
     public Trigger getTrigger(TriggerKey triggerKey)
         throws SchedulerException {
         return sched.getTrigger(triggerKey);

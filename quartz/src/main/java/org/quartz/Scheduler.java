@@ -808,6 +808,21 @@ public interface Scheduler {
         throws SchedulerException;
 
     /**
+     * Gets all the {@link org.quartz.JobDetail Jobdetails}
+     * in the matching groups.
+     *
+     * <p>The returned JobDetail objects will be a snap-shot of the actual stored
+     * JobDetail.  If you wish to modify the JobDetail, you must re-store the
+     * JobDetail afterward (e.g. see {@link #addJob(JobDetail, boolean)}).
+     * </p>
+     * @param matcher Matcher to evaluate against known groups
+     * @return List of all JobDetail matching
+     * @throws SchedulerException On error
+     */
+    List<JobDetail> getJobDetails(GroupMatcher<JobKey> matcher)
+        throws SchedulerException;
+
+    /**
      * Get the <code>{@link Trigger}</code> instance with the given key.
      * 
      * <p>The returned Trigger object will be a snap-shot of the actual stored

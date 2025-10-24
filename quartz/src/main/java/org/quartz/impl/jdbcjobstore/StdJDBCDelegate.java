@@ -21,6 +21,7 @@ package org.quartz.impl.jdbcjobstore;
 import static org.quartz.JobKey.jobKey;
 import static org.quartz.TriggerBuilder.newTrigger;
 import static org.quartz.TriggerKey.triggerKey;
+import static org.quartz.impl.jdbcjobstore.Util.containsColumnNames;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -100,6 +101,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
 
     protected final List<TriggerPersistenceDelegate> triggerPersistenceDelegates = new LinkedList<>();
 
+    protected boolean useEnhancedStatements = false;
     
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -139,8 +141,9 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         this.classLoadHelper = classLoadHelper;
         addDefaultTriggerPersistenceDelegates();
 
-        if(initString == null)
+        if(initString == null) {
             return;
+        }
 
         String[] settings = initString.split("\\|");
         
@@ -151,7 +154,6 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
                 continue;
 
             if(name.equals("triggerPersistenceDelegateClasses")) {
-                
                 String[] trigDelegates = parts[1].split(",");
                 
                 for(String trigDelClassName: trigDelegates) {
@@ -677,8 +679,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
      * 
      * @param conn
      *          the DB Connection
-     * @return an array of <code>{@link
-     * org.quartz.utils.Key}</code> objects
+     * @return an array of <code>{@link org.quartz.utils.Key}</code> objects
      */
     public List<TriggerKey> selectTriggerKeysForJob(Connection conn, JobKey jobKey) throws SQLException {
         PreparedStatement ps = null;
@@ -840,25 +841,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             JobDetailImpl job = null;
 
             if (rs.next()) {
-                job = new JobDetailImpl();
-
-                job.setName(rs.getString(COL_JOB_NAME));
-                job.setGroup(rs.getString(COL_JOB_GROUP));
-                job.setDescription(rs.getString(COL_DESCRIPTION));
-                job.setJobClass( loadHelper.loadClass(rs.getString(COL_JOB_CLASS), Job.class));
-                job.setDurability(getBoolean(rs, COL_IS_DURABLE));
-                job.setRequestsRecovery(getBoolean(rs, COL_REQUESTS_RECOVERY));
-
-                Map<?, ?> map;
-                if (canUseProperties()) {
-                    map = getMapFromProperties(rs);
-                } else {
-                    map = (Map<?, ?>) getObjectFromBlob(rs, COL_JOB_DATAMAP);
-                }
-
-                if (null != map) {
-                    job.setJobDataMap(new JobDataMap(map));
-                }
+                job = handleJobDetails(rs, loadHelper, true);
             }
 
             return job;
@@ -868,12 +851,44 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         }
     }
 
-    /**
-     * build Map from java.util.Properties encoding.
-     */
-    private Map<?, ?> getMapFromProperties(ResultSet rs) throws ClassNotFoundException, IOException, SQLException {
+    public List<JobDetail> selectJobDetails(Connection conn, GroupMatcher<JobKey> matcher,
+            ClassLoadHelper loadHelper) throws ClassNotFoundException, IOException, SQLException {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            if(isMatcherEquals(matcher)) {
+                ps = conn.prepareStatement(rtp(SELECT_JOB_DETAILS));
+                ps.setString(1, toSqlEqualsClause(matcher));
+            } else {
+                ps = conn.prepareStatement(rtp(SELECT_JOB_DETAILS_LIKE));
+                ps.setString(1, toSqlLikeClause(matcher));
+            }
+            rs = ps.executeQuery();
+
+            LinkedList<JobDetail> list = new LinkedList<>();
+
+            while (rs.next()) {
+                JobDetailImpl job = handleJobDetails(rs, loadHelper, true);
+                list.add(job);
+            }
+            return list;
+        } finally {
+            closeResultSet(rs);
+            closeStatement(ps);
+        }
+    }
+
+        /**
+         * build Map from java.util.Properties encoding.
+         */
+    private Map<?, ?> getMapFromProperties(ResultSet rs, String columnPrefix) throws ClassNotFoundException, IOException, SQLException {
         Map<?, ?> map;
-        try (InputStream is = (InputStream) getJobDataFromBlob(rs, COL_JOB_DATAMAP)) {
+        String colName = COL_JOB_DATAMAP;
+        if (columnPrefix != null && !columnPrefix.isEmpty()) {
+            colName = columnPrefix + COL_JOB_DATAMAP;
+        }
+        try (InputStream is = (InputStream) getJobDataFromBlob(rs, colName)) {
             if (is == null) {
                 return null;
             }
@@ -882,6 +897,13 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             map = convertFromProperty(properties);
         }
         return map;
+    }
+
+    /**
+     * build Map from java.util.Properties encoding.
+     */
+    private Map<?, ?> getMapFromProperties(ResultSet rs) throws ClassNotFoundException, IOException, SQLException {
+        return getMapFromProperties(rs, null);
     }
 
     /**
@@ -1555,8 +1577,9 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
     protected void deleteTriggerExtension(Connection conn, TriggerKey triggerKey) throws SQLException {
 
         for(TriggerPersistenceDelegate tDel: triggerPersistenceDelegates) {
-            if(tDel.deleteExtendedTriggerProperties(conn, triggerKey) > 0)
+            if(tDel.deleteExtendedTriggerProperties(conn, triggerKey) > 0) {
                 return; // as soon as one affects a row, we're done.
+            }
         }
         
         deleteBlobTrigger(conn, triggerKey); 
@@ -1605,26 +1628,59 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
      * @throws ClassNotFoundException
      */
     public JobDetail selectJobForTrigger(Connection conn, ClassLoadHelper loadHelper,
-        TriggerKey triggerKey) throws ClassNotFoundException, SQLException {
+        TriggerKey triggerKey) throws ClassNotFoundException, SQLException, IOException {
         return selectJobForTrigger(conn, loadHelper, triggerKey, true);
+    }
+
+    private JobDetailImpl handleJobDetails(ResultSet rs, ClassLoadHelper loadHelper, boolean loadJobClass)
+        throws SQLException, ClassNotFoundException, IOException {
+
+        JobDetailImpl job = new JobDetailImpl();
+        job.setName(rs.getString(COL_JOB_NAME));
+        job.setGroup(rs.getString(COL_JOB_GROUP));
+        if (containsColumnNames(rs, COL_DESCRIPTION)) {
+            job.setDescription(rs.getString(COL_DESCRIPTION));
+        }
+        job.setDurability(rs.getBoolean(COL_IS_DURABLE));
+        if (loadJobClass) {
+            job.setJobClass(loadHelper.loadClass(rs.getString(COL_JOB_CLASS), Job.class));
+        }
+        job.setRequestsRecovery(rs.getBoolean(COL_REQUESTS_RECOVERY));
+        if (containsColumnNames(rs, COL_JOB_DATAMAP) || containsColumnNames(rs, COL_JOB_DATAMAP)) {
+            Map<?, ?> map = null;
+            if (canUseProperties()) {
+                if (containsColumnNames(rs,  COL_JOB_DATAMAP)) {
+                    map = getMapFromProperties(rs);
+                }
+            } else {
+                if (containsColumnNames(rs, COL_JOB_DATAMAP)) {
+                    map = (Map<?, ?>) getObjectFromBlob(rs, COL_JOB_DATAMAP);
+                }
+            }
+
+            if (null != map) {
+                job.setJobDataMap(new JobDataMap(map));
+            }
+        }
+
+        return job;
     }
 
     /**
      * <p>
      * Select the job to which the trigger is associated. Allow option to load actual job class or not. When case of
      * remove, we do not need to load the class, which in many cases, it's no longer exists.
-     *
      * </p>
      * 
      * @param conn
      *          the DB Connection
-     * @return the <code>{@link org.quartz.JobDetail}</code> object
+     * @return the {@link org.quartz.JobDetail} object
      *         associated with the given trigger
      * @throws SQLException
      * @throws ClassNotFoundException
      */
     public JobDetail selectJobForTrigger(Connection conn, ClassLoadHelper loadHelper,
-            TriggerKey triggerKey, boolean loadJobClass) throws ClassNotFoundException, SQLException {
+            TriggerKey triggerKey, boolean loadJobClass) throws ClassNotFoundException, SQLException, IOException {
         PreparedStatement ps = null;
         ResultSet rs = null;
 
@@ -1635,15 +1691,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             rs = ps.executeQuery();
 
             if (rs.next()) {
-                JobDetailImpl job = new JobDetailImpl();
-                job.setName(rs.getString(1));
-                job.setGroup(rs.getString(2));
-                job.setDurability(getBoolean(rs, 3));
-                if (loadJobClass)
-                    job.setJobClass(loadHelper.loadClass(rs.getString(4), Job.class));
-                job.setRequestsRecovery(getBoolean(rs, 5));
-                
-                return job;
+                return handleJobDetails(rs, loadHelper, loadJobClass);
             } else {
                 if (logger.isDebugEnabled()) {
                     logger.debug("No job for trigger '{}'.", triggerKey);
@@ -1663,13 +1711,18 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
      * 
      * @param conn
      *          the DB Connection
-     * @return an array of <code>(@link org.quartz.Trigger)</code> objects
+     * @return an array of {@link org.quartz.Trigger} objects
      *         associated with a given job.
      * @throws SQLException
      * @throws JobPersistenceException 
      */
-    public List<OperableTrigger> selectTriggersForJob(Connection conn, JobKey jobKey) throws SQLException, ClassNotFoundException,
-            IOException, JobPersistenceException {
+    public List<OperableTrigger> selectTriggersForJob(Connection conn, JobKey jobKey) throws SQLException,
+        ClassNotFoundException, IOException, JobPersistenceException {
+
+
+        if (useEnhancedStatements) {
+            return selectBulkTriggersForJob(conn, jobKey);
+        }
 
         LinkedList<OperableTrigger> trigList = new LinkedList<>();
         PreparedStatement ps = null;
@@ -1695,8 +1748,34 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         return trigList;
     }
 
+    protected List<OperableTrigger> selectBulkTriggersForJob(Connection conn, JobKey jobKey) throws SQLException,
+        ClassNotFoundException, IOException, JobPersistenceException {
+        LinkedList<OperableTrigger> trigList = new LinkedList<>();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            ps = conn.prepareStatement(rtp(SELECT_TRIGGERS_FOR_JOB_V2));
+            ps.setString(1, jobKey.getName());
+            ps.setString(2, jobKey.getGroup());
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                trigList.add(handleTriggerV2(rs, conn, triggerKey(rs.getString(COL_TRIGGER_NAME), rs.getString(COL_TRIGGER_GROUP))));
+            }
+        } finally {
+            closeResultSet(rs);
+            closeStatement(ps);
+        }
+
+        return trigList;
+    }
+
     public List<OperableTrigger> selectTriggersForCalendar(Connection conn, String calName)
         throws SQLException, ClassNotFoundException, IOException, JobPersistenceException {
+        if(useEnhancedStatements) {
+            return selectBulkTriggersForCalendar(conn, calName);
+        }
 
         LinkedList<OperableTrigger> trigList = new LinkedList<>();
         PreparedStatement ps = null;
@@ -1718,6 +1797,267 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         return trigList;
     }
 
+    protected List<OperableTrigger> selectBulkTriggersForCalendar(Connection conn, String calName)
+        throws SQLException, ClassNotFoundException, IOException, JobPersistenceException {
+        LinkedList<OperableTrigger> trigList = new LinkedList<>();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            ps = conn.prepareStatement(rtp(SELECT_TRIGGERS_FOR_CALENDAR_V2));
+            ps.setString(1, calName);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                trigList.add(handleTriggerV2(rs, conn, triggerKey(rs.getString(COL_TRIGGER_NAME), rs.getString(COL_TRIGGER_GROUP))));
+            }
+        } finally {
+            closeResultSet(rs);
+            closeStatement(ps);
+        }
+
+        return trigList;
+    }
+
+    public List<OperableTrigger> getTriggersByJobAndTriggerGroup(Connection conn, GroupMatcher<JobKey> jobMatcher, GroupMatcher<TriggerKey> triggerMatcher) throws SQLException, ClassNotFoundException,
+        IOException, JobPersistenceException {
+
+        String baseStatement = SELECT_BULK_TRIGGERS_BASE;
+        boolean hasMatcher = false;
+        List<PreparedStatementConsumer> columnSetters = new LinkedList<>();
+
+        if (jobMatcher == null) {
+            throw new IllegalArgumentException("jobMatcher cannot be null");
+        }
+
+        if (triggerMatcher == null) {
+            throw new IllegalArgumentException("triggerMatcher cannot be null");
+        }
+
+        if (jobMatcher.getCompareWithOperator() != StringMatcher.StringOperatorName.ANYTHING) {
+            baseStatement += " WHERE " + "T." + COL_JOB_GROUP;
+            hasMatcher = true;
+            if (isMatcherEquals(jobMatcher)) {
+                baseStatement += " = ?";
+                columnSetters.add(ps -> ps.setString(1, toSqlEqualsClause(jobMatcher)));
+            } else {
+                baseStatement += " LIKE ?";
+                columnSetters.add(ps -> ps.setString(1, toSqlLikeClause(jobMatcher)));
+            }
+        }
+
+        if (triggerMatcher.getCompareWithOperator() != StringMatcher.StringOperatorName.ANYTHING) {
+            final int columnIndex = hasMatcher ? 2 : 1;
+            if (hasMatcher) {
+                baseStatement += "\n AND ";
+            } else {
+                baseStatement += "\n WHERE ";
+            }
+            baseStatement += "T." + COL_TRIGGER_GROUP;
+            if (isMatcherEquals(triggerMatcher)) {
+                baseStatement += " = ?";
+                columnSetters.add(ps -> ps.setString(columnIndex, toSqlEqualsClause(triggerMatcher)));
+            } else {
+                baseStatement += " LIKE ?";
+                columnSetters.add(ps -> ps.setString(columnIndex, toSqlLikeClause(triggerMatcher)));
+            }
+        }
+
+        LinkedList<OperableTrigger> trigList = new LinkedList<>();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            ps = conn.prepareStatement(rtp(baseStatement));
+            for (PreparedStatementConsumer setter : columnSetters) {
+                setter.accept(ps);
+            }
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                trigList.add(handleTriggerV2(rs, conn, triggerKey(rs.getString(COL_TRIGGER_NAME), rs.getString(COL_TRIGGER_GROUP))));
+            }
+        } finally {
+            closeResultSet(rs);
+            closeStatement(ps);
+        }
+
+        return trigList;
+    }
+
+
+    private OperableTrigger handleTrigger(ResultSet rs, Connection conn, TriggerKey triggerKey, PreparedStatement ps)
+        throws SQLException, ClassNotFoundException, IOException, JobPersistenceException {
+        OperableTrigger trigger = null;
+        String jobName = rs.getString(COL_JOB_NAME);
+        String jobGroup = rs.getString(COL_JOB_GROUP);
+        String description = rs.getString(COL_DESCRIPTION);
+        long nextFireTime = rs.getLong(COL_NEXT_FIRE_TIME);
+        long prevFireTime = rs.getLong(COL_PREV_FIRE_TIME);
+        String triggerType = rs.getString(COL_TRIGGER_TYPE);
+        long startTime = rs.getLong(COL_START_TIME);
+        long endTime = rs.getLong(COL_END_TIME);
+        String calendarName = rs.getString(COL_CALENDAR_NAME);
+        int misFireInstr = rs.getInt(COL_MISFIRE_INSTRUCTION);
+        int priority = rs.getInt(COL_PRIORITY);
+
+        Map<?, ?> map;
+        if (canUseProperties()) {
+            map = getMapFromProperties(rs);
+        } else {
+            map = (Map<?, ?>) getObjectFromBlob(rs, COL_JOB_DATAMAP);
+        }
+
+        Date nft = null;
+        if (nextFireTime > 0) {
+            nft = new Date(nextFireTime);
+        }
+
+        Date pft = null;
+        if (prevFireTime > 0) {
+            pft = new Date(prevFireTime);
+        }
+        Date startTimeD = new Date(startTime);
+        Date endTimeD = null;
+        if (endTime > 0) {
+            endTimeD = new Date(endTime);
+        }
+
+        if (triggerType.equals(TTYPE_BLOB)) {
+            try (PreparedStatement pps = conn.prepareStatement(rtp(SELECT_BLOB_TRIGGER))) {
+                pps.setString(1, triggerKey.getName());
+                pps.setString(2, triggerKey.getGroup());
+                ResultSet rss = pps.executeQuery();
+
+                if (rss.next()) {
+                    trigger = (OperableTrigger) getObjectFromBlob(rs, COL_BLOB);
+                }
+            }
+        } else {
+            TriggerPersistenceDelegate tDel = findTriggerPersistenceDelegate(triggerType);
+
+            if(tDel == null){
+                throw new JobPersistenceException("No TriggerPersistenceDelegate for trigger discriminator type: " + triggerType);
+            }
+
+            TriggerPropertyBundle triggerProps;
+            try {
+                triggerProps = tDel.loadExtendedTriggerProperties(conn, triggerKey);
+            } catch (IllegalStateException isex) {
+                if (isTriggerStillPresent(ps)) {
+                    throw isex;
+                } else {
+                    // QTZ-386 Trigger has been deleted
+                    return null;
+                }
+            }
+
+            TriggerBuilder<?> tb = newTrigger()
+                .withDescription(description)
+                .withPriority(priority)
+                .startAt(startTimeD)
+                .endAt(endTimeD)
+                .withIdentity(triggerKey)
+                .modifiedByCalendar(calendarName)
+                .withSchedule(triggerProps.getScheduleBuilder())
+                .forJob(jobKey(jobName, jobGroup));
+
+            if (null != map) {
+                tb.usingJobData(new JobDataMap(map));
+            }
+
+            trigger = (OperableTrigger) tb.build();
+
+            trigger.setMisfireInstruction(misFireInstr);
+            trigger.setNextFireTime(nft);
+            trigger.setPreviousFireTime(pft);
+
+            setTriggerStateProperties(trigger, triggerProps);
+        }
+        return trigger;
+    }
+
+    private OperableTrigger handleTriggerV2(ResultSet rs, Connection conn, TriggerKey triggerKey)
+    throws SQLException, ClassNotFoundException, IOException, JobPersistenceException {
+        OperableTrigger trigger = null;
+        String jobName = rs.getString(COL_JOB_NAME);
+        String jobGroup = rs.getString(COL_JOB_GROUP);
+        String description = rs.getString(COL_DESCRIPTION);
+        long nextFireTime = rs.getLong(COL_NEXT_FIRE_TIME);
+        long prevFireTime = rs.getLong(COL_PREV_FIRE_TIME);
+        String triggerType = rs.getString(COL_TRIGGER_TYPE);
+        long startTime = rs.getLong(COL_START_TIME);
+        long endTime = rs.getLong(COL_END_TIME);
+        String calendarName = rs.getString(COL_CALENDAR_NAME);
+        int misFireInstr = rs.getInt(COL_MISFIRE_INSTRUCTION);
+        int priority = rs.getInt(COL_PRIORITY);
+
+        Map<?, ?> map;
+        if (canUseProperties()) {
+            map = getMapFromProperties(rs);
+        } else {
+            map = (Map<?, ?>) getObjectFromBlob(rs, COL_JOB_DATAMAP);
+        }
+
+        Date nft = null;
+        if (nextFireTime > 0) {
+            nft = new Date(nextFireTime);
+        }
+
+        Date pft = null;
+        if (prevFireTime > 0) {
+            pft = new Date(prevFireTime);
+        }
+        Date startTimeD = new Date(startTime);
+        Date endTimeD = null;
+        if (endTime > 0) {
+            endTimeD = new Date(endTime);
+        }
+
+        if (triggerType.equals(TTYPE_BLOB)) {
+            if (containsColumnNames(rs, COL_JOB_DATAMAP)) {
+                trigger = (OperableTrigger) getObjectFromBlob(rs, COL_BLOB);
+            }
+        } else {
+            TriggerPersistenceDelegate tDel = findTriggerPersistenceDelegate(triggerType);
+
+            if(tDel == null) {
+                throw new JobPersistenceException("No TriggerPersistenceDelegate for trigger discriminator type: " + triggerType);
+            }
+
+            TriggerPropertyBundle triggerProps;
+            if (tDel.hasInlinedResultSetProperties()) {
+                triggerProps = tDel.loadExtendedTriggerPropertiesFromResultSet(rs, triggerKey);
+            } else {
+                //this is the old way, in case we have to load the trigger properties from the database
+                triggerProps = tDel.loadExtendedTriggerProperties(conn, triggerKey);
+            }
+
+            TriggerBuilder<?> tb = newTrigger()
+                .withDescription(description)
+                .withPriority(priority)
+                .startAt(startTimeD)
+                .endAt(endTimeD)
+                .withIdentity(triggerKey)
+                .modifiedByCalendar(calendarName)
+                .withSchedule(triggerProps.getScheduleBuilder())
+                .forJob(jobKey(jobName, jobGroup));
+
+            if (null != map) {
+                tb.usingJobData(new JobDataMap(map));
+            }
+
+            trigger = (OperableTrigger) tb.build();
+
+            trigger.setMisfireInstruction(misFireInstr);
+            trigger.setNextFireTime(nft);
+            trigger.setPreviousFireTime(pft);
+
+            setTriggerStateProperties(trigger, triggerProps);
+        }
+        return trigger;
+    }
+
     /**
      * <p>
      * Select a trigger.
@@ -1734,105 +2074,26 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         ResultSet rs = null;
 
         try {
-            OperableTrigger trigger = null;
-
             ps = conn.prepareStatement(rtp(SELECT_TRIGGER));
             ps.setString(1, triggerKey.getName());
             ps.setString(2, triggerKey.getGroup());
             rs = ps.executeQuery();
 
             if (rs.next()) {
-                String jobName = rs.getString(COL_JOB_NAME);
-                String jobGroup = rs.getString(COL_JOB_GROUP);
-                String description = rs.getString(COL_DESCRIPTION);
-                long nextFireTime = rs.getLong(COL_NEXT_FIRE_TIME);
-                long prevFireTime = rs.getLong(COL_PREV_FIRE_TIME);
-                String triggerType = rs.getString(COL_TRIGGER_TYPE);
-                long startTime = rs.getLong(COL_START_TIME);
-                long endTime = rs.getLong(COL_END_TIME);
-                String calendarName = rs.getString(COL_CALENDAR_NAME);
-                int misFireInstr = rs.getInt(COL_MISFIRE_INSTRUCTION);
-                int priority = rs.getInt(COL_PRIORITY);
-
-                Map<?, ?> map;
-                if (canUseProperties()) {
-                    map = getMapFromProperties(rs);
-                } else {
-                    map = (Map<?, ?>) getObjectFromBlob(rs, COL_JOB_DATAMAP);
-                }
-                
-                Date nft = null;
-                if (nextFireTime > 0) {
-                    nft = new Date(nextFireTime);
-                }
-
-                Date pft = null;
-                if (prevFireTime > 0) {
-                    pft = new Date(prevFireTime);
-                }
-                Date startTimeD = new Date(startTime);
-                Date endTimeD = null;
-                if (endTime > 0) {
-                    endTimeD = new Date(endTime);
-                }
-
-                if (triggerType.equals(TTYPE_BLOB)) {
-                    rs.close(); rs = null;
-                    ps.close(); ps = null;
-
-                    ps = conn.prepareStatement(rtp(SELECT_BLOB_TRIGGER));
-                    ps.setString(1, triggerKey.getName());
-                    ps.setString(2, triggerKey.getGroup());
-                    rs = ps.executeQuery();
-
-                    if (rs.next()) {
-                        trigger = (OperableTrigger) getObjectFromBlob(rs, COL_BLOB);
-                    }
-                }
-                else {
-                    TriggerPersistenceDelegate tDel = findTriggerPersistenceDelegate(triggerType);
-                    
-                    if(tDel == null)
-                        throw new JobPersistenceException("No TriggerPersistenceDelegate for trigger discriminator type: " + triggerType);
-
-                    TriggerPropertyBundle triggerProps;
-                    try {
-                        triggerProps = tDel.loadExtendedTriggerProperties(conn, triggerKey);
-                    } catch (IllegalStateException isex) {
-                        if (isTriggerStillPresent(ps)) {
-                            throw isex;
-                        } else {
-                            // QTZ-386 Trigger has been deleted
-                            return null;
-                        }
-                    }
-
-                    TriggerBuilder<?> tb = newTrigger()
-                        .withDescription(description)
-                        .withPriority(priority)
-                        .startAt(startTimeD)
-                        .endAt(endTimeD)
-                        .withIdentity(triggerKey)
-                        .modifiedByCalendar(calendarName)
-                        .withSchedule(triggerProps.getScheduleBuilder())
-                        .forJob(jobKey(jobName, jobGroup));
-    
-                    if (null != map) {
-                        tb.usingJobData(new JobDataMap(map));
-                    }
-    
-                    trigger = (OperableTrigger) tb.build();
-                    
-                    trigger.setMisfireInstruction(misFireInstr);
-                    trigger.setNextFireTime(nft);
-                    trigger.setPreviousFireTime(pft);
-                    
-                    setTriggerStateProperties(trigger, triggerProps);
-                }                
+                return handleTrigger(rs, conn, triggerKey, ps);
             }
-
-            return trigger;
-        } finally {
+            return null;
+        } catch (NoRecordFoundException nrfe) {
+            if (isTriggerStillPresent(ps)) {
+                throw nrfe;
+            } else {
+                // QTZ-386 Trigger has been deleted
+                return null;
+            }
+        } catch (IOException ioex) {
+            throw new JobPersistenceException("Error serializing trigger: " + triggerKey, ioex);
+        }
+        finally {
             closeResultSet(rs);
             closeStatement(ps);
         }
@@ -3292,6 +3553,20 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
      */
     protected void setBytes(PreparedStatement ps, int index, ByteArrayOutputStream baos) throws SQLException {
         ps.setBytes(index, (baos == null) ? new byte[0] : baos.toByteArray());
+    }
+
+    @Override
+    public boolean isUsingEnhancedStatements() {
+        return this.useEnhancedStatements;
+    }
+
+    @Override
+    public void setUseEnhancedStatements(boolean useEnhancedStatements) {
+        this.useEnhancedStatements = useEnhancedStatements;
+    }
+    @FunctionalInterface
+    protected interface PreparedStatementConsumer {
+        void accept(PreparedStatement ps) throws SQLException;
     }
 }
 

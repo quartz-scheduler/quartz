@@ -16,24 +16,43 @@
  */
 package org.quartz;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.DynamicTest.dynamicTest;
+import static org.quartz.DailyTimeIntervalScheduleBuilder.MONDAY_THROUGH_FRIDAY;
+
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
 import org.quartz.Trigger.TriggerState;
 import org.quartz.impl.JobDetailImpl;
 import org.quartz.impl.jdbcjobstore.JobStoreSupport;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.impl.triggers.SimpleTriggerImpl;
 import org.quartz.simpl.CascadingClassLoadHelper;
-import org.quartz.spi.*;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.quartz.spi.ClassLoadHelper;
+import org.quartz.spi.JobStore;
+import org.quartz.spi.OperableTrigger;
+import org.quartz.spi.SchedulerSignaler;
+import org.quartz.spi.TriggerFiredResult;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
+import org.junit.jupiter.api.TestInfo;
 
 
 /**
@@ -44,10 +63,12 @@ public abstract class AbstractJobStoreTest  {
     private JobStore fJobStore;
     private JobDetailImpl fJobDetail;
     private SampleSignaler fSignaler;
+    private TestInfo testInfo;
 
     @SuppressWarnings("deprecation")
     @BeforeEach
-    protected void setUp() throws Exception {
+    protected void setUp(TestInfo testInfo) throws Exception {
+        this.testInfo = testInfo;
         this.fSignaler = new SampleSignaler();
         ClassLoadHelper loadHelper = new CascadingClassLoadHelper();
         loadHelper.initialize();
@@ -62,12 +83,27 @@ public abstract class AbstractJobStoreTest  {
 
     @AfterEach
     protected void tearDown() {
+        if (fJobStore instanceof JobStoreSupport) {
+            //default to false
+            ((JobStoreSupport) fJobStore).setUseEnhancedStatements(false);
+        }
         destroyJobStore("AbstractJobStoreTest");
+    }
+
+    /**
+     * Creates a jobstore using the method name
+     * @return the jobstore
+     */
+    protected JobStore createJobStore() {
+        return createJobStore(testInfo.getTestMethod().map(Method::getName)
+            .orElseGet(testInfo::getDisplayName).replace(" ", "_"));
     }
 
     protected abstract JobStore createJobStore(String name);
 
     protected abstract void destroyJobStore(String name);
+
+    protected abstract Map<String, ? extends JobStore> stores();
 
     @SuppressWarnings("deprecation")
     @Test
@@ -285,8 +321,7 @@ public abstract class AbstractJobStoreTest  {
 
     @SuppressWarnings("deprecation")
     @Test
-    void testPauseJobGroupPausesNewJob() throws Exception
-    {
+    void testPauseJobGroupPausesNewJob() throws Exception {
     	// Pausing job groups in JDBCJobStore is broken, see QTZ-208
     	if (fJobStore instanceof JobStoreSupport)
     		return;
@@ -312,7 +347,7 @@ public abstract class AbstractJobStoreTest  {
     	assertEquals(TriggerState.PAUSED, fJobStore.getTriggerState(tr.getKey()));
     }
     
-@Test
+    @Test
     void testStoreAndRetrieveJobs() throws Exception {
         SchedulerSignaler schedSignaler = new SampleSignaler();
         ClassLoadHelper loadHelper = new CascadingClassLoadHelper();
@@ -334,43 +369,187 @@ public abstract class AbstractJobStoreTest  {
 			JobDetail storedJob = store.retrieveJob(jobKey);
 			assertEquals(jobKey, storedJob.getKey());
 		}
-       // Retrieve by group
-    assertEquals(5, store.getJobKeys(GroupMatcher.jobGroupEquals("a")).size(), "Wrong number of jobs in group 'a'");
-    assertEquals(5, store.getJobKeys(GroupMatcher.jobGroupEquals("b")).size(), "Wrong number of jobs in group 'b'");
-}
+        // Retrieve by group
+        assertEquals(5, store.getJobKeys(GroupMatcher.jobGroupEquals("a")).size(), "Wrong number of jobs in group 'a'");
+        assertEquals(5, store.getJobKeys(GroupMatcher.jobGroupEquals("b")).size(), "Wrong number of jobs in group 'b'");
+    }
 
-	@Test
-	void testStoreAndRetrieveTriggers() throws Exception {
+    @Test
+    void testStoreAndRetrieveJobsGroups() throws Exception {
         SchedulerSignaler schedSignaler = new SampleSignaler();
         ClassLoadHelper loadHelper = new CascadingClassLoadHelper();
         loadHelper.initialize();
 
-        JobStore store = createJobStore("testStoreAndRetrieveTriggers");
+        JobStore store = createJobStore("testStoreAndRetrieveJobsGroups");
         store.initialize(loadHelper, schedSignaler);
-		
-		// Store jobs and triggers.
-		for (int i=0; i < 10; i++) {
+
+        List<JobDetail> expectedJobs = new ArrayList<>(10);
+        // these will NOT be in order because of hashmap
+        // Store jobs.
+        for (int i=0; i < 10; i++) {
             String group =  i < 5 ? "a" : "b";
-			JobDetail job = JobBuilder.newJob(MyJob.class).withIdentity("job" + i, group).build();
-			store.storeJob(job, true);
-			SimpleScheduleBuilder schedule = SimpleScheduleBuilder.simpleSchedule();
-			Trigger trigger = TriggerBuilder.newTrigger().withIdentity("job" + i, group).withSchedule(schedule).forJob(job).build();
-			store.storeTrigger((OperableTrigger)trigger, true);
-		}
-		// Retrieve job and trigger.
-		for (int i=0; i < 10; i++) {
+            JobDetail job = JobBuilder.newJob(MyJob.class).withIdentity("job" + i, group).build();
+            store.storeJob(job, false);
+            expectedJobs.add(job);
+        }
+        List<JobKey> expectedKey = expectedJobs.stream().map(JobDetail::getKey).collect(Collectors.toList());
+        List<JobDetail> actual = store.getJobDetails(GroupMatcher.anyGroup());
+        Set<JobKey> jobKeys = actual.stream().map(JobDetail::getKey).collect(Collectors.toSet());
+        // Retrieve jobs.
+        for (int i=0; i < 10; i++) {
+            assertTrue(jobKeys.contains(actual.get(i).getKey()));
+            //assertEquals(expectedJobs.get(i).getKey(), actual.get(i).getKey(), "Job does not matche expected");
+        }
+
+        List<JobDetail> listA = store.getJobDetails(GroupMatcher.jobGroupEquals("a"));
+        jobKeys = listA.stream().map(JobDetail::getKey).collect(Collectors.toSet());
+        assertEquals(5, listA.size(), "Wrong number of jobs in group 'a'");
+        for (int i=0; i < 5; i++) {
+            assertTrue(jobKeys.contains(expectedKey.get(i)));
+        }
+        List<JobDetail> listB = store.getJobDetails(GroupMatcher.jobGroupEquals("b"));
+        jobKeys = listB.stream().map(JobDetail::getKey).collect(Collectors.toSet());
+
+        // Retrieve by group
+        assertEquals(5, listB.size(), "Wrong number of jobs in group 'b'");
+        for (int i=5; i < 10; i++) {
+            assertTrue(jobKeys.contains(expectedKey.get(i)));
+        }
+    }
+
+    private JobStore createVariedTriggers() throws JobPersistenceException, SchedulerConfigException{
+        SchedulerSignaler schedSignaler = new SampleSignaler();
+        ClassLoadHelper loadHelper = new CascadingClassLoadHelper();
+        loadHelper.initialize();
+
+        JobStore store = createJobStore();
+        store.initialize(loadHelper, schedSignaler);
+
+        // Store jobs and triggers.
+        for (int i=0; i < 10; i++) {
             String group =  i < 5 ? "a" : "b";
-			JobKey jobKey = JobKey.jobKey("job" + i, group);
-			JobDetail storedJob = store.retrieveJob(jobKey);
-			assertEquals(jobKey, storedJob.getKey());
-			
-			TriggerKey triggerKey = TriggerKey.triggerKey("job" + i, group);
-			Trigger storedTrigger = store.retrieveTrigger(triggerKey);
-			assertEquals(triggerKey, storedTrigger.getKey());
-		}
+            JobDetail job = JobBuilder.newJob(MyJob.class).withIdentity("job" + i, group).build();
+            store.storeJob(job, true);
+            Trigger trigger;
+            if (i == 0 || i == 5) {
+                trigger = TriggerBuilder.newTrigger()
+                    .withIdentity("job" + i, group)
+                    .withSchedule(CalendarIntervalScheduleBuilder.calendarIntervalSchedule().withIntervalInDays(1))
+                    .forJob(job)
+                    .build();
+            } else if (i == 1 || i == 6) {
+                trigger = TriggerBuilder.newTrigger()
+                    .withIdentity("job" + i, group)
+                    .withSchedule(CronScheduleBuilder.cronSchedule("0 0 12 * * ?"))
+                    .forJob(job)
+                    .build();
+            } else if (i == 2 || i == 7) {
+                trigger = TriggerBuilder.newTrigger()
+                    .withIdentity("job" + i, group)
+                    .withSchedule(DailyTimeIntervalScheduleBuilder.dailyTimeIntervalSchedule()
+                        .startingDailyAt(TimeOfDay.hourAndMinuteOfDay(9, 0))
+                        .endingDailyAt(TimeOfDay.hourAndMinuteOfDay(17, 0))
+                        .onDaysOfTheWeek(MONDAY_THROUGH_FRIDAY)
+                        .withIntervalInHours(1))
+                    .forJob(job)
+                    .build();
+            } else if (i == 3 || i  == 8){
+                trigger = TriggerBuilder.newTrigger()
+                    .withIdentity("job" + i, group)
+                    .withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInMinutes(15).repeatForever())
+                    .forJob(job)
+                    .build();
+            } else {
+                continue;
+            }
+            store.storeTrigger((OperableTrigger)trigger, true);
+        }
+        return store;
+    }
+
+    @Test
+    void testStoreAndRetrieveTriggers() throws Exception {
+        SchedulerSignaler schedSignaler = new SampleSignaler();
+        ClassLoadHelper loadHelper = new CascadingClassLoadHelper();
+        loadHelper.initialize();
+
+        JobStore store = createJobStore();
+        store.initialize(loadHelper, schedSignaler);
+
+        // Store jobs and triggers.
+        for (int i=0; i < 10; i++) {
+            String group =  i < 5 ? "a" : "b";
+            JobDetail job = JobBuilder.newJob(MyJob.class).withIdentity("job" + i, group).build();
+            store.storeJob(job, true);
+            SimpleScheduleBuilder schedule = SimpleScheduleBuilder.simpleSchedule();
+            Trigger trigger = TriggerBuilder.newTrigger().withIdentity("job" + i, group).withSchedule(schedule).forJob(job).build();
+            store.storeTrigger((OperableTrigger)trigger, true);
+        }
+        // Retrieve job and trigger.
+        for (int i=0; i < 10; i++) {
+            String group =  i < 5 ? "a" : "b";
+            JobKey jobKey = JobKey.jobKey("job" + i, group);
+            JobDetail storedJob = store.retrieveJob(jobKey);
+            assertEquals(jobKey, storedJob.getKey());
+
+            TriggerKey triggerKey = TriggerKey.triggerKey("job" + i, group);
+            Trigger storedTrigger = store.retrieveTrigger(triggerKey);
+            assertEquals(triggerKey, storedTrigger.getKey());
+        }
         // Retrieve by group
         assertEquals(5, store.getJobKeys(GroupMatcher.jobGroupEquals("a")).size(), "Wrong number of jobs in group 'a'");
         assertEquals(5, store.getJobKeys(GroupMatcher.jobGroupEquals("b")).size(), "Wrong number of jobs in group 'b'");
+    }
+
+    @TestFactory
+    Stream<DynamicTest> testEnhancedTriggerAndJobMatchers() throws Exception {
+        final JobStore store = createVariedTriggers();
+        final String A_GROUP = "a";
+        final String B_GROUP = "b";
+        return Stream.of(
+            dynamicTest("Get Group Jobs Enhanced", () -> {
+                assertEquals(5, store.getJobKeys(GroupMatcher.jobGroupEquals(A_GROUP)).size(),
+                    "Wrong number of jobs in group: " + A_GROUP);
+                assertEquals(5, store.getJobKeys(GroupMatcher.jobGroupEquals(B_GROUP)).size(),
+                    "Wrong number of jobs in group: " + B_GROUP);
+            }),
+            dynamicTest("Enhanced Trigger and JobMatcher test", () -> {
+                for (int i=0; i < 10; i++) {
+                    String group =  i < 5 ? A_GROUP : B_GROUP;
+                    JobKey jobKey = JobKey.jobKey("job" + i, group);
+                    JobDetail storedJob = store.retrieveJob(jobKey);
+                    assertEquals(jobKey, storedJob.getKey());
+
+                    TriggerKey triggerKey = TriggerKey.triggerKey("job" + i, group);
+                    Trigger storedTrigger = store.retrieveTrigger(triggerKey);
+                    if (i != 4 && i != 9) {
+                        assertEquals(triggerKey, storedTrigger.getKey());
+                    } else {
+                        assertNull(storedTrigger);
+                    }
+                }
+            }),
+            dynamicTest("testStoreAndRetrieveTriggersJustTriggerGroupMatchers", () -> {
+                //TODO: get by matcher
+                List<OperableTrigger> aTriggers = store.getTriggersByTriggerGroup(GroupMatcher.triggerGroupEquals(A_GROUP));
+                List<OperableTrigger> bTriggers = store.getTriggersByTriggerGroup(GroupMatcher.triggerGroupEquals(B_GROUP));
+                assertEquals(4, aTriggers.size(), "Wrong number of jobs in group: " + A_GROUP);
+                assertEquals(4, bTriggers.size(), "Wrong number of jobs in group: " + B_GROUP);
+            }),
+            dynamicTest("Match exact - only Job Group", () -> {
+                //TODO: get by matcher
+                List<OperableTrigger> aTriggers = store.getTriggersByJobGroup(GroupMatcher.jobGroupEquals(A_GROUP));
+                List<OperableTrigger> bTriggers = store.getTriggersByJobGroup(GroupMatcher.jobGroupEquals(B_GROUP));
+                assertEquals(4, aTriggers.size(), "Wrong number of jobs in group: " + A_GROUP);
+                assertEquals(4, bTriggers.size(), "Wrong number of jobs in group: " + B_GROUP);
+            }),
+            dynamicTest("Match exact both", () -> {
+                List<OperableTrigger> aTriggers = store.getTriggersByJobAndTriggerGroup(GroupMatcher.jobGroupEquals(A_GROUP), GroupMatcher.triggerGroupEquals(A_GROUP));
+                List<OperableTrigger> bTriggers = store.getTriggersByJobAndTriggerGroup(GroupMatcher.jobGroupEquals(B_GROUP), GroupMatcher.triggerGroupEquals(B_GROUP));
+                assertEquals(4, aTriggers.size(), "Wrong number of jobs in group: " + A_GROUP);
+                assertEquals(4, bTriggers.size(), "Wrong number of jobs in group: " + B_GROUP);
+            })
+        );
     }
 
     @Test
@@ -531,7 +710,8 @@ public abstract class AbstractJobStoreTest  {
 			assertEquals("job" + i, triggers.get(i).getKey().getName());
 		}
 	}
-@Test
+
+    @Test
     void testResetErrorTrigger() throws Exception {
 
         Date baseFireTimeDate = DateBuilder.evenMinuteDateAfterNow();

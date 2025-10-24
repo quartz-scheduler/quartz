@@ -341,6 +341,26 @@ public interface DriverDelegate {
 
     /**
      * <p>
+     * Select all the JobDetail object for a given job name / group name.
+     * </p>
+     *
+     * @param conn
+     *          the DB Connection
+     * @param matcher
+     *          the group matcher to evaluate against the known jobs
+     * @return A list of populated JobDetail objects
+     * @throws ClassNotFoundException
+     *           if a class found during deserialization cannot be found or if
+     *           the job class could not be found
+     * @throws IOException
+     *           if deserialization causes an error
+     */
+    List<JobDetail> selectJobDetails(Connection conn, GroupMatcher<JobKey> matcher,
+         ClassLoadHelper loadHelper)
+        throws ClassNotFoundException, IOException, SQLException;
+
+    /**
+     * <p>
      * Select the total number of jobs stored.
      * </p>
      * 
@@ -598,7 +618,7 @@ public interface DriverDelegate {
      */
     JobDetail selectJobForTrigger(Connection conn, ClassLoadHelper loadHelper,
         TriggerKey triggerKey) 
-        throws ClassNotFoundException, SQLException;
+        throws ClassNotFoundException, SQLException, IOException;
 
     /**
      * <p>
@@ -607,7 +627,7 @@ public interface DriverDelegate {
      * </p>
      */
     JobDetail selectJobForTrigger(Connection conn, ClassLoadHelper loadHelper,
-                                  TriggerKey triggerKey, boolean loadJobClass) throws ClassNotFoundException, SQLException;
+                                  TriggerKey triggerKey, boolean loadJobClass) throws ClassNotFoundException, SQLException, IOException;
 
     /**
      * <p>
@@ -653,6 +673,23 @@ public interface DriverDelegate {
      * @throws JobPersistenceException 
      */
     OperableTrigger selectTrigger(Connection conn, TriggerKey triggerKey) throws SQLException, ClassNotFoundException,
+        IOException, JobPersistenceException;
+
+    /**
+     * Gets a list of trigger by job and trigger group matchers
+     * <br>
+     * Note: This requires the use of enhanced statements
+     * @param conn the connection
+     * @param jobMatcher Job Group Matcher
+     * @param triggerMatcher Trigger group matcher
+     * @return list of trigger, or empty list if no trigger found
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     * @throws IOException
+     * @throws JobPersistenceException
+     */
+
+    List<OperableTrigger> getTriggersByJobAndTriggerGroup(Connection conn, GroupMatcher<JobKey> jobMatcher, GroupMatcher<TriggerKey> triggerMatcher) throws SQLException, ClassNotFoundException,
         IOException, JobPersistenceException;
 
     /**
@@ -1137,6 +1174,23 @@ public interface DriverDelegate {
      */
     void clearData(Connection conn)
         throws SQLException;
+
+
+    /**
+     * Returns true if enhanced statements for the database operations is enabled
+     * @return true if using enhanced statements
+     */
+    default boolean isUsingEnhancedStatements() {
+        return false;
+    }
+
+    /**
+     * Set to true to use enhanced statements for the database operations
+     * @param useEnhancedStatements true to use enhanced statements
+     */
+    default void setUseEnhancedStatements(boolean useEnhancedStatements) {
+        //no-op
+    }
     
 }
 

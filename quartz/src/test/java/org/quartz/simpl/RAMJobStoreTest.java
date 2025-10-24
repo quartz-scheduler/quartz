@@ -16,14 +16,19 @@
  */
 package org.quartz.simpl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.quartz.AbstractJobStoreTest;
 import org.quartz.spi.JobStore;
 
 public class RAMJobStoreTest extends AbstractJobStoreTest {
+    private HashMap<String, JobStore> stores = new HashMap<>();
 
     @Override
     protected JobStore createJobStore(String name) {
         RAMJobStore rs = new RAMJobStore();
+        stores.put(name, rs);
         return rs;
     }
 
@@ -31,4 +36,9 @@ public class RAMJobStoreTest extends AbstractJobStoreTest {
     protected void destroyJobStore(String name) {
 
     }
+
+    protected Map<String, JobStore> stores() {
+        return stores;
+    }
+
 }
