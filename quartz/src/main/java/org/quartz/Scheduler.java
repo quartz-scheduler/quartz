@@ -19,15 +19,15 @@
 
 package org.quartz;
 
-import org.quartz.Trigger.TriggerState;
-import org.quartz.impl.matchers.GroupMatcher;
-import org.quartz.spi.JobFactory;
-import org.quartz.utils.Key;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.quartz.Trigger.TriggerState;
+import org.quartz.impl.matchers.GroupMatcher;
+import org.quartz.spi.JobFactory;
+import org.quartz.utils.Key;
 
 /**
  * This is the main interface of a Quartz Scheduler.
