@@ -44,8 +44,10 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:5.14.2'
     testImplementation 'org.testcontainers:mssqlserver:1.21.3'
     testImplementation 'org.testcontainers:mariadb:1.21.3'
+    testImplementation 'org.testcontainers:postgresql:1.21.3'
     testImplementation 'com.microsoft.sqlserver:mssql-jdbc:13.2.1.jre11'
     testImplementation 'org.mariadb.jdbc:mariadb-java-client:3.5.6'
+    testImplementation 'org.postgresql:postgresql:42.7.3'
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 
