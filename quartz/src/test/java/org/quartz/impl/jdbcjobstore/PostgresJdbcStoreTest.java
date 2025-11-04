@@ -21,7 +21,7 @@ import org.quartz.impl.jdbcjobstore.JdbcQuartzTestUtilities.DatabaseType;
 public class PostgresJdbcStoreTest extends JdbcJobStoreTest {
     @Override
     protected DatabaseType getDatabaseType() {
-        return DatabaseType.POSTRGRES;
+        return DatabaseType.POSTGRES;
     }
 
 }

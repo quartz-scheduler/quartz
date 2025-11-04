@@ -38,7 +38,7 @@ public final class JdbcQuartzTestUtilities {
         DERBY("org/quartz/impl/jdbcjobstore/tables_derby.sql", StdJDBCDelegate.class.getName()),
         MSSQL("org/quartz/impl/jdbcjobstore/tables_sqlServer.sql", MSSQLDelegate.class.getName()),
         MARIADB("org/quartz/impl/jdbcjobstore/tables_mysql.sql", StdJDBCDelegate.class.getName()),
-        POSTRGRES("org/quartz/impl/jdbcjobstore/tables_postgres.sql", PostgreSQLDelegate.class.getName());
+        POSTGRES("org/quartz/impl/jdbcjobstore/tables_postgres.sql", PostgreSQLDelegate.class.getName());
 
         private final String scriptResource;
         private final String delegateClassName;
@@ -105,7 +105,7 @@ public final class JdbcQuartzTestUtilities {
                 DBConnectionManager.getInstance().addConnectionProvider(name,
                         new TestContainerEmbeddedConnectionProvider("jdbc:tc:mariadb:latest:///" + name));
                 break;
-            case POSTRGRES:
+            case POSTGRES:
                 DBConnectionManager.getInstance().addConnectionProvider(name,
                         new TestContainerEmbeddedConnectionProvider("jdbc:tc:postgresql:latest:///" + name));
                 break;
@@ -127,7 +127,7 @@ public final class JdbcQuartzTestUtilities {
                 break;
             case MSSQL:
             case MARIADB:
-            case POSTRGRES:
+            case POSTGRES:
                 shutdownDatabase(name, databaseType);
                 break;
             default:
@@ -148,7 +148,7 @@ public final class JdbcQuartzTestUtilities {
                 break;
             case MSSQL:
             case MARIADB:
-            case POSTRGRES:
+            case POSTGRES:
                 DBConnectionManager.getInstance().shutdown(name);
                 break;
             default:
@@ -212,7 +212,7 @@ public final class JdbcQuartzTestUtilities {
                     statement.addBatch(command);
                 }
             } else if(jdbcUrl.contains("postgresql")) {
-                for (String command : getDatabaseSetupScript(DatabaseType.POSTRGRES)) {
+                for (String command : getDatabaseSetupScript(DatabaseType.POSTGRES)) {
                     statement.addBatch(command);
                 }
             }
