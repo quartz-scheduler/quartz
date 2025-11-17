@@ -21,7 +21,7 @@ import org.quartz.impl.StdSchedulerFactory;
 /**
  * Verifies that Quartz uses the configured TimeBroker as its time source,
  * rather than System.currentTimeMillis().
- * @author https://github.com/ThanosTsiamis
+ * @author Thanos Tsiamis https://github.com/ThanosTsiamis
  */
 public class QuartzSchedulerTimeBrokerTest {
 
