@@ -131,7 +131,7 @@ public class QuartzSchedulerTimeBrokerTest {
         Thread.sleep(500L);
         assertEquals(0, CountingJob.runCount(), "Job should not have fired yet");
 
-        // Now move broker time past the fire time
+        // Move broker time past the fire time
         FakeTimeBroker.setNow(start + 5_000L);
 
         // Trigger shutdown, which halts the scheduler thread and causes it
