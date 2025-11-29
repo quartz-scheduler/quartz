@@ -37,7 +37,8 @@ public final class JdbcQuartzTestUtilities {
     public enum DatabaseType {
         DERBY("org/quartz/impl/jdbcjobstore/tables_derby.sql", StdJDBCDelegate.class.getName()),
         MSSQL("org/quartz/impl/jdbcjobstore/tables_sqlServer.sql", MSSQLDelegate.class.getName()),
-        MARIADB("org/quartz/impl/jdbcjobstore/tables_mysql.sql", StdJDBCDelegate.class.getName());
+        MARIADB("org/quartz/impl/jdbcjobstore/tables_mysql.sql", StdJDBCDelegate.class.getName()),
+        POSTGRES("org/quartz/impl/jdbcjobstore/tables_postgres.sql", PostgreSQLDelegate.class.getName());
 
         private final String scriptResource;
         private final String delegateClassName;
@@ -104,6 +105,10 @@ public final class JdbcQuartzTestUtilities {
                 DBConnectionManager.getInstance().addConnectionProvider(name,
                         new TestContainerEmbeddedConnectionProvider("jdbc:tc:mariadb:latest:///" + name));
                 break;
+            case POSTGRES:
+                DBConnectionManager.getInstance().addConnectionProvider(name,
+                        new TestContainerEmbeddedConnectionProvider("jdbc:tc:postgresql:latest:///" + name));
+                break;
             default:
                 throw new AssertionError("Unsupported database type: " + databaseType);
         }
@@ -122,6 +127,7 @@ public final class JdbcQuartzTestUtilities {
                 break;
             case MSSQL:
             case MARIADB:
+            case POSTGRES:
                 shutdownDatabase(name, databaseType);
                 break;
             default:
@@ -142,6 +148,7 @@ public final class JdbcQuartzTestUtilities {
                 break;
             case MSSQL:
             case MARIADB:
+            case POSTGRES:
                 DBConnectionManager.getInstance().shutdown(name);
                 break;
             default:
@@ -202,6 +209,10 @@ public final class JdbcQuartzTestUtilities {
                 }
             } else if(jdbcUrl.contains("mariadb")) {
                 for (String command : getDatabaseSetupScript(DatabaseType.MARIADB)) {
+                    statement.addBatch(command);
+                }
+            } else if(jdbcUrl.contains("postgresql")) {
+                for (String command : getDatabaseSetupScript(DatabaseType.POSTGRES)) {
                     statement.addBatch(command);
                 }
             }

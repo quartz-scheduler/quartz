@@ -188,7 +188,7 @@ public final class Util {
         for (int i = 1; i <= columnCount; i++ ) {
             String name = rsmd.getColumnName(i);
             for (String colName : colNames) {
-                if (colName.equals(name)) {
+                if (colName.equalsIgnoreCase(name)) {
                     return true;
                 }
             }
