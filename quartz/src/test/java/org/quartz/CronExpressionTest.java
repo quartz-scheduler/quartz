@@ -20,9 +20,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.text.ParseException;
+import java.util.*;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -802,7 +801,101 @@ public class CronExpressionTest extends SerializationTestSupport {
         assertFalse(CronExpression.isValidExpression("kilroy was here"));
         assertFalse(CronExpression.isValidExpression("L 30 * * * ?"));
     }
-    
+
+    @Test
+    public void test1420() throws Exception {
+
+        // seconds minute hours day-of-month month day-of-week year
+
+        CronExpression expFirstWeekdayOfTheMonth = new CronExpression("0 0 0 1W * ?");
+        CronExpression expLastDayOfMonth = new CronExpression("59 59 23 L * ?");
+
+        assertTrue(CronExpression.isValidExpression(expFirstWeekdayOfTheMonth.getCronExpression()));
+        assertTrue(CronExpression.isValidExpression(expLastDayOfMonth.getCronExpression()));
+
+        List<Date> correctFireTimes = new ArrayList<>();
+
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.MILLISECOND, 0);
+        cal.set(2025, Calendar.DECEMBER, 1, 0, 0, 0);
+        correctFireTimes.add(cal.getTime());
+        cal.set(2026, Calendar.JANUARY, 1, 0, 0, 0);
+        correctFireTimes.add(cal.getTime());
+        cal.set(2026, Calendar.FEBRUARY, 2, 0, 0, 0);
+        correctFireTimes.add(cal.getTime());
+        cal.set(2026, Calendar.MARCH, 2, 0, 0, 0);
+        correctFireTimes.add(cal.getTime());
+        cal.set(2026, Calendar.APRIL, 1, 0, 0, 0);
+        correctFireTimes.add(cal.getTime());
+        cal.set(2026, Calendar.MAY, 1, 0, 0, 0);
+        correctFireTimes.add(cal.getTime());
+        cal.set(2026, Calendar.JUNE, 1, 0, 0, 0);
+        correctFireTimes.add(cal.getTime());
+        cal.set(2026, Calendar.JULY, 1, 0, 0, 0);
+        correctFireTimes.add(cal.getTime());
+        cal.set(2026, Calendar.AUGUST, 3, 0, 0, 0);
+        correctFireTimes.add(cal.getTime());
+        cal.set(2026, Calendar.SEPTEMBER, 1, 0, 0, 0);
+        correctFireTimes.add(cal.getTime());
+        cal.set(2026, Calendar.OCTOBER, 1, 0, 0, 0);
+        correctFireTimes.add(cal.getTime());
+        cal.set(2026, Calendar.NOVEMBER, 2, 0, 0, 0);
+        correctFireTimes.add(cal.getTime());
+        cal.set(2026, Calendar.DECEMBER, 1, 0, 0, 0);
+        correctFireTimes.add(cal.getTime());
+
+        cal.set(2025, Calendar.NOVEMBER, 18, 10, 15, 0);
+        Date lTime = cal.getTime();
+
+        // test correct computed dates for first weekdays days of month
+        for(int i=0; i < 13; i++) {
+            Date nTime = expFirstWeekdayOfTheMonth.getTimeAfter(lTime);
+            assertEquals(correctFireTimes.get(i), nTime);
+            lTime = nTime;
+        }
+
+        correctFireTimes.clear();
+
+        cal.set(2025, Calendar.NOVEMBER, 30, 23, 59, 59);
+        correctFireTimes.add(cal.getTime());
+        cal.set(2025, Calendar.DECEMBER, 31, 23, 59, 59);
+        correctFireTimes.add(cal.getTime());
+        cal.set(2026, Calendar.JANUARY, 31, 23, 59, 59);
+        correctFireTimes.add(cal.getTime());
+        cal.set(2026, Calendar.FEBRUARY, 28, 23, 59, 59);
+        correctFireTimes.add(cal.getTime());
+        cal.set(2026, Calendar.MARCH, 31, 23, 59, 59);
+        correctFireTimes.add(cal.getTime());
+        cal.set(2026, Calendar.APRIL, 30, 23, 59, 59);
+        correctFireTimes.add(cal.getTime());
+        cal.set(2026, Calendar.MAY, 31, 23, 59, 59);
+        correctFireTimes.add(cal.getTime());
+        cal.set(2026, Calendar.JUNE, 30, 23, 59, 59);
+        correctFireTimes.add(cal.getTime());
+        cal.set(2026, Calendar.JULY, 31, 23, 59, 59);
+        correctFireTimes.add(cal.getTime());
+        cal.set(2026, Calendar.AUGUST, 31, 23, 59, 59);
+        correctFireTimes.add(cal.getTime());
+        cal.set(2026, Calendar.SEPTEMBER, 30, 23, 59, 59);
+        correctFireTimes.add(cal.getTime());
+        cal.set(2026, Calendar.OCTOBER, 31, 23, 59, 59);
+        correctFireTimes.add(cal.getTime());
+        cal.set(2026, Calendar.NOVEMBER, 30, 23, 59, 59);
+        correctFireTimes.add(cal.getTime());
+        cal.set(2026, Calendar.DECEMBER, 31, 23, 59, 59);
+        correctFireTimes.add(cal.getTime());
+
+        cal.set(2025, Calendar.NOVEMBER, 18, 10, 15, 0);
+        lTime = cal.getTime();
+
+        // test correct computed dates for last days of month
+        for(int i=0; i < 14; i++) {
+            Date nTime = expLastDayOfMonth.getTimeAfter(lTime);
+            assertEquals(correctFireTimes.get(i), nTime);
+            lTime = nTime;
+        }
+    }
+
     // execute with version number to generate a new version's serialized form
     public static void main(String[] args) throws Exception {
         new CronExpressionTest().writeJobDataFile("1.5.2");
