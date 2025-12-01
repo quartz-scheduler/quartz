@@ -43,10 +43,8 @@ import org.quartz.SchedulerException;
  * </p>
  * 
  * @see org.quartz.core.QuartzScheduler
- * @deprecated TimeBroker is not currently used in the Quartz code base.
  * @author James House
  */
-@Deprecated
 public interface TimeBroker {
 
     /*

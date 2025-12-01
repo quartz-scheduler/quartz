@@ -70,11 +70,7 @@ import org.quartz.impl.SchedulerRepository;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.listeners.SchedulerListenerSupport;
 import org.quartz.simpl.PropertySettingJobFactory;
-import org.quartz.spi.JobFactory;
-import org.quartz.spi.OperableTrigger;
-import org.quartz.spi.SchedulerPlugin;
-import org.quartz.spi.SchedulerSignaler;
-import org.quartz.spi.ThreadExecutor;
+import org.quartz.spi.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -179,6 +175,8 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
     private Date initialStart = null;
 
     private final Logger log = LoggerFactory.getLogger(getClass());
+
+    private final TimeBroker timeBroker;
     
     // private static final Map<String, ManagementServer> MGMT_SVR_BY_BIND = new
     // HashMap<String, ManagementServer>();
@@ -202,6 +200,8 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
      */
     public QuartzScheduler(QuartzSchedulerResources resources, long idleWaitTime, @Deprecated long dbRetryInterval)
         throws SchedulerException {
+        this.timeBroker = resources.getTimeBroker();
+        this.timeBroker.initialize();
         this.resources = resources;
         if (resources.getJobStore() instanceof JobListener) {
             addInternalJobListener((JobListener)resources.getJobStore());
@@ -718,6 +718,12 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
         shutdownPlugins();
 
         resources.getJobStore().shutdown();
+
+        try {
+            resources.getTimeBroker().shutdown();
+        } catch (Throwable t) {
+            getLog().warn("Error shutting down TimeBroker: {}", t.getMessage(), t);
+        }
 
         notifySchedulerListenersShutdown();
 

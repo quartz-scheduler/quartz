@@ -37,13 +37,7 @@ import org.quartz.impl.matchers.EverythingMatcher;
 import org.quartz.management.ManagementRESTServiceConfiguration;
 import org.quartz.simpl.RAMJobStore;
 import org.quartz.simpl.SimpleThreadPool;
-import org.quartz.spi.ClassLoadHelper;
-import org.quartz.spi.InstanceIdGenerator;
-import org.quartz.spi.JobFactory;
-import org.quartz.spi.JobStore;
-import org.quartz.spi.SchedulerPlugin;
-import org.quartz.spi.ThreadExecutor;
-import org.quartz.spi.ThreadPool;
+import org.quartz.spi.*;
 import org.quartz.utils.ConnectionProvider;
 import org.quartz.utils.DBConnectionManager;
 import org.quartz.utils.JNDIConnectionProvider;
@@ -286,6 +280,10 @@ public class StdSchedulerFactory implements SchedulerFactory {
     public static final String MANAGEMENT_REST_SERVICE_ENABLED = "org.quartz.managementRESTService.enabled";
 
     public static final String MANAGEMENT_REST_SERVICE_HOST_PORT = "org.quartz.managementRESTService.bind";
+
+    public static final String TIMEBROKER_CLASS = "org.quartz.scheduler.timeBroker.class";
+
+    public static final String SIMPLE_TIMEBROKER_CLASS = "org.quartz.simpl.SimpleTimeBroker";
 
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1296,6 +1294,13 @@ public class StdSchedulerFactory implements SchedulerFactory {
             rsrcs.setInterruptJobsOnShutdownWithWait(interruptJobsOnShutdownWithWait);
             rsrcs.setJMXExport(jmxExport);
             rsrcs.setJMXObjectName(jmxObjectName);
+            String timeBrokerClassName = cfg.getStringProperty(
+                    TIMEBROKER_CLASS,
+                    SIMPLE_TIMEBROKER_CLASS);
+
+            TimeBroker timeBroker;
+            timeBroker = instantiateTimeBroker(loadHelper, timeBrokerClassName);
+            rsrcs.setTimeBroker(timeBroker);
 
             if (managementRESTServiceEnabled) {
                 ManagementRESTServiceConfiguration managementRESTServiceConfiguration = new ManagementRESTServiceConfiguration();
@@ -1391,6 +1396,21 @@ public class StdSchedulerFactory implements SchedulerFactory {
             shutdownFromInstantiateException(tp, qs, tpInited, qsInited);
             throw e;
         }
+    }
+
+    private TimeBroker instantiateTimeBroker(ClassLoadHelper loadHelper, String timeBrokerClassName) throws SchedulerException {
+        TimeBroker timeBroker;
+        try {
+            timeBroker = (TimeBroker) loadHelper
+                    .loadClass(timeBrokerClassName)
+                    .getDeclaredConstructor()
+                    .newInstance();
+        } catch (Exception e) {
+            initException = new SchedulerException(
+                    "TimeBroker class '" + timeBrokerClassName + "' could not be instantiated.", e);
+            throw initException;
+        }
+        return timeBroker;
     }
 
     private void populateProviderWithExtraProps(PoolingConnectionProvider cp, Properties props) throws Exception {
