@@ -1313,15 +1313,20 @@ public final class CronExpression implements Serializable, Cloneable {
                         day = -1;
                     }
                 }
+
+                boolean needAdvance = false;
                 if (smallestDay.isPresent()) {
                     if (day == -1 || smallestDay.get() < day) {
                         day = smallestDay.get();
+                        needAdvance = true;
                     }
                 } else if (day == -1) {
                     day = 1;
                     mon++;
+                    needAdvance = true;
                 }
-                if (day != t || mon != tmon) {
+
+                if (needAdvance && (day != t || mon != tmon)) {
                     cl.set(Calendar.SECOND, 0);
                     cl.set(Calendar.MINUTE, 0);
                     cl.set(Calendar.HOUR_OF_DAY, 0);
@@ -1331,6 +1336,7 @@ public final class CronExpression implements Serializable, Cloneable {
                     // are 1-based
                     continue;
                 }
+
             } else if (dayOfWSpec && !dayOfMSpec) { // get day by day of week rule
                 if (lastDayOfWeek) { // are we looking for the last XXX day of
                     // the month?
