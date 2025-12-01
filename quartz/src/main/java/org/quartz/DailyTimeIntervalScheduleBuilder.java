@@ -332,7 +332,7 @@ public class DailyTimeIntervalScheduleBuilder extends ScheduleBuilder<DailyTimeI
         else if (intervalUnit == IntervalUnit.MINUTE)
                 intervalInMillis = interval * 1000L * 60;
         else if (intervalUnit == IntervalUnit.HOUR)
-            intervalInMillis = interval * 1000L * 60 * 24;
+            intervalInMillis = interval * 1000L * 60 * 60;
         else
             throw new IllegalArgumentException("The IntervalUnit: " + intervalUnit + " is invalid for this trigger."); 
         
