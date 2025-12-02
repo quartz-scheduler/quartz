@@ -26,5 +26,5 @@ package org.quartz.jobs;
  */
 public interface FileScanListener {
 
-    void fileUpdated(String fileName);
+    default void fileUpdated(String fileName){}
 }

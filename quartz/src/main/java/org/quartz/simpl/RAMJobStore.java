@@ -183,16 +183,6 @@ public class RAMJobStore implements JobStore {
         this.misfireThreshold = misfireThreshold;
     }
 
-    /**
-     * <p>
-     * Called by the QuartzScheduler to inform the <code>JobStore</code> that
-     * it should free up all of it's resources because the scheduler is
-     * shutting down.
-     * </p>
-     */
-    public void shutdown() {
-    }
-
     public boolean supportsPersistence() {
         return false;
     }
