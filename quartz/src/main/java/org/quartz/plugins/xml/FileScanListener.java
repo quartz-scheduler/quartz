@@ -27,5 +27,5 @@ package org.quartz.plugins.xml;
  */
 public interface FileScanListener {
 
-    void fileUpdated(String fileName);
+    default void fileUpdated(String fileName){}
 }

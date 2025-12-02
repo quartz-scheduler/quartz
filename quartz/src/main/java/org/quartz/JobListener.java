@@ -35,15 +35,6 @@ package org.quartz;
  * @author James House
  */
 public interface JobListener {
-
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     * 
-     * Interface.
-     * 
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
-
     /**
      * <p>
      * Get the name of the <code>JobListener</code>.
@@ -65,7 +56,7 @@ public interface JobListener {
      * 
      * @see #jobExecutionVetoed(JobExecutionContext)
      */
-    void jobToBeExecuted(JobExecutionContext context);
+    default void jobToBeExecuted(JobExecutionContext context){}
 
     /**
      * <p>
@@ -77,7 +68,7 @@ public interface JobListener {
      * 
      * @see #jobToBeExecuted(JobExecutionContext)
      */
-    void jobExecutionVetoed(JobExecutionContext context);
+    default void jobExecutionVetoed(JobExecutionContext context){}
 
     
     /**
@@ -87,7 +78,7 @@ public interface JobListener {
      * <code>triggered(xx)</code> method has been called.
      * </p>
      */
-    void jobWasExecuted(JobExecutionContext context,
-            JobExecutionException jobException);
+    default void jobWasExecuted(JobExecutionContext context,
+            JobExecutionException jobException){}
 
 }

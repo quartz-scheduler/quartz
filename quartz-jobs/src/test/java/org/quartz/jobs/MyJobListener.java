@@ -17,16 +17,6 @@ public class MyJobListener implements JobListener {
     }
 
     @Override
-    public void jobToBeExecuted(JobExecutionContext context) {
-        //
-    }
-
-    @Override
-    public void jobExecutionVetoed(JobExecutionContext context) {
-        //
-    }
-
-    @Override
     public void jobWasExecuted(JobExecutionContext context,
             JobExecutionException jobException) {
         this.jobException = jobException;
