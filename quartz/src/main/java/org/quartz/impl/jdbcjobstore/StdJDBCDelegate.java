@@ -355,6 +355,8 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             ps = conn.prepareStatement(rtp(SELECT_HAS_MISFIRED_TRIGGERS_IN_STATE));
             ps.setBigDecimal(1, new BigDecimal(String.valueOf(ts)));
             ps.setString(2, state1);
+            ps.setMaxRows(count + 1); // to determine if there are more beyond count
+            ps.setFetchSize(count + 1);
             rs = ps.executeQuery();
 
             boolean hasReachedLimit = false;
