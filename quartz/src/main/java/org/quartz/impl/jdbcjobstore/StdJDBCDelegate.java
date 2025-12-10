@@ -1617,6 +1617,39 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
 
     /**
      * <p>
+     * Check if there are more tiggers associated with a given job.
+     * </p>
+     *
+     * @param connection
+     * @param jobKey
+     * @return
+     * @throws SQLException
+     */
+    @Override
+    public boolean hasMoreTriggersForJob(Connection connection, JobKey jobKey) throws SQLException {
+      PreparedStatement ps = null;
+      ResultSet rs = null;
+      try {
+        ps = connection.prepareStatement(rtp(SELECT_TRIGGER_NAMES_FOR_JOB));
+        ps.setString(1, jobKey.getName());
+        ps.setString(2, jobKey.getGroup());
+        ps.setMaxRows(1);
+        ps.setFetchSize(1);
+        rs = ps.executeQuery();
+
+        int count = 0;
+        while (rs.next()) {
+          count ++;
+        }
+        return count > 0;
+      } finally {
+        closeResultSet(rs);
+        closeStatement(ps);
+      }
+  }
+
+  /**
+     * <p>
      * Select the job to which the trigger is associated.
      * </p>
      *
