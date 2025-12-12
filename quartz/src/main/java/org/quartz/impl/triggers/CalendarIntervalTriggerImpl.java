@@ -19,6 +19,9 @@
 
 package org.quartz.impl.triggers;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -36,13 +39,12 @@ import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
 import org.quartz.TriggerUtils;
 
-
 /**
  * <p>A concrete <code>{@link Trigger}</code> that is used to fire a <code>{@link org.quartz.JobDetail}</code>
  * based upon repeating calendar time intervals.</p>
  * 
  * <p>The trigger will fire every N (see {@link #setRepeatInterval(int)} ) units of calendar time
- * (see {@link #setRepeatIntervalUnit(org.quartz.DateBuilder.IntervalUnit)}) as specified in the trigger's definition.
+ * (see {@link #setRepeatIntervalUnit(IntervalUnit)}) as specified in the trigger's definition.
  * This trigger can achieve schedules that are not possible with {@link SimpleTrigger} (e.g 
  * because months are not a fixed number of seconds) or {@link CronTrigger} (e.g. because
  * "every 5 months" is not an even divisor of 12).</p>
@@ -78,7 +80,7 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
     private static final long serialVersionUID = -2635982274232850343L;
 
     
-    private static final int YEAR_TO_GIVEUP_SCHEDULING_AT = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR) + 100;
+    private static final int YEAR_TO_GIVEUP_SCHEDULING_AT = Calendar.getInstance().get(Calendar.YEAR) + 100;
 
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -521,9 +523,9 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
                 break;
             
             //avoid infinite loop
-            java.util.Calendar c = java.util.Calendar.getInstance();
+            Calendar c = Calendar.getInstance();
             c.setTime(nextFireTime);
-            if (c.get(java.util.Calendar.YEAR) > YEAR_TO_GIVEUP_SCHEDULING_AT) {
+            if (c.get(Calendar.YEAR) > YEAR_TO_GIVEUP_SCHEDULING_AT) {
                 nextFireTime = null;
             }
         }
@@ -552,9 +554,9 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
                 break;
             
             //avoid infinite loop
-            java.util.Calendar c = java.util.Calendar.getInstance();
+            Calendar c = Calendar.getInstance();
             c.setTime(nextFireTime);
-            if (c.get(java.util.Calendar.YEAR) > YEAR_TO_GIVEUP_SCHEDULING_AT) {
+            if (c.get(Calendar.YEAR) > YEAR_TO_GIVEUP_SCHEDULING_AT) {
                 nextFireTime = null;
             }
 
@@ -596,9 +598,9 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
                 break;
 
             //avoid infinite loop
-            java.util.Calendar c = java.util.Calendar.getInstance();
+            Calendar c = Calendar.getInstance();
             c.setTime(nextFireTime);
-            if (c.get(java.util.Calendar.YEAR) > YEAR_TO_GIVEUP_SCHEDULING_AT) {
+            if (c.get(Calendar.YEAR) > YEAR_TO_GIVEUP_SCHEDULING_AT) {
                 return null;
             }
         }
@@ -698,148 +700,69 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
             return new Date(startMillis);
         }
 
-        
-        long secondsAfterStart = 1 + (afterMillis - startMillis) / 1000L;
-
-        Date time = null;
-        long repeatLong = getRepeatInterval();
-        
         Calendar aTime = Calendar.getInstance();
         aTime.setTime(afterTime);
 
         Calendar sTime = Calendar.getInstance();
-        if(timeZone != null)
+        if(timeZone != null) {
             sTime.setTimeZone(timeZone);
+        }
         sTime.setTime(getStartTime());
         sTime.setLenient(true);
-        
-        if(getRepeatIntervalUnit().equals(IntervalUnit.SECOND)) {
-            long jumpCount = secondsAfterStart / repeatLong;
-            if(secondsAfterStart % repeatLong != 0)
-                jumpCount++;
-            sTime.add(Calendar.SECOND, getRepeatInterval() * (int)jumpCount);
-            time = sTime.getTime();
-        }
-        else if(getRepeatIntervalUnit().equals(IntervalUnit.MINUTE)) {
-            long jumpCount = secondsAfterStart / (repeatLong * 60L);
-            if(secondsAfterStart % (repeatLong * 60L) != 0)
-                jumpCount++;
-            sTime.add(Calendar.MINUTE, getRepeatInterval() * (int)jumpCount);
-            time = sTime.getTime();
-        }
-        else if(getRepeatIntervalUnit().equals(IntervalUnit.HOUR)) {
-            long jumpCount = secondsAfterStart / (repeatLong * 60L * 60L);
-            if(secondsAfterStart % (repeatLong * 60L * 60L) != 0)
-                jumpCount++;
-            sTime.add(Calendar.HOUR_OF_DAY, getRepeatInterval() * (int)jumpCount);
-            time = sTime.getTime();
-        }
-        else { // intervals a day or greater ...
 
-            int initialHourOfDay = sTime.get(Calendar.HOUR_OF_DAY);
-            
-            if(getRepeatIntervalUnit().equals(IntervalUnit.DAY)) {
-                sTime.setLenient(true);
-                
-                // Because intervals greater than an hour have an non-fixed number 
-                // of seconds in them (due to daylight savings, variation number of 
-                // days in each month, leap year, etc. ) we can't jump forward an
-                // exact number of seconds to calculate the fire time as we can
-                // with the second, minute and hour intervals.   But, rather
-                // than slowly crawling our way there by iteratively adding the 
-                // increment to the start time until we reach the "after time",
-                // we can first make a big leap most of the way there...
-                
-                long jumpCount = secondsAfterStart / (repeatLong * 24L * 60L * 60L);
-                // if we need to make a big jump, jump most of the way there, 
-                // but not all the way because in some cases we may over-shoot or under-shoot
-                if(jumpCount > 20) {
-                    if(jumpCount < 50)
-                        jumpCount = (long) (jumpCount * 0.80);
-                    else if(jumpCount < 500)
-                        jumpCount = (long) (jumpCount * 0.90);
-                    else
-                        jumpCount = (long) (jumpCount * 0.95);
-                    sTime.add(java.util.Calendar.DAY_OF_YEAR, (int) (getRepeatInterval() * jumpCount));
-                }
-                
-                // now baby-step the rest of the way there...
-                while(!sTime.getTime().after(afterTime) &&
-                        (sTime.get(java.util.Calendar.YEAR) < YEAR_TO_GIVEUP_SCHEDULING_AT)) {            
-                    sTime.add(java.util.Calendar.DAY_OF_YEAR, getRepeatInterval());
-                }
-                while(daylightSavingHourShiftOccurredAndAdvanceNeeded(sTime, initialHourOfDay, afterTime) &&
-                        (sTime.get(java.util.Calendar.YEAR) < YEAR_TO_GIVEUP_SCHEDULING_AT)) {
-                    sTime.add(java.util.Calendar.DAY_OF_YEAR, getRepeatInterval());
-                }
-                time = sTime.getTime();
+        ChronoUnit chronoUnit = switch (getRepeatIntervalUnit()) {
+            case MILLISECOND -> ChronoUnit.MILLIS;
+            case SECOND -> ChronoUnit.SECONDS;
+            case MINUTE -> ChronoUnit.MINUTES;
+            case HOUR -> ChronoUnit.HOURS;
+            case DAY -> ChronoUnit.DAYS;
+            case WEEK -> ChronoUnit.WEEKS;
+            case MONTH -> ChronoUnit.MONTHS;
+            case YEAR -> ChronoUnit.YEARS;
+        };
+        int calendarField = switch (getRepeatIntervalUnit()) {
+            case MILLISECOND -> Calendar.MILLISECOND;
+            case SECOND -> Calendar.SECOND;
+            case MINUTE -> Calendar.MINUTE;
+            case HOUR -> Calendar.HOUR_OF_DAY;
+            case DAY -> Calendar.DAY_OF_YEAR;
+            case WEEK -> Calendar.WEEK_OF_YEAR;
+            case MONTH -> Calendar.MONTH;
+            case YEAR -> Calendar.YEAR;
+        };
+
+        final long unitsSinceStart;
+        if(chronoUnit.compareTo(ChronoUnit.DAYS) > 0) {
+            ZoneId zoneId = sTime.getTimeZone().toZoneId();
+            LocalDateTime aDateTime = LocalDateTime.ofInstant(aTime.toInstant(), zoneId);
+            LocalDateTime sDateTime = LocalDateTime.ofInstant(sTime.toInstant(), zoneId);
+            unitsSinceStart = chronoUnit.between(aDateTime, sDateTime);
+        } else {
+            unitsSinceStart = chronoUnit.between(aTime.toInstant(), sTime.toInstant());
+        }
+        int intervalUnitsSinceStart = getRepeatInterval() * (int)(unitsSinceStart / getRepeatInterval());
+        int initialHourOfDay = -1;
+        if(chronoUnit.compareTo(ChronoUnit.DAYS) >= 0) {
+            initialHourOfDay = sTime.get(Calendar.HOUR_OF_DAY);
+        }
+        sTime.add(calendarField, intervalUnitsSinceStart);
+        while(!sTime.getTime().after(afterTime) &&
+            (sTime.get(Calendar.YEAR) < YEAR_TO_GIVEUP_SCHEDULING_AT)) {
+            sTime.setTime(getStartTime());
+            intervalUnitsSinceStart += getRepeatInterval();
+            sTime.add(calendarField, intervalUnitsSinceStart);
+        }
+        if(initialHourOfDay >= 0) {
+            while(daylightSavingHourShiftOccurredAndAdvanceNeeded(sTime, initialHourOfDay, afterTime) &&
+                    (sTime.get(Calendar.YEAR) < YEAR_TO_GIVEUP_SCHEDULING_AT)) {
+                sTime.setTime(getStartTime());
+                intervalUnitsSinceStart += getRepeatInterval();
+                sTime.add(calendarField, intervalUnitsSinceStart);
             }
-            else if(getRepeatIntervalUnit().equals(IntervalUnit.WEEK)) {
-                sTime.setLenient(true);
-    
-                // Because intervals greater than an hour have an non-fixed number 
-                // of seconds in them (due to daylight savings, variation number of 
-                // days in each month, leap year, etc. ) we can't jump forward an
-                // exact number of seconds to calculate the fire time as we can
-                // with the second, minute and hour intervals.   But, rather
-                // than slowly crawling our way there by iteratively adding the 
-                // increment to the start time until we reach the "after time",
-                // we can first make a big leap most of the way there...
-                
-                long jumpCount = secondsAfterStart / (repeatLong * 7L * 24L * 60L * 60L);
-                // if we need to make a big jump, jump most of the way there, 
-                // but not all the way because in some cases we may over-shoot or under-shoot
-                if(jumpCount > 20) {
-                    if(jumpCount < 50)
-                        jumpCount = (long) (jumpCount * 0.80);
-                    else if(jumpCount < 500)
-                        jumpCount = (long) (jumpCount * 0.90);
-                    else
-                        jumpCount = (long) (jumpCount * 0.95);
-                    sTime.add(java.util.Calendar.WEEK_OF_YEAR, (int) (getRepeatInterval() * jumpCount));
-                }
-                
-                while(!sTime.getTime().after(afterTime) &&
-                        (sTime.get(java.util.Calendar.YEAR) < YEAR_TO_GIVEUP_SCHEDULING_AT)) {            
-                    sTime.add(java.util.Calendar.WEEK_OF_YEAR, getRepeatInterval());
-                }
-                while(daylightSavingHourShiftOccurredAndAdvanceNeeded(sTime, initialHourOfDay, afterTime) &&
-                        (sTime.get(java.util.Calendar.YEAR) < YEAR_TO_GIVEUP_SCHEDULING_AT)) {
-                    sTime.add(java.util.Calendar.WEEK_OF_YEAR, getRepeatInterval());
-                }
-                time = sTime.getTime();
-            }
-            else if(getRepeatIntervalUnit().equals(IntervalUnit.MONTH)) {
-                sTime.setLenient(true);
-    
-                // because of the large variation in size of months, and 
-                // because months are already large blocks of time, we will
-                // just advance via brute-force iteration.
-                
-                while(!sTime.getTime().after(afterTime) &&
-                        (sTime.get(java.util.Calendar.YEAR) < YEAR_TO_GIVEUP_SCHEDULING_AT)) {            
-                    sTime.add(java.util.Calendar.MONTH, getRepeatInterval());
-                }
-                while(daylightSavingHourShiftOccurredAndAdvanceNeeded(sTime, initialHourOfDay, afterTime) &&
-                        (sTime.get(java.util.Calendar.YEAR) < YEAR_TO_GIVEUP_SCHEDULING_AT)) {
-                    sTime.add(java.util.Calendar.MONTH, getRepeatInterval());
-                }
-                time = sTime.getTime();
-            }
-            else if(getRepeatIntervalUnit().equals(IntervalUnit.YEAR)) {
-    
-                while(!sTime.getTime().after(afterTime) &&
-                        (sTime.get(java.util.Calendar.YEAR) < YEAR_TO_GIVEUP_SCHEDULING_AT)) {            
-                    sTime.add(java.util.Calendar.YEAR, getRepeatInterval());
-                }
-                while(daylightSavingHourShiftOccurredAndAdvanceNeeded(sTime, initialHourOfDay, afterTime) &&
-                        (sTime.get(java.util.Calendar.YEAR) < YEAR_TO_GIVEUP_SCHEDULING_AT)) {
-                    sTime.add(java.util.Calendar.YEAR, getRepeatInterval());
-                }
-                time = sTime.getTime();
-            }
-        } // case of interval of a day or greater
-        
+        }
+
+        Date time = sTime.getTime();
+
         if (!ignoreEndTime && (endMillis <= time.getTime())) {
             return null;
         }
@@ -891,28 +814,18 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
             lTime.setTimeZone(timeZone);
         lTime.setTime(fTime);
         lTime.setLenient(true);
-        
-        if(getRepeatIntervalUnit().equals(IntervalUnit.SECOND)) {
-            lTime.add(java.util.Calendar.SECOND, -1 * getRepeatInterval());
-        }
-        else if(getRepeatIntervalUnit().equals(IntervalUnit.MINUTE)) {
-            lTime.add(java.util.Calendar.MINUTE, -1 * getRepeatInterval());
-        }
-        else if(getRepeatIntervalUnit().equals(IntervalUnit.HOUR)) {
-            lTime.add(java.util.Calendar.HOUR_OF_DAY, -1 * getRepeatInterval());
-        }
-        else if(getRepeatIntervalUnit().equals(IntervalUnit.DAY)) {
-            lTime.add(java.util.Calendar.DAY_OF_YEAR, -1 * getRepeatInterval());
-        }
-        else if(getRepeatIntervalUnit().equals(IntervalUnit.WEEK)) {
-            lTime.add(java.util.Calendar.WEEK_OF_YEAR, -1 * getRepeatInterval());
-        }
-        else if(getRepeatIntervalUnit().equals(IntervalUnit.MONTH)) {
-            lTime.add(java.util.Calendar.MONTH, -1 * getRepeatInterval());
-        }
-        else if(getRepeatIntervalUnit().equals(IntervalUnit.YEAR)) {
-            lTime.add(java.util.Calendar.YEAR, -1 * getRepeatInterval());
-        }
+
+        int calendarField = switch (getRepeatIntervalUnit()) {
+            case MILLISECOND -> Calendar.MILLISECOND;
+            case SECOND -> Calendar.SECOND;
+            case MINUTE -> Calendar.MINUTE;
+            case HOUR -> Calendar.HOUR_OF_DAY;
+            case DAY -> Calendar.DAY_OF_YEAR;
+            case WEEK -> Calendar.WEEK_OF_YEAR;
+            case MONTH -> Calendar.MONTH;
+            case YEAR -> Calendar.YEAR;
+        };
+        lTime.add(calendarField, -1 * getRepeatInterval());
 
         return lTime.getTime();
     }
