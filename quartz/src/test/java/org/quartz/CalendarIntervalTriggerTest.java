@@ -29,6 +29,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 import org.quartz.DateBuilder.IntervalUnit;
@@ -122,11 +123,11 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
         assertEquals(List.of(leapYear, leapYear + 1,leapYear + 2,leapYear + 3,leapYear + 4), fireTimes.stream()
             .peek(testCal::setTime)
             .map(d -> testCal.get(Calendar.YEAR))
-            .toList());
+            .collect(Collectors.toList()));
         assertEquals(List.of(29,28,28,28,29), fireTimes.stream()
             .peek(testCal::setTime)
             .map(d -> testCal.get(Calendar.DAY_OF_MONTH))
-            .toList());
+            .collect(Collectors.toList()));
     }
 
     @Test
@@ -169,7 +170,7 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
         assertEquals(List.of(31,30,31), fireTimes.stream()
             .peek(testCal::setTime)
             .map(d -> testCal.get(Calendar.DAY_OF_MONTH))
-            .toList());
+            .collect(Collectors.toList()));
     }
 
     @Test
@@ -191,15 +192,15 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
         assertEquals(List.of(1,2,3), fireTimes.stream()
             .peek(testCal::setTime)
             .map(d -> testCal.get(Calendar.MONTH))
-            .toList());
+            .collect(Collectors.toList()));
         assertEquals(List.of(9,9,9), fireTimes.stream()
             .peek(testCal::setTime)
             .map(d -> testCal.get(Calendar.DAY_OF_MONTH))
-            .toList());
+            .collect(Collectors.toList()));
         assertEquals(List.of(2,3,2), fireTimes.stream()
             .peek(testCal::setTime)
             .map(d -> testCal.get(Calendar.HOUR_OF_DAY))
-            .toList());
+            .collect(Collectors.toList()));
     }
 
     @Test
@@ -288,7 +289,10 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
         List<Date> fireTimes = TriggerUtils.computeFireTimes(yearlyTrigger, null, 4);
 
         Calendar testCal = Calendar.getInstance(startCalendar.getTimeZone());
-        assertEquals(List.of(1,3,4,5), fireTimes.stream().peek(testCal::setTime).map(d -> testCal.get(Calendar.HOUR_OF_DAY)).toList());
+        assertEquals(List.of(1,3,4,5), fireTimes.stream()
+            .peek(testCal::setTime)
+            .map(d -> testCal.get(Calendar.HOUR_OF_DAY))
+            .collect(Collectors.toList()));
     }
 
     @Test
