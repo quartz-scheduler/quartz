@@ -710,26 +710,30 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
         sTime.setTime(getStartTime());
         sTime.setLenient(true);
 
-        ChronoUnit chronoUnit = switch (getRepeatIntervalUnit()) {
-            case MILLISECOND -> ChronoUnit.MILLIS;
-            case SECOND -> ChronoUnit.SECONDS;
-            case MINUTE -> ChronoUnit.MINUTES;
-            case HOUR -> ChronoUnit.HOURS;
-            case DAY -> ChronoUnit.DAYS;
-            case WEEK -> ChronoUnit.WEEKS;
-            case MONTH -> ChronoUnit.MONTHS;
-            case YEAR -> ChronoUnit.YEARS;
-        };
-        int calendarField = switch (getRepeatIntervalUnit()) {
-            case MILLISECOND -> Calendar.MILLISECOND;
-            case SECOND -> Calendar.SECOND;
-            case MINUTE -> Calendar.MINUTE;
-            case HOUR -> Calendar.HOUR_OF_DAY;
-            case DAY -> Calendar.DAY_OF_YEAR;
-            case WEEK -> Calendar.WEEK_OF_YEAR;
-            case MONTH -> Calendar.MONTH;
-            case YEAR -> Calendar.YEAR;
-        };
+        final ChronoUnit chronoUnit;
+        switch (getRepeatIntervalUnit()) {
+            case MILLISECOND: chronoUnit = ChronoUnit.MILLIS; break;
+            case SECOND: chronoUnit = ChronoUnit.SECONDS; break;
+            case MINUTE: chronoUnit = ChronoUnit.MINUTES; break;
+            case HOUR: chronoUnit = ChronoUnit.HOURS; break;
+            case DAY: chronoUnit = ChronoUnit.DAYS; break;
+            case WEEK: chronoUnit = ChronoUnit.WEEKS; break;
+            case MONTH: chronoUnit = ChronoUnit.MONTHS; break;
+            case YEAR:
+            default: chronoUnit = ChronoUnit.YEARS; break;
+        }
+        final int calendarField;
+        switch (getRepeatIntervalUnit()) {
+            case MILLISECOND: calendarField = Calendar.MILLISECOND; break;
+            case SECOND: calendarField = Calendar.SECOND; break;
+            case MINUTE: calendarField = Calendar.MINUTE; break;
+            case HOUR: calendarField = Calendar.HOUR_OF_DAY; break;
+            case DAY: calendarField = Calendar.DAY_OF_YEAR; break;
+            case WEEK: calendarField = Calendar.WEEK_OF_YEAR; break;
+            case MONTH: calendarField = Calendar.MONTH; break;
+            case YEAR:
+            default: calendarField = Calendar.YEAR; break;
+        }
 
         final long unitsSinceStart;
         if(chronoUnit.compareTo(ChronoUnit.DAYS) > 0) {
@@ -815,15 +819,17 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
         lTime.setTime(fTime);
         lTime.setLenient(true);
 
-        int calendarField = switch (getRepeatIntervalUnit()) {
-            case MILLISECOND -> Calendar.MILLISECOND;
-            case SECOND -> Calendar.SECOND;
-            case MINUTE -> Calendar.MINUTE;
-            case HOUR -> Calendar.HOUR_OF_DAY;
-            case DAY -> Calendar.DAY_OF_YEAR;
-            case WEEK -> Calendar.WEEK_OF_YEAR;
-            case MONTH -> Calendar.MONTH;
-            case YEAR -> Calendar.YEAR;
+        final int calendarField;
+        switch (getRepeatIntervalUnit()) {
+            case MILLISECOND: calendarField = Calendar.MILLISECOND; break;
+            case SECOND: calendarField = Calendar.SECOND; break;
+            case MINUTE: calendarField = Calendar.MINUTE; break;
+            case HOUR: calendarField = Calendar.HOUR_OF_DAY; break;
+            case DAY: calendarField = Calendar.DAY_OF_YEAR; break;
+            case WEEK: calendarField = Calendar.WEEK_OF_YEAR; break;
+            case MONTH: calendarField = Calendar.MONTH; break;
+            case YEAR:
+            default: calendarField = Calendar.YEAR;
         };
         lTime.add(calendarField, -1 * getRepeatInterval());
 
