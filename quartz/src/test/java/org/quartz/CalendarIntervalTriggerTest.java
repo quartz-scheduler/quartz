@@ -24,10 +24,17 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 import java.text.ParseException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
+import java.time.zone.ZoneOffsetTransition;
+import java.time.zone.ZoneRules;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 import org.quartz.DateBuilder.IntervalUnit;
@@ -106,6 +113,29 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
     }
 
     @Test
+    void testYearlyIntervalGetFireTimeAfterLeap() {
+        Calendar startCalendar = Calendar.getInstance();
+        final int leapYear = 4 * (startCalendar.get(Calendar.YEAR) / 4);
+        startCalendar.set(leapYear, Calendar.FEBRUARY, 29, 9, 30, 17);
+
+        CalendarIntervalTriggerImpl yearlyTrigger = new CalendarIntervalTriggerImpl();
+        yearlyTrigger.setStartTime(startCalendar.getTime());
+        yearlyTrigger.setRepeatIntervalUnit(IntervalUnit.YEAR);
+        yearlyTrigger.setRepeatInterval(1);
+
+        List<Date> fireTimes = TriggerUtils.computeFireTimes(yearlyTrigger, null, 5);
+        Calendar testCal = Calendar.getInstance();
+        assertEquals(List.of(leapYear, leapYear + 1,leapYear + 2,leapYear + 3,leapYear + 4), fireTimes.stream()
+            .peek(testCal::setTime)
+            .map(d -> testCal.get(Calendar.YEAR))
+            .collect(Collectors.toList()));
+        assertEquals(List.of(29,28,28,28,29), fireTimes.stream()
+            .peek(testCal::setTime)
+            .map(d -> testCal.get(Calendar.DAY_OF_MONTH))
+            .collect(Collectors.toList()));
+    }
+
+    @Test
     void testMonthlyIntervalGetFireTimeAfter() {
 
         Calendar startCalendar = Calendar.getInstance();
@@ -128,6 +158,83 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
 
         assertEquals(targetCalendar.getTime(), fifthTime, "Month increment result not as expected.");
     }
+
+    @Test
+    void testMonthIntervalGetFireTimeAfterOn31() {
+        Calendar startCalendar = Calendar.getInstance();
+        int year = startCalendar.get(Calendar.YEAR);
+        startCalendar.set(year, Calendar.MARCH, 31, 9, 30, 17);
+
+        CalendarIntervalTriggerImpl yearlyTrigger = new CalendarIntervalTriggerImpl();
+        yearlyTrigger.setStartTime(startCalendar.getTime());
+        yearlyTrigger.setRepeatIntervalUnit(IntervalUnit.MONTH);
+        yearlyTrigger.setRepeatInterval(1);
+
+        List<Date> fireTimes = TriggerUtils.computeFireTimes(yearlyTrigger, null, 3);
+        Calendar testCal = Calendar.getInstance();
+        assertEquals(List.of(31,30,31), fireTimes.stream()
+            .peek(testCal::setTime)
+            .map(d -> testCal.get(Calendar.DAY_OF_MONTH))
+            .collect(Collectors.toList()));
+    }
+
+    private Calendar get30MinBeforeSpringForward() {
+        Calendar cal = Calendar.getInstance();
+        ZoneId zoneId = ZoneId.of("America/New_York");
+        ZoneRules zoneRules = zoneId.getRules();
+        Instant now = Instant.now();
+        ZoneOffsetTransition transition = zoneRules.nextTransition(now);
+        if(transition == null) {
+            // Should not happen
+            return cal;
+        }
+
+        if(transition.isOverlap()) {
+            transition = zoneRules.previousTransition(now);
+        }
+        Instant transitionInstant = transition.getInstant();
+        cal.setTimeZone(TimeZone.getTimeZone(zoneId));
+        cal.setTimeInMillis(transitionInstant.minus(30, ChronoUnit.MINUTES).toEpochMilli());
+        return cal;
+    }
+
+    @Test
+    void testMonthlyIntervalGetFireTimeAfterSpringForward() {
+        Calendar startCalendar = get30MinBeforeSpringForward();
+
+        startCalendar.add(Calendar.MONTH, - 1);
+        startCalendar.add(Calendar.HOUR_OF_DAY, 1);
+        int month = startCalendar.get(Calendar.MONTH);
+        int day = startCalendar.get(Calendar.DAY_OF_MONTH);
+        int hour = startCalendar.get(Calendar.HOUR_OF_DAY);
+
+        CalendarIntervalTriggerImpl yearlyTrigger = new CalendarIntervalTriggerImpl();
+        yearlyTrigger.setStartTime(startCalendar.getTime());
+        yearlyTrigger.setRepeatIntervalUnit(IntervalUnit.MONTH);
+        yearlyTrigger.setRepeatInterval(1);
+        yearlyTrigger.setTimeZone(startCalendar.getTimeZone());
+
+        List<Date> fireTimes = TriggerUtils.computeFireTimes(yearlyTrigger, null, 3);
+
+        Calendar testCal = Calendar.getInstance(startCalendar.getTimeZone());
+        String hint = "Failed for " + startCalendar.getTime() + " in time zone " + startCalendar.getTimeZone().getID();
+        // Check that no month is skipped
+        assertEquals(List.of(month, month + 1, month + 2), fireTimes.stream()
+            .peek(testCal::setTime)
+            .map(d -> testCal.get(Calendar.MONTH))
+            .collect(Collectors.toList()), hint);
+        // Check that day of month is preserved
+        assertEquals(List.of(day, day, day), fireTimes.stream()
+            .peek(testCal::setTime)
+            .map(d -> testCal.get(Calendar.DAY_OF_MONTH))
+            .collect(Collectors.toList()), hint);
+        // Check that spring forward gap does not affect the following trigger times
+        assertEquals(List.of(hour, hour+1, hour), fireTimes.stream()
+            .peek(testCal::setTime)
+            .map(d -> testCal.get(Calendar.HOUR_OF_DAY))
+            .collect(Collectors.toList()), hint);
+    }
+
     @Test
     void testWeeklyIntervalGetFireTimeAfter() {
 
@@ -197,6 +304,30 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
 
         assertEquals(targetCalendar.getTime(), fifthTime, "Hour increment result not as expected.");
     }
+
+    @Test
+    void testHourlyIntervalGetFireTimeAfterSpringForward() {
+        Calendar startCalendar = get30MinBeforeSpringForward();
+
+        int hour = startCalendar.get(Calendar.HOUR_OF_DAY);
+
+        CalendarIntervalTriggerImpl yearlyTrigger = new CalendarIntervalTriggerImpl();
+        yearlyTrigger.setStartTime(startCalendar.getTime());
+        yearlyTrigger.setTimeZone(startCalendar.getTimeZone());
+        yearlyTrigger.setRepeatIntervalUnit(DateBuilder.IntervalUnit.HOUR);
+        yearlyTrigger.setRepeatInterval(1);
+
+        List<Date> fireTimes = TriggerUtils.computeFireTimes(yearlyTrigger, null, 4);
+        String hint = "Failed for " + startCalendar.getTime() + " in time zone " + startCalendar.getTimeZone().getID();
+
+        Calendar testCal = Calendar.getInstance(startCalendar.getTimeZone());
+        // Check that hourly firings are continuous across the spring forward gap
+        assertEquals(List.of(hour, hour + 2, hour + 3, hour + 4), fireTimes.stream()
+            .peek(testCal::setTime)
+            .map(d -> testCal.get(Calendar.HOUR_OF_DAY))
+            .collect(Collectors.toList()), hint);
+    }
+
     @Test
     void testMinutelyIntervalGetFireTimeAfter() {
 
