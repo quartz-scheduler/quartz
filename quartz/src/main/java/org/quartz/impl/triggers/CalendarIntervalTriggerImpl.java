@@ -19,12 +19,14 @@
 
 package org.quartz.impl.triggers;
 
-import java.time.LocalDateTime;
+import java.time.DateTimeException;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.function.Supplier;
 
 import org.quartz.CalendarIntervalScheduleBuilder;
 import org.quartz.CalendarIntervalTrigger;
@@ -698,7 +700,7 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
             case HOUR:
                 return Calendar.HOUR_OF_DAY;
             case DAY:
-                return Calendar.DAY_OF_YEAR;
+                return Calendar.DAY_OF_MONTH;
             case WEEK:
                 return Calendar.WEEK_OF_YEAR;
             case MONTH:
@@ -746,50 +748,41 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
             return new Date(startMillis);
         }
 
-        Calendar aTime = Calendar.getInstance();
-        aTime.setTime(afterTime);
-
-        Calendar sTime = Calendar.getInstance();
-        if(timeZone != null) {
-            sTime.setTimeZone(timeZone);
-        }
-        sTime.setTime(getStartTime());
-        sTime.setLenient(true);
-
         final ChronoUnit chronoUnit = intervalUnitToChronoUnit();
-        final int calendarField = intervalUnitToCalendarField();
 
         final long unitsSinceStart;
-        if(chronoUnit.compareTo(ChronoUnit.DAYS) > 0) {
-            ZoneId zoneId = sTime.getTimeZone().toZoneId();
-            LocalDateTime aDateTime = LocalDateTime.ofInstant(aTime.toInstant(), zoneId);
-            LocalDateTime sDateTime = LocalDateTime.ofInstant(sTime.toInstant(), zoneId);
-            unitsSinceStart = chronoUnit.between(aDateTime, sDateTime);
-        } else {
-            unitsSinceStart = chronoUnit.between(aTime.toInstant(), sTime.toInstant());
-        }
-        int intervalUnitsSinceStart = getRepeatInterval() * (int)(unitsSinceStart / getRepeatInterval());
-        int initialHourOfDay = -1;
-        if(chronoUnit.compareTo(ChronoUnit.DAYS) >= 0) {
-            initialHourOfDay = sTime.get(Calendar.HOUR_OF_DAY);
-        }
-        sTime.add(calendarField, intervalUnitsSinceStart);
-        while(!sTime.getTime().after(afterTime) &&
-            (sTime.get(Calendar.YEAR) < YEAR_TO_GIVEUP_SCHEDULING_AT)) {
-            sTime.setTime(getStartTime());
-            intervalUnitsSinceStart += getRepeatInterval();
-            sTime.add(calendarField, intervalUnitsSinceStart);
-        }
-        if(initialHourOfDay >= 0) {
-            while(daylightSavingHourShiftOccurredAndAdvanceNeeded(sTime, initialHourOfDay, afterTime) &&
-                    (sTime.get(Calendar.YEAR) < YEAR_TO_GIVEUP_SCHEDULING_AT)) {
-                sTime.setTime(getStartTime());
+        ZoneId zoneId = timeZone == null ? ZoneId.systemDefault() : timeZone.toZoneId();
+        final ZonedDateTime aDateTime = ZonedDateTime.ofInstant(afterTime.toInstant(), zoneId);
+        final ZonedDateTime sDateTime = ZonedDateTime.ofInstant(startTime.toInstant(), zoneId);
+        unitsSinceStart = chronoUnit.between(aDateTime, sDateTime);
+
+        Supplier<ZonedDateTime> advancer = new Supplier<>() {
+            private int intervalUnitsSinceStart = getRepeatInterval() * (int)(unitsSinceStart / getRepeatInterval());
+            @Override
+            public ZonedDateTime get() {
+                ZonedDateTime result = sDateTime.plus(intervalUnitsSinceStart, chronoUnit);
+                if(result.getYear() >= YEAR_TO_GIVEUP_SCHEDULING_AT) {
+                    return null;
+                }
                 intervalUnitsSinceStart += getRepeatInterval();
-                sTime.add(calendarField, intervalUnitsSinceStart);
+                return result;
             }
+        };
+
+        ZonedDateTime nextFireDateTime = advancer.get();
+        while(nextFireDateTime != null && !nextFireDateTime.isAfter(aDateTime)) {
+            nextFireDateTime = advancer.get();
         }
 
-        Date time = sTime.getTime();
+        if(nextFireDateTime != null && chronoUnit.compareTo(ChronoUnit.DAYS) >= 0) {
+            nextFireDateTime = advanceIfNeeded(nextFireDateTime, sDateTime, aDateTime, advancer);
+        }
+
+        if(nextFireDateTime == null) {
+            return null;
+        }
+
+        Date time = Date.from(nextFireDateTime.toInstant());
 
         if (!ignoreEndTime && (endMillis <= time.getTime())) {
             return null;
@@ -798,16 +791,36 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
         return time;
     }
 
-    private boolean daylightSavingHourShiftOccurredAndAdvanceNeeded(Calendar newTime, int initialHourOfDay, Date afterTime) {
-        if(isPreserveHourOfDayAcrossDaylightSavings() && newTime.get(Calendar.HOUR_OF_DAY) != initialHourOfDay) {
-            newTime.set(Calendar.HOUR_OF_DAY, initialHourOfDay);
-            if (newTime.get(Calendar.HOUR_OF_DAY) != initialHourOfDay) {
-                return isSkipDayIfHourDoesNotExist();
-            } else {
-                return !newTime.getTime().after(afterTime);
+    private ZonedDateTime advanceIfNeeded(ZonedDateTime nextFireDateTime,
+                                          ZonedDateTime startDateTime,
+                                          ZonedDateTime afterDateTime,
+                                          Supplier<ZonedDateTime> advancer) {
+        if(isPreserveHourOfDayAcrossDaylightSavings()) {
+            int initialHourOfDay = startDateTime.getHour();
+            // This may iterate multiple times in the case of skipDayIfHourDoesNotExist and yearly intervals
+            while(nextFireDateTime != null && nextFireDateTime.getHour() != initialHourOfDay) {
+                ZonedDateTime adjustedDateTime;
+                try {
+                    adjustedDateTime = nextFireDateTime.withHour(initialHourOfDay);
+                } catch (DateTimeException ignored) {
+                    adjustedDateTime = nextFireDateTime;
+                }
+                if (adjustedDateTime.getHour() == initialHourOfDay) {
+                    if (adjustedDateTime.isAfter(afterDateTime)) {
+                        return adjustedDateTime;
+                    } else {
+                        nextFireDateTime = advancer.get();
+                    }
+                } else {
+                    if (isSkipDayIfHourDoesNotExist()) {
+                        nextFireDateTime = advancer.get();
+                    } else {
+                        return nextFireDateTime;
+                    }
+                }
             }
         }
-        return false;
+        return nextFireDateTime;
     }
     
     /**
