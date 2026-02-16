@@ -47,7 +47,7 @@ dependencies {
     testImplementation "org.testcontainers:postgresql:$testcontainersVersion"
     testImplementation 'com.microsoft.sqlserver:mssql-jdbc:13.2.1.jre11'
     testImplementation 'org.mariadb.jdbc:mariadb-java-client:3.5.7'
-    testImplementation 'org.postgresql:postgresql:42.7.8'
+    testImplementation 'org.postgresql:postgresql:42.7.10'
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 
