@@ -753,7 +753,7 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
         final ZoneId zoneId = timeZone == null ? ZoneId.systemDefault() : timeZone.toZoneId();
         final ZonedDateTime aDateTime = ZonedDateTime.ofInstant(afterTime.toInstant(), zoneId);
         final ZonedDateTime sDateTime = ZonedDateTime.ofInstant(startTime.toInstant(), zoneId);
-        final long unitsSinceStart = chronoUnit.between(aDateTime, sDateTime);
+        final long unitsSinceStart = chronoUnit.between(sDateTime, aDateTime);
 
         Supplier<ZonedDateTime> advancer = new Supplier<>() {
             private int intervalUnitsSinceStart = getRepeatInterval() * (int)(unitsSinceStart / getRepeatInterval());
