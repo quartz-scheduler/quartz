@@ -3421,6 +3421,14 @@ public abstract class JobStoreSupport implements JobStore, Constants {
             logWarnIfNonZero(failedInstances.size(),
                     "ClusterManager: detected " + failedInstances.size()
                             + " failed or restarted instances.");
+
+            // Notify ClusterListeners of failed nodes
+            for (SchedulerStateRecord rec : failedInstances) {
+                if (!rec.getSchedulerInstanceId().equals(getInstanceId())) {
+                    schedSignaler.notifyClusterListenersNodeFailed(rec.getSchedulerInstanceId());
+                }
+            }
+
             try {
                 for (SchedulerStateRecord rec : failedInstances) {
                     getLog().info("ClusterManager: Scanning for instance \"{}\"'s failed in-progress jobs.", rec.getSchedulerInstanceId());
