@@ -802,6 +802,9 @@ public abstract class AbstractJobStoreTest  {
         
         public void notifySchedulerListenersError(String string, SchedulerException jpe) {
         }
+
+        public void notifyClusterListenersNodeFailed(String failedInstanceId) {
+        }
     }
 
     /** An empty job for testing purpose. */

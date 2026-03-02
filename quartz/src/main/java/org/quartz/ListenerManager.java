@@ -275,4 +275,30 @@ public interface ListenerManager {
      */
     List<SchedulerListener> getSchedulerListeners();
 
+    /**
+     * Add the given <code>{@link ClusterListener}</code> to the <code>Scheduler</code>.
+     *
+     * @see ClusterListener
+     */
+    void addClusterListener(ClusterListener clusterListener);
+
+    /**
+     * Remove the identified <code>{@link ClusterListener}</code> from the <code>Scheduler</code>.
+     *
+     * @return true if the identified listener was found in the list, and
+     *         removed.
+     */
+    boolean removeClusterListener(String name);
+
+    /**
+     * Get a List containing all of the <code>{@link ClusterListener}</code>s
+     * in the <code>Scheduler</code>, in the order in which they were registered.
+     */
+    List<ClusterListener> getClusterListeners();
+
+    /**
+     * Get the <code>{@link ClusterListener}</code> that has the given name.
+     */
+    ClusterListener getClusterListener(String name);
+
 }
