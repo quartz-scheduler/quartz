@@ -1232,11 +1232,17 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
             }
 
             insertResult = ps.executeUpdate();
-            
+
+            // Extended properties live in type-specific tables (SIMPLE/CRON/...).
+            // updateExtendedTriggerProperties only updates the new type's table, so a
+            // replace that changes trigger type (e.g. SIMPLE -> CRON) leaves the old
+            // extension row behind and inserts nothing into the new table. Always
+            // replace extended rows via delete + insert. See #920.
+            deleteTriggerExtension(conn, trigger.getKey());
             if(tDel == null)
-                updateBlobTrigger(conn, trigger);
+                insertBlobTrigger(conn, trigger);
             else
-                tDel.updateExtendedTriggerProperties(conn, trigger, state, jobDetail);
+                tDel.insertExtendedTriggerProperties(conn, trigger, state, jobDetail);
             
         } finally {
             closeStatement(ps);
