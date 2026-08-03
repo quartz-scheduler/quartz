@@ -173,6 +173,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
     protected void addDefaultTriggerPersistenceDelegates() {
         addTriggerPersistenceDelegate(new SimpleTriggerPersistenceDelegate());
         addTriggerPersistenceDelegate(new CronTriggerPersistenceDelegate());
+        addTriggerPersistenceDelegate(new RRuleTriggerPersistenceDelegate());
         addTriggerPersistenceDelegate(new CalendarIntervalTriggerPersistenceDelegate());
         addTriggerPersistenceDelegate(new DailyTimeIntervalTriggerPersistenceDelegate());
     }
