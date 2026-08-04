@@ -1460,9 +1460,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                 deleteTriggerAndChildren(conn, key);
 
             if (null != job && !job.isDurable()) {
-                int numTriggers = getDelegate().selectNumTriggersForJob(conn,
-                        job.getKey());
-                if (numTriggers == 0) {
+                if (!getDelegate().hasMoreTriggersForJob(conn, job.getKey())) {
                     // Don't call removeJob() because we don't want to check for
                     // triggers again.
                     deleteJobAndChildren(conn, job.getKey());
