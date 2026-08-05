@@ -3259,17 +3259,15 @@ public abstract class JobStoreSupport implements JobStore, Constants {
             }
             
             if (firstCheckIn || (!failedRecords.isEmpty())) {
-                getLockHandler().obtainLock(conn, LOCK_STATE_ACCESS);
-                transStateOwner = true;
+                transStateOwner = getLockHandler().obtainLock(conn, LOCK_STATE_ACCESS);
     
                 // Now that we own the lock, make sure we still have work to do. 
                 // The first time through, we also need to make sure we update/create our state record
                 failedRecords = (firstCheckIn) ? clusterCheckIn(conn) : findFailedInstances(conn);
     
                 if (!failedRecords.isEmpty()) {
-                    getLockHandler().obtainLock(conn, LOCK_TRIGGER_ACCESS);
+                    transOwner = getLockHandler().obtainLock(conn, LOCK_TRIGGER_ACCESS);
                     //getLockHandler().obtainLock(conn, LOCK_JOB_ACCESS);
-                    transOwner = true;
     
                     clusterRecover(conn, failedRecords);
                     recovered = true;
