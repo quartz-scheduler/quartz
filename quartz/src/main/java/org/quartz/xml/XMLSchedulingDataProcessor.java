@@ -317,7 +317,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
      * delete the group is encountered.
      */
     public List<String> getJobGroupsToNeverDelete() {
-        return Collections.unmodifiableList(jobGroupsToDelete);
+        return Collections.unmodifiableList(jobGroupsToNeverDelete);
     }
 
     /**
@@ -347,7 +347,7 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
      * delete the group is encountered.
      */
     public List<String> getTriggerGroupsToNeverDelete() {
-        return Collections.unmodifiableList(triggerGroupsToDelete);
+        return Collections.unmodifiableList(triggerGroupsToNeverDelete);
     }
     
     /*
