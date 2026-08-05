@@ -1930,7 +1930,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
                 ResultSet rss = pps.executeQuery();
 
                 if (rss.next()) {
-                    trigger = (OperableTrigger) getObjectFromBlob(rs, COL_BLOB);
+                    trigger = (OperableTrigger) getObjectFromBlob(rss, COL_BLOB);
                 }
             }
         } else {

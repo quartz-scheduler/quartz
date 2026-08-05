@@ -92,6 +92,56 @@ public class StdJDBCDelegateTest  {
         assertNull(trigger);
 
     }
+
+    @Test
+    void testHandleTriggerBlob() throws SQLException, JobPersistenceException, IOException, ClassNotFoundException {
+        StdJDBCDelegate jdbcDelegate = new StdJDBCDelegate();
+        jdbcDelegate.initialize(LoggerFactory.getLogger(getClass()), "QRTZ_", "TESTSCHED", "INSTANCE", new SimpleClassLoadHelper(), false, "");
+
+        Connection conn = mock(Connection.class);
+        PreparedStatement ps = mock(PreparedStatement.class);
+        ResultSet rs = mock(ResultSet.class);
+        
+        PreparedStatement pps = mock(PreparedStatement.class);
+        ResultSet rss = mock(ResultSet.class);
+
+        // Mock basic trigger data in rs
+        when(rs.getString(Constants.COL_JOB_NAME)).thenReturn("jobName");
+        when(rs.getString(Constants.COL_JOB_GROUP)).thenReturn("jobGroup");
+        when(rs.getString(Constants.COL_TRIGGER_TYPE)).thenReturn(Constants.TTYPE_BLOB);
+
+        // Mock SELECT_BLOB_TRIGGER execution
+        when(conn.prepareStatement(jdbcDelegate.rtp(StdJDBCConstants.SELECT_BLOB_TRIGGER))).thenReturn(pps);
+        when(pps.executeQuery()).thenReturn(rss);
+        when(rss.next()).thenReturn(true);
+        
+        // This is what getObjectFromBlob calls
+        // Since we are testing the bug, handleTrigger is calling getObjectFromBlob(rs, COL_BLOB)
+        // instead of getObjectFromBlob(rss, COL_BLOB)
+        
+        // Mock getObjectFromBlob behavior. It calls rs.getBlob(colName) or rs.getBytes(colName)
+        // For the purpose of this test, we want to see if it fails when using 'rs'
+        // 'rs' won't have the COL_BLOB column.
+        
+        when(rs.getBlob(Constants.COL_BLOB)).thenThrow(new SQLException("Column 'BLOB_DATA' not found"));
+
+        // Setup the outer selectTrigger mock
+        when(conn.prepareStatement(jdbcDelegate.rtp(StdJDBCConstants.SELECT_TRIGGER))).thenReturn(ps);
+        when(ps.executeQuery()).thenReturn(rs);
+        when(rs.next()).thenReturn(true);
+
+        // Mock success case for rss
+        // getObjectFromBlob will be called on rss. rss.getBlob(COL_BLOB) should return something safe
+        when(rss.getBlob(Constants.COL_BLOB)).thenReturn(null);
+
+        jdbcDelegate.selectTrigger(conn, TriggerKey.triggerKey("testName", "testGroup"));
+        
+        // If we reach here, it means it didn't throw SQLException from 'rs'
+        // Let's also verify that rss.getBlob was called, and rs.getBlob was NOT called
+        verify(rss).getBlob(Constants.COL_BLOB);
+        // verify(rs, never()).getBlob(Constants.COL_BLOB); // Actually we already mocked it to throw if called
+    }
+
     @Test
     void testSelectSimpleTriggerWithExceptionWithExtendedProps() throws SQLException, JobPersistenceException, IOException, ClassNotFoundException {
         TriggerPersistenceDelegate persistenceDelegate = mock(TriggerPersistenceDelegate.class);
