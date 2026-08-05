@@ -749,6 +749,55 @@ public abstract class AbstractJobStoreTest  {
     }
 
 
+    /**
+     * Replacing an existing trigger with one of a different concrete type must
+     * rewrite extended trigger rows (e.g. SIMPLE -> CRON). Otherwise the base
+     * QRTZ_TRIGGERS.TRIGGER_TYPE is updated while the old extension row remains
+     * and the new type's extension table is empty, corrupting subsequent reads.
+     *
+     * @see <a href="https://github.com/quartz-scheduler/quartz/issues/920">#920</a>
+     */
+    @Test
+    void testStoreTriggerReplaceChangesTriggerType() throws Exception {
+        Date start = new Date();
+        OperableTrigger simple = new SimpleTriggerImpl(
+                "typeChangeTrigger", "typeChangeGroup",
+                this.fJobDetail.getName(), this.fJobDetail.getGroup(),
+                start, null, SimpleTrigger.REPEAT_INDEFINITELY, 400_000L);
+        this.fJobStore.storeTrigger(simple, false);
+
+        OperableTrigger loadedSimple = this.fJobStore.retrieveTrigger(simple.getKey());
+        assertNotNull(loadedSimple);
+        assertTrue(loadedSimple instanceof SimpleTrigger);
+
+        OperableTrigger cron = (OperableTrigger) TriggerBuilder.newTrigger()
+                .withIdentity(simple.getKey())
+                .forJob(this.fJobDetail)
+                .withSchedule(CronScheduleBuilder.cronSchedule("0 0 12 * * ?"))
+                .startAt(start)
+                .build();
+
+        assertDoesNotThrow(() -> this.fJobStore.storeTrigger(cron, true));
+
+        OperableTrigger reloaded = this.fJobStore.retrieveTrigger(simple.getKey());
+        assertNotNull(reloaded, "trigger must remain readable after type-changing replace");
+        assertTrue(reloaded instanceof CronTrigger, "replaced trigger should be stored as CronTrigger");
+        assertEquals("0 0 12 * * ?", ((CronTrigger) reloaded).getCronExpression());
+
+        // Reverse direction: CRON -> SIMPLE
+        OperableTrigger simpleAgain = new SimpleTriggerImpl(
+                simple.getKey().getName(), simple.getKey().getGroup(),
+                this.fJobDetail.getName(), this.fJobDetail.getGroup(),
+                start, null, 3, 60_000L);
+        assertDoesNotThrow(() -> this.fJobStore.storeTrigger(simpleAgain, true));
+
+        OperableTrigger reloadedSimple = this.fJobStore.retrieveTrigger(simple.getKey());
+        assertNotNull(reloadedSimple);
+        assertTrue(reloadedSimple instanceof SimpleTrigger);
+        assertEquals(3, ((SimpleTrigger) reloadedSimple).getRepeatCount());
+        assertEquals(60_000L, ((SimpleTrigger) reloadedSimple).getRepeatInterval());
+    }
+
     @Test
     void testStoreJobReplacesJob() throws Exception {
 
