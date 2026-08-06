@@ -19,9 +19,14 @@
 
 package org.quartz.impl.triggers;
 
+import java.time.DateTimeException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.function.Supplier;
 
 import org.quartz.CalendarIntervalScheduleBuilder;
 import org.quartz.CalendarIntervalTrigger;
@@ -36,13 +41,12 @@ import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
 import org.quartz.TriggerUtils;
 
-
 /**
  * <p>A concrete <code>{@link Trigger}</code> that is used to fire a <code>{@link org.quartz.JobDetail}</code>
  * based upon repeating calendar time intervals.</p>
  * 
  * <p>The trigger will fire every N (see {@link #setRepeatInterval(int)} ) units of calendar time
- * (see {@link #setRepeatIntervalUnit(org.quartz.DateBuilder.IntervalUnit)}) as specified in the trigger's definition.
+ * (see {@link #setRepeatIntervalUnit(IntervalUnit)}) as specified in the trigger's definition.
  * This trigger can achieve schedules that are not possible with {@link SimpleTrigger} (e.g 
  * because months are not a fixed number of seconds) or {@link CronTrigger} (e.g. because
  * "every 5 months" is not an even divisor of 12).</p>
@@ -78,7 +82,7 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
     private static final long serialVersionUID = -2635982274232850343L;
 
     
-    private static final int YEAR_TO_GIVEUP_SCHEDULING_AT = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR) + 100;
+    private static final int YEAR_TO_GIVEUP_SCHEDULING_AT = Calendar.getInstance().get(Calendar.YEAR) + 100;
 
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -521,9 +525,9 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
                 break;
             
             //avoid infinite loop
-            java.util.Calendar c = java.util.Calendar.getInstance();
+            Calendar c = Calendar.getInstance();
             c.setTime(nextFireTime);
-            if (c.get(java.util.Calendar.YEAR) > YEAR_TO_GIVEUP_SCHEDULING_AT) {
+            if (c.get(Calendar.YEAR) > YEAR_TO_GIVEUP_SCHEDULING_AT) {
                 nextFireTime = null;
             }
         }
@@ -552,9 +556,9 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
                 break;
             
             //avoid infinite loop
-            java.util.Calendar c = java.util.Calendar.getInstance();
+            Calendar c = Calendar.getInstance();
             c.setTime(nextFireTime);
-            if (c.get(java.util.Calendar.YEAR) > YEAR_TO_GIVEUP_SCHEDULING_AT) {
+            if (c.get(Calendar.YEAR) > YEAR_TO_GIVEUP_SCHEDULING_AT) {
                 nextFireTime = null;
             }
 
@@ -596,9 +600,9 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
                 break;
 
             //avoid infinite loop
-            java.util.Calendar c = java.util.Calendar.getInstance();
+            Calendar c = Calendar.getInstance();
             c.setTime(nextFireTime);
-            if (c.get(java.util.Calendar.YEAR) > YEAR_TO_GIVEUP_SCHEDULING_AT) {
+            if (c.get(Calendar.YEAR) > YEAR_TO_GIVEUP_SCHEDULING_AT) {
                 return null;
             }
         }
@@ -662,6 +666,52 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
         this.previousFireTime = previousFireTime;
     }
 
+    private ChronoUnit intervalUnitToChronoUnit() {
+        switch (getRepeatIntervalUnit()) {
+            case MILLISECOND:
+                return ChronoUnit.MILLIS;
+            case SECOND:
+                return ChronoUnit.SECONDS;
+            case MINUTE:
+                return ChronoUnit.MINUTES;
+            case HOUR:
+                return ChronoUnit.HOURS;
+            case DAY:
+                return ChronoUnit.DAYS;
+            case WEEK:
+                return ChronoUnit.WEEKS;
+            case MONTH:
+                return ChronoUnit.MONTHS;
+            case YEAR:
+                return ChronoUnit.YEARS;
+            default:
+                throw new IllegalStateException("Unknown repeat interval unit: " + getRepeatIntervalUnit());
+        }
+    }
+
+    private int intervalUnitToCalendarField() {
+        switch (getRepeatIntervalUnit()) {
+            case MILLISECOND:
+                return Calendar.MILLISECOND;
+            case SECOND:
+                return Calendar.SECOND;
+            case MINUTE:
+                return Calendar.MINUTE;
+            case HOUR:
+                return Calendar.HOUR_OF_DAY;
+            case DAY:
+                return Calendar.DAY_OF_MONTH;
+            case WEEK:
+                return Calendar.WEEK_OF_YEAR;
+            case MONTH:
+                return Calendar.MONTH;
+            case YEAR:
+                return Calendar.YEAR;
+            default:
+                throw new IllegalStateException("Unknown repeat interval unit: " + getRepeatIntervalUnit());
+        }
+    }
+
     /**
      * <p>
      * Returns the next time at which the <code>DateIntervalTrigger</code> will
@@ -698,148 +748,41 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
             return new Date(startMillis);
         }
 
-        
-        long secondsAfterStart = 1 + (afterMillis - startMillis) / 1000L;
+        final ChronoUnit chronoUnit = intervalUnitToChronoUnit();
 
-        Date time = null;
-        long repeatLong = getRepeatInterval();
-        
-        Calendar aTime = Calendar.getInstance();
-        aTime.setTime(afterTime);
+        final ZoneId zoneId = timeZone == null ? ZoneId.systemDefault() : timeZone.toZoneId();
+        final ZonedDateTime aDateTime = ZonedDateTime.ofInstant(afterTime.toInstant(), zoneId);
+        final ZonedDateTime sDateTime = ZonedDateTime.ofInstant(startTime.toInstant(), zoneId);
+        final long unitsSinceStart = chronoUnit.between(sDateTime, aDateTime);
 
-        Calendar sTime = Calendar.getInstance();
-        if(timeZone != null)
-            sTime.setTimeZone(timeZone);
-        sTime.setTime(getStartTime());
-        sTime.setLenient(true);
-        
-        if(getRepeatIntervalUnit().equals(IntervalUnit.SECOND)) {
-            long jumpCount = secondsAfterStart / repeatLong;
-            if(secondsAfterStart % repeatLong != 0)
-                jumpCount++;
-            sTime.add(Calendar.SECOND, getRepeatInterval() * (int)jumpCount);
-            time = sTime.getTime();
-        }
-        else if(getRepeatIntervalUnit().equals(IntervalUnit.MINUTE)) {
-            long jumpCount = secondsAfterStart / (repeatLong * 60L);
-            if(secondsAfterStart % (repeatLong * 60L) != 0)
-                jumpCount++;
-            sTime.add(Calendar.MINUTE, getRepeatInterval() * (int)jumpCount);
-            time = sTime.getTime();
-        }
-        else if(getRepeatIntervalUnit().equals(IntervalUnit.HOUR)) {
-            long jumpCount = secondsAfterStart / (repeatLong * 60L * 60L);
-            if(secondsAfterStart % (repeatLong * 60L * 60L) != 0)
-                jumpCount++;
-            sTime.add(Calendar.HOUR_OF_DAY, getRepeatInterval() * (int)jumpCount);
-            time = sTime.getTime();
-        }
-        else { // intervals a day or greater ...
+        Supplier<ZonedDateTime> advancer = new Supplier<>() {
+            private int intervalUnitsSinceStart = getRepeatInterval() * (int)(unitsSinceStart / getRepeatInterval());
+            @Override
+            public ZonedDateTime get() {
+                ZonedDateTime result = sDateTime.plus(intervalUnitsSinceStart, chronoUnit);
+                if(result.getYear() >= YEAR_TO_GIVEUP_SCHEDULING_AT) {
+                    return null;
+                }
+                intervalUnitsSinceStart += getRepeatInterval();
+                return result;
+            }
+        };
 
-            int initialHourOfDay = sTime.get(Calendar.HOUR_OF_DAY);
-            
-            if(getRepeatIntervalUnit().equals(IntervalUnit.DAY)) {
-                sTime.setLenient(true);
-                
-                // Because intervals greater than an hour have an non-fixed number 
-                // of seconds in them (due to daylight savings, variation number of 
-                // days in each month, leap year, etc. ) we can't jump forward an
-                // exact number of seconds to calculate the fire time as we can
-                // with the second, minute and hour intervals.   But, rather
-                // than slowly crawling our way there by iteratively adding the 
-                // increment to the start time until we reach the "after time",
-                // we can first make a big leap most of the way there...
-                
-                long jumpCount = secondsAfterStart / (repeatLong * 24L * 60L * 60L);
-                // if we need to make a big jump, jump most of the way there, 
-                // but not all the way because in some cases we may over-shoot or under-shoot
-                if(jumpCount > 20) {
-                    if(jumpCount < 50)
-                        jumpCount = (long) (jumpCount * 0.80);
-                    else if(jumpCount < 500)
-                        jumpCount = (long) (jumpCount * 0.90);
-                    else
-                        jumpCount = (long) (jumpCount * 0.95);
-                    sTime.add(java.util.Calendar.DAY_OF_YEAR, (int) (getRepeatInterval() * jumpCount));
-                }
-                
-                // now baby-step the rest of the way there...
-                while(!sTime.getTime().after(afterTime) &&
-                        (sTime.get(java.util.Calendar.YEAR) < YEAR_TO_GIVEUP_SCHEDULING_AT)) {            
-                    sTime.add(java.util.Calendar.DAY_OF_YEAR, getRepeatInterval());
-                }
-                while(daylightSavingHourShiftOccurredAndAdvanceNeeded(sTime, initialHourOfDay, afterTime) &&
-                        (sTime.get(java.util.Calendar.YEAR) < YEAR_TO_GIVEUP_SCHEDULING_AT)) {
-                    sTime.add(java.util.Calendar.DAY_OF_YEAR, getRepeatInterval());
-                }
-                time = sTime.getTime();
-            }
-            else if(getRepeatIntervalUnit().equals(IntervalUnit.WEEK)) {
-                sTime.setLenient(true);
-    
-                // Because intervals greater than an hour have an non-fixed number 
-                // of seconds in them (due to daylight savings, variation number of 
-                // days in each month, leap year, etc. ) we can't jump forward an
-                // exact number of seconds to calculate the fire time as we can
-                // with the second, minute and hour intervals.   But, rather
-                // than slowly crawling our way there by iteratively adding the 
-                // increment to the start time until we reach the "after time",
-                // we can first make a big leap most of the way there...
-                
-                long jumpCount = secondsAfterStart / (repeatLong * 7L * 24L * 60L * 60L);
-                // if we need to make a big jump, jump most of the way there, 
-                // but not all the way because in some cases we may over-shoot or under-shoot
-                if(jumpCount > 20) {
-                    if(jumpCount < 50)
-                        jumpCount = (long) (jumpCount * 0.80);
-                    else if(jumpCount < 500)
-                        jumpCount = (long) (jumpCount * 0.90);
-                    else
-                        jumpCount = (long) (jumpCount * 0.95);
-                    sTime.add(java.util.Calendar.WEEK_OF_YEAR, (int) (getRepeatInterval() * jumpCount));
-                }
-                
-                while(!sTime.getTime().after(afterTime) &&
-                        (sTime.get(java.util.Calendar.YEAR) < YEAR_TO_GIVEUP_SCHEDULING_AT)) {            
-                    sTime.add(java.util.Calendar.WEEK_OF_YEAR, getRepeatInterval());
-                }
-                while(daylightSavingHourShiftOccurredAndAdvanceNeeded(sTime, initialHourOfDay, afterTime) &&
-                        (sTime.get(java.util.Calendar.YEAR) < YEAR_TO_GIVEUP_SCHEDULING_AT)) {
-                    sTime.add(java.util.Calendar.WEEK_OF_YEAR, getRepeatInterval());
-                }
-                time = sTime.getTime();
-            }
-            else if(getRepeatIntervalUnit().equals(IntervalUnit.MONTH)) {
-                sTime.setLenient(true);
-    
-                // because of the large variation in size of months, and 
-                // because months are already large blocks of time, we will
-                // just advance via brute-force iteration.
-                
-                while(!sTime.getTime().after(afterTime) &&
-                        (sTime.get(java.util.Calendar.YEAR) < YEAR_TO_GIVEUP_SCHEDULING_AT)) {            
-                    sTime.add(java.util.Calendar.MONTH, getRepeatInterval());
-                }
-                while(daylightSavingHourShiftOccurredAndAdvanceNeeded(sTime, initialHourOfDay, afterTime) &&
-                        (sTime.get(java.util.Calendar.YEAR) < YEAR_TO_GIVEUP_SCHEDULING_AT)) {
-                    sTime.add(java.util.Calendar.MONTH, getRepeatInterval());
-                }
-                time = sTime.getTime();
-            }
-            else if(getRepeatIntervalUnit().equals(IntervalUnit.YEAR)) {
-    
-                while(!sTime.getTime().after(afterTime) &&
-                        (sTime.get(java.util.Calendar.YEAR) < YEAR_TO_GIVEUP_SCHEDULING_AT)) {            
-                    sTime.add(java.util.Calendar.YEAR, getRepeatInterval());
-                }
-                while(daylightSavingHourShiftOccurredAndAdvanceNeeded(sTime, initialHourOfDay, afterTime) &&
-                        (sTime.get(java.util.Calendar.YEAR) < YEAR_TO_GIVEUP_SCHEDULING_AT)) {
-                    sTime.add(java.util.Calendar.YEAR, getRepeatInterval());
-                }
-                time = sTime.getTime();
-            }
-        } // case of interval of a day or greater
-        
+        ZonedDateTime nextFireDateTime = advancer.get();
+        while(nextFireDateTime != null && !nextFireDateTime.isAfter(aDateTime)) {
+            nextFireDateTime = advancer.get();
+        }
+
+        if(nextFireDateTime != null && chronoUnit.compareTo(ChronoUnit.DAYS) >= 0) {
+            nextFireDateTime = advanceIfNeeded(nextFireDateTime, sDateTime, aDateTime, advancer);
+        }
+
+        if(nextFireDateTime == null) {
+            return null;
+        }
+
+        Date time = Date.from(nextFireDateTime.toInstant());
+
         if (!ignoreEndTime && (endMillis <= time.getTime())) {
             return null;
         }
@@ -847,16 +790,36 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
         return time;
     }
 
-    private boolean daylightSavingHourShiftOccurredAndAdvanceNeeded(Calendar newTime, int initialHourOfDay, Date afterTime) {
-        if(isPreserveHourOfDayAcrossDaylightSavings() && newTime.get(Calendar.HOUR_OF_DAY) != initialHourOfDay) {
-            newTime.set(Calendar.HOUR_OF_DAY, initialHourOfDay);
-            if (newTime.get(Calendar.HOUR_OF_DAY) != initialHourOfDay) {
-                return isSkipDayIfHourDoesNotExist();
-            } else {
-                return !newTime.getTime().after(afterTime);
+    private ZonedDateTime advanceIfNeeded(ZonedDateTime nextFireDateTime,
+                                          ZonedDateTime startDateTime,
+                                          ZonedDateTime afterDateTime,
+                                          Supplier<ZonedDateTime> advancer) {
+        if(isPreserveHourOfDayAcrossDaylightSavings()) {
+            int initialHourOfDay = startDateTime.getHour();
+            // This may iterate multiple times in the case of skipDayIfHourDoesNotExist and yearly intervals
+            while(nextFireDateTime != null && nextFireDateTime.getHour() != initialHourOfDay) {
+                ZonedDateTime adjustedDateTime;
+                try {
+                    adjustedDateTime = nextFireDateTime.withHour(initialHourOfDay);
+                } catch (DateTimeException ignored) {
+                    adjustedDateTime = nextFireDateTime;
+                }
+                if (adjustedDateTime.getHour() == initialHourOfDay) {
+                    if (adjustedDateTime.isAfter(afterDateTime)) {
+                        return adjustedDateTime;
+                    } else {
+                        nextFireDateTime = advancer.get();
+                    }
+                } else {
+                    if (isSkipDayIfHourDoesNotExist()) {
+                        nextFireDateTime = advancer.get();
+                    } else {
+                        return nextFireDateTime;
+                    }
+                }
             }
         }
-        return false;
+        return nextFireDateTime;
     }
     
     /**
@@ -891,28 +854,8 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
             lTime.setTimeZone(timeZone);
         lTime.setTime(fTime);
         lTime.setLenient(true);
-        
-        if(getRepeatIntervalUnit().equals(IntervalUnit.SECOND)) {
-            lTime.add(java.util.Calendar.SECOND, -1 * getRepeatInterval());
-        }
-        else if(getRepeatIntervalUnit().equals(IntervalUnit.MINUTE)) {
-            lTime.add(java.util.Calendar.MINUTE, -1 * getRepeatInterval());
-        }
-        else if(getRepeatIntervalUnit().equals(IntervalUnit.HOUR)) {
-            lTime.add(java.util.Calendar.HOUR_OF_DAY, -1 * getRepeatInterval());
-        }
-        else if(getRepeatIntervalUnit().equals(IntervalUnit.DAY)) {
-            lTime.add(java.util.Calendar.DAY_OF_YEAR, -1 * getRepeatInterval());
-        }
-        else if(getRepeatIntervalUnit().equals(IntervalUnit.WEEK)) {
-            lTime.add(java.util.Calendar.WEEK_OF_YEAR, -1 * getRepeatInterval());
-        }
-        else if(getRepeatIntervalUnit().equals(IntervalUnit.MONTH)) {
-            lTime.add(java.util.Calendar.MONTH, -1 * getRepeatInterval());
-        }
-        else if(getRepeatIntervalUnit().equals(IntervalUnit.YEAR)) {
-            lTime.add(java.util.Calendar.YEAR, -1 * getRepeatInterval());
-        }
+
+        lTime.add(intervalUnitToCalendarField(), -1 * getRepeatInterval());
 
         return lTime.getTime();
     }
