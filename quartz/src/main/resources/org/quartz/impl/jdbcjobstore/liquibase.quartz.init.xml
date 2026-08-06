@@ -14,20 +14,19 @@
 
         <createTable tableName="${table_prefix}LOCKS">
             <column name="SCHED_NAME" type="VARCHAR(120)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="LOCK_NAME" type="VARCHAR(40)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
         </createTable>
-        <addPrimaryKey columnNames="SCHED_NAME, LOCK_NAME" tableName="${table_prefix}LOCKS"/>
 
         <createTable tableName="${table_prefix}FIRED_TRIGGERS">
             <column name="SCHED_NAME" type="VARCHAR(120)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="ENTRY_ID" type="VARCHAR(95)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="TRIGGER_NAME" type="VARCHAR(200)">
                 <constraints nullable="false"/>
@@ -55,7 +54,6 @@
             <column name="IS_NONCONCURRENT" type="BOOLEAN"/>
             <column name="REQUESTS_RECOVERY" type="BOOLEAN"/>
         </createTable>
-        <addPrimaryKey columnNames="SCHED_NAME, ENTRY_ID" tableName="${table_prefix}FIRED_TRIGGERS"/>
 
         <createIndex tableName="${table_prefix}FIRED_TRIGGERS" indexName="IDX_${table_prefix}FT_INST_JOB_REQ_RCVRY">
             <column name="SCHED_NAME"/>
@@ -92,33 +90,31 @@
 
         <createTable tableName="${table_prefix}CALENDARS">
             <column name="SCHED_NAME" type="VARCHAR(120)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="CALENDAR_NAME" type="VARCHAR(200)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="CALENDAR" type="${blob_type}">
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <addPrimaryKey columnNames="SCHED_NAME, CALENDAR_NAME" tableName="${table_prefix}CALENDARS"/>
 
         <createTable tableName="${table_prefix}PAUSED_TRIGGER_GRPS">
             <column name="SCHED_NAME" type="VARCHAR(120)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="TRIGGER_GROUP" type="VARCHAR(200)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
         </createTable>
-        <addPrimaryKey columnNames="SCHED_NAME, TRIGGER_GROUP" tableName="${table_prefix}PAUSED_TRIGGER_GRPS"/>
 
         <createTable tableName="${table_prefix}SCHEDULER_STATE">
             <column name="SCHED_NAME" type="VARCHAR(120)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="INSTANCE_NAME" type="VARCHAR(200)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="LAST_CHECKIN_TIME" type="BIGINT">
                 <constraints nullable="false"/>
@@ -127,17 +123,16 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <addPrimaryKey columnNames="SCHED_NAME, INSTANCE_NAME" tableName="${table_prefix}SCHEDULER_STATE"/>
 
         <createTable tableName="${table_prefix}JOB_DETAILS">
             <column name="SCHED_NAME" type="VARCHAR(120)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="JOB_NAME" type="VARCHAR(200)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="JOB_GROUP" type="VARCHAR(200)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="DESCRIPTION" type="VARCHAR(250)"/>
             <column name="JOB_CLASS_NAME" type="VARCHAR(250)">
@@ -157,7 +152,6 @@
             </column>
             <column name="JOB_DATA" type="${blob_type}"/>
         </createTable>
-        <addPrimaryKey columnNames="SCHED_NAME, JOB_NAME, JOB_GROUP" tableName="${table_prefix}JOB_DETAILS"/>
 
         <createIndex tableName="${table_prefix}JOB_DETAILS" indexName="IDX_${table_prefix}J_GRP">
             <column name="SCHED_NAME"/>
@@ -171,13 +165,13 @@
 
         <createTable tableName="${table_prefix}TRIGGERS">
             <column name="SCHED_NAME" type="VARCHAR(120)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="TRIGGER_NAME" type="VARCHAR(200)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="TRIGGER_GROUP" type="VARCHAR(200)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="JOB_NAME" type="VARCHAR(200)">
                 <constraints nullable="false"/>
@@ -203,7 +197,6 @@
             <column name="MISFIRE_INSTR" type="smallint"/>
             <column name="JOB_DATA" type="${blob_type}"/>
         </createTable>
-        <addPrimaryKey columnNames="SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP" tableName="${table_prefix}TRIGGERS"/>
 
         <createIndex tableName="${table_prefix}TRIGGERS" indexName="IDX_${table_prefix}T_C">
             <column name="SCHED_NAME"/>
@@ -272,27 +265,26 @@
 
         <createTable tableName="${table_prefix}BLOB_TRIGGERS">
             <column name="SCHED_NAME" type="VARCHAR(120)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="TRIGGER_NAME" type="VARCHAR(200)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="TRIGGER_GROUP" type="VARCHAR(200)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="BLOB_DATA" type="${blob_type}"/>
         </createTable>
-        <addPrimaryKey columnNames="SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP" tableName="${table_prefix}BLOB_TRIGGERS"/>
 
         <createTable tableName="${table_prefix}SIMPROP_TRIGGERS">
             <column name="SCHED_NAME" type="VARCHAR(120)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="TRIGGER_NAME" type="VARCHAR(200)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="TRIGGER_GROUP" type="VARCHAR(200)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="STR_PROP_1" type="VARCHAR(512)"/>
             <column name="STR_PROP_2" type="VARCHAR(512)"/>
@@ -306,34 +298,32 @@
             <column name="BOOL_PROP_1" type="BOOLEAN"/>
             <column name="BOOL_PROP_2" type="BOOLEAN"/>
         </createTable>
-        <addPrimaryKey columnNames="SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP" tableName="${table_prefix}SIMPROP_TRIGGERS"/>
 
         <createTable tableName="${table_prefix}CRON_TRIGGERS">
             <column name="SCHED_NAME" type="VARCHAR(120)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="TRIGGER_NAME" type="VARCHAR(200)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="TRIGGER_GROUP" type="VARCHAR(200)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="CRON_EXPRESSION" type="VARCHAR(120)">
                 <constraints nullable="false"/>
             </column>
             <column name="TIME_ZONE_ID" type="VARCHAR(80)"/>
         </createTable>
-        <addPrimaryKey columnNames="SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP" tableName="${table_prefix}CRON_TRIGGERS"/>
 
         <createTable tableName="${table_prefix}SIMPLE_TRIGGERS">
             <column name="SCHED_NAME" type="VARCHAR(120)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="TRIGGER_NAME" type="VARCHAR(200)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="TRIGGER_GROUP" type="VARCHAR(200)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="REPEAT_COUNT" type="BIGINT">
                 <constraints nullable="false"/>
@@ -345,7 +335,6 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <addPrimaryKey columnNames="SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP" tableName="${table_prefix}SIMPLE_TRIGGERS"/>
 
         <addForeignKeyConstraint baseTableName="${table_prefix}TRIGGERS" constraintName="${table_prefix}TRIGGERS_SCHED_NAME_FKEY" baseColumnNames="SCHED_NAME, JOB_NAME, JOB_GROUP" referencedTableName="${table_prefix}JOB_DETAILS" referencedColumnNames="SCHED_NAME, JOB_NAME, JOB_GROUP"/>
 
