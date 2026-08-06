@@ -21,7 +21,6 @@ package org.quartz.impl.jdbcjobstore;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -67,9 +66,7 @@ public class HSQLDBDelegate extends StdJDBCDelegate {
         
         Object obj;
 
-        try (ObjectInputStream in = new ObjectInputStream(binaryInput)) {
-            obj = in.readObject();
-        }
+        obj = readObjectFromBinaryStream(binaryInput);
 
         return obj;
     }

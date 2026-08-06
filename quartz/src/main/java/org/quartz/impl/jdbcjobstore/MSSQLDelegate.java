@@ -22,7 +22,6 @@ import static org.quartz.TriggerKey.triggerKey;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -74,9 +73,7 @@ public class MSSQLDelegate extends StdJDBCDelegate {
 
         Object obj;
 
-        try (ObjectInputStream in = new ObjectInputStream(binaryInput)) {
-            obj = in.readObject();
-        }
+        obj = readObjectFromBinaryStream(binaryInput);
 
         return obj;
     }

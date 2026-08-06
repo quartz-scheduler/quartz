@@ -22,7 +22,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.sql.Blob;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -80,9 +79,7 @@ public class CacheDelegate extends StdJDBCDelegate {
                     } else if (binaryInput instanceof ByteArrayInputStream && ((ByteArrayInputStream) binaryInput).available() == 0 ) {
                         return null;
                     } else {
-                        try (ObjectInputStream in = new ObjectInputStream(binaryInput)) {
-                            return in.readObject();
-                        }
+                        return readObjectFromBinaryStream(binaryInput);
                     }
                 }
             } finally {
