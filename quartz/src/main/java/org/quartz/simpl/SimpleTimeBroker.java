@@ -33,7 +33,7 @@ import org.quartz.spi.TimeBroker;
  * <p>
  * In general, the default implementation of this interface (<code>{@link org.quartz.simpl.SimpleTimeBroker}</code>-
  * which simply uses <code>System.getCurrentTimeMillis()</code> )is
- * sufficient. However situations may exist where this default scheme is
+ * sufficient. However, situations may exist where this default scheme is
  * lacking in its robustness - especially when Quartz is used in a clustered
  * configuration. For example, if one or more of the machines in the cluster
  * has a system time that varies by more than a few seconds from the clocks on
@@ -44,7 +44,6 @@ import org.quartz.spi.TimeBroker;
  * 
  * @author James House
  */
-@SuppressWarnings("deprecation")
 public class SimpleTimeBroker implements TimeBroker {
 
     /*
