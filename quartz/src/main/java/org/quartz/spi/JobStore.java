@@ -95,11 +95,9 @@ public interface JobStore {
     void schedulerResumed();
 
     /**
-     * Called by the QuartzScheduler to inform the <code>JobStore</code> that
-     * it should free up all of it's resources because the scheduler is
-     * shutting down.
+     * Shutdown the JOBStore and close all resources
      */
-    void shutdown();
+    default void shutdown(){};
 
     boolean supportsPersistence();
     

@@ -30,22 +30,13 @@ package org.quartz;
  * @author James House
  */
 public interface SchedulerListener {
-
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     * 
-     * Interface.
-     * 
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
-
     /**
      * <p>
      * Called by the <code>{@link Scheduler}</code> when a <code>{@link org.quartz.JobDetail}</code>
      * is scheduled.
      * </p>
      */
-    void jobScheduled(Trigger trigger);
+    default void jobScheduled(Trigger trigger){}
 
     /**
      * <p>
@@ -55,7 +46,7 @@ public interface SchedulerListener {
      * 
      * @see SchedulerListener#schedulingDataCleared()
      */
-    void jobUnscheduled(TriggerKey triggerKey);
+    default void jobUnscheduled(TriggerKey triggerKey){}
 
     /**
      * <p>
@@ -63,7 +54,7 @@ public interface SchedulerListener {
      * has reached the condition in which it will never fire again.
      * </p>
      */
-    void triggerFinalized(Trigger trigger);
+    default void triggerFinalized(Trigger trigger){}
 
     /**
      * <p>
@@ -71,7 +62,7 @@ public interface SchedulerListener {
      * has been paused.
      * </p>
      */
-    void triggerPaused(TriggerKey triggerKey);
+    default void triggerPaused(TriggerKey triggerKey){}
 
     /**
      * <p>
@@ -83,7 +74,7 @@ public interface SchedulerListener {
      * 
      * @param triggerGroup the paused group, or null if all were paused
      */
-    void triggersPaused(String triggerGroup);
+    default void triggersPaused(String triggerGroup){}
     
     /**
      * <p>
@@ -91,7 +82,7 @@ public interface SchedulerListener {
      * has been un-paused.
      * </p>
      */
-    void triggerResumed(TriggerKey triggerKey);
+    default void triggerResumed(TriggerKey triggerKey){}
 
     /**
      * <p>
@@ -99,7 +90,7 @@ public interface SchedulerListener {
      * group of <code>{@link Trigger}s</code> has been un-paused.
      * </p>
      */
-    void triggersResumed(String triggerGroup);
+    default void triggersResumed(String triggerGroup){}
 
     /**
      * <p>
@@ -107,7 +98,7 @@ public interface SchedulerListener {
      * has been added.
      * </p>
      */
-    void jobAdded(JobDetail jobDetail);
+    default void jobAdded(JobDetail jobDetail){}
     
     /**
      * <p>
@@ -115,7 +106,7 @@ public interface SchedulerListener {
      * has been deleted.
      * </p>
      */
-    void jobDeleted(JobKey jobKey);
+    default void jobDeleted(JobKey jobKey){}
     
     /**
      * <p>
@@ -123,7 +114,7 @@ public interface SchedulerListener {
      * has been paused.
      * </p>
      */
-    void jobPaused(JobKey jobKey);
+    default void jobPaused(JobKey jobKey){}
 
     /**
      * <p>
@@ -133,7 +124,7 @@ public interface SchedulerListener {
      * 
      * @param jobGroup the paused group, or null if all were paused
      */
-    void jobsPaused(String jobGroup);
+    default void jobsPaused(String jobGroup){}
     
     /**
      * <p>
@@ -141,7 +132,7 @@ public interface SchedulerListener {
      * has been un-paused.
      * </p>
      */
-    void jobResumed(JobKey jobKey);
+    default void jobResumed(JobKey jobKey){}
 
     /**
      * <p>
@@ -149,7 +140,7 @@ public interface SchedulerListener {
      * group of <code>{@link org.quartz.JobDetail}s</code> has been un-paused.
      * </p>
      */
-    void jobsResumed(String jobGroup);
+    default void jobsResumed(String jobGroup){}
 
     /**
      * <p>
@@ -165,7 +156,7 @@ public interface SchedulerListener {
      * error that was encountered.
      * </p>
      */
-    void schedulerError(String msg, SchedulerException cause);
+    default void schedulerError(String msg, SchedulerException cause){}
 
     /**
      * <p>
@@ -173,7 +164,7 @@ public interface SchedulerListener {
      * that it has move to standby mode.
      * </p>
      */
-    void schedulerInStandbyMode();
+    default void schedulerInStandbyMode(){}
 
     /**
      * <p>
@@ -181,15 +172,29 @@ public interface SchedulerListener {
      * that it has started.
      * </p>
      */
-    void schedulerStarted();
-    
+    default void schedulerStarted() {}
+
+    /**
+     * <p>
+     * Called by the <code>{@link Scheduler}</code> to inform the listener
+     * that it has paused.
+     * </p>
+     */
+    default void schedulerPaused(){}
+
+    /**
+     * Called by the <code>{@link Scheduler}</code> to inform the listener that
+     * the scheduler has resumed after being paused.
+     */
+    default void schedulerResumed(){}
+
     /**
      * <p>
      * Called by the <code>{@link Scheduler}</code> to inform the listener
      * that it is starting.
      * </p>
      */
-    void schedulerStarting();
+    default void schedulerStarting(){}
     
     /**
      * <p>
@@ -197,7 +202,7 @@ public interface SchedulerListener {
      * that it has shutdown.
      * </p>
      */
-    void schedulerShutdown();
+    default void schedulerShutdown(){}
     
     /**
      * <p>
@@ -205,11 +210,11 @@ public interface SchedulerListener {
      * that it has begun the shutdown sequence.
      * </p>
      */
-    void schedulerShuttingdown();
+    default void schedulerShuttingdown(){}
 
     /**
      * Called by the <code>{@link Scheduler}</code> to inform the listener
      * that all jobs, triggers and calendars were deleted.
      */
-    void schedulingDataCleared();
+    default void schedulingDataCleared(){}
 }

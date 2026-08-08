@@ -68,7 +68,6 @@ import org.quartz.Trigger.TriggerState;
 import org.quartz.core.jmx.QuartzSchedulerMBean;
 import org.quartz.impl.SchedulerRepository;
 import org.quartz.impl.matchers.GroupMatcher;
-import org.quartz.listeners.SchedulerListenerSupport;
 import org.quartz.simpl.PropertySettingJobFactory;
 import org.quartz.spi.JobFactory;
 import org.quartz.spi.OperableTrigger;
@@ -2351,13 +2350,12 @@ J     *
 //
 /////////////////////////////////////////////////////////////////////////////
 
-class ErrorLogger extends SchedulerListenerSupport {
-    ErrorLogger() {
-    }
-    
+class ErrorLogger implements SchedulerListener {
+    private final Logger log = LoggerFactory.getLogger(ErrorLogger.class);
+
     @Override
     public void schedulerError(String msg, SchedulerException cause) {
-        getLog().error(msg, cause);
+        log.error(msg, cause);
     }
 
 }
@@ -2372,9 +2370,6 @@ class ExecutingJobsManager implements JobListener {
     final HashMap<String, JobExecutionContext> executingJobs = new HashMap<>();
 
     final AtomicInteger numJobsFired = new AtomicInteger(0);
-
-    ExecutingJobsManager() {
-    }
 
     public String getName() {
         return getClass().getName();
@@ -2411,9 +2406,5 @@ class ExecutingJobsManager implements JobListener {
             return java.util.Collections.unmodifiableList(new ArrayList<>(
                     executingJobs.values()));
         }
-    }
-
-    public void jobExecutionVetoed(JobExecutionContext context) {
-        
     }
 }

@@ -28,7 +28,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
 import org.quartz.impl.StdSchedulerFactory;
-import org.quartz.listeners.JobListenerSupport;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
@@ -66,7 +65,7 @@ class DisallowConcurrentExecutionJobTest {
 		}
 	}
 	
-	public static class TestJobListener extends JobListenerSupport {
+	public static class TestJobListener implements JobListener {
 
 		private final AtomicInteger jobExCount = new AtomicInteger(0);
 		private final int jobExecutionCountToSyncAfter;

@@ -234,25 +234,6 @@ public class LoggingTriggerHistoryPlugin implements SchedulerPlugin,
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     * 
-     * Constructors.
-     * 
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
-
-    public LoggingTriggerHistoryPlugin() {
-    }
-
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     * 
-     * Interface.
-     * 
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
-
     protected Logger getLog() {
         return log;
     }
@@ -316,14 +297,6 @@ public class LoggingTriggerHistoryPlugin implements SchedulerPlugin,
         this.triggerMisfiredMessage = triggerMisfiredMessage;
     }
 
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     * 
-     * SchedulerPlugin Interface.
-     * 
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
-
     /**
      * Called during creation of the <code>Scheduler</code> in order to give
      * the <code>SchedulerPlugin</code> a chance to initialize.
@@ -337,35 +310,6 @@ public class LoggingTriggerHistoryPlugin implements SchedulerPlugin,
 
         scheduler.getListenerManager().addTriggerListener(this,  EverythingMatcher.allTriggers());
     }
-
-    public void start() {
-        // do nothing...
-    }
-
-    /**
-     * Called in order to inform the <code>SchedulerPlugin</code> that it
-     * should free up all of it's resources because the scheduler is shutting
-     * down.
-     */
-    public void shutdown() {
-        // nothing to do...
-    }
-
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     * 
-     * TriggerListener Interface.
-     * 
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
-
-    /*
-     * Object[] arguments = { new Integer(7), new
-     * Date(System.currentTimeMillis()), "a disturbance in the Force" };
-     * 
-     * String result = MessageFormat.format( "At {1,time} on {1,date}, there
-     * was {2} on planet {0,number,integer}.", arguments);
-     */
 
     public String getName() {
         return name;
@@ -432,9 +376,4 @@ public class LoggingTriggerHistoryPlugin implements SchedulerPlugin,
 
         getLog().info(MessageFormat.format(getTriggerCompleteMessage(), args));
     }
-
-    public boolean vetoJobExecution(Trigger trigger, JobExecutionContext context) {
-        return false;
-    }
-
 }

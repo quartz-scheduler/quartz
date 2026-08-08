@@ -85,14 +85,6 @@ import jakarta.xml.bind.DatatypeConverter;
  * @since Quartz 1.8
  */
 public class XMLSchedulingDataProcessor implements ErrorHandler {
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     * 
-     * Constants.
-     * 
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
-
     public static final String QUARTZ_NS = "http://www.quartz-scheduler.org/xml/JobSchedulingData";
 
     public static final String QUARTZ_SCHEMA_WEB_URL = "http://www.quartz-scheduler.org/xml/job_scheduling_data_2_0.xsd";
@@ -103,15 +95,6 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
 
     public static final String QUARTZ_SYSTEM_ID_JAR_PREFIX = "jar:";
     
-
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     * 
-     * Data members.
-     * 
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
-
     // pre-processing commands
     protected final List<String> jobGroupsToDelete = new LinkedList<>();
     protected final List<String> triggerGroupsToDelete = new LinkedList<>();
@@ -138,14 +121,6 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
     
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     * 
-     * Constructors.
-     * 
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
-     
     /**
      * Constructor for JobSchedulingDataLoader.
      * 

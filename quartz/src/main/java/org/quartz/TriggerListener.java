@@ -35,15 +35,6 @@ import org.quartz.Trigger.CompletedExecutionInstruction;
  * @author James House
  */
 public interface TriggerListener {
-
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     * 
-     * Interface.
-     * 
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
-
     /**
      * <p>
      * Get the name of the <code>TriggerListener</code>.
@@ -69,7 +60,7 @@ public interface TriggerListener {
      *          The <code>JobExecutionContext</code> that will be passed to
      *          the <code>Job</code>'s<code>execute(xx)</code> method.
      */
-    void triggerFired(Trigger trigger, JobExecutionContext context);
+    default void triggerFired(Trigger trigger, JobExecutionContext context){}
 
     /**
      * <p>
@@ -90,7 +81,7 @@ public interface TriggerListener {
      *          The <code>JobExecutionContext</code> that will be passed to
      *          the <code>Job</code>'s<code>execute(xx)</code> method.
      */
-    boolean vetoJobExecution(Trigger trigger, JobExecutionContext context);
+    default boolean vetoJobExecution(Trigger trigger, JobExecutionContext context){return false;}
 
     
     /**
@@ -109,7 +100,7 @@ public interface TriggerListener {
      * @param trigger
      *          The <code>Trigger</code> that has misfired.
      */
-    void triggerMisfired(Trigger trigger);
+    default void triggerMisfired(Trigger trigger){}
 
     /**
      * <p>
@@ -128,7 +119,7 @@ public interface TriggerListener {
      *          the result of the call on the <code>Trigger</code>'s<code>triggered(xx)</code>
      *          method.
      */
-    void triggerComplete(Trigger trigger, JobExecutionContext context,
-            CompletedExecutionInstruction triggerInstructionCode);
+    default void triggerComplete(Trigger trigger, JobExecutionContext context,
+            CompletedExecutionInstruction triggerInstructionCode){}
 
 }
