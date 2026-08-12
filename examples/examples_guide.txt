@@ -3,7 +3,7 @@ Welcome
 
 Welcome to the Quartz Examples directory.  
 
-This directory contains 15 examples that show you how to use various
+This directory contains 16 examples that show you how to use various
 features of Quartz.   Each example is located in its own subdirectory. 
 Every example can be run using Windows .bat files or Linux/UNIX .sh files.  
 
@@ -30,6 +30,7 @@ example12 - Remoting with Quartz using RMI
 example13 - Clustering Quartz and JDBC Job Stores
 example14 - Quartz Trigger Priorities
 example15 - Running a native (shell) command from a Job
+example16 - Using RFC 5545 RRULE Triggers
 
 
 Further description of each example and possible configuration changes to them

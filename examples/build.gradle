@@ -89,3 +89,7 @@ tasks.register('runExample15', JavaExec) {
     description = 'Run Example 15'
     mainClass = "org.quartz.examples.example15.NativeJobExample"
 }
+tasks.register('runExample16', JavaExec) {
+    description = 'Run Example 16'
+    mainClass = 'org.quartz.examples.example16.RRuleTriggerExample'
+}
