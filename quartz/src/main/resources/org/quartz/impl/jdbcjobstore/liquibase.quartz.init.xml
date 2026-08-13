@@ -325,6 +325,23 @@
         </createTable>
         <addPrimaryKey columnNames="SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP" tableName="${table_prefix}CRON_TRIGGERS"/>
 
+        <createTable tableName="${table_prefix}RRULE_TRIGGERS">
+            <column name="SCHED_NAME" type="VARCHAR(120)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TRIGGER_NAME" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TRIGGER_GROUP" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="RRULE_EXPRESSION" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TIME_ZONE_ID" type="VARCHAR(80)"/>
+        </createTable>
+        <addPrimaryKey columnNames="SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP" tableName="${table_prefix}RRULE_TRIGGERS"/>
+
         <createTable tableName="${table_prefix}SIMPLE_TRIGGERS">
             <column name="SCHED_NAME" type="VARCHAR(120)">
                 <constraints nullable="false"/>
@@ -352,6 +369,8 @@
         <addForeignKeyConstraint baseTableName="${table_prefix}SIMPLE_TRIGGERS" constraintName="${table_prefix}SIMPLE_TRIGGERS_SCHED_NAME_FKEY" baseColumnNames="SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP" referencedTableName="${table_prefix}TRIGGERS" referencedColumnNames="SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP"/>
 
         <addForeignKeyConstraint baseTableName="${table_prefix}CRON_TRIGGERS" constraintName="${table_prefix}CRON_TRIGGERS_SCHED_NAME_FKEY" baseColumnNames="SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP" referencedTableName="${table_prefix}TRIGGERS" referencedColumnNames="SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP"/>
+
+        <addForeignKeyConstraint baseTableName="${table_prefix}RRULE_TRIGGERS" constraintName="${table_prefix}RRULE_TRIGGERS_SCHED_NAME_FKEY" baseColumnNames="SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP" referencedTableName="${table_prefix}TRIGGERS" referencedColumnNames="SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP"/>
 
         <addForeignKeyConstraint baseTableName="${table_prefix}SIMPROP_TRIGGERS" constraintName="${table_prefix}SIMPROP_TRIGGERS_SCHED_NAME_FKEY" baseColumnNames="SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP" referencedTableName="${table_prefix}TRIGGERS" referencedColumnNames="SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP"/>
 
