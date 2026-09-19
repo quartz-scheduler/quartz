@@ -489,6 +489,17 @@ public class CronExpressionTest extends SerializationTestSupport {
         }
     }
 
+    @Test
+    void testQtz1439() {
+        try {
+            CronExpression ce = new CronExpression("0/5 * * 10 1 ? *");
+            ce = new CronExpression("0/5 * * 10 12 ? *");
+        } catch(ParseException pe) {
+            fail("Unexpected ParseException thrown for supported expression.");
+        }
+    }
+
+    @Test
     void testQtz395_CopyConstructorMustPreserveTimeZone () throws ParseException {
         TimeZone nonDefault = TimeZone.getTimeZone("Europe/Brussels");
         if (nonDefault.equals(TimeZone.getDefault())) {
