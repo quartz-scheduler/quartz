@@ -18,6 +18,8 @@
 
 package org.quartz.spi;
 
+import java.util.Date;
+
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
@@ -45,6 +47,17 @@ public interface SchedulerSignaler {
     void notifySchedulerListenersJobDeleted(JobKey jobKey);
 
     void signalSchedulingChange(long candidateNewNextFireTime);
+
+    /**
+     * Returns the current scheduling time.
+     *
+     * <p>The default preserves compatibility for third-party signaler
+     * implementations. Quartz's own implementation delegates to the configured
+     * {@link TimeBroker}.</p>
+     */
+    default Date getCurrentTime() throws SchedulerException {
+        return new Date();
+    }
 
     void notifySchedulerListenersError(String string, SchedulerException jpe);
 }
