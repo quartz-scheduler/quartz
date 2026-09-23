@@ -24,29 +24,31 @@ import org.quartz.SchedulerConfigException;
 import org.quartz.SchedulerException;
 
 /**
- * <p>NOTE: TimeBroker is not currently used in the Quartz code base.</p>
- *
  * <p>
  * The interface to be implemented by classes that want to provide a mechanism
- * by which the <code>{@link org.quartz.core.QuartzScheduler}</code> can
- * reliably determine the current time.
+ * by which Quartz can reliably determine the current scheduling time.
  * </p>
  * 
  * <p>
  * In general, the default implementation of this interface (<code>{@link org.quartz.simpl.SimpleTimeBroker}</code>-
- * which simply uses <code>System.getCurrentTimeMillis()</code> )is
+ * which simply uses <code>System.currentTimeMillis()</code>) is
  * sufficient. However situations may exist where this default scheme is
- * lacking in its robustness - especially when Quartz is used in a clustered
- * configuration. For example, if one or more of the machines in the cluster
- * has a system time that varies by more than a few seconds from the clocks on
- * the other systems in the cluster, scheduling confusion will result.
+ * lacking in its robustness, or where tests need a controllable scheduling
+ * clock. Infrastructure timing such as cluster check-ins, retry delays and
+ * thread-pool waits continues to use elapsed wall-clock time.
+ * </p>
+ *
+ * <p>
+ * Implementations that change time discontinuously should do so while the
+ * scheduler is in standby and resume it after the change. All nodes in a
+ * cluster must observe the same scheduling time before they are resumed.
+ * Implementations must be thread-safe because scheduler and job-store threads
+ * can query them concurrently.
  * </p>
  * 
  * @see org.quartz.core.QuartzScheduler
- * @deprecated TimeBroker is not currently used in the Quartz code base.
  * @author James House
  */
-@Deprecated
 public interface TimeBroker {
 
     /*
@@ -63,8 +65,7 @@ public interface TimeBroker {
      * </p>
      * 
      * @throws SchedulerException
-     *           with the error code set to
-     *           SchedulerException.ERR_TIME_BROKER_FAILURE
+     *           if the current scheduling time cannot be obtained
      */
     Date getCurrentTime() throws SchedulerException;
 

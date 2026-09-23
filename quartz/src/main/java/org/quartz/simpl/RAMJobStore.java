@@ -40,6 +40,7 @@ import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.JobPersistenceException;
 import org.quartz.ObjectAlreadyExistsException;
+import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.TriggerKey;
 import org.quartz.Trigger.CompletedExecutionInstruction;
@@ -808,7 +809,7 @@ public class RAMJobStore implements JobStore {
                     OperableTrigger trig = tw.getTrigger();
                     boolean removed = timeTriggers.remove(tw);
 
-                    trig.updateWithNewCalendar(calendar, getMisfireThreshold());
+                    trig.updateWithNewCalendar(calendar, getMisfireThreshold(), getSchedulingTime());
 
                     if (removed) {
                         timeTriggers.add(tw);
@@ -1454,7 +1455,8 @@ public class RAMJobStore implements JobStore {
 
     protected boolean applyMisfire(TriggerWrapper tw) {
 
-        long misfireTime = System.currentTimeMillis();
+        Date now = getSchedulingTime();
+        long misfireTime = now.getTime();
         if (getMisfireThreshold() > 0) {
             misfireTime -= getMisfireThreshold();
         }
@@ -1472,7 +1474,7 @@ public class RAMJobStore implements JobStore {
 
         signaler.notifyTriggerListenersMisfired((OperableTrigger)tw.trigger.clone());
 
-        tw.trigger.updateAfterMisfire(cal);
+        tw.trigger.updateAfterMisfire(cal, now);
 
         if (tw.trigger.getNextFireTime() == null) {
             tw.state = TriggerWrapper.STATE_COMPLETE;
@@ -1555,7 +1557,7 @@ public class RAMJobStore implements JobStore {
                 tw.trigger.setFireInstanceId(getFiredTriggerRecordId());
                 OperableTrigger trig = (OperableTrigger) tw.trigger.clone();
                 if (result.isEmpty()) {
-                    batchEnd = Math.max(tw.trigger.getNextFireTime().getTime(), System.currentTimeMillis()) + timeWindow;
+                    batchEnd = Math.max(tw.trigger.getNextFireTime().getTime(), getSchedulingTime().getTime()) + timeWindow;
                 }
                 result.add(trig);
                 if (result.size() == maxCount)
@@ -1626,7 +1628,7 @@ public class RAMJobStore implements JobStore {
 
                 TriggerFiredBundle bundle = new TriggerFiredBundle(retrieveJob(
                         tw.jobKey), trigger, cal,
-                        false, new Date(), trigger.getPreviousFireTime(), prevFireTime,
+                        false, getSchedulingTime(), trigger.getPreviousFireTime(), prevFireTime,
                         trigger.getNextFireTime());
 
                 JobDetail job = bundle.getJobDetail();
@@ -1803,6 +1805,18 @@ public class RAMJobStore implements JobStore {
 
     public boolean isClustered() {
         return false;
+    }
+
+    private Date getSchedulingTime() {
+        try {
+            Date currentTime = signaler.getCurrentTime();
+            if (currentTime == null) {
+                throw new SchedulerException("SchedulerSignaler returned null scheduling time");
+            }
+            return new Date(currentTime.getTime());
+        } catch (SchedulerException e) {
+            throw new IllegalStateException("Unable to obtain the current scheduling time", e);
+        }
     }
 
 }
