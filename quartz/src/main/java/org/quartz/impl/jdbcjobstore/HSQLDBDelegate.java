@@ -61,7 +61,7 @@ public class HSQLDBDelegate extends StdJDBCDelegate {
         throws ClassNotFoundException, IOException, SQLException {
         InputStream binaryInput = rs.getBinaryStream(colName);
 
-        if(binaryInput == null || binaryInput.available() == 0) {
+        if (binaryInput == null || (!binaryInput.getClass().getName().equals("org.h2.mvstore.db.LobStorageMap$LobInputStream") && binaryInput.available() == 0)) {
             return null;
         }
         
