@@ -35,5 +35,5 @@ public interface DirectoryScanListener {
      * @param updatedFiles The set of files that were updated/added since the
      * last scan of the directory
      */
-    void filesUpdatedOrAdded(File[] updatedFiles);
+    default void filesUpdatedOrAdded(File[] updatedFiles){}
 }

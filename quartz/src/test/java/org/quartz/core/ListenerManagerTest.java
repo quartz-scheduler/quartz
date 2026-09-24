@@ -32,19 +32,15 @@ import org.quartz.SchedulerListener;
 import org.quartz.TriggerKey;
 import org.quartz.TriggerListener;
 import org.quartz.impl.matchers.NameMatcher;
-import org.quartz.listeners.JobListenerSupport;
-import org.quartz.listeners.SchedulerListenerSupport;
-import org.quartz.listeners.TriggerListenerSupport;
-
 /**
  * Test ListenerManagerImpl functionality 
  */
 class ListenerManagerTest  {
 
 
-    public static class TestJobListener extends JobListenerSupport {
+    public static class TestJobListener implements JobListener {
 
-        private String name;
+        private final String name;
         
         public TestJobListener(String name) {
             this.name = name;
@@ -55,9 +51,9 @@ class ListenerManagerTest  {
         }
     }
 
-    public static class TestTriggerListener extends TriggerListenerSupport {
+    public static class TestTriggerListener implements TriggerListener {
 
-        private String name;
+        private final String name;
         
         public TestTriggerListener(String name) {
             this.name = name;
@@ -67,12 +63,6 @@ class ListenerManagerTest  {
             return name;
         }
     }
-
-    public static class TestSchedulerListener extends SchedulerListenerSupport {
-
-    }
-
-
 
     @Test
     void testManagementOfJobListeners() throws Exception {
@@ -158,8 +148,10 @@ class ListenerManagerTest  {
     @Test
     void testManagementOfSchedulerListeners() throws Exception {
 
-        SchedulerListener tl1 = new TestSchedulerListener();
-        SchedulerListener tl2 = new TestSchedulerListener();
+        SchedulerListener tl1 = new SchedulerListener() {
+        };
+        SchedulerListener tl2 = new SchedulerListener(){
+        };
 
         ListenerManagerImpl manager = new ListenerManagerImpl();
 
@@ -180,7 +172,7 @@ class ListenerManagerTest  {
         manager = new ListenerManagerImpl();
         SchedulerListener[] listeners = new SchedulerListener[numListenersToTestOrderOf];
         for (int i = 0; i < numListenersToTestOrderOf; i++) {
-            listeners[i] = new TestSchedulerListener();
+            listeners[i] = new SchedulerListener(){};
             manager.addSchedulerListener(listeners[i]);
         }
         List<SchedulerListener> mls = manager.getSchedulerListeners();

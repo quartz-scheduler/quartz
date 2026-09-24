@@ -36,36 +36,9 @@ import org.quartz.spi.SchedulerPlugin;
  */
 public class ShutdownHookPlugin implements SchedulerPlugin {
 
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     * 
-     * Data members.
-     * 
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
-
     private boolean cleanShutdown = true;
 
     private final Logger log = LoggerFactory.getLogger(getClass());
-    
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     * 
-     * Constructors.
-     * 
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
-
-    public ShutdownHookPlugin() {
-    }
-
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     * 
-     * Interface.
-     * 
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
 
     /**
      * Determine whether or not the plug-in is configured to cause a clean
@@ -99,14 +72,6 @@ public class ShutdownHookPlugin implements SchedulerPlugin {
         return log;
     }
 
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     * 
-     * SchedulerPlugin Interface.
-     * 
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
-
     /**
      * <p>
      * Called during creation of the <code>Scheduler</code> in order to give
@@ -136,23 +101,4 @@ public class ShutdownHookPlugin implements SchedulerPlugin {
 
         Runtime.getRuntime().addShutdownHook(t);
     }
-
-    public void start() {
-        // do nothing.
-    }
-
-    /**
-     * <p>
-     * Called in order to inform the <code>SchedulerPlugin</code> that it
-     * should free up all of it's resources because the scheduler is shutting
-     * down.
-     * </p>
-     */
-    public void shutdown() {
-        // nothing to do in this case (since the scheduler is already shutting
-        // down)
-    }
-
 }
-
-// EOF
