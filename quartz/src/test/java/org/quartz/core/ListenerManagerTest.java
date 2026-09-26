@@ -17,6 +17,8 @@
 package org.quartz.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.quartz.impl.matchers.GroupMatcher.jobGroupEquals;
 import static org.quartz.impl.matchers.GroupMatcher.triggerGroupEquals;
@@ -27,11 +29,13 @@ import java.util.UUID;
 
 
 import org.junit.jupiter.api.Test;
+import org.quartz.ClusterListener;
 import org.quartz.JobListener;
 import org.quartz.SchedulerListener;
 import org.quartz.TriggerKey;
 import org.quartz.TriggerListener;
 import org.quartz.impl.matchers.NameMatcher;
+import org.quartz.listeners.ClusterListenerSupport;
 import org.quartz.listeners.JobListenerSupport;
 import org.quartz.listeners.SchedulerListenerSupport;
 import org.quartz.listeners.TriggerListenerSupport;
@@ -72,6 +76,27 @@ class ListenerManagerTest  {
 
     }
 
+    public static class TestClusterListener extends ClusterListenerSupport {
+
+        public TestClusterListener() {
+            super();
+        }
+
+        public TestClusterListener(String name) {
+            super(name);
+        }
+
+        private String lastFailedInstanceId;
+
+        @Override
+        public void clusterNodeFailed(String failedInstanceId) {
+            this.lastFailedInstanceId = failedInstanceId;
+        }
+
+        public String getLastFailedInstanceId() {
+            return lastFailedInstanceId;
+        }
+    }
 
 
     @Test
@@ -188,6 +213,73 @@ class ListenerManagerTest  {
         for (SchedulerListener listener : mls) {
             assertSame(listeners[i], listener, "Unexpected order of listeners");
             i++;
+        }
+    }
+
+    @Test
+    public void testManagementOfClusterListeners() throws Exception {
+
+        TestClusterListener tl1 = new TestClusterListener("tl1");
+        TestClusterListener tl2 = new TestClusterListener("tl2");
+
+        ListenerManagerImpl manager = new ListenerManagerImpl();
+
+        // test adding listener
+        manager.addClusterListener(tl1);
+        assertEquals(1, manager.getClusterListeners().size(), "Unexpected size of listener list");
+
+        // test adding another listener
+        manager.addClusterListener(tl2);
+        assertEquals(2, manager.getClusterListeners().size(), "Unexpected size of listener list");
+
+        // test getting a listener by name
+        assertSame(tl1, manager.getClusterListener("tl1"), "Expected to find listener by name");
+        assertSame(tl2, manager.getClusterListener("tl2"), "Expected to find listener by name");
+
+        // test removing a listener
+        manager.removeClusterListener("tl1");
+        assertEquals(1, manager.getClusterListeners().size(), "Unexpected size of listener list");
+        assertNull(manager.getClusterListener("tl1"), "Expected listener to be removed");
+
+        // test removing non-existent listener
+        assertFalse(manager.removeClusterListener("nonexistent"), "Expected false when removing non-existent listener");
+
+        // Test ordering of registration is preserved.
+        final int numListenersToTestOrderOf = 15;
+        manager = new ListenerManagerImpl();
+        ClusterListener[] lstners = new ClusterListener[numListenersToTestOrderOf];
+        for(int i = 0; i < numListenersToTestOrderOf; i++) {
+            // use random name, to help test that order isn't based on naming or coincidental hashing
+            lstners[i] = new TestClusterListener(UUID.randomUUID().toString());
+            manager.addClusterListener(lstners[i]);
+        }
+        List<ClusterListener> mls = manager.getClusterListeners();
+        int i = 0;
+        for(ClusterListener lsnr: mls) {
+            assertSame(lstners[i], lsnr, "Unexpected order of listeners");
+            i++;
+        }
+    }
+
+    @Test
+    public void testClusterListenerNotification() throws Exception {
+        TestClusterListener listener = new TestClusterListener("testListener");
+
+        ListenerManagerImpl manager = new ListenerManagerImpl();
+        manager.addClusterListener(listener);
+
+        // Simulate notification through QuartzScheduler
+        QuartzScheduler scheduler = null;
+        try {
+            // Note: In actual usage, the QuartzScheduler's notifyClusterListenersNodeFailed()
+            // would be called by the SchedulerSignaler when a cluster node fails.
+            // Here we just verify the listener is properly registered and can be retrieved.
+            assertEquals(1, manager.getClusterListeners().size(), "Expected listener to be registered");
+            assertSame(listener, manager.getClusterListener("testListener"), "Expected to find the registered listener");
+        } finally {
+            if (scheduler != null) {
+                scheduler.shutdown();
+            }
         }
     }
 

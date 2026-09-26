@@ -42,6 +42,7 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 import org.quartz.Calendar;
+import org.quartz.ClusterListener;
 import org.quartz.InterruptableJob;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
@@ -155,6 +156,8 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
     private final HashMap<String, TriggerListener> internalTriggerListeners = new HashMap<>(10);
 
     private final ArrayList<SchedulerListener> internalSchedulerListeners = new ArrayList<>(10);
+
+    private final ArrayList<ClusterListener> internalClusterListeners = new ArrayList<>(10);
 
     private JobFactory jobFactory = new PropertySettingJobFactory();
     
@@ -1778,6 +1781,59 @@ J     *
         }
     }
 
+    /**
+     * <p>
+     * Register the given <code>{@link ClusterListener}</code> with the
+     * <code>Scheduler</code>'s list of internal listeners.
+     * </p>
+     */
+    public void addInternalClusterListener(ClusterListener clusterListener) {
+        synchronized (internalClusterListeners) {
+            internalClusterListeners.add(clusterListener);
+        }
+    }
+
+    /**
+     * <p>
+     * Remove the given <code>{@link ClusterListener}</code> from the
+     * <code>Scheduler</code>'s list of internal listeners.
+     * </p>
+     *
+     * @return true if the identified listener was found in the list, and
+     *         removed.
+     */
+    public boolean removeInternalClusterListener(ClusterListener clusterListener) {
+        synchronized (internalClusterListeners) {
+            return internalClusterListeners.remove(clusterListener);
+        }
+    }
+
+    /**
+     * <p>
+     * Get a List containing all of the <i>internal</i> <code>{@link ClusterListener}</code>s
+     * registered with the <code>Scheduler</code>.
+     * </p>
+     */
+    public List<ClusterListener> getInternalClusterListeners() {
+        synchronized (internalClusterListeners) {
+            return java.util.Collections.unmodifiableList(new ArrayList<>(internalClusterListeners));
+        }
+    }
+
+    public void notifyClusterListenersNodeFailed(String failedInstanceId) {
+        // build a list of all cluster listeners that are to be notified...
+        List<ClusterListener> clusterListeners = buildClusterListenerList();
+
+        // notify all cluster listeners
+        for(ClusterListener cl: clusterListeners) {
+            try {
+                cl.clusterNodeFailed(failedInstanceId);
+            } catch (Exception e) {
+                getLog().error("Error while notifying ClusterListener of failed node: {}", failedInstanceId, e);
+            }
+        }
+    }
+
     protected void notifyJobStoreJobComplete(OperableTrigger trigger, JobDetail detail, CompletedExecutionInstruction instCode) {
         resources.getJobStore().triggeredJobComplete(trigger, detail, instCode);
     }
@@ -1817,7 +1873,15 @@ J     *
     
         return allListeners;
     }
-    
+
+    private List<ClusterListener> buildClusterListenerList() {
+        List<ClusterListener> allListeners = new LinkedList<>();
+        allListeners.addAll(getListenerManager().getClusterListeners());
+        allListeners.addAll(getInternalClusterListeners());
+
+        return allListeners;
+    }
+
     private boolean matchJobListener(JobListener listener, JobKey key) {
         List<Matcher<JobKey>> matchers = getListenerManager().getJobListenerMatchers(listener.getName());
         if(matchers == null)
