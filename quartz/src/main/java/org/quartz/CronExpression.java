@@ -1236,6 +1236,12 @@ public final class CronExpression implements Serializable, Cloneable {
             if (min != t) {
                 cl.set(Calendar.SECOND, 0);
                 cl.set(Calendar.MINUTE, min);
+                if (cl.getTime().after(afterTime)) {
+                    // The calendar jumped ahead of afterTime (e.g. DST fall-back
+                    // resolving to the later occurrence), so restart the search
+                    // from this occurrence instead of advancing the hour
+                    continue;
+                }
                 setCalendarHour(cl, hr);
                 continue;
             }
@@ -1543,9 +1549,15 @@ public final class CronExpression implements Serializable, Cloneable {
      */
     protected void setCalendarHour(Calendar cal, int hour) {
         cal.set(java.util.Calendar.HOUR_OF_DAY, hour);
-        if (cal.get(java.util.Calendar.HOUR_OF_DAY) != hour && hour != 24) {
+        int hourOfDay = cal.get(java.util.Calendar.HOUR_OF_DAY);
+        if (hourOfDay > hour && hour != 24) {
+            // The requested wall clock hour does not exist because the clock
+            // jumped forward (DST start): schedule at the next existing hour
             cal.set(java.util.Calendar.HOUR_OF_DAY, hour + 1);
         }
+        // When the clock fell back below the requested hour (DST end), the
+        // calendar now points at the repeated hour, which is the next time
+        // the requested wall clock time is reached
     }
 
     /**

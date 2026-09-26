@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.text.ParseException;
+import java.time.Instant;
 import java.util.*;
 import java.util.Calendar;
 
@@ -905,6 +906,109 @@ public class CronExpressionTest extends SerializationTestSupport {
             assertEquals(correctFireTimes.get(i), nTime);
             lTime = nTime;
         }
+    }
+
+    @Test
+    public void testGetTimeAfterDuringDstFallBackOverlap() throws Exception {
+        // https://github.com/quartz-scheduler/quartz/issues/1138
+        // Africa/Casablanca ended DST on 2025-02-23 at 03:00+01:00 and fell back
+        // to 02:00+00:00, so local wall times in [02:00, 03:00) occurred twice that day.
+        TimeZone timeZone = TimeZone.getTimeZone("Africa/Casablanca");
+        CronExpression cronExpression = new CronExpression("29 5 2 23 2 ? 2025");
+        cronExpression.setTimeZone(timeZone);
+
+        // 02:45:10 at the first (+01:00) occurrence of the overlapping wall time
+        Date afterTime = Date.from(Instant.parse("2025-02-23T01:45:10Z"));
+        Calendar afterTimeCalendar = Calendar.getInstance(timeZone);
+        afterTimeCalendar.setTime(afterTime);
+        assertEquals(2, afterTimeCalendar.get(Calendar.HOUR_OF_DAY));
+        assertEquals(45, afterTimeCalendar.get(Calendar.MINUTE));
+
+        Date nextFireTime = cronExpression.getTimeAfter(afterTime);
+
+        // the fire time is the second (+00:00) occurrence of 02:05:29 local time
+        assertNotNull(nextFireTime);
+        assertEquals(Instant.parse("2025-02-23T02:05:29Z"), nextFireTime.toInstant());
+    }
+
+    @Test
+    public void testGetTimeAfterDuringDstFallBackOverlapUsEastern() throws Exception {
+        // US/Eastern ended DST on 2025-11-02 at 02:00-04:00 and fell back to
+        // 01:00-05:00, so local wall times in [01:00, 02:00) occurred twice that day.
+        TimeZone timeZone = TimeZone.getTimeZone("US/Eastern");
+        CronExpression cronExpression = new CronExpression("0 30 1 2 11 ? 2025");
+        cronExpression.setTimeZone(timeZone);
+
+        // 01:45 at the first (-04:00) occurrence of the overlapping wall time
+        Date afterTime = Date.from(Instant.parse("2025-11-02T05:45:00Z"));
+
+        Date nextFireTime = cronExpression.getTimeAfter(afterTime);
+
+        // the fire time is the second (-05:00) occurrence of 01:30 local time
+        assertNotNull(nextFireTime);
+        assertEquals(Instant.parse("2025-11-02T06:30:00Z"), nextFireTime.toInstant());
+    }
+
+    @Test
+    public void testGetTimeAfterDuringDstFallBackNonOneHourShifts() throws Exception {
+        // A 30 minute fall-back shift (Australia/Lord_Howe +11:00 -> +10:30 on
+        // 2025-04-06) and a two hour shift (Antarctica/Troll +02:00 -> +00:00 on
+        // 2025-10-26) must both return the second occurrence of the fire time.
+        TimeZone lordHowe = TimeZone.getTimeZone("Australia/Lord_Howe");
+        CronExpression halfHourShift = new CronExpression("0 45 1 6 4 ? 2025");
+        halfHourShift.setTimeZone(lordHowe);
+        Date afterHalfHour = Date.from(Instant.parse("2025-04-05T14:50:00Z"));
+        Date nextHalfHour = halfHourShift.getTimeAfter(afterHalfHour);
+        assertNotNull(nextHalfHour);
+        assertEquals(Instant.parse("2025-04-05T15:15:00Z"), nextHalfHour.toInstant());
+
+        TimeZone troll = TimeZone.getTimeZone("Antarctica/Troll");
+        CronExpression twoHourShift = new CronExpression("0 15 2 26 10 ? 2025");
+        twoHourShift.setTimeZone(troll);
+        Date afterTwoHour = Date.from(Instant.parse("2025-10-26T01:45:00Z"));
+        Date nextTwoHour = twoHourShift.getTimeAfter(afterTwoHour);
+        // afterTime already skips the first occurrence of the repeated 02:15
+        // local time (+02:00 = 00:15Z), so the expected fire time is the
+        // intentionally selected later occurrence (+00:00 = 02:15Z)
+        assertNotNull(nextTwoHour);
+        assertEquals(Instant.parse("2025-10-26T02:15:00Z"), nextTwoHour.toInstant());
+    }
+
+    @Test
+    public void testGetTimeAfterDuringDstFallBackAtMidnight() throws Exception {
+        // America/Santiago falls back at midnight (2025-04-05 24:00 -03:00 ->
+        // 23:00 -04:00), so the wall time 23:45 occurs twice across the day
+        // boundary and the second occurrence lands on the next UTC date.
+        TimeZone timeZone = TimeZone.getTimeZone("America/Santiago");
+        CronExpression cronExpression = new CronExpression("0 45 23 5 4 ? 2025");
+        cronExpression.setTimeZone(timeZone);
+
+        Date afterTime = Date.from(Instant.parse("2025-04-05T02:50:00Z"));
+
+        Date nextFireTime = cronExpression.getTimeAfter(afterTime);
+
+        assertNotNull(nextFireTime);
+        assertEquals(Instant.parse("2025-04-06T03:45:00Z"), nextFireTime.toInstant());
+    }
+
+    @Test
+    public void testGetTimeAfterDuringDstSpringForwardGap() throws Exception {
+        // US/Eastern started DST on 2025-03-09 at 02:00-05:00, jumping forward
+        // to 03:00-04:00, so local wall times in [02:00, 03:00) never occurred.
+        TimeZone timeZone = TimeZone.getTimeZone("US/Eastern");
+        Date afterTime = Date.from(Instant.parse("2025-03-09T06:00:00Z"));
+
+        // a fire time inside the gap is skipped and the next hour still fires
+        CronExpression spanningHours = new CronExpression("0 30 2-3 9 3 ? 2025");
+        spanningHours.setTimeZone(timeZone);
+        Date nextFireTime = spanningHours.getTimeAfter(afterTime);
+        assertNotNull(nextFireTime);
+        assertEquals(Instant.parse("2025-03-09T07:30:00Z"), nextFireTime.toInstant());
+
+        // a fire time only inside the gap does not fire at all
+        CronExpression gapOnly = new CronExpression("0 30 2 9 3 ? 2025");
+        gapOnly.setTimeZone(timeZone);
+        assertNull(gapOnly.getTimeAfter(afterTime));
     }
 
     // execute with version number to generate a new version's serialized form
