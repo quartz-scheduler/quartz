@@ -16,9 +16,11 @@
  */
 package org.quartz.plugins.interrupt;
 
-import java.util.concurrent.Executors;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.quartz.JobExecutionContext;
@@ -54,7 +56,7 @@ public class JobInterruptMonitorPlugin extends TriggerListenerSupport implements
     private ScheduledExecutorService executor;
 
     @SuppressWarnings("rawtypes")
-    private ScheduledFuture future;
+    private final ConcurrentMap<String, ScheduledFuture> futures = new ConcurrentHashMap<>();
 
     private Scheduler scheduler;
 
@@ -107,26 +109,29 @@ public class JobInterruptMonitorPlugin extends TriggerListenerSupport implements
         // Call the scheduleJobInterruptMonitor and capture the ScheduledFuture in context
         try {
             // Schedule Monitor only if the job wants AutoInterruptable functionality
-            if (context.getJobDetail().getJobDataMap().getBoolean(AUTO_INTERRUPTIBLE)) {
+            if (context.getMergedJobDataMap().getBoolean(AUTO_INTERRUPTIBLE)) {
                 JobInterruptMonitorPlugin monitorPlugin = (JobInterruptMonitorPlugin) context.getScheduler()
                         .getContext().get(JOB_INTERRUPT_MONITOR_KEY);
                 // Get the MaxRuntime from Job Data if NOT available use DEFAULT_MAX_RUNTIME from Plugin Configuration
                 long jobDataDelay  = DEFAULT_MAX_RUNTIME;
 
-                if (context.getJobDetail().getJobDataMap().get(MAX_RUN_TIME) != null){
-                     jobDataDelay = context.getJobDetail().getJobDataMap().getLong(MAX_RUN_TIME);
+                if (context.getMergedJobDataMap().get(MAX_RUN_TIME) != null){
+                     jobDataDelay = context.getMergedJobDataMap().getLong(MAX_RUN_TIME);
                 }
-                future = monitorPlugin.scheduleJobInterruptMonitor(context.getJobDetail().getKey(), jobDataDelay);
-                getLog().debug("Job's Interrupt Monitor has been scheduled to interrupt with the delay :{}", DEFAULT_MAX_RUNTIME);
+                ScheduledFuture<?> future = monitorPlugin.scheduleJobInterruptMonitor(context.getJobDetail().getKey(), jobDataDelay);
+                futures.put(context.getFireInstanceId(), future);
+                getLog().debug("Job's Interrupt Monitor has been scheduled to interrupt with the delay :{}", jobDataDelay);
             }
         } catch (SchedulerException e) {
             getLog().info("Error scheduling interrupt monitor {}", e.getMessage(), e);
         }
     }
 
+    @SuppressWarnings("rawtypes")
     public void triggerComplete(Trigger trigger, JobExecutionContext context,
             CompletedExecutionInstruction triggerInstructionCode) {
         // cancel the Future if job is complete
+        ScheduledFuture future = futures.remove(context.getFireInstanceId());
         if (future != null) {
             future.cancel(true);
         }
@@ -137,7 +142,9 @@ public class JobInterruptMonitorPlugin extends TriggerListenerSupport implements
 
         getLog().info("Registering Job Interrupt Monitor Plugin");
         this.name = name;
-        this.executor = Executors.newScheduledThreadPool(1);
+        ScheduledThreadPoolExecutor threadPoolExecutor = new ScheduledThreadPoolExecutor(1);
+        threadPoolExecutor.setRemoveOnCancelPolicy(true);
+        this.executor = threadPoolExecutor;
         scheduler.getContext().put(JOB_INTERRUPT_MONITOR_KEY, this);
         this.scheduler = scheduler;
         // Set the trigger Listener as this class to the ListenerManager here
