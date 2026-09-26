@@ -27,8 +27,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InvalidClassException;
 import java.io.NotSerializableException;
+import java.io.ObjectOutputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -70,6 +76,49 @@ public class StdJDBCDelegateTest  {
         } catch (NotSerializableException e) {
             assertTrue(e.getMessage().indexOf("key3") >= 0);
         }
+    }
+
+    @Test
+    void testReadObjectFromBinaryStreamWithoutFilterIsBehaviorPreserving() throws Exception {
+        StdJDBCDelegate delegate = new StdJDBCDelegate();
+        delegate.initialize(LoggerFactory.getLogger(getClass()), "QRTZ_", "TESTSCHED", "INSTANCE", new SimpleClassLoadHelper(), false, "");
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("key", "value");
+        data.put("count", 42);
+
+        Object read = delegate.readObjectFromBinaryStream(new ByteArrayInputStream(serialize(data)));
+        assertEquals(data, read);
+    }
+
+    @Test
+    void testReadObjectFromBinaryStreamAppliesConfiguredFilter() throws Exception {
+        StdJDBCDelegate delegate = new StdJDBCDelegate();
+        // Restrict deserialization to the JDK types a job-data map round-trips, rejecting anything else.
+        delegate.initialize(LoggerFactory.getLogger(getClass()), "QRTZ_", "TESTSCHED", "INSTANCE", new SimpleClassLoadHelper(), false,
+                "objectInputFilter=java.util.*;java.lang.*;!*");
+
+        // A legitimate, allow-listed payload still deserializes unchanged.
+        Map<String, Object> data = new HashMap<>();
+        data.put("key", "value");
+        assertEquals(data, delegate.readObjectFromBinaryStream(new ByteArrayInputStream(serialize(data))));
+
+        // A class outside the allow-list is rejected by the filter before it is constructed.
+        byte[] disallowed = serialize(new UnexpectedType());
+        assertThrows(InvalidClassException.class,
+                () -> delegate.readObjectFromBinaryStream(new ByteArrayInputStream(disallowed)));
+    }
+
+    private static byte[] serialize(Object obj) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+            oos.writeObject(obj);
+        }
+        return baos.toByteArray();
+    }
+
+    private static class UnexpectedType implements java.io.Serializable {
+        private static final long serialVersionUID = 1L;
     }
 
     @Test

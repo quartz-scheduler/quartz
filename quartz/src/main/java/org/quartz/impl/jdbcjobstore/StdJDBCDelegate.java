@@ -28,6 +28,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.NotSerializableException;
+import java.io.ObjectInputFilter;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
@@ -96,7 +97,16 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
     protected String schedName;
 
     protected boolean useProperties;
-    
+
+    /**
+     * Optional look-ahead deserialization filter (JEP 290) applied to every object
+     * read back from a JDBCJobStore BLOB (job data map, trigger, calendar). Configured
+     * via the delegate init-string setting {@code objectInputFilter=<pattern>} (see
+     * {@link #initialize}). When {@code null} (the default), deserialization behavior
+     * is unchanged.
+     */
+    protected ObjectInputFilter objectInputFilter;
+
     protected ClassLoadHelper classLoadHelper;
 
     protected final List<TriggerPersistenceDelegate> triggerPersistenceDelegates = new LinkedList<>();
@@ -148,7 +158,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         String[] settings = initString.split("\\|");
         
         for(String setting: settings) {
-            String[] parts = setting.split("=");
+            String[] parts = setting.split("=", 2);
             String name = parts[0];
             if(parts.length == 1 || parts[1] == null || parts[1].isEmpty())
                 continue;
@@ -164,6 +174,9 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
                         throw new NoSuchDelegateException("Error instantiating TriggerPersistenceDelegate of type: " + trigDelClassName, e);
                     } 
                 }
+            }
+            else if(name.equals("objectInputFilter")) {
+                this.objectInputFilter = ObjectInputFilter.Config.createFilter(parts[1]);
             }
             else
                 throw new NoSuchDelegateException("Unknown setting: '" + name + "'");
@@ -3426,14 +3439,39 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
                     && ((ByteArrayInputStream) binaryInput).available() == 0 ) {
                     //do nothing
                 } else {
-                    try (ObjectInputStream in = new ObjectInputStream(binaryInput)) {
-                        obj = in.readObject();
-                    }
+                    obj = readObjectFromBinaryStream(binaryInput);
                 }
             }
 
         }
         return obj;
+    }
+
+    /**
+     * Deserialize an object from the given binary stream, applying the configured
+     * {@link ObjectInputFilter} (if any) as a look-ahead deserialization guard
+     * (JEP 290). This is the single choke point through which every JDBCJobStore
+     * BLOB (job data map, trigger, calendar) is deserialized, so that a filter can
+     * be enforced consistently across the base delegate and every database-specific
+     * subclass rather than being duplicated (or omitted) per delegate. When no
+     * filter is configured, behavior is identical to a plain {@code ObjectInputStream}.
+     *
+     * @param binaryInput
+     *          the stream containing the serialized object
+     * @return the deserialized Object
+     * @throws ClassNotFoundException
+     *           if a class found during deserialization cannot be found
+     * @throws IOException
+     *           if deserialization causes an error (including rejection by the filter)
+     */
+    protected Object readObjectFromBinaryStream(InputStream binaryInput)
+        throws ClassNotFoundException, IOException {
+        try (ObjectInputStream in = new ObjectInputStream(binaryInput)) {
+            if (objectInputFilter != null) {
+                in.setObjectInputFilter(objectInputFilter);
+            }
+            return in.readObject();
+        }
     }
 
     /**
