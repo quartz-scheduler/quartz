@@ -23,10 +23,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.quartz.management.ManagementRESTServiceConfiguration;
+import org.quartz.simpl.SimpleTimeBroker;
 import org.quartz.spi.JobStore;
 import org.quartz.spi.SchedulerPlugin;
 import org.quartz.spi.ThreadExecutor;
 import org.quartz.spi.ThreadPool;
+import org.quartz.spi.TimeBroker;
 
 /**
  * <p>
@@ -96,6 +98,8 @@ public class QuartzSchedulerResources {
 
     private boolean interruptJobsOnShutdown = false;
     private boolean interruptJobsOnShutdownWithWait = false;
+
+    private TimeBroker timeBroker = new SimpleTimeBroker();
     
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -583,4 +587,11 @@ public class QuartzSchedulerResources {
         this.managementRESTServiceConfiguration = managementRESTServiceConfiguration;
     }
 
+    public TimeBroker getTimeBroker() {
+        return timeBroker;
+    }
+
+    public void setTimeBroker(TimeBroker timeBroker) {
+        this.timeBroker = timeBroker;
+    }
 }

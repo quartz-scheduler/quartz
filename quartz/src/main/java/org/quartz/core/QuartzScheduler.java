@@ -179,7 +179,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
     private Date initialStart = null;
 
     private final Logger log = LoggerFactory.getLogger(getClass());
-    
+
     // private static final Map<String, ManagementServer> MGMT_SVR_BY_BIND = new
     // HashMap<String, ManagementServer>();
     // private String registeredManagementServerBind;
@@ -202,6 +202,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
      */
     public QuartzScheduler(QuartzSchedulerResources resources, long idleWaitTime, @Deprecated long dbRetryInterval)
         throws SchedulerException {
+        resources.getTimeBroker().initialize();
         this.resources = resources;
         if (resources.getJobStore() instanceof JobListener) {
             addInternalJobListener((JobListener)resources.getJobStore());
@@ -219,7 +220,7 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
         errLogger = new ErrorLogger();
         addInternalSchedulerListener(errLogger);
 
-        signaler = new SchedulerSignalerImpl(this, this.schedThread);
+        signaler = new SchedulerSignalerImpl(this, this.schedThread, resources.getTimeBroker());
 
         getLog().info("Quartz Scheduler v{} created.", getVersion());
     }
@@ -718,6 +719,12 @@ public class QuartzScheduler implements RemotableQuartzScheduler {
         shutdownPlugins();
 
         resources.getJobStore().shutdown();
+
+        try {
+            resources.getTimeBroker().shutdown();
+        } catch (Throwable t) {
+            getLog().warn("Error shutting down TimeBroker: {}", t.getMessage(), t);
+        }
 
         notifySchedulerListenersShutdown();
 
