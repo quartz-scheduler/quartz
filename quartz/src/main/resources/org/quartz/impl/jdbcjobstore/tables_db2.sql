@@ -68,6 +68,16 @@ create table qrtz_cron_triggers(
     foreign key (sched_name,trigger_name,trigger_group) references qrtz_triggers(sched_name,trigger_name,trigger_group)
 )
 
+create table qrtz_rrule_triggers(
+  sched_name varchar(120) not null,
+  trigger_name varchar(80) not null,
+  trigger_group varchar(80) not null,
+  rrule_expression varchar(200) not null,
+  time_zone_id varchar(80),
+    primary key (sched_name,trigger_name,trigger_group),
+    foreign key (sched_name,trigger_name,trigger_group) references qrtz_triggers(sched_name,trigger_name,trigger_group)
+)
+
 CREATE TABLE qrtz_simprop_triggers
   (          
     sched_name varchar(120) not null,

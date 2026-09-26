@@ -37,6 +37,9 @@ go
 IF OBJECT_ID('QRTZ_CRON_TRIGGERS') IS NOT NULL 
 delete from QRTZ_CRON_TRIGGERS
 go
+IF OBJECT_ID('QRTZ_RRULE_TRIGGERS') IS NOT NULL 
+delete from QRTZ_RRULE_TRIGGERS
+go
 IF OBJECT_ID('QRTZ_BLOB_TRIGGERS') IS NOT NULL 
 delete from QRTZ_BLOB_TRIGGERS
 go
@@ -60,6 +63,9 @@ go
 
 alter table QRTZ_CRON_TRIGGERS
 drop constraint FK_cron_triggers_triggers
+go
+alter table QRTZ_RRULE_TRIGGERS
+drop constraint FK_rrule_triggers_triggers
 go
 
 alter table QRTZ_SIMPLE_TRIGGERS
@@ -92,6 +98,8 @@ drop table QRTZ_SIMPROP_TRIGGERS
 go
 drop table QRTZ_CRON_TRIGGERS
 go
+drop table QRTZ_RRULE_TRIGGERS
+go
 drop table QRTZ_BLOB_TRIGGERS
 go
 drop table QRTZ_TRIGGERS
@@ -117,6 +125,14 @@ SCHED_NAME varchar(120) not null,
 TRIGGER_NAME varchar(200) not null,
 TRIGGER_GROUP varchar(200) not null,
 CRON_EXPRESSION varchar(120) not null,
+TIME_ZONE_ID varchar(80) null,
+)
+go
+create table QRTZ_RRULE_TRIGGERS (
+SCHED_NAME varchar(120) not null,
+TRIGGER_NAME varchar(200) not null,
+TRIGGER_GROUP varchar(200) not null,
+RRULE_EXPRESSION varchar(200) not null,
 TIME_ZONE_ID varchar(80) null,
 )
 go
@@ -241,6 +257,9 @@ go
 alter table QRTZ_CRON_TRIGGERS
 add constraint PK_qrtz_cron_triggers primary key clustered (SCHED_NAME,TRIGGER_NAME, TRIGGER_GROUP)
 go
+alter table QRTZ_RRULE_TRIGGERS
+add constraint PK_qrtz_rrule_triggers primary key clustered (SCHED_NAME,TRIGGER_NAME, TRIGGER_GROUP)
+go
 
 alter table QRTZ_FIRED_TRIGGERS
 add constraint PK_qrtz_fired_triggers primary key clustered (SCHED_NAME,ENTRY_ID)
@@ -285,6 +304,10 @@ go
 
 alter table QRTZ_CRON_TRIGGERS
 add constraint FK_cron_triggers_triggers foreign key (SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP)
+references QRTZ_TRIGGERS (SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP)
+go
+alter table QRTZ_RRULE_TRIGGERS
+add constraint FK_rrule_triggers_triggers foreign key (SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP)
 references QRTZ_TRIGGERS (SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP)
 go
 

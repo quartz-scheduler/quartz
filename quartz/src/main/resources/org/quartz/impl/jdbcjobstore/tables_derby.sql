@@ -39,6 +39,20 @@
 -- drop table qrtz_job_details;
 -- drop table qrtz_calendars;
 
+-- Auto drop and reset tables 
+-- Derby doesn't support if exists condition on table drop, so user must manually do this step if needed to.
+-- drop table qrtz_fired_triggers;
+-- drop table qrtz_paused_trigger_grps;
+-- drop table qrtz_scheduler_state;
+-- drop table qrtz_locks;
+-- drop table qrtz_simple_triggers;
+-- drop table qrtz_simprop_triggers;
+-- drop table qrtz_rrule_triggers;
+-- drop table qrtz_blob_triggers;
+-- drop table qrtz_triggers;
+-- drop table qrtz_job_details;
+-- drop table qrtz_calendars;
+
 create table qrtz_job_details (
 sched_name varchar(120) not null,
 job_name varchar(200) not null,
@@ -90,6 +104,15 @@ sched_name varchar(120) not null,
 trigger_name varchar(200) not null,
 trigger_group varchar(200) not null,
 cron_expression varchar(120) not null,
+time_zone_id varchar(80),
+primary key (sched_name,trigger_name,trigger_group),
+foreign key (sched_name,trigger_name,trigger_group) references qrtz_triggers(sched_name,trigger_name,trigger_group)
+);
+create table qrtz_rrule_triggers(
+sched_name varchar(120) not null,
+trigger_name varchar(200) not null,
+trigger_group varchar(200) not null,
+rrule_expression varchar(200) not null,
 time_zone_id varchar(80),
 primary key (sched_name,trigger_name,trigger_group),
 foreign key (sched_name,trigger_name,trigger_group) references qrtz_triggers(sched_name,trigger_name,trigger_group)
