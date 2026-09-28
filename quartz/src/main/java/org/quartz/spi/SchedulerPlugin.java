@@ -49,15 +49,6 @@ import org.quartz.SchedulerException;
  * @author James House
  */
 public interface SchedulerPlugin {
-
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     * 
-     * Interface.
-     * 
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
-
     /**
      * <p>
      * Called during creation of the <code>Scheduler</code> in order to give
@@ -87,8 +78,8 @@ public interface SchedulerPlugin {
      * @throws org.quartz.SchedulerConfigException
      *           if there is an error initializing.
      */
-    void initialize(String name, Scheduler scheduler, ClassLoadHelper loadHelper)
-        throws SchedulerException;
+    default void initialize(String name, Scheduler scheduler, ClassLoadHelper loadHelper)
+        throws SchedulerException {}
 
     /**
      * <p>
@@ -97,7 +88,7 @@ public interface SchedulerPlugin {
      * needs to.
      * </p>
      */
-    void start();
+    default void start(){}
 
     /**
      * <p>
@@ -106,6 +97,6 @@ public interface SchedulerPlugin {
      * down.
      * </p>
      */
-    void shutdown();
+    default void shutdown(){}
 
 }
