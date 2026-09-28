@@ -123,6 +123,27 @@ public class MSSQLDelegate extends StdJDBCDelegate {
             closeStatement(ps);
         }      
     }
+
+    /**
+     * Bind INSTANCE_NAME as NVARCHAR so the clustered PK on
+     * QRTZ_SCHEDULER_STATE can be used. {@code setString} sends VARCHAR and
+     * SQL Server cannot seek the NVARCHAR(200) key, which causes clustered
+     * check-in deadlocks.
+     */
+    @Override
+    public int updateSchedulerState(Connection conn, String theInstanceId, long checkInTime)
+        throws SQLException {
+        PreparedStatement ps = null;
+        try {
+            ps = conn.prepareStatement(rtp(UPDATE_SCHEDULER_STATE));
+            ps.setLong(1, checkInTime);
+            ps.setNString(2, theInstanceId);
+
+            return ps.executeUpdate();
+        } finally {
+            closeStatement(ps);
+        }
+    }
     
 }
 
