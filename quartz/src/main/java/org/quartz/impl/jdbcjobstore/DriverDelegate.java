@@ -607,6 +607,20 @@ public interface DriverDelegate {
 
     /**
      * <p>
+     * Check if there are more tiggers associated with a given job.
+     * </p>
+     *
+     * @param connection
+     * @param jobKey
+     * @return
+     * @throws SQLException
+     */
+     default boolean hasMoreTriggersForJob(Connection connection, JobKey jobKey) throws SQLException {
+        return selectNumTriggersForJob(connection, jobKey) > 0;
+     }
+
+    /**
+     * <p>
      * Select the job to which the trigger is associated.
      * </p>
      * 
