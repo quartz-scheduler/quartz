@@ -902,12 +902,24 @@ public abstract class JobStoreSupport implements JobStore, Constants {
     }
 
     protected long getMisfireTime() {
-        long misfireTime = System.currentTimeMillis();
+        long misfireTime = getSchedulingTime().getTime();
         if (getMisfireThreshold() > 0) {
             misfireTime -= getMisfireThreshold();
         }
 
         return (misfireTime > 0) ? misfireTime : 0;
+    }
+
+    private Date getSchedulingTime() {
+        try {
+            Date currentTime = schedSignaler.getCurrentTime();
+            if (currentTime == null) {
+                throw new SchedulerException("SchedulerSignaler returned null scheduling time");
+            }
+            return new Date(currentTime.getTime());
+        } catch (SchedulerException e) {
+            throw new IllegalStateException("Unable to obtain the current scheduling time", e);
+        }
     }
 
     /**
@@ -1003,7 +1015,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
 
             OperableTrigger trig = retrieveTrigger(conn, triggerKey);
 
-            long misfireTime = System.currentTimeMillis();
+            long misfireTime = getSchedulingTime().getTime();
             if (getMisfireThreshold() > 0) {
                 misfireTime -= getMisfireThreshold();
             }
@@ -1030,7 +1042,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
 
         schedSignaler.notifyTriggerListenersMisfired(trig);
 
-        trig.updateAfterMisfire(cal);
+        trig.updateAfterMisfire(cal, getSchedulingTime());
 
         if (trig.getNextFireTime() == null) {
             storeTrigger(conn, trig,
@@ -1687,7 +1699,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                     trigs = getDelegate().selectTriggersForCalendar(conn, calName);
 
                     for(OperableTrigger trigger: trigs) {
-                        trigger.updateWithNewCalendar(calendar, getMisfireThreshold());
+                        trigger.updateWithNewCalendar(calendar, getMisfireThreshold(), getSchedulingTime());
                         storeTrigger(conn, trigger, null, true, STATE_WAITING, false, false);
                     }
                 }
@@ -2346,7 +2358,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
 
             boolean misfired = false;
 
-            if (schedulerRunning && status.getNextFireTime().before(new Date())) {
+            if (schedulerRunning && status.getNextFireTime().before(getSchedulingTime())) {
                 misfired = updateMisfiredTrigger(conn, key,
                     newState, true);
             }
@@ -2843,7 +2855,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
                     getDelegate().insertFiredTrigger(conn, nextTrigger, STATE_ACQUIRED, null);
 
                     if(acquiredTriggers.isEmpty()) {
-                        batchEnd = Math.max(nextFireTime.getTime(), System.currentTimeMillis()) + timeWindow;
+                        batchEnd = Math.max(nextFireTime.getTime(), getSchedulingTime().getTime()) + timeWindow;
                     }
                     acquiredTriggers.add(nextTrigger);
                 }
@@ -3028,7 +3040,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         job.getJobDataMap().clearDirtyFlag();
 
         return new TriggerFiredBundle(job, trigger, cal, trigger.getKey().getGroup()
-                .equals(Scheduler.DEFAULT_RECOVERY_GROUP), new Date(), trigger
+                .equals(Scheduler.DEFAULT_RECOVERY_GROUP), getSchedulingTime(), trigger
                 .getPreviousFireTime(), prevFireTime, trigger.getNextFireTime());
     }
 

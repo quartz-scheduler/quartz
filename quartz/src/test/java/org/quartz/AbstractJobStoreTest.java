@@ -105,6 +105,29 @@ public abstract class AbstractJobStoreTest  {
 
     protected abstract Map<String, ? extends JobStore> stores();
 
+    protected void applyMisfires(JobStore jobStore, long noLaterThan) throws Exception {
+        jobStore.acquireNextTriggers(noLaterThan, 1, 0L);
+    }
+
+    @Test
+    void testMisfireUsesSchedulingTimeFromSignaler() throws Exception {
+        Date triggerTime = new Date(System.currentTimeMillis() + 86_400_000L);
+        Date schedulingTime = new Date(triggerTime.getTime() + 300_000L);
+        OperableTrigger trigger = new SimpleTriggerImpl(
+                "brokerMisfire", "triggerGroup1", this.fJobDetail.getName(),
+                this.fJobDetail.getGroup(), triggerTime, null, 0, 0L);
+        trigger.setMisfireInstruction(SimpleTrigger.MISFIRE_INSTRUCTION_FIRE_NOW);
+        trigger.computeFirstFireTime(null);
+        this.fJobStore.storeTrigger(trigger, false);
+
+        this.fSignaler.setCurrentTime(schedulingTime);
+
+        applyMisfires(this.fJobStore, schedulingTime.getTime() + 1_000L);
+
+        assertEquals(schedulingTime,
+                this.fJobStore.retrieveTrigger(trigger.getKey()).getNextFireTime());
+    }
+
     @SuppressWarnings("deprecation")
     @Test
     void testAcquireNextTrigger() throws Exception {
@@ -834,7 +857,19 @@ public abstract class AbstractJobStoreTest  {
 
     public static class SampleSignaler implements SchedulerSignaler {
         volatile int fMisfireCount = 0;
+        private volatile Date currentTime;
 
+        public void setCurrentTime(Date currentTime) {
+            this.currentTime = currentTime;
+        }
+
+        @Override
+        public Date getCurrentTime() {
+            Date configuredTime = currentTime;
+            return configuredTime == null ? new Date() : new Date(configuredTime.getTime());
+        }
+
+        @Override
         public void notifyTriggerListenersMisfired(Trigger trigger) {
         	System.out.println("Trigger misfired: " + trigger.getKey() + ", fire time: " + trigger.getNextFireTime());
             fMisfireCount++;

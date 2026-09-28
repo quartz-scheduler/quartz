@@ -470,6 +470,11 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
      */
     @Override
     public void updateAfterMisfire(org.quartz.Calendar cal) {
+        updateAfterMisfire(cal, new Date());
+    }
+
+    @Override
+    public void updateAfterMisfire(org.quartz.Calendar cal, Date now) {
         int instr = getMisfireInstruction();
 
         if(instr == Trigger.MISFIRE_INSTRUCTION_IGNORE_MISFIRE_POLICY)
@@ -480,7 +485,7 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
         }
 
         if (instr == MISFIRE_INSTRUCTION_DO_NOTHING) {
-            Date newFireTime = getFireTimeAfter(new Date());
+            Date newFireTime = getFireTimeAfter(now);
             while (newFireTime != null && cal != null
                     && !cal.isTimeIncluded(newFireTime.getTime())) {
                 newFireTime = getFireTimeAfter(newFireTime);
@@ -488,7 +493,7 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
             setNextFireTime(newFireTime);
         } else if (instr == MISFIRE_INSTRUCTION_FIRE_ONCE_NOW) { 
             // fire once now...
-            setNextFireTime(new Date());
+            setNextFireTime(now);
             // the new fire time afterward will magically preserve the original  
             // time of day for firing for day/week/month interval triggers, 
             // because of the way getFireTimeAfter() works - in its always restarting
@@ -537,13 +542,18 @@ public class CalendarIntervalTriggerImpl extends AbstractTrigger<CalendarInterva
     @Override
     public void updateWithNewCalendar(org.quartz.Calendar calendar, long misfireThreshold)
     {
+        updateWithNewCalendar(calendar, misfireThreshold, new Date());
+    }
+
+    @Override
+    public void updateWithNewCalendar(org.quartz.Calendar calendar, long misfireThreshold, Date now)
+    {
         nextFireTime = getFireTimeAfter(previousFireTime);
 
         if (nextFireTime == null || calendar == null) {
             return;
         }
         
-        Date now = new Date();
         while (nextFireTime != null && !calendar.isTimeIncluded(nextFireTime.getTime())) {
 
             nextFireTime = getFireTimeAfter(nextFireTime);
