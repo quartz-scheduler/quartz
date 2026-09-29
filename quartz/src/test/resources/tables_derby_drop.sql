@@ -34,6 +34,7 @@ drop table qrtz_locks;
 drop table qrtz_simple_triggers;
 drop table qrtz_simprop_triggers;
 drop table qrtz_cron_triggers;
+drop table qrtz_rrule_triggers;
 drop table qrtz_blob_triggers;
 drop table qrtz_triggers;
 drop table qrtz_job_details;

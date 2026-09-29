@@ -283,6 +283,13 @@ public interface StdJDBCConstants extends Constants {
             + COL_CRON_EXPRESSION + ", " + COL_TIME_ZONE_ID + ") "
             + " VALUES(" + SCHED_NAME_SUBST + ", ?, ?, ?, ?)";
 
+    String INSERT_RRULE_TRIGGER = "INSERT INTO "
+            + TABLE_PREFIX_SUBST + TABLE_RRULE_TRIGGERS + " ("
+            + COL_SCHEDULER_NAME + ", "
+            + COL_TRIGGER_NAME + ", " + COL_TRIGGER_GROUP + ", "
+            + COL_RRULE_EXPRESSION + ", " + COL_TIME_ZONE_ID + ") "
+            + " VALUES(" + SCHED_NAME_SUBST + ", ?, ?, ?, ?)";
+
     String INSERT_BLOB_TRIGGER = "INSERT INTO "
             + TABLE_PREFIX_SUBST + TABLE_BLOB_TRIGGERS + " ("
             + COL_SCHEDULER_NAME + ", "
@@ -326,6 +333,14 @@ public interface StdJDBCConstants extends Constants {
             + TABLE_PREFIX_SUBST + TABLE_CRON_TRIGGERS + " SET "
             + COL_CRON_EXPRESSION + " = ?, " + COL_TIME_ZONE_ID  
             + " = ? WHERE " 
+            + COL_SCHEDULER_NAME + " = " + SCHED_NAME_SUBST
+            + " AND " + COL_TRIGGER_NAME
+            + " = ? AND " + COL_TRIGGER_GROUP + " = ?";
+
+    String UPDATE_RRULE_TRIGGER = "UPDATE "
+            + TABLE_PREFIX_SUBST + TABLE_RRULE_TRIGGERS + " SET "
+            + COL_RRULE_EXPRESSION + " = ?, " + COL_TIME_ZONE_ID
+            + " = ? WHERE "
             + COL_SCHEDULER_NAME + " = " + SCHED_NAME_SUBST
             + " AND " + COL_TRIGGER_NAME
             + " = ? AND " + COL_TRIGGER_GROUP + " = ?";
@@ -418,6 +433,11 @@ public interface StdJDBCConstants extends Constants {
             + COL_SCHEDULER_NAME + " = " + SCHED_NAME_SUBST
             + " AND " + COL_TRIGGER_NAME + " = ? AND " + COL_TRIGGER_GROUP + " = ?";
 
+    String DELETE_RRULE_TRIGGER = "DELETE FROM "
+            + TABLE_PREFIX_SUBST + TABLE_RRULE_TRIGGERS + " WHERE "
+            + COL_SCHEDULER_NAME + " = " + SCHED_NAME_SUBST
+            + " AND " + COL_TRIGGER_NAME + " = ? AND " + COL_TRIGGER_GROUP + " = ?";
+
     String DELETE_BLOB_TRIGGER = "DELETE FROM "
             + TABLE_PREFIX_SUBST + TABLE_BLOB_TRIGGERS + " WHERE "
             + COL_SCHEDULER_NAME + " = " + SCHED_NAME_SUBST
@@ -476,6 +496,11 @@ public interface StdJDBCConstants extends Constants {
 
     String SELECT_CRON_TRIGGER = "SELECT *" + " FROM "
             + TABLE_PREFIX_SUBST + TABLE_CRON_TRIGGERS + " WHERE "
+            + COL_SCHEDULER_NAME + " = " + SCHED_NAME_SUBST
+            + " AND " + COL_TRIGGER_NAME + " = ? AND " + COL_TRIGGER_GROUP + " = ?";
+
+    String SELECT_RRULE_TRIGGER = "SELECT *" + " FROM "
+            + TABLE_PREFIX_SUBST + TABLE_RRULE_TRIGGERS + " WHERE "
             + COL_SCHEDULER_NAME + " = " + SCHED_NAME_SUBST
             + " AND " + COL_TRIGGER_NAME + " = ? AND " + COL_TRIGGER_GROUP + " = ?";
 

@@ -15,6 +15,7 @@ DROP TABLE QRTZ_LOCKS;
 DROP TABLE QRTZ_SIMPLE_TRIGGERS;
 DROP TABLE QRTZ_SIMPROP_TRIGGERS;
 DROP TABLE QRTZ_CRON_TRIGGERS;
+DROP TABLE QRTZ_RRULE_TRIGGERS;
 DROP TABLE QRTZ_TRIGGERS;
 DROP TABLE QRTZ_JOB_DETAILS;
 DROP TABLE QRTZ_CALENDARS;
@@ -71,6 +72,15 @@ sched_name varchar(120) not null,
 trigger_name varchar(80) not null,
 trigger_group varchar(80) not null,
 cron_expression varchar(120) not null,
+time_zone_id varchar(80),
+primary key (sched_name,trigger_name,trigger_group),
+foreign key (sched_name,trigger_name,trigger_group) references qrtz_triggers(sched_name,trigger_name,trigger_group)
+);
+create table qrtz_rrule_triggers(
+sched_name varchar(120) not null,
+trigger_name varchar(80) not null,
+trigger_group varchar(80) not null,
+rrule_expression varchar(200) not null,
 time_zone_id varchar(80),
 primary key (sched_name,trigger_name,trigger_group),
 foreign key (sched_name,trigger_name,trigger_group) references qrtz_triggers(sched_name,trigger_name,trigger_group)

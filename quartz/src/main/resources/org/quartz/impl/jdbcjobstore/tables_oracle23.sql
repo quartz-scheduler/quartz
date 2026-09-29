@@ -12,6 +12,7 @@ delete from qrtz_fired_triggers;
 delete from qrtz_simple_triggers;
 delete from qrtz_simprop_triggers;
 delete from qrtz_cron_triggers;
+delete from qrtz_rrule_triggers;
 delete from qrtz_blob_triggers;
 delete from qrtz_triggers;
 delete from qrtz_job_details;
@@ -24,6 +25,7 @@ drop table qrtz_calendars;
 drop table qrtz_fired_triggers;
 drop table qrtz_blob_triggers;
 drop table qrtz_cron_triggers;
+drop table qrtz_rrule_triggers;
 drop table qrtz_simple_triggers;
 drop table qrtz_simprop_triggers;
 drop table qrtz_triggers;
@@ -90,6 +92,17 @@ CREATE TABLE qrtz_cron_triggers
     TIME_ZONE_ID VARCHAR2(80),
     CONSTRAINT QRTZ_CRON_TRIG_PK PRIMARY KEY (SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP),
     CONSTRAINT QRTZ_CRON_TRIG_TO_TRIG_FK FOREIGN KEY (SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP) 
+      REFERENCES QRTZ_TRIGGERS(SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP)
+);
+CREATE TABLE qrtz_rrule_triggers
+  (
+    SCHED_NAME VARCHAR2(120) NOT NULL,
+    TRIGGER_NAME VARCHAR2(200) NOT NULL,
+    TRIGGER_GROUP VARCHAR2(200) NOT NULL,
+    RRULE_EXPRESSION VARCHAR2(200) NOT NULL,
+    TIME_ZONE_ID VARCHAR2(80),
+    CONSTRAINT QRTZ_RRULE_TRIG_PK PRIMARY KEY (SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP),
+    CONSTRAINT QRTZ_RRULE_TRIG_TO_TRIG_FK FOREIGN KEY (SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP) 
       REFERENCES QRTZ_TRIGGERS(SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP)
 );
 CREATE TABLE qrtz_simprop_triggers

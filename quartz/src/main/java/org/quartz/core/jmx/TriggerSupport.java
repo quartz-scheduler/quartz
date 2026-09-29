@@ -174,6 +174,8 @@ public class TriggerSupport {
         OperableTrigger result;
         if(cData.containsKey("cronExpression")) {
             result = CronTriggerSupport.newTrigger(cData);
+        } else if(cData.containsKey("rruleExpression")) {
+            result = RRuleTriggerSupport.newTrigger(cData);
         } else {
             result = SimpleTriggerSupport.newTrigger(cData);
         }
@@ -184,6 +186,8 @@ public class TriggerSupport {
         OperableTrigger result;
         if(attrMap.containsKey("cronExpression")) {
             result = CronTriggerSupport.newTrigger(attrMap);
+        } else if(attrMap.containsKey("rruleExpression")) {
+            result = RRuleTriggerSupport.newTrigger(attrMap);
         } else {
             result = SimpleTriggerSupport.newTrigger(attrMap);
         }

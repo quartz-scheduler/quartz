@@ -6,6 +6,7 @@ DROP TABLE qrtz_paused_trigger_grps;
 DROP TABLE qrtz_calendars;
 DROP TABLE qrtz_blob_triggers;
 DROP TABLE qrtz_cron_triggers;
+DROP TABLE qrtz_rrule_triggers;
 DROP TABLE qrtz_simple_triggers;
 DROP TABLE qrtz_simprop_triggers;
 DROP TABLE qrtz_triggers;
@@ -83,6 +84,15 @@ create table qrtz_cron_triggers(
 	trigger_name varchar(80) not null,
 	trigger_group varchar(80) not null,
 	cron_expression varchar(120) not null,
+	time_zone_id varchar(80),
+primary key (sched_name,trigger_name,trigger_group),
+foreign key (sched_name,trigger_name,trigger_group) references qrtz_triggers(sched_name,trigger_name,trigger_group)
+);
+create table qrtz_rrule_triggers(
+    sched_name varchar(120) not null,
+	trigger_name varchar(80) not null,
+	trigger_group varchar(80) not null,
+	rrule_expression varchar(200) not null,
 	time_zone_id varchar(80),
 primary key (sched_name,trigger_name,trigger_group),
 foreign key (sched_name,trigger_name,trigger_group) references qrtz_triggers(sched_name,trigger_name,trigger_group)
