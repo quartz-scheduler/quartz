@@ -3245,6 +3245,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         boolean transOwner = false;
         boolean transStateOwner = false;
         boolean recovered = false;
+        List<String> failedInstanceIds = new ArrayList<>();
 
         Connection conn = getNonManagedTXConnection();
         try {
@@ -3273,6 +3274,12 @@ public abstract class JobStoreSupport implements JobStore, Constants {
     
                     clusterRecover(conn, failedRecords);
                     recovered = true;
+
+                    for (SchedulerStateRecord record : failedRecords) {
+                        if (!record.getSchedulerInstanceId().equals(getInstanceId())) {
+                            failedInstanceIds.add(record.getSchedulerInstanceId());
+                        }
+                    }
                 }
             }
             
@@ -3293,6 +3300,15 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         }
 
         firstCheckIn = false;
+
+        // Notify ClusterListeners of failed nodes
+        for (String failedInstanceId : failedInstanceIds) {
+            try {
+                schedSignaler.notifyClusterListenersNodeFailed(failedInstanceId);
+            } catch (Exception e) {
+                getLog().error("Error notifying cluster listeners of failed instance: {}", failedInstanceId, e);
+            }
+        }
 
         return recovered;
     }
@@ -3421,13 +3437,6 @@ public abstract class JobStoreSupport implements JobStore, Constants {
             logWarnIfNonZero(failedInstances.size(),
                     "ClusterManager: detected " + failedInstances.size()
                             + " failed or restarted instances.");
-
-            // Notify ClusterListeners of failed nodes
-            for (SchedulerStateRecord rec : failedInstances) {
-                if (!rec.getSchedulerInstanceId().equals(getInstanceId())) {
-                    schedSignaler.notifyClusterListenersNodeFailed(rec.getSchedulerInstanceId());
-                }
-            }
 
             try {
                 for (SchedulerStateRecord rec : failedInstances) {

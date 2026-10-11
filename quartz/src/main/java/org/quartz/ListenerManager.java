@@ -278,9 +278,12 @@ public interface ListenerManager {
     /**
      * Add the given <code>{@link ClusterListener}</code> to the <code>Scheduler</code>.
      *
+     * @throws UnsupportedOperationException if cluster listeners are not supported
      * @see ClusterListener
      */
-    void addClusterListener(ClusterListener clusterListener);
+    default void addClusterListener(ClusterListener clusterListener) {
+        throw new UnsupportedOperationException("Cluster listeners are not supported by this ListenerManager");
+    }
 
     /**
      * Remove the identified <code>{@link ClusterListener}</code> from the <code>Scheduler</code>.
@@ -288,17 +291,23 @@ public interface ListenerManager {
      * @return true if the identified listener was found in the list, and
      *         removed.
      */
-    boolean removeClusterListener(String name);
+    default boolean removeClusterListener(String name) {
+        return false;
+    }
 
     /**
      * Get a List containing all of the <code>{@link ClusterListener}</code>s
      * in the <code>Scheduler</code>, in the order in which they were registered.
      */
-    List<ClusterListener> getClusterListeners();
+    default List<ClusterListener> getClusterListeners() {
+        return java.util.Collections.emptyList();
+    }
 
     /**
      * Get the <code>{@link ClusterListener}</code> that has the given name.
      */
-    ClusterListener getClusterListener(String name);
+    default ClusterListener getClusterListener(String name) {
+        return null;
+    }
 
 }

@@ -16,10 +16,15 @@
  */
 package org.quartz.core;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.mock;
 import static org.quartz.impl.matchers.GroupMatcher.jobGroupEquals;
 import static org.quartz.impl.matchers.GroupMatcher.triggerGroupEquals;
 import static org.quartz.impl.matchers.NameMatcher.jobNameContains;
@@ -29,8 +34,10 @@ import java.util.UUID;
 
 
 import org.junit.jupiter.api.Test;
+import org.quartz.AbstractJobStoreTest.SampleSignaler;
 import org.quartz.ClusterListener;
 import org.quartz.JobListener;
+import org.quartz.ListenerManager;
 import org.quartz.SchedulerListener;
 import org.quartz.TriggerKey;
 import org.quartz.TriggerListener;
@@ -39,6 +46,7 @@ import org.quartz.listeners.ClusterListenerSupport;
 import org.quartz.listeners.JobListenerSupport;
 import org.quartz.listeners.SchedulerListenerSupport;
 import org.quartz.listeners.TriggerListenerSupport;
+import org.quartz.spi.SchedulerSignaler;
 
 /**
  * Test ListenerManagerImpl functionality 
@@ -214,6 +222,23 @@ class ListenerManagerTest  {
             assertSame(listeners[i], listener, "Unexpected order of listeners");
             i++;
         }
+    }
+
+    @Test
+    public void testClusterListenerDefaults() throws Exception {
+        assertTrue(SchedulerSignaler.class.getMethod("notifyClusterListenersNodeFailed", String.class).isDefault());
+        assertTrue(ListenerManager.class.getMethod("addClusterListener", ClusterListener.class).isDefault());
+        assertTrue(ListenerManager.class.getMethod("removeClusterListener", String.class).isDefault());
+        assertTrue(ListenerManager.class.getMethod("getClusterListeners").isDefault());
+        assertTrue(ListenerManager.class.getMethod("getClusterListener", String.class).isDefault());
+
+        assertDoesNotThrow(() -> new SampleSignaler().notifyClusterListenersNodeFailed("failed"));
+        ListenerManager manager = mock(ListenerManager.class, CALLS_REAL_METHODS);
+        assertTrue(manager.getClusterListeners().isEmpty());
+        assertNull(manager.getClusterListener("missing"));
+        assertFalse(manager.removeClusterListener("missing"));
+        assertThrows(UnsupportedOperationException.class,
+                () -> manager.addClusterListener(new TestClusterListener("listener")));
     }
 
     @Test
