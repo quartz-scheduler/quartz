@@ -40,6 +40,7 @@ import org.quartz.Trigger.CompletedExecutionInstruction;
  * 
  * @see org.quartz.TriggerListener
  */
+@Deprecated
 public abstract class TriggerListenerSupport implements TriggerListener {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -49,21 +50,5 @@ public abstract class TriggerListenerSupport implements TriggerListener {
      */
     protected Logger getLog() {
         return log;
-    }
-
-    public void triggerFired(Trigger trigger, JobExecutionContext context) {
-    }
-
-    public boolean vetoJobExecution(Trigger trigger, JobExecutionContext context) {
-        return false;
-    }
-
-    public void triggerMisfired(Trigger trigger) {
-    }
-
-    public void triggerComplete(
-        Trigger trigger,
-        JobExecutionContext context,
-        CompletedExecutionInstruction triggerInstructionCode) {
     }
 }

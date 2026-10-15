@@ -39,6 +39,7 @@ import org.quartz.JobExecutionException;
  * 
  * @see org.quartz.JobListener
  */
+@Deprecated
 public abstract class JobListenerSupport implements JobListener {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -48,14 +49,5 @@ public abstract class JobListenerSupport implements JobListener {
      */
     protected Logger getLog() {
         return log;
-    }
-
-    public void jobToBeExecuted(JobExecutionContext context) {
-    }
-
-    public void jobExecutionVetoed(JobExecutionContext context) {
-    }
-
-    public void jobWasExecuted(JobExecutionContext context, JobExecutionException jobException) {
     }
 }

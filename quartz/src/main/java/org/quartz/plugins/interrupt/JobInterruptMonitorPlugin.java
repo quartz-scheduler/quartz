@@ -23,13 +23,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.quartz.JobExecutionContext;
-import org.quartz.JobKey;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
+import org.quartz.*;
 import org.quartz.Trigger.CompletedExecutionInstruction;
-import org.quartz.listeners.TriggerListenerSupport;
 import org.quartz.spi.ClassLoadHelper;
 import org.quartz.spi.SchedulerPlugin;
 import org.slf4j.Logger;
@@ -45,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * @author Rama Chavali
  */
 
-public class JobInterruptMonitorPlugin extends TriggerListenerSupport implements SchedulerPlugin {
+public class JobInterruptMonitorPlugin implements SchedulerPlugin, TriggerListener {
 
     private static final String JOB_INTERRUPT_MONITOR_KEY = "JOB_INTERRUPT_MONITOR_KEY";
 
@@ -68,15 +63,7 @@ public class JobInterruptMonitorPlugin extends TriggerListenerSupport implements
 
     public static final String MAX_RUN_TIME = "MaxRunTime";
 
-    public JobInterruptMonitorPlugin() {
-    }
-
     @Override
-    public void start() {
-    }
-
-    @Override
-
     public void shutdown() {
         this.executor.shutdown();
     }

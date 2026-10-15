@@ -23,7 +23,6 @@ import org.quartz.impl.jdbcjobstore.JdbcQuartzTestUtilities;
 import org.quartz.impl.jdbcjobstore.JobStoreTX;
 import org.quartz.impl.jdbcjobstore.JdbcQuartzTestUtilities.DatabaseType;
 import org.quartz.*;
-import org.quartz.listeners.JobListenerSupport;
 import org.quartz.simpl.SimpleThreadPool;
 import org.quartz.utils.DBConnectionManager;
 import org.slf4j.Logger;
@@ -109,7 +108,7 @@ public class RecoverJobsTest {
             final AtomicBoolean isJobRecovered = new AtomicBoolean(false);
             factory.createScheduler(new SimpleThreadPool(1, Thread.NORM_PRIORITY), jobStore);
             Scheduler recovery = factory.getScheduler();
-            recovery.getListenerManager().addJobListener(new JobListenerSupport() {
+            recovery.getListenerManager().addJobListener(new JobListener() {
                 @Override
                 public String getName() {
                     return RecoverJobsTest.class.getSimpleName();

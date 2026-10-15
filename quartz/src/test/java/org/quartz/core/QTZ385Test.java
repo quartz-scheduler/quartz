@@ -26,20 +26,13 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-
 import org.junit.jupiter.api.Test;
-import org.quartz.JobBuilder;
-import org.quartz.JobExecutionContext;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.SimpleScheduleBuilder;
-import org.quartz.TriggerBuilder;
+import org.quartz.*;
 import org.quartz.impl.DirectSchedulerFactory;
 import org.quartz.impl.jdbcjobstore.JdbcQuartzTestUtilities;
 import org.quartz.impl.jdbcjobstore.JobStoreTX;
 import org.quartz.impl.jdbcjobstore.JdbcQuartzTestUtilities.DatabaseType;
 import org.quartz.integrations.tests.HelloJob;
-import org.quartz.listeners.JobListenerSupport;
 import org.quartz.simpl.SimpleThreadPool;
 import org.quartz.spi.JobStore;
 
@@ -111,7 +104,7 @@ class QTZ385Test {
       factory.createScheduler(new SimpleThreadPool(1, Thread.NORM_PRIORITY), realJobStore);
       Scheduler recovery = factory.getScheduler();
       try {
-        recovery.getListenerManager().addJobListener(new JobListenerSupport() {
+        recovery.getListenerManager().addJobListener(new JobListener() {
 
           @Override
           public String getName() {
@@ -135,6 +128,4 @@ class QTZ385Test {
         JdbcQuartzTestUtilities.destroyDatabase("testShutdownOrdering", DatabaseType.DERBY);
     }
   }
-  
-  
 }

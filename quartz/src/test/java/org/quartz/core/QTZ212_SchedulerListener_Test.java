@@ -28,7 +28,6 @@ import org.quartz.SchedulerFactory;
 import org.quartz.SchedulerListener;
 import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.listeners.BroadcastSchedulerListener;
-import org.quartz.listeners.SchedulerListenerSupport;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -78,7 +77,7 @@ class QTZ212_SchedulerListener_Test {
 		sched.shutdown();
 	}
 
-	public static class TestSchedulerListener extends SchedulerListenerSupport {
+	public static class TestSchedulerListener implements SchedulerListener {
 
 		@Override
 		public void schedulerStarted() {

@@ -24,7 +24,7 @@ import java.io.InputStreamReader;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
-import org.quartz.listeners.SchedulerListenerSupport;
+import org.quartz.SchedulerListener;
 
 /**
  * <p>
@@ -53,36 +53,11 @@ import org.quartz.listeners.SchedulerListenerSupport;
  *
  * @author James House
  */
-public class QuartzServer extends SchedulerListenerSupport {
-
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     *
-     * Data members.
-     *
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
-
+public class QuartzServer implements SchedulerListener {
     private Scheduler sched = null;
-
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     *
-     * Constructors.
-     *
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
 
     QuartzServer() {
     }
-
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     *
-     * Interface.
-     *
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
 
     public void serve(SchedulerFactory schedFact, boolean console)
         throws Exception {
@@ -121,14 +96,6 @@ public class QuartzServer extends SchedulerListenerSupport {
         }
     }
 
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     *
-     * SchedulerListener Interface.
-     *
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
-
     /**
      * <p>
      * Called by the <code>{@link Scheduler}</code> when a serious error has
@@ -161,20 +128,7 @@ public class QuartzServer extends SchedulerListenerSupport {
         sched = null;
     }
 
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     *
-     * Main Method.
-     *
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
-
     public static void main(String[] args) throws Exception {
-
-        //    //Configure Log4J
-        //    org.apache.log4j.PropertyConfigurator.configure(
-        //      System.getProperty("log4jConfigFile", "log4j.properties"));
-
         if (System.getSecurityManager() == null) {
             System.setSecurityManager(new java.rmi.RMISecurityManager());
         }
@@ -193,5 +147,4 @@ public class QuartzServer extends SchedulerListenerSupport {
             e.printStackTrace();
         }
     }
-
 }

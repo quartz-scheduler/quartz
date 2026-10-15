@@ -415,33 +415,12 @@ public class LoggingJobHistoryPlugin implements SchedulerPlugin, JobListener {
         scheduler.getListenerManager().addJobListener(this, EverythingMatcher.allJobs());
     }
 
-    public void start() {
-        // do nothing...
-    }
-
-    /**
-     * Called in order to inform the <code>SchedulerPlugin</code> that it
-     * should free up all of it's resources because the scheduler is shutting
-     * down.
-     */
-    public void shutdown() {
-        // nothing to do...
-    }
-
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      * 
      * JobListener Interface.
      * 
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
-
-    /*
-     * Object[] arguments = { new Integer(7), new
-     * Date(System.currentTimeMillis()), "a disturbance in the Force" };
-     * 
-     * String result = MessageFormat.format( "At {1,time} on {1,date}, there
-     * was {2} on planet {0,number,integer}.", arguments);
      */
 
     public String getName() {
