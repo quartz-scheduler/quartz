@@ -20,13 +20,26 @@ package org.quartz;
 
 import java.io.Serializable;
 import java.text.ParseException;
+import java.time.DateTimeException;
+import java.time.DayOfWeek;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
-import java.util.GregorianCalendar;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
 
@@ -41,10 +54,12 @@ import java.util.TreeSet;
  * {@link RRuleTrigger} should fire. Where a cron expression is self-contained,
  * an <code>RRULE</code> is defined relative to a start instant, the RFC&nbsp;5545
  * <code>DTSTART</code>. In Quartz that anchor is supplied by the owning
- * trigger's {@link Trigger#getStartTime() start-time} (or, for
- * {@link org.quartz.impl.calendar.RRuleCalendar}, by an explicit anchor). The
- * <code>DTSTART</code> also supplies the default value of any time component
- * (second, minute, hour) that the rule itself does not constrain.
+ * trigger's {@link Trigger#getStartTime() start-time}. The <code>DTSTART</code>
+ * also supplies the default value of any time component (second, minute, hour)
+ * and of the day (weekday, day of month, month) that the rule itself does not
+ * constrain. If no anchor is set (e.g. for an
+ * {@link org.quartz.impl.calendar.RRuleCalendar}), midnight of 1970-01-01 in the
+ * expression's time zone is used.
  * </p>
  *
  * <p>
@@ -76,8 +91,25 @@ import java.util.TreeSet;
  * ordinals such as <code>2MO</code> or <code>-1SU</code>), <code>BYHOUR</code>,
  * <code>BYMINUTE</code>, <code>BYSECOND</code> and <code>BYSETPOS</code>. The
  * <code>expand</code>/<code>limit</code> semantics of each part follow the table
- * in RFC&nbsp;5545 &sect;3.3.10.
+ * in RFC&nbsp;5545 &sect;3.3.10. Combinations that the RFC marks as N/A or
+ * forbids (e.g. <code>BYMONTHDAY</code> with <code>FREQ=WEEKLY</code>) are
+ * rejected with a {@link ParseException} rather than silently ignored.
  * </p>
+ *
+ * <p>
+ * Deviations from, and clarifications of, RFC&nbsp;5545:
+ * </p>
+ * <ul>
+ * <li>An <code>UNTIL</code> value without a trailing <code>Z</code> is
+ * interpreted in the expression's time zone (the RFC requires a UTC value when
+ * <code>DTSTART</code> has a time zone). A date-only <code>UNTIL</code> (e.g.
+ * <code>UNTIL=20260107</code>) includes the whole day.</li>
+ * <li><code>BYSECOND=60</code> (a leap second) is rejected, as Java time has no
+ * leap seconds.</li>
+ * <li>Local times that fall into a daylight-saving gap are shifted forward by
+ * the length of the gap; ambiguous local times (in a daylight-saving overlap)
+ * resolve to the first occurrence, as RFC&nbsp;5545 &sect;3.3.5 prescribes.</li>
+ * </ul>
  *
  * @see RRuleTrigger
  * @see RRuleScheduleBuilder
@@ -93,8 +125,17 @@ public final class RRuleExpression implements Serializable, Cloneable {
      */
     public static final int MAX_YEAR = Calendar.getInstance().get(Calendar.YEAR) + 100;
 
-    /** Safety bound on the number of recurrence periods scanned in a single call. */
-    private static final int MAX_PERIODS = 10_000_000;
+    /**
+     * Safety bound on the number of consecutive empty periods scanned in one
+     * call, after which the rule is treated as exhausted. It does not limit how
+     * far from the anchor a query can be (that is computed directly); it only
+     * stops rules that can never match, such as
+     * <code>FREQ=SECONDLY;INTERVAL=2;BYSECOND=5</code> (for an anchor on an even
+     * second), from scanning up to {@link #MAX_YEAR}. Empty days, hours and
+     * minutes of sub-daily rules are skipped as a whole, so rules that do match
+     * stay far below this bound.
+     */
+    private static final int MAX_EMPTY_PERIODS = 1_000_000;
 
     enum Freq {
         SECONDLY, MINUTELY, HOURLY, DAILY, WEEKLY, MONTHLY, YEARLY
@@ -122,12 +163,11 @@ public final class RRuleExpression implements Serializable, Cloneable {
     private Integer count;            // null == not present
     private int wkst = Calendar.MONDAY;
 
-    // UNTIL is stored as parsed wall-clock components plus a flag telling us
-    // whether it was expressed in UTC ("...Z"). This lets the effective instant
-    // be re-resolved whenever the time zone changes.
-    private boolean hasUntil;
+    // UNTIL is stored as its parsed wall-clock value plus a flag telling whether
+    // it was expressed in UTC ("...Z"). This lets the effective instant be
+    // re-resolved whenever the time zone changes.
+    private LocalDateTime until;      // null == not present
     private boolean untilUtc;
-    private int untilYear, untilMonth, untilDay, untilHour, untilMinute, untilSecond;
 
     private int[] byMonth;      // 1..12
     private int[] byWeekNo;     // -53..-1, 1..53
@@ -140,7 +180,14 @@ public final class RRuleExpression implements Serializable, Cloneable {
     private int[] bySetPos;     // -366..-1, 1..366
 
     private TimeZone timeZone = TimeZone.getDefault();
-    private Date startTime = new Date(0L); // DTSTART anchor; normally set by the trigger
+    private Date startTime; // DTSTART anchor; null == midnight 1970-01-01 local
+
+    // Derived evaluation state; rebuilt lazily whenever the time zone or the
+    // anchor changes.
+    private transient volatile Context context;
+    private transient CountCursor countCursor;  // guarded by this
+    private transient Context finalFireTimeContext; // guarded by this
+    private transient Long finalFireTime;       // guarded by this
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Construction.
@@ -175,7 +222,7 @@ public final class RRuleExpression implements Serializable, Cloneable {
             throw new AssertionError(e);
         }
         setTimeZone(expression.getTimeZone());
-        setStartTime(expression.getStartTime());
+        setStartTime(expression.startTime);
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -188,15 +235,12 @@ public final class RRuleExpression implements Serializable, Cloneable {
      * seconds.
      */
     public boolean isSatisfiedBy(Date date) {
-        Calendar test = Calendar.getInstance(getTimeZone(), Locale.US);
-        test.setTime(date);
-        test.set(Calendar.MILLISECOND, 0);
-        Date rounded = test.getTime();
-        if (rounded.before(startTimeSeconds())) {
+        long rounded = floorSecond(date.getTime());
+        if (rounded < context().anchor) {
             return false;
         }
-        Date next = getTimeAfter(new Date(rounded.getTime() - 1000L));
-        return next != null && next.equals(rounded);
+        Date next = getTimeAfter(new Date(rounded - 1000L));
+        return next != null && next.getTime() == rounded;
     }
 
     /** Returns the next date/time <i>at or after</i> the given date that satisfies the rule. */
@@ -209,14 +253,18 @@ public final class RRuleExpression implements Serializable, Cloneable {
      * satisfy the rule (used by {@link org.quartz.impl.calendar.RRuleCalendar}).
      */
     public Date getNextInvalidTimeAfter(Date date) {
-        Calendar cal = Calendar.getInstance(getTimeZone(), Locale.US);
-        cal.setTime(date);
-        cal.set(Calendar.MILLISECOND, 0);
-        long candidate = cal.getTimeInMillis() + 1000L; // step in whole seconds
-        Date last = getTimeAfter(new Date(candidate - 1000L));
-        while (last != null && last.getTime() == candidate) {
+        long candidate = floorSecond(date.getTime()) + 1000L; // step in whole seconds
+        if (count != null) {
+            Date next = getTimeAfter(new Date(candidate - 1000L));
+            while (next != null && next.getTime() == candidate) {
+                candidate += 1000L;
+                next = getTimeAfter(next);
+            }
+            return new Date(candidate);
+        }
+        Iterator<Long> it = occurrencesAfter(context(), candidate - 1000L);
+        while (it.hasNext() && it.next() == candidate) {
             candidate += 1000L;
-            last = getTimeAfter(new Date(candidate - 1000L));
         }
         return new Date(candidate);
     }
@@ -226,42 +274,16 @@ public final class RRuleExpression implements Serializable, Cloneable {
      * <code>null</code> if the rule will not fire again.
      */
     public Date getTimeAfter(Date afterTime) {
-        long after = floorSecond(afterTime.getTime());
-        long anchor = startTimeSeconds().getTime();
-        long lowerBound = Math.max(after, anchor - 1000L); // exclusive lower bound
-
-        Calendar untilCal = resolveUntil();
-        Long untilMillis = untilCal == null ? null : untilCal.getTimeInMillis();
-
+        Context ctx = context();
+        long lowerBound = Math.max(floorSecond(afterTime.getTime()), ctx.anchor - 1000L); // exclusive
+        Long next;
         if (count != null) {
-            // COUNT rules must be enumerated from the anchor.
-            long emitted = 0;
-            for (long occ : new OccurrenceScan(anchor)) {
-                if (count != null && emitted >= count) {
-                    return null;
-                }
-                emitted++;
-                if (untilMillis != null && occ > untilMillis) {
-                    return null;
-                }
-                if (occ > lowerBound) {
-                    return new Date(occ);
-                }
-            }
-            return null;
+            next = countedTimeAfter(ctx, lowerBound);
+        } else {
+            Iterator<Long> it = occurrencesAfter(ctx, lowerBound);
+            next = it.hasNext() ? it.next() : null;
         }
-
-        long scanFrom = Math.max(anchor, lowerBound);
-        for (long occ : new OccurrenceScan(scanFrom)) {
-            if (occ <= lowerBound) {
-                continue;
-            }
-            if (untilMillis != null && occ > untilMillis) {
-                return null;
-            }
-            return new Date(occ);
-        }
-        return null;
+        return next == null ? null : new Date(next);
     }
 
     /**
@@ -269,19 +291,39 @@ public final class RRuleExpression implements Serializable, Cloneable {
      * <code>null</code> if there is no such time.
      */
     public Date getTimeBefore(Date endTime) {
-        long end = endTime.getTime();
-        long anchor = startTimeSeconds().getTime();
-        if (end <= anchor) {
+        Context ctx = context();
+        long end = endTime.getTime(); // exclusive
+        if (count != null) {
+            Long best = null;
+            long emitted = 0;
+            Iterator<Long> it = forward(ctx, 0);
+            while (emitted < count && it.hasNext()) {
+                long occ = it.next();
+                if (occ >= end) {
+                    break;
+                }
+                best = occ;
+                emitted++;
+            }
+            return best == null ? null : new Date(best);
+        }
+        if (ctx.until != null) {
+            end = Math.min(end, ctx.until + 1L);
+        }
+        end = Math.min(end, toMillis(LocalDate.of(MAX_YEAR + 1, 1, 1).atStartOfDay(), ctx.zone));
+        if (end <= ctx.anchor) {
             return null;
         }
-        Long best = null;
-        for (long occ : new OccurrenceScan(anchor)) {
-            if (occ >= end) {
-                break;
+        // The period after the one containing 'end' may still hold earlier
+        // instants (e.g. the clock-hour of an HOURLY period), so start there.
+        Iterator<Long> it = backward(ctx, periodIndexAt(ctx, end) + 1);
+        while (it.hasNext()) {
+            long occ = it.next();
+            if (occ < end) {
+                return new Date(occ);
             }
-            best = occ;
         }
-        return best == null ? null : new Date(best);
+        return null;
     }
 
     /**
@@ -290,25 +332,24 @@ public final class RRuleExpression implements Serializable, Cloneable {
      * unbounded rule.
      */
     public Date getFinalFireTime() {
-        Calendar untilCal = resolveUntil();
-        if (count == null && untilCal == null) {
-            return null;
+        Context ctx = context();
+        if (count == null) {
+            return ctx.until == null ? null : getTimeBefore(new Date(ctx.until + 1L));
         }
-        long anchor = startTimeSeconds().getTime();
-        Long untilMillis = untilCal == null ? null : untilCal.getTimeInMillis();
-        Long last = null;
-        long emitted = 0;
-        for (long occ : new OccurrenceScan(anchor)) {
-            if (count != null && emitted >= count) {
-                break;
+        synchronized (this) {
+            if (finalFireTimeContext != ctx) {
+                Long last = null;
+                long emitted = 0;
+                Iterator<Long> it = forward(ctx, 0);
+                while (emitted < count && it.hasNext()) {
+                    last = it.next();
+                    emitted++;
+                }
+                finalFireTime = last;
+                finalFireTimeContext = ctx;
             }
-            if (untilMillis != null && occ > untilMillis) {
-                break;
-            }
-            last = occ;
-            emitted++;
+            return finalFireTime == null ? null : new Date(finalFireTime);
         }
-        return last == null ? null : new Date(last);
     }
 
     public TimeZone getTimeZone() {
@@ -320,16 +361,26 @@ public final class RRuleExpression implements Serializable, Cloneable {
 
     public void setTimeZone(TimeZone timeZone) {
         this.timeZone = timeZone;
+        this.context = null;
     }
 
-    /** Returns the <code>DTSTART</code> anchor used to seed the recurrence. */
+    /**
+     * Returns the <code>DTSTART</code> anchor used to seed the recurrence. If no
+     * anchor was set, this is midnight of 1970-01-01 in the expression's time
+     * zone.
+     */
     public Date getStartTime() {
-        return startTime;
+        return startTime != null ? new Date(startTime.getTime()) : new Date(context().anchor);
     }
 
-    /** Sets the <code>DTSTART</code> anchor used to seed the recurrence. */
+    /**
+     * Sets the <code>DTSTART</code> anchor used to seed the recurrence. Passing
+     * <code>null</code> restores the default anchor (midnight of 1970-01-01 in
+     * the expression's time zone).
+     */
     public void setStartTime(Date startTime) {
-        this.startTime = startTime == null ? new Date(0L) : new Date(startTime.getTime());
+        this.startTime = startTime == null ? null : new Date(startTime.getTime());
+        this.context = null;
     }
 
     /** Returns the original <code>RRULE</code> string this expression was built from. */
@@ -344,9 +395,9 @@ public final class RRuleExpression implements Serializable, Cloneable {
         if (count != null) {
             sb.append("count: ").append(count).append("\n");
         }
-        Calendar until = resolveUntil();
-        if (until != null) {
-            sb.append("until: ").append(until.getTime()).append("\n");
+        Long untilMillis = context().until;
+        if (untilMillis != null) {
+            sb.append("until: ").append(new Date(untilMillis)).append("\n");
         }
         appendPart(sb, "byMonth", byMonth);
         appendPart(sb, "byWeekNo", byWeekNo);
@@ -407,6 +458,7 @@ public final class RRuleExpression implements Serializable, Cloneable {
         if (value.regionMatches(true, 0, "RRULE:", 0, 6)) {
             value = value.substring(6);
         }
+        Set<String> seen = new HashSet<>();
         for (String rawPart : value.split(";")) {
             String part = rawPart.trim();
             if (part.isEmpty()) {
@@ -418,6 +470,9 @@ public final class RRuleExpression implements Serializable, Cloneable {
             }
             String name = part.substring(0, eq).trim().toUpperCase(Locale.US);
             String val = part.substring(eq + 1).trim();
+            if (!seen.add(name)) {
+                throw new ParseException("RRULE part must not occur more than once: " + name, 0);
+            }
             switch (name) {
                 case "FREQ":
                     freq = parseFreq(val);
@@ -456,7 +511,8 @@ public final class RRuleExpression implements Serializable, Cloneable {
                     byMinute = parseIntList(val, 0, 59, false, "BYMINUTE");
                     break;
                 case "BYSECOND":
-                    bySecond = parseIntList(val, 0, 60, false, "BYSECOND");
+                    // RFC 5545 allows 60 (leap second), which Java time cannot represent.
+                    bySecond = parseIntList(val, 0, 59, false, "BYSECOND");
                     break;
                 case "BYSETPOS":
                     bySetPos = parseIntList(val, 1, 366, true, "BYSETPOS");
@@ -465,25 +521,49 @@ public final class RRuleExpression implements Serializable, Cloneable {
                     throw new ParseException("Unsupported RRULE part: " + name, 0);
             }
         }
+        validate();
+    }
+
+    /** Rejects the combinations that RFC 5545 §3.3.10 marks as N/A or forbids. */
+    private void validate() throws ParseException {
         if (freq == null) {
             throw new ParseException("RRULE is missing the required FREQ part", 0);
         }
-        if (count != null && hasUntil) {
+        if (count != null && until != null) {
             throw new ParseException("RRULE must not contain both COUNT and UNTIL", 0);
         }
-        // BYWEEKNO / BYYEARDAY are only meaningful with FREQ=YEARLY.
         if (byWeekNo != null && freq != Freq.YEARLY) {
             throw new ParseException("BYWEEKNO is only valid with FREQ=YEARLY", 0);
         }
-        // Ordinal BYDAY values (e.g. 2MO) are only valid with MONTHLY/YEARLY.
-        if (byDay != null && freq != Freq.MONTHLY && freq != Freq.YEARLY) {
-            for (WeekdayNum w : byDay) {
-                if (w.ordinal != 0) {
-                    throw new ParseException(
-                            "Ordinal BYDAY values are only valid with FREQ=MONTHLY or FREQ=YEARLY", 0);
-                }
+        if (byYearDay != null && (freq == Freq.DAILY || freq == Freq.WEEKLY || freq == Freq.MONTHLY)) {
+            throw new ParseException("BYYEARDAY is not valid with FREQ=" + freq, 0);
+        }
+        if (byMonthDay != null && freq == Freq.WEEKLY) {
+            throw new ParseException("BYMONTHDAY is not valid with FREQ=WEEKLY", 0);
+        }
+        if (byDay != null && hasOrdinalByDay()) {
+            if (freq != Freq.MONTHLY && freq != Freq.YEARLY) {
+                throw new ParseException(
+                        "Ordinal BYDAY values are only valid with FREQ=MONTHLY or FREQ=YEARLY", 0);
+            }
+            if (byWeekNo != null) {
+                throw new ParseException("Ordinal BYDAY values are not valid together with BYWEEKNO", 0);
             }
         }
+        if (bySetPos != null && byMonth == null && byWeekNo == null && byYearDay == null
+                && byMonthDay == null && byDay == null && byHour == null && byMinute == null
+                && bySecond == null) {
+            throw new ParseException("BYSETPOS must be used together with another BYxxx rule part", 0);
+        }
+    }
+
+    private boolean hasOrdinalByDay() {
+        for (WeekdayNum w : byDay) {
+            if (w.ordinal != 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static Freq parseFreq(String val) throws ParseException {
@@ -510,29 +590,26 @@ public final class RRuleExpression implements Serializable, Cloneable {
         // Accept forms: yyyyMMdd, yyyyMMdd'T'HHmmss, yyyyMMdd'T'HHmmss'Z'
         try {
             String v = val.trim();
-            boolean utc = v.endsWith("Z");
+            boolean utc = v.endsWith("Z") || v.endsWith("z");
             if (utc) {
                 v = v.substring(0, v.length() - 1);
             }
-            int y = Integer.parseInt(v.substring(0, 4));
-            int mo = Integer.parseInt(v.substring(4, 6));
-            int d = Integer.parseInt(v.substring(6, 8));
-            int h = 0, mi = 0, s = 0;
-            if (v.length() >= 15 && (v.charAt(8) == 'T' || v.charAt(8) == 't')) {
-                h = Integer.parseInt(v.substring(9, 11));
-                mi = Integer.parseInt(v.substring(11, 13));
-                s = Integer.parseInt(v.substring(13, 15));
-            } else if (v.length() != 8) {
+            LocalDate date = LocalDate.of(
+                    Integer.parseInt(v.substring(0, 4)),
+                    Integer.parseInt(v.substring(4, 6)),
+                    Integer.parseInt(v.substring(6, 8)));
+            if (v.length() == 15 && (v.charAt(8) == 'T' || v.charAt(8) == 't')) {
+                this.until = date.atTime(
+                        Integer.parseInt(v.substring(9, 11)),
+                        Integer.parseInt(v.substring(11, 13)),
+                        Integer.parseInt(v.substring(13, 15)));
+            } else if (v.length() == 8 && !utc) {
+                // A date-only UNTIL includes the whole day.
+                this.until = date.atTime(LocalTime.of(23, 59, 59));
+            } else {
                 throw new ParseException("Invalid UNTIL value: " + val, 0);
             }
-            this.hasUntil = true;
             this.untilUtc = utc;
-            this.untilYear = y;
-            this.untilMonth = mo;
-            this.untilDay = d;
-            this.untilHour = h;
-            this.untilMinute = mi;
-            this.untilSecond = s;
         } catch (RuntimeException e) {
             throw new ParseException("Invalid UNTIL value: " + val, 0);
         }
@@ -620,6 +697,10 @@ public final class RRuleExpression implements Serializable, Cloneable {
         }
     }
 
+    private static DayOfWeek toDayOfWeek(int calendarDay) {
+        return DayOfWeek.of(calendarDay == Calendar.SUNDAY ? 7 : calendarDay - 1);
+    }
+
     private static void appendPart(StringBuilder sb, String name, int[] values) {
         if (values != null) {
             sb.append(name).append(": ").append(Arrays.toString(values)).append("\n");
@@ -627,600 +708,524 @@ public final class RRuleExpression implements Serializable, Cloneable {
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // Evaluation helpers.
+    // Evaluation context: everything derived from the time zone and anchor.
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    private Date startTimeSeconds() {
-        return new Date(floorSecond(startTime.getTime()));
+    private Context context() {
+        Context ctx = context;
+        if (ctx == null) {
+            ctx = new Context();
+            context = ctx;
+        }
+        return ctx;
+    }
+
+    private final class Context {
+        final ZoneId zone;
+        final long anchor;                // epoch millis, whole seconds
+        final LocalDateTime anchorLocal;
+        final Long until;                 // epoch millis, inclusive; null == none
+        final WeekFields weekFields;
+        final DayOfWeek wkstDay;
+        // Day-level filters, including the defaults RFC 5545 takes from DTSTART.
+        final int[] months;
+        final int[] monthDays;
+        final List<WeekdayNum> days;
+        // Time-of-day expansions for DAILY and coarser frequencies.
+        final int[] hours;
+        final int[] minutes;
+        final int[] seconds;
+
+        Context() {
+            zone = toZoneId(getTimeZone());
+            anchor = startTime != null
+                    ? floorSecond(startTime.getTime())
+                    : LocalDate.of(1970, 1, 1).atStartOfDay(zone).toInstant().toEpochMilli();
+            anchorLocal = LocalDateTime.ofInstant(Instant.ofEpochMilli(anchor), zone);
+            until = RRuleExpression.this.until == null ? null
+                    : (untilUtc ? RRuleExpression.this.until.toInstant(ZoneOffset.UTC)
+                                : RRuleExpression.this.until.atZone(zone).toInstant()).toEpochMilli();
+            wkstDay = toDayOfWeek(wkst);
+            weekFields = WeekFields.of(wkstDay, 4);
+
+            int[] m = byMonth;
+            int[] md = byMonthDay;
+            List<WeekdayNum> d = byDay;
+            if (byWeekNo == null && byYearDay == null && byMonthDay == null && byDay == null) {
+                int calendarDay = anchorLocal.getDayOfWeek().getValue() % 7 + 1;
+                switch (freq) {
+                    case YEARLY:
+                        md = new int[] {anchorLocal.getDayOfMonth()};
+                        if (m == null) {
+                            m = new int[] {anchorLocal.getMonthValue()};
+                        }
+                        break;
+                    case MONTHLY:
+                        md = new int[] {anchorLocal.getDayOfMonth()};
+                        break;
+                    case WEEKLY:
+                        d = Collections.singletonList(new WeekdayNum(0, calendarDay));
+                        break;
+                    default:
+                        break;
+                }
+            }
+            months = m;
+            monthDays = md;
+            days = d;
+            hours = byHour != null ? byHour : new int[] {anchorLocal.getHour()};
+            minutes = byMinute != null ? byMinute : new int[] {anchorLocal.getMinute()};
+            seconds = bySecond != null ? bySecond : new int[] {anchorLocal.getSecond()};
+        }
+    }
+
+    private static ZoneId toZoneId(TimeZone tz) {
+        try {
+            return tz.toZoneId();
+        } catch (DateTimeException e) {
+            // A custom TimeZone without a known region id: fall back to its raw offset.
+            return ZoneOffset.ofTotalSeconds(tz.getRawOffset() / 1000);
+        }
     }
 
     private static long floorSecond(long millis) {
         return millis - Math.floorMod(millis, 1000L);
     }
 
-    private Calendar resolveUntil() {
-        if (!hasUntil) {
-            return null;
-        }
-        TimeZone tz = untilUtc ? TimeZone.getTimeZone("UTC") : getTimeZone();
-        Calendar cal = Calendar.getInstance(tz, Locale.US);
-        cal.clear();
-        cal.set(untilYear, untilMonth - 1, untilDay, untilHour, untilMinute, untilSecond);
-        return cal;
+    private static long toMillis(LocalDateTime ldt, ZoneId zone) {
+        // atZone() shifts gap times forward and resolves overlaps to the earlier
+        // offset, as RFC 5545 §3.3.5 prescribes.
+        return ldt.atZone(zone).toInstant().toEpochMilli();
     }
 
-    private Calendar anchorCalendar() {
-        Calendar cal = Calendar.getInstance(getTimeZone(), Locale.US);
-        cal.setFirstDayOfWeek(wkst);
-        cal.setMinimalDaysInFirstWeek(4);
-        cal.setTime(startTimeSeconds());
-        return cal;
+    private static LocalDateTime toLocal(long millis, ZoneId zone) {
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), zone);
     }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // COUNT handling.
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     /**
-     * Lazily produces the recurrence instants (as epoch-millis) in ascending
-     * order, beginning with the first period whose window can contain
-     * {@code scanFrom}. The iterator is finite only because of the
-     * {@link #MAX_YEAR} / {@link #MAX_PERIODS} guards.
+     * Remembers how far a COUNT-bounded recurrence has been enumerated, so that
+     * the usual monotonic sequence of {@link #getTimeAfter(Date)} calls does not
+     * have to re-enumerate from the anchor every time.
      */
-    private final class OccurrenceScan implements Iterable<Long> {
-        private final long scanFrom;
+    private static final class CountCursor {
+        final Context context;
+        final Iterator<Long> it;
+        long emitted;
+        long previous = Long.MIN_VALUE; // occurrence before 'last'
+        long last = Long.MIN_VALUE;     // most recently enumerated occurrence
 
-        OccurrenceScan(long scanFrom) {
-            this.scanFrom = scanFrom;
+        CountCursor(Context context, Iterator<Long> it) {
+            this.context = context;
+            this.it = it;
+        }
+    }
+
+    private synchronized Long countedTimeAfter(Context ctx, long lowerBound) {
+        CountCursor cc = countCursor;
+        if (cc != null && cc.context == ctx && cc.emitted > 0
+                && cc.previous <= lowerBound && lowerBound < cc.last) {
+            return cc.last;
+        }
+        if (cc == null || cc.context != ctx || cc.last > lowerBound) {
+            cc = new CountCursor(ctx, forward(ctx, 0));
+            countCursor = cc;
+        }
+        while (cc.emitted < count && cc.it.hasNext()) {
+            long occ = cc.it.next();
+            cc.emitted++;
+            cc.previous = cc.last;
+            cc.last = occ;
+            if (occ > lowerBound) {
+                return occ;
+            }
+        }
+        return null;
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Period iteration.
+    //
+    // Periods are numbered from 0 (the period containing the anchor). Period n
+    // starts INTERVAL * n units after the anchor; the index of the period that
+    // contains a given instant is computed exactly, so evaluation cost does not
+    // depend on the distance between the anchor and the query.
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    /** Occurrences strictly after {@code lowerBound}, honouring UNTIL (not COUNT). */
+    private Iterator<Long> occurrencesAfter(Context ctx, long lowerBound) {
+        // Start one period early: an earlier start is always safe (instants at
+        // or before the bound are skipped), a later one would miss instants.
+        Iterator<Long> it = forward(ctx, periodIndexAt(ctx, lowerBound + 1L) - 1L);
+        return new Iterator<Long>() {
+            private Long next = advance();
+
+            private Long advance() {
+                while (it.hasNext()) {
+                    long occ = it.next();
+                    if (occ <= lowerBound) {
+                        continue;
+                    }
+                    return ctx.until != null && occ > ctx.until ? null : occ;
+                }
+                return null;
+            }
+
+            @Override
+            public boolean hasNext() {
+                return next != null;
+            }
+
+            @Override
+            public Long next() {
+                if (next == null) {
+                    throw new NoSuchElementException();
+                }
+                Long v = next;
+                next = advance();
+                return v;
+            }
+        };
+    }
+
+    /** All occurrences from period {@code fromIndex} on, in ascending order. */
+    private Iterator<Long> forward(Context ctx, long fromIndex) {
+        return new PeriodIterator(ctx, Math.max(0L, fromIndex), true);
+    }
+
+    /** All occurrences from period {@code fromIndex} back to the anchor, in descending order. */
+    private Iterator<Long> backward(Context ctx, long fromIndex) {
+        return new PeriodIterator(ctx, fromIndex, false);
+    }
+
+    private final class PeriodIterator implements Iterator<Long> {
+        private final Context ctx;
+        private final boolean ascending;
+        private long index;
+        private long[] current = new long[0];
+        private int pos;
+        private int emptyPeriods;
+        private boolean done;
+
+        PeriodIterator(Context ctx, long index, boolean ascending) {
+            this.ctx = ctx;
+            this.index = index;
+            this.ascending = ascending;
         }
 
         @Override
-        public java.util.Iterator<Long> iterator() {
-            return new java.util.Iterator<Long>() {
-                private final Calendar periodCursor = firstPeriod(scanFrom);
-                private java.util.Iterator<Long> current = java.util.Collections.emptyIterator();
-                private Long nextValue = advance();
-                private int periodsScanned = 0;
-
-                private Long advance() {
-                    while (true) {
-                        if (current.hasNext()) {
-                            return current.next();
-                        }
-                        if (periodsScanned++ > MAX_PERIODS
-                                || periodCursor.get(Calendar.YEAR) > MAX_YEAR) {
-                            return null;
-                        }
-                        List<Long> occ = expandPeriod(periodCursor);
-                        stepPeriod(periodCursor);
-                        current = occ.iterator();
+        public boolean hasNext() {
+            while (pos >= current.length) {
+                if (done || index < 0 || emptyPeriods > MAX_EMPTY_PERIODS) {
+                    done = true;
+                    return false;
+                }
+                if (periodYear(ctx, index) > MAX_YEAR) {
+                    if (ascending) {
+                        done = true;
+                        return false;
                     }
+                    index--;
+                    continue;
                 }
+                Period p = expandPeriod(ctx, index);
+                current = p.instants;
+                pos = 0;
+                emptyPeriods = current.length == 0 ? emptyPeriods + 1 : 0;
+                if (!ascending) {
+                    reverse(current);
+                }
+                index = ascending ? nextIndex(p) : previousIndex(p);
+            }
+            return true;
+        }
 
-                @Override
-                public boolean hasNext() {
-                    return nextValue != null;
-                }
+        @Override
+        public Long next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            return current[pos++];
+        }
 
-                @Override
-                public Long next() {
-                    Long v = nextValue;
-                    nextValue = advance();
-                    return v;
-                }
-            };
+        private long nextIndex(Period p) {
+            if (p.skipUntil == Long.MIN_VALUE) {
+                return index + 1;
+            }
+            long step = stepMillis();
+            return Math.max(index + 1, Math.floorDiv(p.skipUntil - ctx.anchor + step - 1, step));
+        }
+
+        private long previousIndex(Period p) {
+            if (p.skipFrom == Long.MIN_VALUE) {
+                return index - 1;
+            }
+            return Math.min(index - 1, Math.floorDiv(p.skipFrom - 1 - ctx.anchor, stepMillis()));
         }
     }
 
-    /** Returns the calendar positioned at the start of the first period to scan. */
-    private Calendar firstPeriod(long scanFrom) {
-        Calendar cursor = anchorCalendar();
-        long anchor = cursor.getTimeInMillis();
-        if (scanFrom <= anchor) {
-            return cursor;
+    private static void reverse(long[] a) {
+        for (int i = 0, j = a.length - 1; i < j; i++, j--) {
+            long t = a[i];
+            a[i] = a[j];
+            a[j] = t;
         }
-        // Jump close to scanFrom, then the period iterator handles the remainder.
-        int periods = estimatePeriods(anchor, scanFrom);
-        if (periods > 1) {
-            addPeriods(cursor, periods - 1);
-        }
-        return cursor;
     }
 
-    private int estimatePeriods(long anchor, long target) {
-        long deltaSeconds = (target - anchor) / 1000L;
-        long p;
+    /**
+     * The instants of one period. For an empty sub-daily period whose day, hour
+     * or minute fails a limit, {@code [skipFrom, skipUntil)} is the enclosing
+     * day, hour or minute, none of whose periods can match either.
+     */
+    private static final class Period {
+        static final Period EMPTY = new Period(new long[0], Long.MIN_VALUE, Long.MIN_VALUE);
+        final long[] instants;
+        final long skipFrom;
+        final long skipUntil;
+
+        Period(long[] instants, long skipFrom, long skipUntil) {
+            this.instants = instants;
+            this.skipFrom = skipFrom;
+            this.skipUntil = skipUntil;
+        }
+    }
+
+    private boolean isSubDaily() {
+        return freq == Freq.SECONDLY || freq == Freq.MINUTELY || freq == Freq.HOURLY;
+    }
+
+    private long stepMillis() {
         switch (freq) {
-            case SECONDLY:
-                p = deltaSeconds / interval;
-                break;
-            case MINUTELY:
-                p = deltaSeconds / (60L * interval);
-                break;
-            case HOURLY:
-                p = deltaSeconds / (3600L * interval);
-                break;
+            case SECONDLY: return 1000L * interval;
+            case MINUTELY: return 60_000L * interval;
+            case HOURLY: return 3_600_000L * interval;
+            default: throw new IllegalStateException("not a sub-daily frequency: " + freq);
+        }
+    }
+
+    /** Index of the period whose span contains the given instant. */
+    private long periodIndexAt(Context ctx, long millis) {
+        if (isSubDaily()) {
+            return Math.floorDiv(millis - ctx.anchor, stepMillis());
+        }
+        LocalDate target = toLocal(millis, ctx.zone).toLocalDate();
+        LocalDate anchor = ctx.anchorLocal.toLocalDate();
+        long units;
+        switch (freq) {
             case DAILY:
-                p = deltaSeconds / (86400L * interval);
+                units = target.toEpochDay() - anchor.toEpochDay();
                 break;
             case WEEKLY:
-                p = deltaSeconds / (7L * 86400L * interval);
+                // Both are WKST days, so the difference is a whole number of weeks.
+                units = (weekStart(ctx, target).toEpochDay() - weekStart(ctx, anchor).toEpochDay()) / 7;
                 break;
             case MONTHLY:
-                p = (deltaSeconds / (28L * 86400L)) / interval;
+                units = (target.getYear() * 12L + target.getMonthValue())
+                        - (anchor.getYear() * 12L + anchor.getMonthValue());
                 break;
-            case YEARLY:
             default:
-                p = (deltaSeconds / (365L * 86400L)) / interval;
+                units = target.getYear() - (long) anchor.getYear();
                 break;
         }
-        if (p < 0) {
-            p = 0;
-        }
-        if (p > MAX_PERIODS) {
-            p = MAX_PERIODS;
-        }
-        return (int) p;
+        return Math.floorDiv(units, interval);
     }
 
-    private void stepPeriod(Calendar cursor) {
-        addPeriods(cursor, 1);
+    private static LocalDate weekStart(Context ctx, LocalDate day) {
+        int sinceWkst = Math.floorMod(day.getDayOfWeek().getValue() - ctx.wkstDay.getValue(), 7);
+        return day.minusDays(sinceWkst);
     }
 
-    private void addPeriods(Calendar cursor, int n) {
+    private long periodStartMillis(Context ctx, long index) {
+        return ctx.anchor + index * stepMillis();
+    }
+
+    private LocalDate periodDate(Context ctx, long index) {
+        LocalDate anchor = ctx.anchorLocal.toLocalDate();
+        long n = index * interval;
         switch (freq) {
-            case SECONDLY:
-                cursor.add(Calendar.SECOND, n * interval);
-                break;
-            case MINUTELY:
-                cursor.add(Calendar.MINUTE, n * interval);
-                break;
-            case HOURLY:
-                cursor.add(Calendar.HOUR_OF_DAY, n * interval);
-                break;
-            case DAILY:
-                cursor.add(Calendar.DAY_OF_MONTH, n * interval);
-                break;
-            case WEEKLY:
-                cursor.add(Calendar.WEEK_OF_YEAR, n * interval);
-                break;
-            case MONTHLY:
-                cursor.add(Calendar.MONTH, n * interval);
-                break;
-            case YEARLY:
-            default:
-                cursor.add(Calendar.YEAR, n * interval);
-                break;
+            case DAILY: return anchor.plusDays(n);
+            case WEEKLY: return anchor.plusWeeks(n);
+            case MONTHLY: return anchor.plusMonths(n);
+            case YEARLY: return anchor.plusYears(n);
+            default: return toLocal(periodStartMillis(ctx, index), ctx.zone).toLocalDate();
         }
+    }
+
+    private int periodYear(Context ctx, long index) {
+        return periodDate(ctx, index).getYear();
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Per-period expansion (RFC 5545 3.3.10 expand/limit semantics).
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    private List<Long> expandPeriod(Calendar periodStart) {
-        List<Long> result;
+    private Period expandPeriod(Context ctx, long index) {
+        if (isSubDaily()) {
+            return expandSubDaily(ctx, periodStartMillis(ctx, index));
+        }
+        LocalDate ref = periodDate(ctx, index);
+        TreeSet<Long> instants = new TreeSet<>();
+        LocalDate first;
+        LocalDate last;
         switch (freq) {
-            case SECONDLY:
-            case MINUTELY:
-            case HOURLY:
-                result = expandSubDaily(periodStart);
-                break;
             case DAILY:
-                result = expandDaily(periodStart);
+                first = last = ref;
                 break;
             case WEEKLY:
-                result = expandWeekly(periodStart);
+                first = weekStart(ctx, ref);
+                last = first.plusDays(6);
                 break;
             case MONTHLY:
-                result = expandMonthly(periodStart);
+                first = ref.withDayOfMonth(1);
+                last = ref.withDayOfMonth(ref.lengthOfMonth());
                 break;
-            case YEARLY:
             default:
-                result = expandYearly(periodStart);
+                first = ref.withDayOfYear(1);
+                last = ref.withDayOfYear(ref.lengthOfYear());
                 break;
         }
-        // BYSETPOS selects from the whole period's candidate set (RFC 5545),
-        // so it must be applied before the anchor lower-bound is enforced.
-        TreeSet<Long> sorted = new TreeSet<>(result);
-        List<Long> selected = applySetPos(new ArrayList<>(sorted));
-        long anchor = startTimeSeconds().getTime();
-        List<Long> out = new ArrayList<>(selected.size());
-        for (long v : selected) {
-            if (v >= anchor) {
-                out.add(v);
+        for (LocalDate day = first; !day.isAfter(last); day = day.plusDays(1)) {
+            if (!dayMatches(ctx, day)) {
+                continue;
             }
-        }
-        return out;
-    }
-
-    private List<Long> applySetPos(List<Long> occ) {
-        if (bySetPos == null || occ.isEmpty()) {
-            return occ;
-        }
-        List<Long> out = new ArrayList<>();
-        int size = occ.size();
-        TreeSet<Integer> picked = new TreeSet<>();
-        for (int pos : bySetPos) {
-            int idx = pos > 0 ? pos - 1 : size + pos;
-            if (idx >= 0 && idx < size) {
-                picked.add(idx);
-            }
-        }
-        for (int idx : picked) {
-            out.add(occ.get(idx));
-        }
-        return out;
-    }
-
-    // ---- sub-daily (SECONDLY / MINUTELY / HOURLY) --------------------------
-
-    private List<Long> expandSubDaily(Calendar periodStart) {
-        List<Long> out = new ArrayList<>();
-        int y = periodStart.get(Calendar.YEAR);
-        int mo = periodStart.get(Calendar.MONTH) + 1;
-        int dom = periodStart.get(Calendar.DAY_OF_MONTH);
-        int doy = periodStart.get(Calendar.DAY_OF_YEAR);
-        int dow = periodStart.get(Calendar.DAY_OF_WEEK);
-        int h = periodStart.get(Calendar.HOUR_OF_DAY);
-        int mi = periodStart.get(Calendar.MINUTE);
-        int s = periodStart.get(Calendar.SECOND);
-
-        // Date-level limits.
-        if (!dayMatchesLimits(periodStart, y, mo, dom, doy, dow)) {
-            return out;
-        }
-        // Time-level limits/expansions per frequency.
-        int[] hours, minutes, seconds;
-        if (freq == Freq.HOURLY) {
-            if (byHour != null && !contains(byHour, h)) {
-                return out;
-            }
-            hours = new int[] {h};
-            minutes = byMinute != null ? byMinute : new int[] {mi};
-            seconds = bySecond != null ? bySecond : new int[] {s};
-        } else if (freq == Freq.MINUTELY) {
-            if (byHour != null && !contains(byHour, h)) {
-                return out;
-            }
-            if (byMinute != null && !contains(byMinute, mi)) {
-                return out;
-            }
-            hours = new int[] {h};
-            minutes = new int[] {mi};
-            seconds = bySecond != null ? bySecond : new int[] {s};
-        } else { // SECONDLY
-            if (byHour != null && !contains(byHour, h)) {
-                return out;
-            }
-            if (byMinute != null && !contains(byMinute, mi)) {
-                return out;
-            }
-            if (bySecond != null && !contains(bySecond, s)) {
-                return out;
-            }
-            hours = new int[] {h};
-            minutes = new int[] {mi};
-            seconds = new int[] {s};
-        }
-        for (int hh : hours) {
-            for (int mm : minutes) {
-                for (int ss : seconds) {
-                    addInstant(out, periodStart, y, mo, dom, hh, mm, ss);
-                }
-            }
-        }
-        return out;
-    }
-
-    // ---- DAILY -------------------------------------------------------------
-
-    private List<Long> expandDaily(Calendar periodStart) {
-        List<Long> out = new ArrayList<>();
-        int y = periodStart.get(Calendar.YEAR);
-        int mo = periodStart.get(Calendar.MONTH) + 1;
-        int dom = periodStart.get(Calendar.DAY_OF_MONTH);
-        int doy = periodStart.get(Calendar.DAY_OF_YEAR);
-        int dow = periodStart.get(Calendar.DAY_OF_WEEK);
-        if (!dayMatchesLimits(periodStart, y, mo, dom, doy, dow)) {
-            return out;
-        }
-        emitTimes(out, periodStart, y, mo, dom);
-        return out;
-    }
-
-    // ---- WEEKLY ------------------------------------------------------------
-
-    private List<Long> expandWeekly(Calendar periodStart) {
-        List<Long> out = new ArrayList<>();
-        // Walk the seven days of this week starting from WKST.
-        Calendar dayCal = (Calendar) periodStart.clone();
-        // Move back to the WKST day of the current week.
-        int diff = dayCal.get(Calendar.DAY_OF_WEEK) - wkst;
-        if (diff < 0) {
-            diff += 7;
-        }
-        dayCal.add(Calendar.DAY_OF_MONTH, -diff);
-
-        int[] anchorDow = new int[] {anchorCalendar().get(Calendar.DAY_OF_WEEK)};
-        for (int i = 0; i < 7; i++) {
-            int y = dayCal.get(Calendar.YEAR);
-            int mo = dayCal.get(Calendar.MONTH) + 1;
-            int dom = dayCal.get(Calendar.DAY_OF_MONTH);
-            int dow = dayCal.get(Calendar.DAY_OF_WEEK);
-            boolean dayOk;
-            if (byDay != null) {
-                dayOk = byDayContains(dow);
-            } else {
-                dayOk = dow == anchorDow[0];
-            }
-            if (dayOk && (byMonth == null || contains(byMonth, mo))) {
-                emitTimes(out, dayCal, y, mo, dom);
-            }
-            dayCal.add(Calendar.DAY_OF_MONTH, 1);
-        }
-        return out;
-    }
-
-    // ---- MONTHLY -----------------------------------------------------------
-
-    private List<Long> expandMonthly(Calendar periodStart) {
-        List<Long> out = new ArrayList<>();
-        int y = periodStart.get(Calendar.YEAR);
-        int mo = periodStart.get(Calendar.MONTH) + 1;
-        if (byMonth != null && !contains(byMonth, mo)) {
-            return out;
-        }
-        int daysInMonth = daysInMonth(y, mo);
-        TreeSet<Integer> days = new TreeSet<>();
-
-        if (byMonthDay != null) {
-            for (int md : byMonthDay) {
-                int d = md > 0 ? md : daysInMonth + md + 1;
-                if (d >= 1 && d <= daysInMonth) {
-                    days.add(d);
-                }
-            }
-            if (byDay != null) {
-                days.removeIf(d -> !byDayContains(dayOfWeek(y, mo, d)));
-            }
-        } else if (byDay != null) {
-            days.addAll(monthlyByDay(y, mo, daysInMonth));
-        } else {
-            int anchorDom = anchorCalendar().get(Calendar.DAY_OF_MONTH);
-            if (anchorDom <= daysInMonth) {
-                days.add(anchorDom);
-            }
-        }
-        for (int d : days) {
-            emitTimes(out, periodStart, y, mo, d);
-        }
-        return out;
-    }
-
-    private List<Integer> monthlyByDay(int y, int mo, int daysInMonth) {
-        // Group matching day-of-month values by weekday so ordinals can select.
-        List<Integer> result = new ArrayList<>();
-        for (WeekdayNum w : byDay) {
-            List<Integer> matches = new ArrayList<>();
-            for (int d = 1; d <= daysInMonth; d++) {
-                if (dayOfWeek(y, mo, d) == w.calendarDay) {
-                    matches.add(d);
-                }
-            }
-            if (w.ordinal == 0) {
-                result.addAll(matches);
-            } else if (w.ordinal > 0 && w.ordinal <= matches.size()) {
-                result.add(matches.get(w.ordinal - 1));
-            } else if (w.ordinal < 0 && -w.ordinal <= matches.size()) {
-                result.add(matches.get(matches.size() + w.ordinal));
-            }
-        }
-        return result;
-    }
-
-    // ---- YEARLY ------------------------------------------------------------
-
-    private List<Long> expandYearly(Calendar periodStart) {
-        List<Long> out = new ArrayList<>();
-        int y = periodStart.get(Calendar.YEAR);
-        int[] months = byMonth != null ? byMonth : null;
-
-        TreeSet<int[]> dates = new TreeSet<>((a, b) -> a[0] != b[0] ? a[0] - b[0] : a[1] - b[1]);
-        // each int[] is {month(1-12), day}
-
-        if (byWeekNo != null) {
-            collectByWeekNo(y, dates);
-            if (byDay != null) {
-                dates.removeIf(md -> !byDayContains(dayOfWeek(y, md[0], md[1])));
-            }
-            filterMonths(dates, months);
-        } else if (byYearDay != null) {
-            int daysInYear = daysInYear(y);
-            for (int yd : byYearDay) {
-                int d = yd > 0 ? yd : daysInYear + yd + 1;
-                if (d >= 1 && d <= daysInYear) {
-                    dates.add(yearDayToDate(y, d));
-                }
-            }
-            if (byDay != null) {
-                dates.removeIf(md -> !byDayContains(dayOfWeek(y, md[0], md[1])));
-            }
-            filterMonths(dates, months);
-        } else if (byMonthDay != null) {
-            int[] scope = months != null ? months : allMonths();
-            for (int mo : scope) {
-                int dim = daysInMonth(y, mo);
-                for (int md : byMonthDay) {
-                    int d = md > 0 ? md : dim + md + 1;
-                    if (d >= 1 && d <= dim) {
-                        dates.add(new int[] {mo, d});
+            for (int h : ctx.hours) {
+                for (int m : ctx.minutes) {
+                    for (int s : ctx.seconds) {
+                        instants.add(toMillis(day.atTime(h, m, s), ctx.zone));
                     }
                 }
             }
-            if (byDay != null) {
-                dates.removeIf(md -> !byDayContains(dayOfWeek(y, md[0], md[1])));
-            }
-        } else if (byDay != null) {
-            boolean hasOrdinal = false;
-            for (WeekdayNum w : byDay) {
-                if (w.ordinal != 0) {
-                    hasOrdinal = true;
-                    break;
-                }
-            }
-            if (hasOrdinal && months == null) {
-                collectYearlyOrdinalByDay(y, dates);
-            } else {
-                int[] scope = months != null ? months : allMonths();
-                for (int mo : scope) {
-                    dates.addAll(monthlyByDayAsDates(y, mo));
+        }
+        return new Period(select(ctx, instants), Long.MIN_VALUE, Long.MIN_VALUE);
+    }
+
+    private Period expandSubDaily(Context ctx, long periodStart) {
+        LocalDateTime local = toLocal(periodStart, ctx.zone);
+        LocalDate day = local.toLocalDate();
+        if (!dayMatches(ctx, day)) {
+            return new Period(new long[0],
+                    toMillis(day.atStartOfDay(), ctx.zone),
+                    toMillis(day.plusDays(1).atStartOfDay(), ctx.zone));
+        }
+        // Work in absolute time within the period's clock hour / minute, so that
+        // a repeated hour in a daylight-saving overlap is handled correctly.
+        long minuteStart = periodStart - local.getSecond() * 1000L;
+        long hourStart = minuteStart - local.getMinute() * 60_000L;
+        if (byHour != null && !contains(byHour, local.getHour())) {
+            return new Period(new long[0], hourStart, hourStart + 3_600_000L);
+        }
+        TreeSet<Long> instants = new TreeSet<>();
+        if (freq == Freq.HOURLY) {
+            int[] minutes = byMinute != null ? byMinute : new int[] {local.getMinute()};
+            int[] seconds = bySecond != null ? bySecond : new int[] {local.getSecond()};
+            for (int m : minutes) {
+                for (int s : seconds) {
+                    instants.add(hourStart + m * 60_000L + s * 1000L);
                 }
             }
         } else {
-            // No day-level rule parts: use the anchor's month/day within scope.
-            Calendar anchor = anchorCalendar();
-            int anchorMonth = anchor.get(Calendar.MONTH) + 1;
-            int anchorDom = anchor.get(Calendar.DAY_OF_MONTH);
-            int[] scope = months != null ? months : new int[] {anchorMonth};
-            for (int mo : scope) {
-                if (anchorDom <= daysInMonth(y, mo)) {
-                    dates.add(new int[] {mo, anchorDom});
+            if (byMinute != null && !contains(byMinute, local.getMinute())) {
+                return new Period(new long[0], minuteStart, minuteStart + 60_000L);
+            }
+            if (freq == Freq.MINUTELY) {
+                int[] seconds = bySecond != null ? bySecond : new int[] {local.getSecond()};
+                for (int s : seconds) {
+                    instants.add(minuteStart + s * 1000L);
                 }
+            } else if (bySecond == null || contains(bySecond, local.getSecond())) {
+                instants.add(periodStart);
             }
         }
-
-        for (int[] md : dates) {
-            emitTimes(out, periodStart, y, md[0], md[1]);
-        }
-        return out;
+        return new Period(select(ctx, instants), Long.MIN_VALUE, Long.MIN_VALUE);
     }
 
-    private void collectByWeekNo(int y, TreeSet<int[]> dates) {
-        Calendar cal = Calendar.getInstance(getTimeZone(), Locale.US);
-        cal.setFirstDayOfWeek(wkst);
-        cal.setMinimalDaysInFirstWeek(4);
-        cal.clear();
-        cal.set(y, Calendar.JUNE, 15);
-        int weeksInYear = cal.getActualMaximum(Calendar.WEEK_OF_YEAR);
-        for (int wn : byWeekNo) {
-            int week = wn > 0 ? wn : weeksInYear + wn + 1;
-            for (int dowOffset = 0; dowOffset < 7; dowOffset++) {
-                Calendar c = Calendar.getInstance(getTimeZone(), Locale.US);
-                c.setFirstDayOfWeek(wkst);
-                c.setMinimalDaysInFirstWeek(4);
-                c.clear();
-                c.set(Calendar.YEAR, y);
-                c.set(Calendar.WEEK_OF_YEAR, week);
-                c.set(Calendar.DAY_OF_WEEK, ((wkst - 1 + dowOffset) % 7) + 1);
-                if (c.get(Calendar.YEAR) == y) {
-                    dates.add(new int[] {c.get(Calendar.MONTH) + 1, c.get(Calendar.DAY_OF_MONTH)});
+    /** Applies BYSETPOS to the period's candidate set, then the anchor lower bound. */
+    private long[] select(Context ctx, TreeSet<Long> sorted) {
+        if (sorted.isEmpty()) {
+            return Period.EMPTY.instants;
+        }
+        // BYSETPOS selects from the whole period's candidate set (RFC 5545),
+        // so it must be applied before the anchor lower-bound is enforced.
+        List<Long> candidates = new ArrayList<>(sorted);
+        List<Long> selected = candidates;
+        if (bySetPos != null) {
+            TreeSet<Integer> picked = new TreeSet<>();
+            int size = candidates.size();
+            for (int pos : bySetPos) {
+                int idx = pos > 0 ? pos - 1 : size + pos;
+                if (idx >= 0 && idx < size) {
+                    picked.add(idx);
                 }
             }
+            selected = new ArrayList<>(picked.size());
+            for (int idx : picked) {
+                selected.add(candidates.get(idx));
+            }
         }
+        long[] out = new long[selected.size()];
+        int n = 0;
+        for (long v : selected) {
+            if (v >= ctx.anchor) {
+                out[n++] = v;
+            }
+        }
+        return n == out.length ? out : Arrays.copyOf(out, n);
     }
 
-    private void collectYearlyOrdinalByDay(int y, TreeSet<int[]> dates) {
-        int daysInYear = daysInYear(y);
-        for (WeekdayNum w : byDay) {
-            List<int[]> matches = new ArrayList<>();
-            for (int d = 1; d <= daysInYear; d++) {
-                int[] md = yearDayToDate(y, d);
-                if (dayOfWeek(y, md[0], md[1]) == w.calendarDay) {
-                    matches.add(md);
-                }
+    /** Whether a day passes all day-level rule parts (BYMONTH .. BYDAY). */
+    private boolean dayMatches(Context ctx, LocalDate day) {
+        if (ctx.months != null && !contains(ctx.months, day.getMonthValue())) {
+            return false;
+        }
+        if (byWeekNo != null && !weekNoMatches(ctx, day)) {
+            return false;
+        }
+        if (byYearDay != null && !containsSigned(byYearDay, day.getDayOfYear(), day.lengthOfYear())) {
+            return false;
+        }
+        if (ctx.monthDays != null && !containsSigned(ctx.monthDays, day.getDayOfMonth(), day.lengthOfMonth())) {
+            return false;
+        }
+        return ctx.days == null || byDayMatches(ctx, day);
+    }
+
+    private boolean weekNoMatches(Context ctx, LocalDate day) {
+        int week = day.get(ctx.weekFields.weekOfWeekBasedYear());
+        int weekYear = day.get(ctx.weekFields.weekBasedYear());
+        // The week containing December 28th is always the last week of its year.
+        int weeksInYear = LocalDate.of(weekYear, 12, 28).get(ctx.weekFields.weekOfWeekBasedYear());
+        return containsSigned(byWeekNo, week, weeksInYear);
+    }
+
+    private boolean byDayMatches(Context ctx, LocalDate day) {
+        // Ordinals count within the month for MONTHLY, and for YEARLY with BYMONTH;
+        // otherwise within the year.
+        boolean inMonth = freq == Freq.MONTHLY || byMonth != null;
+        for (WeekdayNum w : ctx.days) {
+            if (toDayOfWeek(w.calendarDay) != day.getDayOfWeek()) {
+                continue;
             }
             if (w.ordinal == 0) {
-                dates.addAll(matches);
-            } else if (w.ordinal > 0 && w.ordinal <= matches.size()) {
-                dates.add(matches.get(w.ordinal - 1));
-            } else if (w.ordinal < 0 && -w.ordinal <= matches.size()) {
-                dates.add(matches.get(matches.size() + w.ordinal));
+                return true;
+            }
+            int pos = inMonth ? day.getDayOfMonth() : day.getDayOfYear();
+            int length = inMonth ? day.lengthOfMonth() : day.lengthOfYear();
+            int nth = (pos - 1) / 7 + 1;
+            int nthFromEnd = -((length - pos) / 7 + 1);
+            if (w.ordinal == nth || w.ordinal == nthFromEnd) {
+                return true;
             }
         }
+        return false;
     }
 
-    private List<int[]> monthlyByDayAsDates(int y, int mo) {
-        List<int[]> out = new ArrayList<>();
-        for (int d : monthlyByDay(y, mo, daysInMonth(y, mo))) {
-            out.add(new int[] {mo, d});
-        }
-        return out;
-    }
-
-    private void filterMonths(TreeSet<int[]> dates, int[] months) {
-        if (months != null) {
-            dates.removeIf(md -> !contains(months, md[0]));
-        }
-    }
-
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // Shared helpers.
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    private boolean dayMatchesLimits(Calendar cal, int y, int mo, int dom, int doy, int dow) {
-        if (byMonth != null && !contains(byMonth, mo)) {
-            return false;
-        }
-        if (byYearDay != null) {
-            int daysInYear = daysInYear(y);
-            boolean ok = false;
-            for (int yd : byYearDay) {
-                int d = yd > 0 ? yd : daysInYear + yd + 1;
-                if (d == doy) {
-                    ok = true;
-                    break;
-                }
-            }
-            if (!ok) {
-                return false;
-            }
-        }
-        if (byMonthDay != null) {
-            int dim = daysInMonth(y, mo);
-            boolean ok = false;
-            for (int md : byMonthDay) {
-                int d = md > 0 ? md : dim + md + 1;
-                if (d == dom) {
-                    ok = true;
-                    break;
-                }
-            }
-            if (!ok) {
-                return false;
-            }
-        }
-        if (byDay != null && !byDayContains(dow)) {
-            return false;
-        }
-        return true;
-    }
-
-    private void emitTimes(List<Long> out, Calendar dayRef, int y, int mo, int dom) {
-        int[] hours = byHour != null ? byHour : new int[] {anchorCalendar().get(Calendar.HOUR_OF_DAY)};
-        int[] minutes = byMinute != null ? byMinute : new int[] {anchorCalendar().get(Calendar.MINUTE)};
-        int[] seconds = bySecond != null ? bySecond : new int[] {anchorCalendar().get(Calendar.SECOND)};
-        for (int hh : hours) {
-            for (int mm : minutes) {
-                for (int ss : seconds) {
-                    addInstant(out, dayRef, y, mo, dom, hh, mm, ss);
-                }
-            }
-        }
-    }
-
-    private void addInstant(List<Long> out, Calendar ref, int y, int mo, int dom, int h, int mi, int s) {
-        Calendar c = Calendar.getInstance(getTimeZone(), Locale.US);
-        c.setLenient(true);
-        c.clear();
-        c.set(y, mo - 1, dom, h, mi, s);
-        // Guard against non-existent civil dates (e.g. Feb 30) produced by lenient set.
-        if (c.get(Calendar.YEAR) != y || c.get(Calendar.MONTH) != mo - 1
-                || c.get(Calendar.DAY_OF_MONTH) != dom) {
-            return;
-        }
-        out.add(c.getTimeInMillis());
-    }
-
-    private boolean byDayContains(int calendarDay) {
-        for (WeekdayNum w : byDay) {
-            if (w.calendarDay == calendarDay) {
+    /** Whether {@code value} (1-based) matches a list of positive or negative (from-the-end) positions. */
+    private static boolean containsSigned(int[] arr, int value, int length) {
+        for (int a : arr) {
+            if (a == value || a == value - length - 1) {
                 return true;
             }
         }
@@ -1234,38 +1239,5 @@ public final class RRuleExpression implements Serializable, Cloneable {
             }
         }
         return false;
-    }
-
-    private int dayOfWeek(int y, int mo, int d) {
-        GregorianCalendar c = new GregorianCalendar(getTimeZone(), Locale.US);
-        c.clear();
-        c.set(y, mo - 1, d);
-        return c.get(Calendar.DAY_OF_WEEK);
-    }
-
-    private int daysInMonth(int y, int mo) {
-        GregorianCalendar c = new GregorianCalendar(getTimeZone(), Locale.US);
-        c.clear();
-        c.set(y, mo - 1, 1);
-        return c.getActualMaximum(Calendar.DAY_OF_MONTH);
-    }
-
-    private int daysInYear(int y) {
-        GregorianCalendar c = new GregorianCalendar(getTimeZone(), Locale.US);
-        c.clear();
-        c.set(y, Calendar.JANUARY, 1);
-        return c.getActualMaximum(Calendar.DAY_OF_YEAR);
-    }
-
-    private int[] yearDayToDate(int y, int doy) {
-        GregorianCalendar c = new GregorianCalendar(getTimeZone(), Locale.US);
-        c.clear();
-        c.set(Calendar.YEAR, y);
-        c.set(Calendar.DAY_OF_YEAR, doy);
-        return new int[] {c.get(Calendar.MONTH) + 1, c.get(Calendar.DAY_OF_MONTH)};
-    }
-
-    private static int[] allMonths() {
-        return new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     }
 }
