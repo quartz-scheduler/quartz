@@ -335,7 +335,7 @@
             <column name="TRIGGER_GROUP" type="VARCHAR(200)">
                 <constraints nullable="false"/>
             </column>
-            <column name="RRULE_EXPRESSION" type="VARCHAR(200)">
+            <column name="RRULE_EXPRESSION" type="VARCHAR(512)">
                 <constraints nullable="false"/>
             </column>
             <column name="TIME_ZONE_ID" type="VARCHAR(80)"/>

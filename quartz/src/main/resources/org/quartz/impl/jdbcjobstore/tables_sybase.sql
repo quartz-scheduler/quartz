@@ -132,7 +132,7 @@ create table QRTZ_RRULE_TRIGGERS (
 SCHED_NAME varchar(120) not null,
 TRIGGER_NAME varchar(200) not null,
 TRIGGER_GROUP varchar(200) not null,
-RRULE_EXPRESSION varchar(200) not null,
+RRULE_EXPRESSION varchar(512) not null,
 TIME_ZONE_ID varchar(80) null,
 )
 go
