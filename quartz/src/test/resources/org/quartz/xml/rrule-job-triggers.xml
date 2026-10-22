@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='utf-8'?>
+<job-scheduling-data version="2.0" xmlns="http://www.quartz-scheduler.org/xml/JobSchedulingData"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.quartz-scheduler.org/xml/JobSchedulingData http://www.quartz-scheduler.org/xml/job_scheduling_data_2_0.xsd">
+
+	<schedule>
+		<job>
+			<name>job1</name>
+			<group>DEFAULT</group>
+			<job-class>org.quartz.xml.XMLSchedulingDataProcessorTest$MyJob</job-class>
+			<durability>true</durability>
+			<recover>false</recover>
+		</job>
+		<trigger>
+			<rrule>
+				<name>weekdays_at_ten</name>
+				<group>DEFAULT</group>
+				<job-name>job1</job-name>
+				<job-group>DEFAULT</job-group>
+				<start-time>2026-01-05T09:00:00Z</start-time>
+				<rrule-expression>FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR;BYHOUR=10;BYMINUTE=0;BYSECOND=0</rrule-expression>
+			</rrule>
+		</trigger>
+		<trigger>
+			<rrule>
+				<name>last_friday_prague</name>
+				<group>DEFAULT</group>
+				<job-name>job1</job-name>
+				<job-group>DEFAULT</job-group>
+				<start-time>2026-01-05T09:00:00Z</start-time>
+				<misfire-instruction>MISFIRE_INSTRUCTION_DO_NOTHING</misfire-instruction>
+				<rrule-expression>FREQ=MONTHLY;BYDAY=-1FR;BYHOUR=22;BYMINUTE=0;BYSECOND=0</rrule-expression>
+				<time-zone>Europe/Prague</time-zone>
+			</rrule>
+		</trigger>
+		<trigger>
+			<rrule>
+				<name>fire_once_now</name>
+				<group>DEFAULT</group>
+				<job-name>job1</job-name>
+				<job-group>DEFAULT</job-group>
+				<start-time>2026-01-05T09:00:00Z</start-time>
+				<misfire-instruction>MISFIRE_INSTRUCTION_FIRE_ONCE_NOW</misfire-instruction>
+				<rrule-expression>FREQ=DAILY;COUNT=3;BYHOUR=12;BYMINUTE=0;BYSECOND=0</rrule-expression>
+			</rrule>
+		</trigger>
+	</schedule>
+
+</job-scheduling-data>

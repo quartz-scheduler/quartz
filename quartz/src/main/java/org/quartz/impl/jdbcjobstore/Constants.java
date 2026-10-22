@@ -47,6 +47,8 @@ public interface Constants {
 
     String TABLE_CRON_TRIGGERS = "CRON_TRIGGERS";
 
+    String TABLE_RRULE_TRIGGERS = "RRULE_TRIGGERS";
+
     String TABLE_BLOB_TRIGGERS = "BLOB_TRIGGERS";
 
     String TABLE_FIRED_TRIGGERS = "FIRED_TRIGGERS";
@@ -116,6 +118,9 @@ public interface Constants {
     // TABLE_CRON_TRIGGERS columns names
     String COL_CRON_EXPRESSION = "CRON_EXPRESSION";
 
+    // TABLE_RRULE_TRIGGERS columns names
+    String COL_RRULE_EXPRESSION = "RRULE_EXPRESSION";
+
     // TABLE_BLOB_TRIGGERS columns names
     String COL_BLOB = "BLOB_DATA";
 
@@ -183,6 +188,9 @@ public interface Constants {
 
     /** Cron Trigger type. */
     String TTYPE_CRON = "CRON";
+
+    /** RFC 5545 RRULE Trigger type. */
+    String TTYPE_RRULE = "RRULE";
 
     /** Calendar Interval Trigger type. */
     String TTYPE_CAL_INT = "CAL_INT";
