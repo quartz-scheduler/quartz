@@ -204,8 +204,9 @@ public class CronCalendar extends BaseCalendar {
      *         if the string expression cannot be parsed
      */
     public void setCronExpression(String expression) throws ParseException {
-
-        this.cronExpression = new CronExpression(expression);
+        CronExpression newExp = new CronExpression(expression);
+        newExp.setTimeZone(getTimeZone());
+        this.cronExpression = newExp;
     }
 
     /**

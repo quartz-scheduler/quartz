@@ -25,8 +25,8 @@ import org.quartz.spi.OperableTrigger;
 public class CronTriggerSupport {
     private static final String COMPOSITE_TYPE_NAME = "CronTrigger";
     private static final String COMPOSITE_TYPE_DESCRIPTION = "CronTrigger Details";
-    private static final String[] ITEM_NAMES = new String[] { "expression", "timeZone" };
-    private static final String[] ITEM_DESCRIPTIONS = new String[] { "expression", "timeZone" };
+    private static final String[] ITEM_NAMES = new String[] { "cronExpression", "timeZone" };
+    private static final String[] ITEM_DESCRIPTIONS = new String[] { "cronExpression", "timeZone" };
     private static final OpenType[] ITEM_TYPES = new OpenType[] { STRING, STRING };
     private static final CompositeType COMPOSITE_TYPE;
     private static final String TABULAR_TYPE_NAME = "CronTrigger collection";
@@ -65,10 +65,10 @@ public class CronTriggerSupport {
     
     public static CompositeData toCompositeData(CronTrigger trigger) {
         try {
-            return new CompositeDataSupport(COMPOSITE_TYPE, ITEM_NAMES,
+            return new CompositeDataSupport(COMPOSITE_TYPE, getItemNames(),
                     new Object[] {
                             trigger.getCronExpression(),
-                            trigger.getTimeZone(),
+                            trigger.getTimeZone().getID(),
                             trigger.getKey().getName(),
                             trigger.getKey().getGroup(),
                             trigger.getJobKey().getName(),
