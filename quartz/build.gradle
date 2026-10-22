@@ -27,7 +27,7 @@ dependencies {
     compileOnly "jboss:jboss-jmx:$jbossVersion"
     compileOnly "org.apache.geronimo.specs:geronimo-commonj_1.1_spec:$commonjVersion"
 
-    implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.4'
+    implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.5'
 
     compileOnly 'jakarta.transaction:jakarta.transaction-api:2.0.1'
     testImplementation 'jakarta.transaction:jakarta.transaction-api:2.0.1'
@@ -46,9 +46,9 @@ dependencies {
     testImplementation "org.testcontainers:mssqlserver:$testcontainersVersion"
     testImplementation "org.testcontainers:mariadb:$testcontainersVersion"
     testImplementation "org.testcontainers:postgresql:$testcontainersVersion"
-    testImplementation 'com.microsoft.sqlserver:mssql-jdbc:13.2.1.jre11'
-    testImplementation 'org.mariadb.jdbc:mariadb-java-client:3.5.7'
-    testImplementation 'org.postgresql:postgresql:42.7.8'
+    testImplementation 'com.microsoft.sqlserver:mssql-jdbc:13.6.0.jre11'
+    testImplementation 'org.mariadb.jdbc:mariadb-java-client:3.5.10'
+    testImplementation 'org.postgresql:postgresql:42.7.13'
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 

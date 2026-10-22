@@ -22,7 +22,6 @@ import static org.quartz.TriggerKey.triggerKey;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -74,9 +73,7 @@ public class MSSQLDelegate extends StdJDBCDelegate {
 
         Object obj;
 
-        try (ObjectInputStream in = new ObjectInputStream(binaryInput)) {
-            obj = in.readObject();
-        }
+        obj = readObjectFromBinaryStream(binaryInput);
 
         return obj;
     }
@@ -125,6 +122,27 @@ public class MSSQLDelegate extends StdJDBCDelegate {
             closeResultSet(rs);
             closeStatement(ps);
         }      
+    }
+
+    /**
+     * Bind INSTANCE_NAME as NVARCHAR so the clustered PK on
+     * QRTZ_SCHEDULER_STATE can be used. {@code setString} sends VARCHAR and
+     * SQL Server cannot seek the NVARCHAR(200) key, which causes clustered
+     * check-in deadlocks.
+     */
+    @Override
+    public int updateSchedulerState(Connection conn, String theInstanceId, long checkInTime)
+        throws SQLException {
+        PreparedStatement ps = null;
+        try {
+            ps = conn.prepareStatement(rtp(UPDATE_SCHEDULER_STATE));
+            ps.setLong(1, checkInTime);
+            ps.setNString(2, theInstanceId);
+
+            return ps.executeUpdate();
+        } finally {
+            closeStatement(ps);
+        }
     }
     
 }

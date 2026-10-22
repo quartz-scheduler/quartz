@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.quartz.AbstractJobStoreTest;
+import org.quartz.JobPersistenceException;
 import org.quartz.impl.jdbcjobstore.JdbcQuartzTestUtilities.DatabaseType;
 import org.quartz.spi.JobStore;
 
@@ -41,7 +42,7 @@ public class JdbcJobStoreTest extends AbstractJobStoreTest {
         String name = name(prefix);
         try {
             JdbcQuartzTestUtilities.createDatabase(name, getDatabaseType());
-            JobStoreTX jdbcJobStore = new JobStoreTX();
+            TestJobStoreTX jdbcJobStore = new TestJobStoreTX();
             jdbcJobStore.setDataSource(name);
             jdbcJobStore.setTablePrefix("QRTZ_");
             jdbcJobStore.setInstanceId("SINGLE_NODE_TEST_" + getDatabaseType().name());
@@ -72,5 +73,16 @@ public class JdbcJobStoreTest extends AbstractJobStoreTest {
 
     protected Map<String, JobStoreSupport> stores() {
         return stores;
+    }
+
+    @Override
+    protected void applyMisfires(JobStore jobStore, long noLaterThan) throws Exception {
+        ((TestJobStoreTX) jobStore).recoverMisfires();
+    }
+
+    private static class TestJobStoreTX extends JobStoreTX {
+        void recoverMisfires() throws JobPersistenceException {
+            doRecoverMisfires();
+        }
     }
 }

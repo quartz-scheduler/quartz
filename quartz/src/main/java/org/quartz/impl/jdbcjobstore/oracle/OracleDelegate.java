@@ -21,7 +21,6 @@ package org.quartz.impl.jdbcjobstore.oracle;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Connection;
@@ -135,9 +134,7 @@ public class OracleDelegate extends StdJDBCDelegate {
         Object obj = null;
         InputStream binaryInput = rs.getBinaryStream(colName);
         if (binaryInput != null) {
-            try (ObjectInputStream in = new ObjectInputStream(binaryInput)) {
-                obj = in.readObject();
-            }
+            obj = readObjectFromBinaryStream(binaryInput);
         }
 
         return obj;

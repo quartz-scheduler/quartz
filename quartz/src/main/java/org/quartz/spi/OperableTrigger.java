@@ -90,6 +90,17 @@ public interface OperableTrigger extends MutableTrigger {
     void updateAfterMisfire(Calendar cal);
 
     /**
+     * Updates this trigger after a misfire using the scheduler's current time.
+     *
+     * <p>The default delegates to the original method for compatibility with
+     * custom trigger implementations. Implementations that calculate from
+     * "now" should override this method.</p>
+     */
+    default void updateAfterMisfire(Calendar cal, Date now) {
+        updateAfterMisfire(cal);
+    }
+
+    /**
      * <p>
      * This method should not be used by the Quartz client.
      * </p>
@@ -108,6 +119,17 @@ public interface OperableTrigger extends MutableTrigger {
      * @param cal
      */
     void updateWithNewCalendar(Calendar cal, long misfireThreshold);
+
+    /**
+     * Updates this trigger after its calendar changes, using the scheduler's
+     * current time when applying the misfire threshold.
+     *
+     * <p>The default delegates to the original method for compatibility with
+     * custom trigger implementations.</p>
+     */
+    default void updateWithNewCalendar(Calendar cal, long misfireThreshold, Date now) {
+        updateWithNewCalendar(cal, misfireThreshold);
+    }
 
     
     /**

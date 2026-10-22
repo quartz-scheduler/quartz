@@ -20,6 +20,7 @@
 package org.quartz.core;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -245,6 +246,7 @@ public class QuartzSchedulerThread extends Thread {
     @Override
     public void run() {
         int acquiresFailed = 0;
+        int schedulingTimeFailures = 0;
 
         while (!halted.get()) {
             try {
@@ -260,6 +262,7 @@ public class QuartzSchedulerThread extends Thread {
                         // reset failure counter when paused, so that we don't
                         // wait again after unpausing
                         acquiresFailed = 0;
+                        schedulingTimeFailures = 0;
                     }
 
                     if (halted.get()) {
@@ -287,7 +290,8 @@ public class QuartzSchedulerThread extends Thread {
 
                     List<OperableTrigger> triggers;
 
-                    long now = System.currentTimeMillis();
+                    long now = currentTimeMillis();
+                    schedulingTimeFailures = 0;
 
                     clearSignaledSchedulingChange();
                     try {
@@ -316,7 +320,7 @@ public class QuartzSchedulerThread extends Thread {
 
                     if (triggers != null && !triggers.isEmpty()) {
 
-                        now = System.currentTimeMillis();
+                        now = currentTimeMillis();
                         long triggerTime = triggers.get(0).getNextFireTime().getTime();
                         long timeUntilTrigger = triggerTime - now;
                         while(timeUntilTrigger > 2) {
@@ -328,7 +332,7 @@ public class QuartzSchedulerThread extends Thread {
                                     try {
                                         // we could have blocked a long while
                                         // on 'synchronize', so we must recompute
-                                        now = System.currentTimeMillis();
+                                        now = currentTimeMillis();
                                         timeUntilTrigger = triggerTime - now;
                                         if(timeUntilTrigger >= 1)
                                             sigLock.wait(timeUntilTrigger);
@@ -344,7 +348,7 @@ public class QuartzSchedulerThread extends Thread {
                             if(releaseIfScheduleChangedSignificantly(triggers, triggerTime)) {
                                 break;
                             }
-                            now = System.currentTimeMillis();
+                            now = currentTimeMillis();
                             timeUntilTrigger = triggerTime - now;
                         }
 
@@ -424,7 +428,7 @@ public class QuartzSchedulerThread extends Thread {
                     continue; // while (!halted)
                 }
 
-                long now = System.currentTimeMillis();
+                long now = currentTimeMillis();
                 long waitTime = now + getRandomizedIdleWaitTime();
                 long timeUntilContinue = waitTime - now;
                 synchronized(sigLock) {
@@ -443,7 +447,23 @@ public class QuartzSchedulerThread extends Thread {
                 }
 
             } catch(RuntimeException re) {
-                getLog().error("Runtime error occurred in main trigger firing loop.", re);
+                if (re instanceof SchedulingTimeException) {
+                    if (schedulingTimeFailures == 0) {
+                        qs.notifySchedulerListenersError(
+                                "Unable to obtain the current scheduling time",
+                                ((SchedulingTimeException) re).getSchedulerException());
+                    }
+                    if (schedulingTimeFailures < Integer.MAX_VALUE) {
+                        schedulingTimeFailures++;
+                    }
+                    try {
+                        Thread.sleep(1000L);
+                    } catch (InterruptedException ignore) {
+                        Thread.currentThread().interrupt();
+                    }
+                } else {
+                    getLog().error("Runtime error occurred in main trigger firing loop.", re);
+                }
             }
         } // while (!halted)
 
@@ -522,7 +542,7 @@ public class QuartzSchedulerThread extends Thread {
 
             if(earlier) {
                 // so the new time is considered earlier, but is it enough earlier?
-                long diff = oldTime - System.currentTimeMillis();
+                long diff = oldTime - currentTimeMillis();
                 if(diff < (qsRsrcs.getJobStore().supportsPersistence() ? 70L : 7L))
                     earlier = false;
             }
@@ -532,6 +552,31 @@ public class QuartzSchedulerThread extends Thread {
             }
 
             return earlier;
+        }
+    }
+
+    /**
+     * Get current scheduling time from the configured TimeBroker.
+     */
+    private long currentTimeMillis() {
+        try {
+            Date currentTime = qsRsrcs.getTimeBroker().getCurrentTime();
+            if (currentTime == null) {
+                throw new SchedulerException("TimeBroker returned null scheduling time");
+            }
+            return currentTime.getTime();
+        } catch (SchedulerException e) {
+            throw new SchedulingTimeException(e);
+        }
+    }
+
+    private static final class SchedulingTimeException extends RuntimeException {
+        private SchedulingTimeException(SchedulerException cause) {
+            super(cause);
+        }
+
+        private SchedulerException getSchedulerException() {
+            return (SchedulerException) getCause();
         }
     }
 
