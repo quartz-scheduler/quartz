@@ -104,10 +104,11 @@ public class RRuleCalendarTest {
 
     @Test
     void testSetRRuleExpressionKeepsTimeZone() throws Exception {
-        TimeZone prague = TimeZone.getTimeZone("Europe/Prague");
-        RRuleCalendar cal = new RRuleCalendar(null, "FREQ=DAILY;BYHOUR=0", prague);
+        // Not a likely JVM default, so a dropped time zone cannot pass by accident.
+        TimeZone chatham = TimeZone.getTimeZone("Pacific/Chatham");
+        RRuleCalendar cal = new RRuleCalendar(null, "FREQ=DAILY;BYHOUR=0", chatham);
         cal.setRRuleExpression("FREQ=DAILY;BYHOUR=1");
-        assertEquals(prague, cal.getTimeZone());
-        assertEquals(prague, cal.getRRuleExpression().getTimeZone());
+        assertEquals(chatham, cal.getTimeZone());
+        assertEquals(chatham, cal.getRRuleExpression().getTimeZone());
     }
 }

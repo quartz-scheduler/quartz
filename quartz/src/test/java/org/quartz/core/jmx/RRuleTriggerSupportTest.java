@@ -19,6 +19,7 @@
 package org.quartz.core.jmx;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collections;
 import java.util.Date;
@@ -44,19 +45,21 @@ public class RRuleTriggerSupportTest {
         trigger.setGroup("group");
         trigger.setJobName("job");
         trigger.setJobGroup("jobGroup");
-        trigger.setTimeZone(TimeZone.getTimeZone("Europe/Prague"));
+        trigger.setTimeZone(TimeZone.getTimeZone("Pacific/Chatham"));
         trigger.setStartTime(new Date(1_800_000_000_000L));
         trigger.setRRuleExpression("FREQ=WEEKLY;BYDAY=MO;BYHOUR=9");
 
         CompositeData data = RRuleTriggerSupport.toCompositeData(trigger);
         assertEquals("FREQ=WEEKLY;BYDAY=MO;BYHOUR=9", data.get("rruleExpression"));
-        assertEquals("Europe/Prague", data.get("timeZone"));
+        assertEquals("Pacific/Chatham", data.get("timeZone"));
         assertEquals("rrule", data.get("name"));
 
         OperableTrigger copy = RRuleTriggerSupport.newTrigger(data);
         assertEquals("FREQ=WEEKLY;BYDAY=MO;BYHOUR=9", ((RRuleTrigger) copy).getRRuleExpression());
-        assertEquals(TimeZone.getTimeZone("Europe/Prague"), ((RRuleTrigger) copy).getTimeZone());
+        assertEquals(TimeZone.getTimeZone("Pacific/Chatham"), ((RRuleTrigger) copy).getTimeZone());
         assertEquals(trigger.getKey(), copy.getKey());
+        // TriggerSupport dispatches on the "rruleExpression" item.
+        assertTrue(TriggerSupport.newTrigger(data) instanceof RRuleTrigger);
 
         TabularData table = RRuleTriggerSupport.toTabularData(Collections.singletonList(trigger));
         assertEquals(1, table.size());
