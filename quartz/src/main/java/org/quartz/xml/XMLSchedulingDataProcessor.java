@@ -20,6 +20,7 @@ package org.quartz.xml;
 
 import static org.quartz.CalendarIntervalScheduleBuilder.calendarIntervalSchedule;
 import static org.quartz.CronScheduleBuilder.cronSchedule;
+import static org.quartz.RRuleScheduleBuilder.rruleScheduleNonvalidatedExpression;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import static org.quartz.TriggerBuilder.newTrigger;
@@ -739,6 +740,37 @@ public class XMLSchedulingDataProcessor implements ErrorHandler {
                         }
                     }
                     break;
+                case "rrule": {
+                    String rruleExpression = getTrimmedToNullString(xpath, "q:rrule-expression", triggerNode);
+                    String rruleTimezoneString = getTrimmedToNullString(xpath, "q:time-zone", triggerNode);
+
+                    try {
+                        sched = rruleScheduleNonvalidatedExpression(rruleExpression);
+                    } catch (ParseException e) {
+                        throw new ParseException("Invalid RRULE expression '" + rruleExpression + "' for trigger: "
+                                + triggerKey + ": " + e.getMessage(), -1);
+                    }
+                    if (rruleTimezoneString != null) {
+                        ((RRuleScheduleBuilder) sched).inTimeZone(TimeZone.getTimeZone(rruleTimezoneString));
+                    }
+
+                    if (triggerMisfireInstructionConst != null && !triggerMisfireInstructionConst.isEmpty()) {
+                        switch (triggerMisfireInstructionConst) {
+                            case "MISFIRE_INSTRUCTION_DO_NOTHING":
+                                ((RRuleScheduleBuilder) sched).withMisfireHandlingInstructionDoNothing();
+                                break;
+                            case "MISFIRE_INSTRUCTION_FIRE_ONCE_NOW":
+                                ((RRuleScheduleBuilder) sched).withMisfireHandlingInstructionFireAndProceed();
+                                break;
+                            case "MISFIRE_INSTRUCTION_SMART_POLICY":
+                                // do nothing.... (smart policy is default)
+                                break;
+                            default:
+                                throw new ParseException("Unexpected/Unhandleable Misfire Instruction encountered '" + triggerMisfireInstructionConst + "', for trigger: " + triggerKey, -1);
+                        }
+                    }
+                    break;
+                }
                 case "calendar-interval": {
                     String repeatIntervalString = getTrimmedToNullString(xpath, "q:repeat-interval", triggerNode);
                     String repeatUnitString = getTrimmedToNullString(xpath, "q:repeat-interval-unit", triggerNode);

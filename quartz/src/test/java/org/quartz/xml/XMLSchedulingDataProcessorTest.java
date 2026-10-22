@@ -3,6 +3,7 @@ package org.quartz.xml;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.quartz.JobBuilder.newJob;
@@ -31,6 +32,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.JobKey;
 import org.quartz.ObjectAlreadyExistsException;
+import org.quartz.RRuleTrigger;
 import org.quartz.Scheduler;
 import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
@@ -224,6 +226,49 @@ public class XMLSchedulingDataProcessorTest  {
    				scheduler.shutdown();
    		}
    	}
+
+	@Test
+	void testRRuleTriggers() throws Exception {
+		Scheduler scheduler = null;
+		try {
+			StdSchedulerFactory factory = new StdSchedulerFactory("org/quartz/xml/quartz-test.properties");
+			scheduler = factory.getScheduler();
+			ClassLoadHelper clhelper = new CascadingClassLoadHelper();
+			clhelper.initialize();
+			XMLSchedulingDataProcessor processor = new XMLSchedulingDataProcessor(clhelper);
+			processor.processFileAndScheduleJobs("org/quartz/xml/rrule-job-triggers.xml", scheduler);
+			assertEquals(3, scheduler.getTriggerKeys(GroupMatcher.triggerGroupEquals("DEFAULT")).size());
+
+			RRuleTrigger weekdays = (RRuleTrigger) scheduler.getTrigger(TriggerKey.triggerKey("weekdays_at_ten"));
+			assertEquals("FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR;BYHOUR=10;BYMINUTE=0;BYSECOND=0", weekdays.getRRuleExpression());
+			assertEquals(Trigger.MISFIRE_INSTRUCTION_SMART_POLICY, weekdays.getMisfireInstruction());
+			assertEquals(dateOfGMT_UTC(9, 0, 0, 5, Calendar.JANUARY, 2026), weekdays.getStartTime());
+
+			RRuleTrigger lastFriday = (RRuleTrigger) scheduler.getTrigger(TriggerKey.triggerKey("last_friday_prague"));
+			assertEquals(TimeZone.getTimeZone("Europe/Prague"), lastFriday.getTimeZone());
+			assertEquals(RRuleTrigger.MISFIRE_INSTRUCTION_DO_NOTHING, lastFriday.getMisfireInstruction());
+			// 2026-01-30 is the last Friday of January; 22:00 CET is 21:00 UTC.
+			assertEquals(dateOfGMT_UTC(21, 0, 0, 30, Calendar.JANUARY, 2026),
+					lastFriday.getFireTimeAfter(dateOfGMT_UTC(0, 0, 0, 5, Calendar.JANUARY, 2026)));
+
+			RRuleTrigger fireOnceNow = (RRuleTrigger) scheduler.getTrigger(TriggerKey.triggerKey("fire_once_now"));
+			assertEquals(RRuleTrigger.MISFIRE_INSTRUCTION_FIRE_ONCE_NOW, fireOnceNow.getMisfireInstruction());
+		} finally {
+			if (scheduler != null)
+				scheduler.shutdown();
+		}
+	}
+
+	@Test
+	void testInvalidRRuleExpressionIsRejected() throws Exception {
+		ClassLoadHelper clhelper = new CascadingClassLoadHelper();
+		clhelper.initialize();
+		XMLSchedulingDataProcessor processor = new XMLSchedulingDataProcessor(clhelper);
+		java.text.ParseException e = assertThrows(java.text.ParseException.class,
+				() -> processor.processFile("org/quartz/xml/rrule-job-trigger-invalid.xml"));
+		assertTrue(e.getMessage().contains("not_applicable"), e.getMessage());
+		assertTrue(e.getMessage().contains("BYMONTHDAY"), e.getMessage());
+	}
 
 	private Date dateOfGMT_UTC(int hour, int minute, int second, int dayOfMonth, int month, int year) {
 		final GregorianCalendar calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));

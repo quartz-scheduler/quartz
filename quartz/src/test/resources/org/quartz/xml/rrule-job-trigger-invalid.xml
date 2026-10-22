@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<job-scheduling-data version="2.0" xmlns="http://www.quartz-scheduler.org/xml/JobSchedulingData"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.quartz-scheduler.org/xml/JobSchedulingData http://www.quartz-scheduler.org/xml/job_scheduling_data_2_0.xsd">
+
+	<schedule>
+		<job>
+			<name>job1</name>
+			<group>DEFAULT</group>
+			<job-class>org.quartz.xml.XMLSchedulingDataProcessorTest$MyJob</job-class>
+			<durability>true</durability>
+			<recover>false</recover>
+		</job>
+		<trigger>
+			<rrule>
+				<name>not_applicable</name>
+				<job-name>job1</job-name>
+				<rrule-expression>FREQ=WEEKLY;BYMONTHDAY=13</rrule-expression>
+			</rrule>
+		</trigger>
+	</schedule>
+
+</job-scheduling-data>
