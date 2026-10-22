@@ -68,4 +68,46 @@ public class RRuleCalendarTest {
         assertEquals(cal.getRRuleExpression().getExpression(), clone.getRRuleExpression().getExpression());
         assertFalse(clone.isTimeIncluded(d(2026, 1, 4, 0, 0, 0).getTime()));
     }
+
+    @Test
+    void testExcludesMonthlyRule() throws Exception {
+        // With the old period estimate, a MONTHLY rule anchored in 1970 excluded nothing.
+        RRuleCalendar cal = new RRuleCalendar(null, "FREQ=MONTHLY;BYMONTHDAY=1;BYHOUR=0;BYMINUTE=0;BYSECOND=0", UTC);
+        assertFalse(cal.isTimeIncluded(d(2026, 10, 1, 0, 0, 0).getTime()));
+        assertFalse(cal.isTimeIncluded(d(2026, 11, 1, 0, 0, 0).getTime()));
+        assertTrue(cal.isTimeIncluded(d(2026, 10, 2, 0, 0, 0).getTime()));
+    }
+
+    @Test
+    void testExcludesWholeDaysWithSubDailyRule() throws Exception {
+        // Exclude every second of every Sunday (2026-01-04 is a Sunday).
+        RRuleCalendar cal = new RRuleCalendar(null, "FREQ=SECONDLY;BYDAY=SU", UTC);
+        assertFalse(cal.isTimeIncluded(d(2026, 1, 4, 0, 0, 0).getTime()));
+        assertFalse(cal.isTimeIncluded(d(2026, 1, 4, 13, 37, 42).getTime()));
+        assertFalse(cal.isTimeIncluded(d(2026, 1, 4, 23, 59, 59).getTime()));
+        assertTrue(cal.isTimeIncluded(d(2026, 1, 3, 23, 59, 59).getTime()));
+        assertTrue(cal.isTimeIncluded(d(2026, 1, 5, 0, 0, 0).getTime()));
+        assertEquals(d(2026, 1, 5, 0, 0, 0).getTime(), cal.getNextIncludedTime(d(2026, 1, 4, 8, 0, 0).getTime()));
+    }
+
+    @Test
+    void testDefaultAnchorIsLocalMidnight() throws Exception {
+        TimeZone kolkata = TimeZone.getTimeZone("Asia/Kolkata");
+        RRuleCalendar cal = new RRuleCalendar(null, "FREQ=DAILY;BYHOUR=9", kolkata);
+        Calendar c = Calendar.getInstance(kolkata);
+        c.clear();
+        c.set(2026, Calendar.OCTOBER, 22, 9, 0, 0);
+        assertFalse(cal.isTimeIncluded(c.getTimeInMillis()), "09:00:00 local should be excluded");
+        c.set(Calendar.MINUTE, 30);
+        assertTrue(cal.isTimeIncluded(c.getTimeInMillis()), "09:30:00 local should be included");
+    }
+
+    @Test
+    void testSetRRuleExpressionKeepsTimeZone() throws Exception {
+        TimeZone prague = TimeZone.getTimeZone("Europe/Prague");
+        RRuleCalendar cal = new RRuleCalendar(null, "FREQ=DAILY;BYHOUR=0", prague);
+        cal.setRRuleExpression("FREQ=DAILY;BYHOUR=1");
+        assertEquals(prague, cal.getTimeZone());
+        assertEquals(prague, cal.getRRuleExpression().getTimeZone());
+    }
 }

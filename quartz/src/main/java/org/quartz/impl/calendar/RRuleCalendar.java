@@ -27,9 +27,18 @@ import org.quartz.RRuleExpression;
 
 /**
  * This implementation of the Calendar excludes the set of times expressed by a
- * given RFC&nbsp;5545 {@link org.quartz.RRuleExpression RRuleExpression}. For
- * example, you could use this calendar to exclude every Sunday using the
- * expression &quot;FREQ=WEEKLY;BYDAY=SU&quot;.
+ * given RFC&nbsp;5545 {@link org.quartz.RRuleExpression RRuleExpression}. An
+ * RRULE describes instants (whole seconds), so to exclude a whole time range use
+ * a sub-daily frequency. For example, you could use this calendar to exclude
+ * every second of every Sunday using the expression
+ * &quot;FREQ=SECONDLY;BYDAY=SU&quot;, or just the hour from 12:00 to 13:00 on
+ * weekdays with &quot;FREQ=SECONDLY;BYDAY=MO,TU,WE,TH,FR;BYHOUR=12&quot;.
+ * <P>
+ * The calendar has no <code>DTSTART</code> of its own, so the expression is
+ * anchored at midnight of 1970-01-01 in the calendar's time zone. That anchor
+ * supplies the values the rule does not constrain (e.g. the time of day of
+ * &quot;FREQ=DAILY&quot; is midnight, the weekday of &quot;FREQ=WEEKLY&quot; is
+ * Thursday) and the phase of any <code>INTERVAL</code> greater than 1.
  * <P>
  * It is important to remember that the RRULE here describes a set of times to
  * be <I>excluded</I> from firing. Whereas the RRULE in
@@ -203,7 +212,9 @@ public class RRuleCalendar extends BaseCalendar {
      * @throws ParseException if the string expression cannot be parsed
      */
     public void setRRuleExpression(String expression) throws ParseException {
-        this.rruleExpression = new RRuleExpression(expression);
+        RRuleExpression newExp = new RRuleExpression(expression);
+        newExp.setTimeZone(getTimeZone());
+        this.rruleExpression = newExp;
     }
 
     /**
