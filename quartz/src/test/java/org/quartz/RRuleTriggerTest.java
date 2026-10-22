@@ -20,6 +20,7 @@ package org.quartz;
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
@@ -32,6 +33,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import org.junit.jupiter.api.Test;
+import org.quartz.impl.calendar.RRuleCalendar;
 import org.quartz.impl.triggers.RRuleTriggerImpl;
 
 /**
@@ -164,5 +166,83 @@ public class RRuleTriggerTest {
         assertEquals(t.getTimeZone(), copy.getTimeZone());
         assertEquals(d(2026, 1, 7, 8, 0, 0),
                 copy.getFireTimeAfter(new Date(copy.getStartTime().getTime() - 1000L)));
+    }
+
+    @Test
+    void testMonthlyTriggerWithOldStartTime() throws Exception {
+        // A long-lived trigger must not skip months when its start time is years old.
+        RRuleTriggerImpl t = trigger("FREQ=MONTHLY;BYMONTHDAY=1;BYHOUR=0;BYMINUTE=0;BYSECOND=0", d(2000, 1, 15, 0, 0, 0));
+        assertEquals(d(2026, 11, 1, 0, 0, 0), t.getFireTimeAfter(d(2026, 10, 22, 0, 0, 0)));
+    }
+
+    @Test
+    void testCountAndEndTimeFinalFireTime() throws Exception {
+        RRuleTriggerImpl t = trigger("FREQ=DAILY;COUNT=3;BYHOUR=12;BYMINUTE=0;BYSECOND=0", d(2026, 1, 5, 9, 0, 0));
+        t.setEndTime(d(2027, 1, 1, 0, 0, 0));
+        assertEquals(d(2026, 1, 7, 12, 0, 0), t.getFinalFireTime());
+        t.setEndTime(d(2026, 1, 6, 13, 0, 0));
+        assertEquals(d(2026, 1, 6, 12, 0, 0), t.getFinalFireTime());
+    }
+
+    private static RRuleTriggerImpl misfired(int instruction) throws ParseException {
+        // Fires every day at 12:00 UTC; the start time and next fire time are 10 days in the past.
+        Date start = new Date(System.currentTimeMillis() - 10L * 24 * 3600 * 1000);
+        RRuleTriggerImpl t = trigger("FREQ=DAILY;BYHOUR=12;BYMINUTE=0;BYSECOND=0", start);
+        t.setMisfireInstruction(instruction);
+        t.setNextFireTime(t.getFireTimeAfter(start));
+        return t;
+    }
+
+    @Test
+    void testMisfireDoNothing() throws Exception {
+        RRuleTriggerImpl t = misfired(RRuleTrigger.MISFIRE_INSTRUCTION_DO_NOTHING);
+        long before = System.currentTimeMillis();
+        t.updateAfterMisfire(null);
+        Date next = t.getNextFireTime();
+        assertTrue(next.getTime() > before - 1000L, "next fire time should be in the future: " + next);
+        assertTrue(next.getTime() <= before + 24L * 3600 * 1000, "next fire time should be within a day: " + next);
+        assertEquals(0L, (next.getTime() - d(2026, 1, 1, 12, 0, 0).getTime()) % (24L * 3600 * 1000));
+    }
+
+    @Test
+    void testMisfireDoNothingSkipsExcludedTimes() throws Exception {
+        RRuleTriggerImpl t = misfired(RRuleTrigger.MISFIRE_INSTRUCTION_DO_NOTHING);
+        // Exclude 12:00:00 on every day except Wednesdays.
+        RRuleCalendar cal = new RRuleCalendar(null,
+                "FREQ=DAILY;BYDAY=MO,TU,TH,FR,SA,SU;BYHOUR=12;BYMINUTE=0;BYSECOND=0", UTC);
+        t.updateAfterMisfire(cal);
+        Calendar next = Calendar.getInstance(UTC);
+        next.setTime(t.getNextFireTime());
+        assertEquals(Calendar.WEDNESDAY, next.get(Calendar.DAY_OF_WEEK));
+        assertTrue(t.getNextFireTime().getTime() > System.currentTimeMillis() - 1000L);
+    }
+
+    @Test
+    void testMisfireFireOnceNowAndSmartPolicy() throws Exception {
+        for (int instruction : asList(RRuleTrigger.MISFIRE_INSTRUCTION_FIRE_ONCE_NOW, Trigger.MISFIRE_INSTRUCTION_SMART_POLICY)) {
+            RRuleTriggerImpl t = misfired(instruction);
+            long before = System.currentTimeMillis();
+            t.updateAfterMisfire(null);
+            long next = t.getNextFireTime().getTime();
+            assertTrue(next >= before && next <= System.currentTimeMillis(), "should fire now");
+        }
+    }
+
+    @Test
+    void testMisfireIgnorePolicyKeepsNextFireTime() throws Exception {
+        RRuleTriggerImpl t = misfired(Trigger.MISFIRE_INSTRUCTION_IGNORE_MISFIRE_POLICY);
+        Date original = t.getNextFireTime();
+        t.updateAfterMisfire(null);
+        assertEquals(original, t.getNextFireTime());
+    }
+
+    @Test
+    void testMisfireDoNothingOnExhaustedCountRule() throws Exception {
+        Date start = new Date(System.currentTimeMillis() - 10L * 24 * 3600 * 1000);
+        RRuleTriggerImpl t = trigger("FREQ=DAILY;COUNT=3;BYHOUR=12;BYMINUTE=0;BYSECOND=0", start);
+        t.setMisfireInstruction(RRuleTrigger.MISFIRE_INSTRUCTION_DO_NOTHING);
+        t.setNextFireTime(t.getFireTimeAfter(start));
+        t.updateAfterMisfire(null);
+        assertNull(t.getNextFireTime());
     }
 }
