@@ -98,8 +98,10 @@ public final class JdbcQuartzTestUtilities {
                 DBConnectionManager.getInstance().addConnectionProvider(name, new DerbyEmbeddedConnectionProvider(name));
                 break;
             case MSSQL:
+                // Not "latest": SQL Server 2025 intermittently crashes at container startup
+                // (fatal error in lsasrv.dll), which fails random MSSQL tests.
                 DBConnectionManager.getInstance().addConnectionProvider(name,
-                        new TestContainerEmbeddedConnectionProvider("jdbc:tc:sqlserver:latest:///" + name));
+                        new TestContainerEmbeddedConnectionProvider("jdbc:tc:sqlserver:2022-latest:///" + name));
                 break;
             case MARIADB:
                 DBConnectionManager.getInstance().addConnectionProvider(name,
