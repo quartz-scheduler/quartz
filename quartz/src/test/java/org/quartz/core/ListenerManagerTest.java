@@ -86,12 +86,15 @@ class ListenerManagerTest  {
 
     public static class TestClusterListener extends ClusterListenerSupport {
 
-        public TestClusterListener() {
-            super();
-        }
+        private final String name;
 
         public TestClusterListener(String name) {
-            super(name);
+            this.name = name;
+        }
+
+        @Override
+        public String getName() {
+            return name;
         }
 
         private String lastFailedInstanceId;
@@ -256,6 +259,8 @@ class ListenerManagerTest  {
         // test adding another listener
         manager.addClusterListener(tl2);
         assertEquals(2, manager.getClusterListeners().size(), "Unexpected size of listener list");
+        assertSame(tl1, manager.getClusterListeners().get(0), "Expected first listener to be retained");
+        assertSame(tl2, manager.getClusterListeners().get(1), "Expected second listener to be retained");
 
         // test getting a listener by name
         assertSame(tl1, manager.getClusterListener("tl1"), "Expected to find listener by name");
@@ -284,6 +289,38 @@ class ListenerManagerTest  {
             assertSame(lstners[i], lsnr, "Unexpected order of listeners");
             i++;
         }
+    }
+
+    @Test
+    void testClusterListenerWithNullNameIsRejected() {
+        ListenerManagerImpl manager = new ListenerManagerImpl();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> manager.addClusterListener(new TestClusterListener(null)));
+        assertTrue(manager.getClusterListeners().isEmpty());
+    }
+
+    @Test
+    void testClusterListenerWithEmptyNameIsRejected() {
+        ListenerManagerImpl manager = new ListenerManagerImpl();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> manager.addClusterListener(new TestClusterListener("")));
+        assertTrue(manager.getClusterListeners().isEmpty());
+    }
+
+    @Test
+    void testClusterListenerWithSameNameReplacesExistingListener() {
+        ListenerManagerImpl manager = new ListenerManagerImpl();
+        TestClusterListener original = new TestClusterListener("sameName");
+        TestClusterListener replacement = new TestClusterListener("sameName");
+
+        manager.addClusterListener(original);
+        manager.addClusterListener(replacement);
+
+        assertEquals(1, manager.getClusterListeners().size());
+        assertSame(replacement, manager.getClusterListener("sameName"));
+        assertSame(replacement, manager.getClusterListeners().get(0));
     }
 
     @Test

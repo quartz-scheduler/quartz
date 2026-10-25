@@ -1,4 +1,3 @@
-
 /*
  * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * Copyright IBM Corp. 2024, 2025, 2026

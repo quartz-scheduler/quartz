@@ -1,4 +1,3 @@
-
 /*
  * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * Copyright IBM Corp. 2024, 2025, 2026
@@ -31,35 +30,14 @@ import org.quartz.ClusterListener;
  * <code>{@link ClusterListener}</code>.
  * </p>
  *
+ * <p>
+ * You are required to implement <code>{@link ClusterListener#getName()}</code>
+ * to return the unique name of your <code>ClusterListener</code>.
+ * </p>
+ *
  * @see ClusterListener
  */
 public abstract class ClusterListenerSupport implements ClusterListener {
-
-    private final String name;
-
-    /**
-     * Constructor with a default name.
-     */
-    protected ClusterListenerSupport() {
-        this.name = getClass().getName() + "_" + System.currentTimeMillis();
-    }
-
-    /**
-     * Constructor with a specified name.
-     *
-     * @param name the name of the listener
-     */
-    protected ClusterListenerSupport(String name) {
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("Listener name cannot be null or empty");
-        }
-        this.name = name;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
 
     @Override
     public void clusterNodeFailed(String failedInstanceId) {

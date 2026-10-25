@@ -1,4 +1,3 @@
-
 /*
  * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * Copyright IBM Corp. 2024, 2025, 2026
@@ -35,11 +34,17 @@ import java.util.concurrent.CopyOnWriteArrayList;
 class SchedulerSignalerClusterTest {
 
     private static class TestClusterListener extends ClusterListenerSupport {
+        private final String name;
         // Use CopyOnWriteArrayList for thread-safe concurrent access
         private final List<String> failedInstances = new CopyOnWriteArrayList<>();
 
         public TestClusterListener(String name) {
-            super(name);
+            this.name = name;
+        }
+
+        @Override
+        public String getName() {
+            return name;
         }
 
         @Override

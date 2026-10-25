@@ -1,4 +1,3 @@
-
 /*
  * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  * Copyright IBM Corp. 2024, 2025, 2026
@@ -18,8 +17,8 @@
 
 package org.quartz.core;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -37,10 +36,16 @@ import java.util.concurrent.CopyOnWriteArrayList;
 class ClusterListenerTest {
 
     private static class TestClusterListener extends ClusterListenerSupport {
+        private final String name;
         private final List<String> failedInstances = new CopyOnWriteArrayList<>();
 
         public TestClusterListener(String name) {
-            super(name);
+            this.name = name;
+        }
+
+        @Override
+        public String getName() {
+            return name;
         }
 
         @Override
@@ -58,58 +63,27 @@ class ClusterListenerTest {
     }
 
     /**
-     * Test that ClusterListenerSupport provides default name when not specified
+     * Test that ClusterListenerSupport provides an empty callback implementation
      */
     @Test
-    void testClusterListenerSupportDefaultName() {
+    void testClusterListenerSupportDefaultCallback() {
         ClusterListener listener = new ClusterListenerSupport() {
             @Override
-            public void clusterNodeFailed(String failedInstanceId) {
-                // Do nothing
+            public String getName() {
+                return "testListener";
             }
         };
 
-        assertNotNull(listener.getName(), "Listener name should not be null");
-        assertTrue(listener.getName().contains("ClusterListenerTest"), "Listener name should contain class name");
+        assertDoesNotThrow(() -> listener.clusterNodeFailed("node1"));
     }
 
     /**
-     * Test that ClusterListenerSupport uses provided name
+     * Test that a ClusterListenerSupport subclass provides its own name
      */
     @Test
     void testClusterListenerSupportCustomName() {
         TestClusterListener listener = new TestClusterListener("myCustomListener");
         assertEquals("myCustomListener", listener.getName());
-    }
-
-    /**
-     * Test that ClusterListenerSupport throws exception for empty name
-     */
-    @Test
-    void testClusterListenerSupportEmptyName() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new ClusterListenerSupport("") {
-                @Override
-                public void clusterNodeFailed(String failedInstanceId) {
-                    // Do nothing
-                }
-            };
-        }, "Expected IllegalArgumentException for empty name");
-    }
-
-    /**
-     * Test that ClusterListenerSupport throws exception for null name
-     */
-    @Test
-    void testClusterListenerSupportNullName() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new ClusterListenerSupport(null) {
-                @Override
-                public void clusterNodeFailed(String failedInstanceId) {
-                    // Do nothing
-                }
-            };
-        }, "Expected IllegalArgumentException for null name");
     }
 
     /**
@@ -250,25 +224,4 @@ class ClusterListenerTest {
         assertEquals("listener3:node1", notificationOrder.get(2));
     }
 
-    /**
-     * Test listener name uniqueness
-     */
-    @Test
-    void testListenerNameUniqueness() {
-        ClusterListener listener1 = new ClusterListenerSupport("sameName") {
-            @Override
-            public void clusterNodeFailed(String failedInstanceId) {
-            }
-        };
-
-        ClusterListener listener2 = new ClusterListenerSupport("sameName") {
-            @Override
-            public void clusterNodeFailed(String failedInstanceId) {
-            }
-        };
-
-        // Both can have the same name, it's up to the manager to handle uniqueness
-        assertEquals("sameName", listener1.getName());
-        assertEquals("sameName", listener2.getName());
-    }
 }
