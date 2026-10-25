@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.quartz.ClusterListener;
 import org.quartz.JobKey;
 import org.quartz.JobListener;
 import org.quartz.ListenerManager;
@@ -26,6 +27,8 @@ public class ListenerManagerImpl implements ListenerManager {
     private final Map<String, List<Matcher<JobKey>>> globalJobListenersMatchers = new LinkedHashMap<>(10);
 
     private final Map<String, List<Matcher<TriggerKey>>> globalTriggerListenersMatchers = new LinkedHashMap<>(10);
+
+    private final Map<String, ClusterListener> globalClusterListeners = new LinkedHashMap<>(10);
 
     private final ArrayList<SchedulerListener> schedulerListeners = new ArrayList<>(10);
 
@@ -270,6 +273,36 @@ public class ListenerManagerImpl implements ListenerManager {
     public List<SchedulerListener> getSchedulerListeners() {
         synchronized (schedulerListeners) {
             return java.util.Collections.unmodifiableList(new ArrayList<>(schedulerListeners));
+        }
+    }
+
+    public void addClusterListener(ClusterListener clusterListener) {
+        if (clusterListener.getName() == null
+                || clusterListener.getName().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "ClusterListener name cannot be empty.");
+        }
+
+        synchronized (globalClusterListeners) {
+            globalClusterListeners.put(clusterListener.getName(), clusterListener);
+        }
+    }
+
+    public boolean removeClusterListener(String name) {
+        synchronized (globalClusterListeners) {
+            return (globalClusterListeners.remove(name) != null);
+        }
+    }
+
+    public List<ClusterListener> getClusterListeners() {
+        synchronized (globalClusterListeners) {
+            return java.util.Collections.unmodifiableList(new LinkedList<>(globalClusterListeners.values()));
+        }
+    }
+
+    public ClusterListener getClusterListener(String name) {
+        synchronized (globalClusterListeners) {
+            return globalClusterListeners.get(name);
         }
     }
 }

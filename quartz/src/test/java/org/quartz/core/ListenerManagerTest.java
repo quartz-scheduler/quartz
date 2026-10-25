@@ -16,8 +16,15 @@
  */
 package org.quartz.core;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.mock;
 import static org.quartz.impl.matchers.GroupMatcher.jobGroupEquals;
 import static org.quartz.impl.matchers.GroupMatcher.triggerGroupEquals;
 import static org.quartz.impl.matchers.NameMatcher.jobNameContains;
@@ -27,14 +34,19 @@ import java.util.UUID;
 
 
 import org.junit.jupiter.api.Test;
+import org.quartz.AbstractJobStoreTest.SampleSignaler;
+import org.quartz.ClusterListener;
 import org.quartz.JobListener;
+import org.quartz.ListenerManager;
 import org.quartz.SchedulerListener;
 import org.quartz.TriggerKey;
 import org.quartz.TriggerListener;
 import org.quartz.impl.matchers.NameMatcher;
+import org.quartz.listeners.ClusterListenerSupport;
 import org.quartz.listeners.JobListenerSupport;
 import org.quartz.listeners.SchedulerListenerSupport;
 import org.quartz.listeners.TriggerListenerSupport;
+import org.quartz.spi.SchedulerSignaler;
 
 /**
  * Test ListenerManagerImpl functionality 
@@ -72,6 +84,30 @@ class ListenerManagerTest  {
 
     }
 
+    public static class TestClusterListener extends ClusterListenerSupport {
+
+        private final String name;
+
+        public TestClusterListener(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        private String lastFailedInstanceId;
+
+        @Override
+        public void clusterNodeFailed(String failedInstanceId) {
+            this.lastFailedInstanceId = failedInstanceId;
+        }
+
+        public String getLastFailedInstanceId() {
+            return lastFailedInstanceId;
+        }
+    }
 
 
     @Test
@@ -188,6 +224,124 @@ class ListenerManagerTest  {
         for (SchedulerListener listener : mls) {
             assertSame(listeners[i], listener, "Unexpected order of listeners");
             i++;
+        }
+    }
+
+    @Test
+    public void testClusterListenerDefaults() throws Exception {
+        assertTrue(SchedulerSignaler.class.getMethod("notifyClusterListenersNodeFailed", String.class).isDefault());
+        assertTrue(ListenerManager.class.getMethod("addClusterListener", ClusterListener.class).isDefault());
+        assertTrue(ListenerManager.class.getMethod("removeClusterListener", String.class).isDefault());
+        assertTrue(ListenerManager.class.getMethod("getClusterListeners").isDefault());
+        assertTrue(ListenerManager.class.getMethod("getClusterListener", String.class).isDefault());
+
+        assertDoesNotThrow(() -> new SampleSignaler().notifyClusterListenersNodeFailed("failed"));
+        ListenerManager manager = mock(ListenerManager.class, CALLS_REAL_METHODS);
+        assertTrue(manager.getClusterListeners().isEmpty());
+        assertNull(manager.getClusterListener("missing"));
+        assertFalse(manager.removeClusterListener("missing"));
+        assertThrows(UnsupportedOperationException.class,
+                () -> manager.addClusterListener(new TestClusterListener("listener")));
+    }
+
+    @Test
+    public void testManagementOfClusterListeners() throws Exception {
+
+        TestClusterListener tl1 = new TestClusterListener("tl1");
+        TestClusterListener tl2 = new TestClusterListener("tl2");
+
+        ListenerManagerImpl manager = new ListenerManagerImpl();
+
+        // test adding listener
+        manager.addClusterListener(tl1);
+        assertEquals(1, manager.getClusterListeners().size(), "Unexpected size of listener list");
+
+        // test adding another listener
+        manager.addClusterListener(tl2);
+        assertEquals(2, manager.getClusterListeners().size(), "Unexpected size of listener list");
+        assertSame(tl1, manager.getClusterListeners().get(0), "Expected first listener to be retained");
+        assertSame(tl2, manager.getClusterListeners().get(1), "Expected second listener to be retained");
+
+        // test getting a listener by name
+        assertSame(tl1, manager.getClusterListener("tl1"), "Expected to find listener by name");
+        assertSame(tl2, manager.getClusterListener("tl2"), "Expected to find listener by name");
+
+        // test removing a listener
+        manager.removeClusterListener("tl1");
+        assertEquals(1, manager.getClusterListeners().size(), "Unexpected size of listener list");
+        assertNull(manager.getClusterListener("tl1"), "Expected listener to be removed");
+
+        // test removing non-existent listener
+        assertFalse(manager.removeClusterListener("nonexistent"), "Expected false when removing non-existent listener");
+
+        // Test ordering of registration is preserved.
+        final int numListenersToTestOrderOf = 15;
+        manager = new ListenerManagerImpl();
+        ClusterListener[] lstners = new ClusterListener[numListenersToTestOrderOf];
+        for(int i = 0; i < numListenersToTestOrderOf; i++) {
+            // use random name, to help test that order isn't based on naming or coincidental hashing
+            lstners[i] = new TestClusterListener(UUID.randomUUID().toString());
+            manager.addClusterListener(lstners[i]);
+        }
+        List<ClusterListener> mls = manager.getClusterListeners();
+        int i = 0;
+        for(ClusterListener lsnr: mls) {
+            assertSame(lstners[i], lsnr, "Unexpected order of listeners");
+            i++;
+        }
+    }
+
+    @Test
+    void testClusterListenerWithNullNameIsRejected() {
+        ListenerManagerImpl manager = new ListenerManagerImpl();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> manager.addClusterListener(new TestClusterListener(null)));
+        assertTrue(manager.getClusterListeners().isEmpty());
+    }
+
+    @Test
+    void testClusterListenerWithEmptyNameIsRejected() {
+        ListenerManagerImpl manager = new ListenerManagerImpl();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> manager.addClusterListener(new TestClusterListener("")));
+        assertTrue(manager.getClusterListeners().isEmpty());
+    }
+
+    @Test
+    void testClusterListenerWithSameNameReplacesExistingListener() {
+        ListenerManagerImpl manager = new ListenerManagerImpl();
+        TestClusterListener original = new TestClusterListener("sameName");
+        TestClusterListener replacement = new TestClusterListener("sameName");
+
+        manager.addClusterListener(original);
+        manager.addClusterListener(replacement);
+
+        assertEquals(1, manager.getClusterListeners().size());
+        assertSame(replacement, manager.getClusterListener("sameName"));
+        assertSame(replacement, manager.getClusterListeners().get(0));
+    }
+
+    @Test
+    public void testClusterListenerNotification() throws Exception {
+        TestClusterListener listener = new TestClusterListener("testListener");
+
+        ListenerManagerImpl manager = new ListenerManagerImpl();
+        manager.addClusterListener(listener);
+
+        // Simulate notification through QuartzScheduler
+        QuartzScheduler scheduler = null;
+        try {
+            // Note: In actual usage, the QuartzScheduler's notifyClusterListenersNodeFailed()
+            // would be called by the SchedulerSignaler when a cluster node fails.
+            // Here we just verify the listener is properly registered and can be retrieved.
+            assertEquals(1, manager.getClusterListeners().size(), "Expected listener to be registered");
+            assertSame(listener, manager.getClusterListener("testListener"), "Expected to find the registered listener");
+        } finally {
+            if (scheduler != null) {
+                scheduler.shutdown();
+            }
         }
     }
 

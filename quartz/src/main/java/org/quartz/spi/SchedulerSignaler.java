@@ -60,4 +60,15 @@ public interface SchedulerSignaler {
     }
 
     void notifySchedulerListenersError(String string, SchedulerException jpe);
+
+    /**
+     * Notify all registered <code>{@link org.quartz.ClusterListener}</code>s that a
+     * cluster node has failed.
+     *
+     * <p>Does nothing by default.</p>
+     *
+     * @param failedInstanceId the scheduler instance ID of the failed cluster node
+     */
+    default void notifyClusterListenersNodeFailed(String failedInstanceId) {
+    }
 }
