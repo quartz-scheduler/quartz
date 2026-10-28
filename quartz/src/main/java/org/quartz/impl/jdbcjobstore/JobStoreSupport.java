@@ -2716,7 +2716,11 @@ public abstract class JobStoreSupport implements JobStore, Constants {
     public void resumeAll(Connection conn)
         throws JobPersistenceException {
 
-        List<String> names = getTriggerGroupNames(conn);
+        // include paused groups that no longer have any trigger, otherwise
+        // their paused state would leak to triggers stored later
+        Set<String> names = new HashSet<>(getTriggerGroupNames(conn));
+        names.addAll(getPausedTriggerGroups(conn));
+        names.remove(ALL_GROUPS_PAUSED);
 
         for (String name: names) {
             resumeTriggerGroup(conn, GroupMatcher.triggerGroupEquals(name));
