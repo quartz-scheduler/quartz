@@ -470,6 +470,42 @@ public abstract class AbstractSchedulerTest {
 	}
 
     @Test
+    void testResumeAllResumesGroupWithoutTriggers() throws Exception {
+        Scheduler sched = createScheduler("testResumeAllResumesGroupWithoutTriggers", 2);
+        try {
+            JobDetail job = newJob(TestJob.class).withIdentity("j1").build();
+            Trigger trigger = newTrigger().withIdentity("t1", "g1").build();
+
+            sched.pauseAll();
+            sched.scheduleJob(job, trigger);
+            sched.unscheduleJob(trigger.getKey());
+            sched.resumeAll();
+
+            assertEquals(Collections.emptySet(), sched.getPausedTriggerGroups());
+            sched.scheduleJob(job, trigger);
+            assertEquals(TriggerState.NORMAL, sched.getTriggerState(trigger.getKey()));
+        } finally {
+            sched.shutdown(true);
+        }
+    }
+
+    @Test
+    void testResumeAllResumesPausedEmptyGroup() throws Exception {
+        Scheduler sched = createScheduler("testResumeAllResumesPausedEmptyGroup", 2);
+        try {
+            sched.pauseTriggers(GroupMatcher.triggerGroupEquals("g1"));
+            sched.resumeAll();
+
+            assertEquals(Collections.emptySet(), sched.getPausedTriggerGroups());
+            Trigger trigger = newTrigger().withIdentity("t1", "g1").build();
+            sched.scheduleJob(newJob(TestJob.class).withIdentity("j1").build(), trigger);
+            assertEquals(TriggerState.NORMAL, sched.getTriggerState(trigger.getKey()));
+        } finally {
+            sched.shutdown(true);
+        }
+    }
+
+    @Test
     void testShutdownWithoutWaitIsUnclean() throws Exception {
         CyclicBarrier barrier = new CyclicBarrier(2);
         Scheduler scheduler = createScheduler("testShutdownWithoutWaitIsUnclean", 8);
