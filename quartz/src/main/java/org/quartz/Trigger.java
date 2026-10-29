@@ -81,12 +81,12 @@ public interface Trigger extends Serializable, Cloneable, Comparable<Trigger> {
      * that all <code>Trigger</code>s referencing the same <code>{@link org.quartz.JobDetail}</code> 
      * as this one should be put in the <code>COMPLETE</code> state.</p>
      * 
-     * <p><code>SET_TRIGGER_ERROR</code> Instructs the <code>{@link Scheduler}</code> that all 
+     * <p><code>SET_TRIGGER_ERROR</code> Instructs the <code>{@link Scheduler}</code> that
+     * the <code>Trigger</code> should be put in the <code>ERROR</code> state.</p>
+     *
+     * <p><code>SET_ALL_JOB_TRIGGERS_ERROR</code> Instructs the <code>{@link Scheduler}</code> that all
      * <code>Trigger</code>s referencing the same <code>{@link org.quartz.JobDetail}</code> as
      * this one should be put in the <code>ERROR</code> state.</p>
-     *
-     * <p><code>SET_ALL_JOB_TRIGGERS_ERROR</code> Instructs the <code>{@link Scheduler}</code> that 
-     * the <code>Trigger</code> should be put in the <code>ERROR</code> state.</p>
      */
     enum CompletedExecutionInstruction { NOOP, RE_EXECUTE_JOB, SET_TRIGGER_COMPLETE, DELETE_TRIGGER,
         SET_ALL_JOB_TRIGGERS_COMPLETE, SET_TRIGGER_ERROR, SET_ALL_JOB_TRIGGERS_ERROR }
