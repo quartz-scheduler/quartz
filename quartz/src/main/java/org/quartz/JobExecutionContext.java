@@ -132,8 +132,7 @@ public interface JobExecutionContext {
      * </p>
      * 
      * <p>
-     * Attempts to change the contents of this map typically result in an 
-     * <code>IllegalStateException</code>.
+     * This map is mutable and is created for this execution.
      * </p>
      * 
      */

@@ -3001,7 +3001,7 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         try {
             getDelegate().updateFiredTrigger(conn, trigger, STATE_EXECUTING, job);
         } catch (SQLException e) {
-            throw new JobPersistenceException("Couldn't insert fired trigger: "
+            throw new JobPersistenceException("Couldn't update fired trigger: "
                     + e.getMessage(), e);
         }
 

@@ -123,8 +123,8 @@ import java.util.TreeSet;
  * 50&quot;.  Specifying '*' before the  '/' is equivalent to specifying 0 is
  * the value to start with. Essentially, for each field in the expression, there
  * is a set of numbers that can be turned on or off. For seconds and minutes, 
- * the numbers range from 0 to 59. For hours 0 to 23, for days of the month 0 to
- * 31, and for months 0 to 11 (JAN to DEC). The &quot;/&quot; character simply helps you turn
+ * the numbers range from 0 to 59. For hours 0 to 23, for days of the month 1 to
+ * 31, and for months 1 to 12 (JAN to DEC). The &quot;/&quot; character simply helps you turn
  * on every &quot;nth&quot; value in the given set. Thus &quot;7/6&quot; in the
  * month field only turns on month &quot;7&quot;, it does NOT mean every 6th 
  * month, please note that subtlety.  

@@ -2808,9 +2808,10 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
      * @param conn
      *          the DB Connection
      * @param noLaterThan
-     *          highest value of <code>getNextFireTime()</code> of the triggers (exclusive)
-     * @param noEarlierThan 
      *          highest value of <code>getNextFireTime()</code> of the triggers (inclusive)
+     * @param noEarlierThan 
+     *          lowest value of <code>getNextFireTime()</code> of the triggers (inclusive),
+     *          except for triggers that ignore misfires
      *          
      * @return A (never null, possibly empty) list of the identifiers (Key objects) of the next triggers to be fired.
      * 
@@ -2832,9 +2833,10 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
      * @param conn
      *          the DB Connection
      * @param noLaterThan
-     *          highest value of <code>getNextFireTime()</code> of the triggers (exclusive)
-     * @param noEarlierThan 
      *          highest value of <code>getNextFireTime()</code> of the triggers (inclusive)
+     * @param noEarlierThan 
+     *          lowest value of <code>getNextFireTime()</code> of the triggers (inclusive),
+     *          except for triggers that ignore misfires
      * @param maxCount 
      *          maximum number of trigger keys allow to acquired in the returning list.
      *          

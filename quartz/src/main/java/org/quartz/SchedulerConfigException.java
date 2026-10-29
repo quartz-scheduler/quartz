@@ -39,7 +39,7 @@ public class SchedulerConfigException extends SchedulerException {
 
     /**
      * <p>
-     * Create a <code>JobPersistenceException</code> with the given message.
+     * Create a <code>SchedulerConfigException</code> with the given message.
      * </p>
      */
     public SchedulerConfigException(String msg) {
@@ -48,7 +48,7 @@ public class SchedulerConfigException extends SchedulerException {
 
     /**
      * <p>
-     * Create a <code>JobPersistenceException</code> with the given message
+     * Create a <code>SchedulerConfigException</code> with the given message
      * and cause.
      * </p>
      */
