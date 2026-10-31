@@ -909,6 +909,91 @@ public class CronExpressionTest extends SerializationTestSupport {
     }
 
     @Test
+    public void testMultipleNthDaysOfWeek() throws Exception {
+        TimeZone utc = TimeZone.getTimeZone("UTC");
+        CronExpression cronExpression = new CronExpression("0 1 0 ? * 7#1,7#3");
+        cronExpression.setTimeZone(utc);
+
+        Date firstSaturday = cronExpression.getTimeAfter(Date.from(Instant.parse("2026-01-01T00:00:00Z")));
+        assertEquals(Instant.parse("2026-01-03T00:01:00Z"), firstSaturday.toInstant());
+
+        Date thirdSaturday = cronExpression.getTimeAfter(firstSaturday);
+        assertEquals(Instant.parse("2026-01-17T00:01:00Z"), thirdSaturday.toInstant());
+
+        Date firstSaturdayInFebruary = cronExpression.getTimeAfter(thirdSaturday);
+        assertEquals(Instant.parse("2026-02-07T00:01:00Z"), firstSaturdayInFebruary.toInstant());
+        assertEquals(Instant.parse("2026-02-21T00:01:00Z"),
+                cronExpression.getTimeAfter(firstSaturdayInFebruary).toInstant());
+    }
+
+    @Test
+    public void testMultipleNthDaysSkipMissingFifthOccurrence() throws Exception {
+        TimeZone utc = TimeZone.getTimeZone("UTC");
+        CronExpression cronExpression = new CronExpression("0 1 0 ? * 7#1,7#5");
+        cronExpression.setTimeZone(utc);
+
+        Date firstSaturdayInFebruary = cronExpression.getTimeAfter(
+                Date.from(Instant.parse("2026-02-01T00:00:00Z")));
+        assertEquals(Instant.parse("2026-02-07T00:01:00Z"), firstSaturdayInFebruary.toInstant());
+
+        Date firstSaturdayInMarch = cronExpression.getTimeAfter(firstSaturdayInFebruary);
+        assertEquals(Instant.parse("2026-03-07T00:01:00Z"), firstSaturdayInMarch.toInstant());
+        Date firstSaturdayInApril = cronExpression.getTimeAfter(firstSaturdayInMarch);
+        assertEquals(Instant.parse("2026-04-04T00:01:00Z"), firstSaturdayInApril.toInstant());
+        Date firstSaturdayInMay = cronExpression.getTimeAfter(firstSaturdayInApril);
+        assertEquals(Instant.parse("2026-05-02T00:01:00Z"), firstSaturdayInMay.toInstant());
+        assertEquals(Instant.parse("2026-05-30T00:01:00Z"),
+                cronExpression.getTimeAfter(firstSaturdayInMay).toInstant());
+    }
+
+    @Test
+    public void testMultipleNthDaysOfWeekAreReturnedInDateOrder() throws Exception {
+        TimeZone utc = TimeZone.getTimeZone("UTC");
+        CronExpression cronExpression = new CronExpression("0 1 0 ? * 7#1,2#2");
+        cronExpression.setTimeZone(utc);
+
+        Date afterFirstSaturday = Date.from(Instant.parse("2026-08-01T00:02:00Z"));
+        assertEquals(Instant.parse("2026-08-10T00:01:00Z"),
+                cronExpression.getTimeAfter(afterFirstSaturday).toInstant());
+    }
+
+    @Test
+    public void testMultipleNamedNthDaysOfWeek() throws Exception {
+        TimeZone utc = TimeZone.getTimeZone("UTC");
+        CronExpression cronExpression = new CronExpression("0 1 0 ? * SAT#1,SAT#3");
+        cronExpression.setTimeZone(utc);
+
+        assertEquals(Instant.parse("2026-01-03T00:01:00Z"),
+                cronExpression.getTimeAfter(Date.from(Instant.parse("2026-01-01T00:00:00Z"))).toInstant());
+    }
+
+    @Test
+    public void testMultipleNthDaysOfWeekAreRebuiltAfterSerialization() throws Exception {
+        CronExpression cronExpression = new CronExpression("0 1 0 ? * 7#1,7#3");
+        cronExpression.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        try (ObjectOutputStream output = new ObjectOutputStream(bytes)) {
+            output.writeObject(cronExpression);
+        }
+
+        CronExpression deserialized;
+        try (ObjectInputStream input = new ObjectInputStream(new ByteArrayInputStream(bytes.toByteArray()))) {
+            deserialized = (CronExpression) input.readObject();
+        }
+
+        assertEquals(Instant.parse("2026-01-03T00:01:00Z"),
+                deserialized.getTimeAfter(Date.from(Instant.parse("2026-01-01T00:00:00Z"))).toInstant());
+        assertEquals(Instant.parse("2026-01-17T00:01:00Z"),
+                deserialized.getTimeAfter(Date.from(Instant.parse("2026-01-03T00:01:00Z"))).toInstant());
+    }
+
+    @Test
+    public void testMultipleNthDaysCannotBeMixedWithPlainWeekdays() {
+        assertFalse(CronExpression.isValidExpression("0 1 0 ? * 7#1,2"));
+    }
+
+    @Test
     public void testGetTimeAfterDuringDstFallBackOverlap() throws Exception {
         // https://github.com/quartz-scheduler/quartz/issues/1138
         // Africa/Casablanca ended DST on 2025-02-23 at 03:00+01:00 and fell back
