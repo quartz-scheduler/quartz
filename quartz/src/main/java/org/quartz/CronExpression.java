@@ -30,6 +30,7 @@ import java.util.Optional;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
@@ -167,11 +168,12 @@ import java.util.TreeSet;
  * value of &quot;6#3&quot; in the day-of-week field means the third Friday of 
  * the month (day 6 = Friday and &quot;#3&quot; = the 3rd one in the month). 
  * Other examples: &quot;2#1&quot; = the first Monday of the month and 
- * &quot;4#5&quot; = the fifth Wednesday of the month. Note that if you specify
+ * &quot;4#5&quot; = the fifth Wednesday of the month. You can specify multiple
+ * nth weekdays as a comma-separated list, for example &quot;7#1,7#3&quot; for
+ * the first and third Saturday. When using '#', each day-of-week list value
+ * must use the nth-weekday form. Note that if you specify
  * &quot;#5&quot; and there is not 5 of the given day-of-week in the month, then
- * no firing will occur that month.  If the '#' character is used, there can
- * only be one expression in the day-of-week field (&quot;3#1,6#3&quot; is 
- * not valid, since there are two expressions).
+ * no firing will occur for that weekday in that month.
  * </p>
  * <!--The 'C' character is allowed for the day-of-month and day-of-week fields.
  * This character is short-hand for "calendar". This means values are
@@ -262,6 +264,7 @@ public final class CronExpression implements Serializable, Cloneable {
 
     protected transient boolean lastDayOfWeek = false;
     protected transient int nthDayOfWeek = 0;
+    protected transient Map<Integer, TreeSet<Integer>> nthDaysOfWeek;
     protected transient boolean expressionParsed = false;
     
     public static final int MAX_YEAR = Calendar.getInstance().get(Calendar.YEAR) + 100;
@@ -470,6 +473,9 @@ public final class CronExpression implements Serializable, Cloneable {
             if (daysOfWeek == null) {
                 daysOfWeek = new TreeSet<>();
             }
+            if (nthDaysOfWeek == null) {
+                nthDaysOfWeek = new TreeMap<>();
+            }
             if (years == null) {
                 years = new TreeSet<>();
             }
@@ -490,8 +496,15 @@ public final class CronExpression implements Serializable, Cloneable {
                 if(exprOn == DAY_OF_WEEK && expr.indexOf('L') != -1 && expr.length() > 1  && expr.contains(",")) {
                     throw new ParseException("Support for specifying 'L' with other days of the week is not implemented", -1);
                 }
-                if(exprOn == DAY_OF_WEEK && expr.indexOf('#') != -1 && expr.indexOf('#', expr.indexOf('#') +1) != -1) {
-                    throw new ParseException("Support for specifying multiple \"nth\" days is not implemented.", -1);
+                if (exprOn == DAY_OF_WEEK && expr.indexOf('#') != -1) {
+                    String[] dayValues = expr.split(",", -1);
+                    for (String dayValue : dayValues) {
+                        int hash = dayValue.indexOf('#');
+                        if (hash < 0 || hash != dayValue.lastIndexOf('#')) {
+                            throw new ParseException(
+                                    "When '#' is used, each day-of-week list value must use the nth-weekday form.", -1);
+                        }
+                    }
                 }
                 
                 StringTokenizer vTok = new StringTokenizer(expr, ",");
@@ -580,10 +593,11 @@ public final class CronExpression implements Serializable, Cloneable {
                                         + "'", i);
                         }
                     } else if (c == '#') {
+                        int nthDay;
                         try {
                             i += 4;
-                            nthDayOfWeek = Integer.parseInt(s.substring(i));
-                            if (nthDayOfWeek < 1 || nthDayOfWeek > 5) {
+                            nthDay = Integer.parseInt(s.substring(i));
+                            if (nthDay < 1 || nthDay > 5) {
                                 throw new Exception();
                             }
                         } catch (Exception e) {
@@ -591,6 +605,7 @@ public final class CronExpression implements Serializable, Cloneable {
                                     "A numeric value between 1 and 5 must follow the '#' option",
                                     i);
                         }
+                        addNthDayOfWeek(sval, nthDay);
                     } else if (c == 'L') {
                         lastDayOfWeek = true;
                         i++;
@@ -780,9 +795,10 @@ public final class CronExpression implements Serializable, Cloneable {
                 throw new ParseException("'#' option is not valid here. (pos=" + i + ")", i);
             }
             i++;
+            int nthDay;
             try {
-                nthDayOfWeek = Integer.parseInt(s.substring(i));
-                if (nthDayOfWeek < 1 || nthDayOfWeek > 5) {
+                nthDay = Integer.parseInt(s.substring(i));
+                if (nthDay < 1 || nthDay > 5) {
                     throw new Exception();
                 }
             } catch (Exception e) {
@@ -790,6 +806,11 @@ public final class CronExpression implements Serializable, Cloneable {
                         "A numeric value between 1 and 5 must follow the '#' option",
                         i);
             }
+
+            if (val < 1 || val > 7) {
+                throw new ParseException("Day-of-Week values must be between 1 and 7", -1);
+            }
+            addNthDayOfWeek(val, nthDay);
 
             TreeSet<Integer> set = getSet(type);
             set.add(val);
@@ -903,7 +924,13 @@ public final class CronExpression implements Serializable, Cloneable {
         buf.append(lastDayOfWeek);
         buf.append("\n");
         buf.append("NthDayOfWeek: ");
-        buf.append(nthDayOfWeek);
+        if (nthDaysOfWeek.size() == 1 && nthDaysOfWeek.values().iterator().next().size() == 1) {
+            buf.append(nthDayOfWeek);
+        } else if (nthDaysOfWeek.isEmpty()) {
+            buf.append(nthDayOfWeek);
+        } else {
+            buf.append(nthDaysOfWeek);
+        }
         buf.append("\n");
         buf.append("years: ");
         buf.append(getExpressionSetSummary(years));
@@ -1176,6 +1203,11 @@ public final class CronExpression implements Serializable, Cloneable {
         return integer;
     }
 
+    private void addNthDayOfWeek(int dayOfWeek, int nthDay) {
+        nthDayOfWeek = nthDay;
+        nthDaysOfWeek.computeIfAbsent(dayOfWeek, key -> new TreeSet<>()).add(nthDay);
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     //
     // Computation Functions
@@ -1387,31 +1419,9 @@ public final class CronExpression implements Serializable, Cloneable {
                         continue;
                     }
 
-                } else if (nthDayOfWeek != 0) {
-                    // are we looking for the Nth XXX day in the month?
-                    int dow = daysOfWeek.first(); // desired
-                    // d-o-w
-                    int cDow = cl.get(Calendar.DAY_OF_WEEK); // current d-o-w
-                    int daysToAdd = 0;
-                    if (cDow < dow) {
-                        daysToAdd = dow - cDow;
-                    } else if (cDow > dow) {
-                        daysToAdd = dow + (7 - cDow);
-                    }
-
-                    boolean dayShifted = daysToAdd > 0;
-
-                    day += daysToAdd;
-                    int weekOfMonth = day / 7;
-                    if (day % 7 > 0) {
-                        weekOfMonth++;
-                    }
-
-                    daysToAdd = (nthDayOfWeek - weekOfMonth) * 7;
-                    day += daysToAdd;
-                    if (daysToAdd < 0
-                            || day > getLastDayOfMonth(mon, cl
-                                    .get(Calendar.YEAR))) {
+                } else if (!nthDaysOfWeek.isEmpty()) {
+                    int nextDay = findNextNthDayOfWeek(day, mon, cl);
+                    if (nextDay < 0) {
                         cl.set(Calendar.SECOND, 0);
                         cl.set(Calendar.MINUTE, 0);
                         cl.set(Calendar.HOUR_OF_DAY, 0);
@@ -1419,11 +1429,11 @@ public final class CronExpression implements Serializable, Cloneable {
                         cl.set(Calendar.MONTH, mon);
                         // no '- 1' here because we are promoting the month
                         continue;
-                    } else if (daysToAdd > 0 || dayShifted) {
+                    } else if (nextDay > day) {
                         cl.set(Calendar.SECOND, 0);
                         cl.set(Calendar.MINUTE, 0);
                         cl.set(Calendar.HOUR_OF_DAY, 0);
-                        cl.set(Calendar.DAY_OF_MONTH, day);
+                        cl.set(Calendar.DAY_OF_MONTH, nextDay);
                         cl.set(Calendar.MONTH, mon - 1);
                         // '- 1' here because we are NOT promoting the month
                         continue;
@@ -1680,6 +1690,26 @@ public final class CronExpression implements Serializable, Cloneable {
         } else {
             return Optional.of(smallestDay + lastDay - LAST_DAY_OFFSET_START + 1);
         }
+    }
+
+    private int findNextNthDayOfWeek(int day, int month, Calendar calendar) {
+        Calendar firstDayOfMonth = (Calendar) calendar.clone();
+        firstDayOfMonth.set(Calendar.DAY_OF_MONTH, 1);
+        int firstDayOfWeek = firstDayOfMonth.get(Calendar.DAY_OF_WEEK);
+        int lastDayOfMonth = getLastDayOfMonth(month, calendar.get(Calendar.YEAR));
+        int nextDay = Integer.MAX_VALUE;
+
+        for (Map.Entry<Integer, TreeSet<Integer>> entry : nthDaysOfWeek.entrySet()) {
+            int daysUntilFirstOccurrence = (entry.getKey() - firstDayOfWeek + 7) % 7;
+            for (int nth : entry.getValue()) {
+                int candidateDay = 1 + daysUntilFirstOccurrence + (nth - 1) * 7;
+                if (candidateDay >= day && candidateDay <= lastDayOfMonth) {
+                    nextDay = Math.min(nextDay, candidateDay);
+                }
+            }
+        }
+
+        return nextDay == Integer.MAX_VALUE ? -1 : nextDay;
     }
 
     private void readObject(java.io.ObjectInputStream stream)
