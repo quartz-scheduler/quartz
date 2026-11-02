@@ -1028,16 +1028,16 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
         String groupName;
         switch(matcher.getCompareWithOperator()) {
             case EQUALS:
-                groupName = matcher.getCompareToValue();
+                groupName = escapeLikeWildcards(matcher.getCompareToValue());
                 break;
             case CONTAINS:
-                groupName = "%" + matcher.getCompareToValue() + "%";
+                groupName = "%" + escapeLikeWildcards(matcher.getCompareToValue()) + "%";
                 break;
             case ENDS_WITH:
-                groupName = "%" + matcher.getCompareToValue();
+                groupName = "%" + escapeLikeWildcards(matcher.getCompareToValue());
                 break;
             case STARTS_WITH:
-                groupName = matcher.getCompareToValue() + "%";
+                groupName = escapeLikeWildcards(matcher.getCompareToValue()) + "%";
                 break;
             case ANYTHING:
                 groupName = "%";
@@ -1046,6 +1046,15 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
                 throw new UnsupportedOperationException("Don't know how to translate " + matcher.getCompareWithOperator() + " into SQL");
         }
         return groupName;
+    }
+
+    /**
+     * Escape the characters the database treats as wildcards in a LIKE pattern,
+     * so that the given value is matched literally. The escape character must
+     * agree with {@link #LIKE_ESCAPE}.
+     */
+    protected String escapeLikeWildcards(String value) {
+        return value.replaceAll("[!%_]", "!$0");
     }
 
     //---------------------------------------------------------------------------
@@ -1860,7 +1869,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
                 baseStatement += " = ?";
                 columnSetters.add(ps -> ps.setString(1, toSqlEqualsClause(jobMatcher)));
             } else {
-                baseStatement += " LIKE ?";
+                baseStatement += " LIKE ?" + LIKE_ESCAPE;
                 columnSetters.add(ps -> ps.setString(1, toSqlLikeClause(jobMatcher)));
             }
         }
@@ -1877,7 +1886,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
                 baseStatement += " = ?";
                 columnSetters.add(ps -> ps.setString(columnIndex, toSqlEqualsClause(triggerMatcher)));
             } else {
-                baseStatement += " LIKE ?";
+                baseStatement += " LIKE ?" + LIKE_ESCAPE;
                 columnSetters.add(ps -> ps.setString(columnIndex, toSqlLikeClause(triggerMatcher)));
             }
         }
@@ -2407,7 +2416,7 @@ public class StdJDBCDelegate implements DriverDelegate, StdJDBCConstants {
 
         try {
             ps = conn.prepareStatement(rtp(DELETE_PAUSED_TRIGGER_GROUP));
-            ps.setString(1, groupName);
+            ps.setString(1, escapeLikeWildcards(groupName));
 
             return ps.executeUpdate();
         } finally {
