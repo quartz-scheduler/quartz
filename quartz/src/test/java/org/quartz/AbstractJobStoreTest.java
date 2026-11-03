@@ -658,6 +658,33 @@ public abstract class AbstractJobStoreTest  {
     }
 
     @Test
+    void testMatchersTreatSqlWildcardsLiterally() throws Exception {
+        for (String group : new String[] {"a_c", "abc", "a%c", "a[b]c"}) {
+            JobDetail job = JobBuilder.newJob(MyJob.class).withIdentity("job", group).storeDurably().build();
+            this.fJobStore.storeJob(job, false);
+            OperableTrigger trigger = (OperableTrigger) TriggerBuilder.newTrigger().withIdentity("trig", group)
+                .startAt(new Date(System.currentTimeMillis() + 100000)).forJob(job).build();
+            trigger.computeFirstFireTime(null);
+            this.fJobStore.storeTrigger(trigger, false);
+        }
+
+        assertEquals(1, this.fJobStore.getJobDetails(GroupMatcher.jobGroupEquals("a_c")).size());
+        assertEquals(Set.of(JobKey.jobKey("job", "a_c")), this.fJobStore.getJobKeys(GroupMatcher.jobGroupStartsWith("a_")));
+        assertEquals(Set.of(JobKey.jobKey("job", "a[b]c")), this.fJobStore.getJobKeys(GroupMatcher.jobGroupStartsWith("a[b]")));
+        assertEquals(Set.of(TriggerKey.triggerKey("trig", "a%c")), this.fJobStore.getTriggerKeys(GroupMatcher.triggerGroupContains("%")));
+        assertEquals(1, this.fJobStore.getTriggersByTriggerGroup(GroupMatcher.triggerGroupEndsWith("_c")).size());
+
+        this.fJobStore.pauseTriggers(GroupMatcher.triggerGroupEquals("a_c"));
+        assertEquals(TriggerState.PAUSED, this.fJobStore.getTriggerState(TriggerKey.triggerKey("trig", "a_c")));
+        assertEquals(TriggerState.NORMAL, this.fJobStore.getTriggerState(TriggerKey.triggerKey("trig", "abc")));
+        assertEquals(Set.of("a_c"), this.fJobStore.getPausedTriggerGroups());
+
+        this.fJobStore.pauseTriggers(GroupMatcher.triggerGroupEquals("abc"));
+        this.fJobStore.resumeTriggers(GroupMatcher.triggerGroupEquals("a_c"));
+        assertEquals(Set.of("abc"), this.fJobStore.getPausedTriggerGroups());
+    }
+
+    @Test
 	void testAcquireTriggers() throws Exception {
 		SchedulerSignaler schedSignaler = new SampleSignaler();
 		ClassLoadHelper loadHelper = new CascadingClassLoadHelper();

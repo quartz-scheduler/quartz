@@ -88,6 +88,12 @@ public class MSSQLDelegate extends StdJDBCDelegate {
     }
     
     @Override
+    protected String escapeLikeWildcards(String value) {
+        // SQL Server also treats '[' as a wildcard (character range)
+        return value.replaceAll("[!%_\\[]", "!$0");
+    }
+
+    @Override
     public List<TriggerKey> selectTriggerToAcquire(Connection conn, long noLaterThan, long noEarlierThan, int maxCount)
             throws SQLException {
         // Set max rows to retrieve

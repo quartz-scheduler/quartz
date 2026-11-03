@@ -59,6 +59,10 @@ public interface StdJDBCConstants extends Constants {
     // table prefix substitution string
     String SCHED_NAME_SUBST = "{1}";
 
+    // escape clause for LIKE patterns built by StdJDBCDelegate.escapeLikeWildcards
+    // (quotes are doubled because queries are run through MessageFormat, see Util.rtp)
+    String LIKE_ESCAPE = " ESCAPE ''!''";
+
     // QUERIES
     String UPDATE_TRIGGER_STATES_FROM_OTHER_STATES = "UPDATE "
             + TABLE_PREFIX_SUBST
@@ -233,12 +237,12 @@ public interface StdJDBCConstants extends Constants {
     String SELECT_JOB_DETAILS_LIKE = "SELECT *" + " FROM " +
         TABLE_PREFIX_SUBST + TABLE_JOB_DETAILS + " WHERE "
         + COL_SCHEDULER_NAME + " = " + SCHED_NAME_SUBST
-        + " AND " + COL_JOB_GROUP + " LIKE ?";
+        + " AND " + COL_JOB_GROUP + " LIKE ?" + LIKE_ESCAPE;
 
     String SELECT_JOB_DETAILS = "SELECT *" + " FROM " +
         TABLE_PREFIX_SUBST + TABLE_JOB_DETAILS + " WHERE "
         + COL_SCHEDULER_NAME + " = " + SCHED_NAME_SUBST
-        + " AND " + COL_JOB_GROUP + " LIKE ?";
+        + " AND " + COL_JOB_GROUP + " = ?";
 
     String SELECT_NUM_JOBS = "SELECT COUNT(" + COL_JOB_NAME
             + ") " + " FROM " + TABLE_PREFIX_SUBST + TABLE_JOB_DETAILS + " WHERE "
@@ -252,7 +256,7 @@ public interface StdJDBCConstants extends Constants {
     String SELECT_JOBS_IN_GROUP_LIKE = "SELECT " + COL_JOB_NAME + ", " + COL_JOB_GROUP
             + " FROM " + TABLE_PREFIX_SUBST + TABLE_JOB_DETAILS + " WHERE "
             + COL_SCHEDULER_NAME + " = " + SCHED_NAME_SUBST
-            + " AND " + COL_JOB_GROUP + " LIKE ?";
+            + " AND " + COL_JOB_GROUP + " LIKE ?" + LIKE_ESCAPE;
 
     String SELECT_JOBS_IN_GROUP = "SELECT " + COL_JOB_NAME + ", " + COL_JOB_GROUP
             + " FROM " + TABLE_PREFIX_SUBST + TABLE_JOB_DETAILS + " WHERE "
@@ -364,7 +368,7 @@ public interface StdJDBCConstants extends Constants {
             + " WHERE "
             + COL_SCHEDULER_NAME + " = " + SCHED_NAME_SUBST
             + " AND " + COL_TRIGGER_GROUP
-            + " LIKE ? AND "
+            + " LIKE ?" + LIKE_ESCAPE + " AND "
             + COL_TRIGGER_STATE + " = ?";
 
     String UPDATE_TRIGGER_STATE_FROM_STATES = "UPDATE "
@@ -383,7 +387,7 @@ public interface StdJDBCConstants extends Constants {
             + " WHERE "
             + COL_SCHEDULER_NAME + " = " + SCHED_NAME_SUBST
             + " AND " + COL_TRIGGER_GROUP
-            + " LIKE ? AND ("
+            + " LIKE ?" + LIKE_ESCAPE + " AND ("
             + COL_TRIGGER_STATE
             + " = ? OR "
             + COL_TRIGGER_STATE
@@ -499,12 +503,12 @@ public interface StdJDBCConstants extends Constants {
 
     String SELECT_TRIGGER_GROUPS_FILTERED = "SELECT DISTINCT("
             + COL_TRIGGER_GROUP + ") FROM " + TABLE_PREFIX_SUBST
-            + TABLE_TRIGGERS + " WHERE " + COL_SCHEDULER_NAME + " = " + SCHED_NAME_SUBST + " AND " + COL_TRIGGER_GROUP + " LIKE ?";
+            + TABLE_TRIGGERS + " WHERE " + COL_SCHEDULER_NAME + " = " + SCHED_NAME_SUBST + " AND " + COL_TRIGGER_GROUP + " LIKE ?" + LIKE_ESCAPE;
 
     String SELECT_TRIGGERS_IN_GROUP_LIKE = "SELECT "
             + COL_TRIGGER_NAME + ", " + COL_TRIGGER_GROUP + " FROM " + TABLE_PREFIX_SUBST + TABLE_TRIGGERS
             + " WHERE " + COL_SCHEDULER_NAME + " = " + SCHED_NAME_SUBST
-            + " AND " + COL_TRIGGER_GROUP + " LIKE ?";
+            + " AND " + COL_TRIGGER_GROUP + " LIKE ?" + LIKE_ESCAPE;
 
     String SELECT_TRIGGERS_IN_GROUP = "SELECT "
             + COL_TRIGGER_NAME + ", " + COL_TRIGGER_GROUP + " FROM " + TABLE_PREFIX_SUBST + TABLE_TRIGGERS
@@ -710,7 +714,7 @@ public interface StdJDBCConstants extends Constants {
     String DELETE_PAUSED_TRIGGER_GROUP = "DELETE FROM "
             + TABLE_PREFIX_SUBST + TABLE_PAUSED_TRIGGERS + " WHERE "
             + COL_SCHEDULER_NAME + " = " + SCHED_NAME_SUBST
-            + " AND " + COL_TRIGGER_GROUP + " LIKE ?";
+            + " AND " + COL_TRIGGER_GROUP + " LIKE ?" + LIKE_ESCAPE;
 
     String DELETE_PAUSED_TRIGGER_GROUPS = "DELETE FROM "
             + TABLE_PREFIX_SUBST + TABLE_PAUSED_TRIGGERS
