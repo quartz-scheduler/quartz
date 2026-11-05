@@ -28,6 +28,7 @@ import static org.quartz.DailyTimeIntervalScheduleBuilder.MONDAY_THROUGH_FRIDAY;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +46,7 @@ import org.quartz.spi.ClassLoadHelper;
 import org.quartz.spi.JobStore;
 import org.quartz.spi.OperableTrigger;
 import org.quartz.spi.SchedulerSignaler;
+import org.quartz.spi.TriggerFiredBundle;
 import org.quartz.spi.TriggerFiredResult;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -853,6 +855,67 @@ public abstract class AbstractJobStoreTest  {
         assertNotNull(reloadedJob);
         assertEquals(testJob.getKey(), reloadedJob.getKey());
         assertEquals(testJob.getDescription(), reloadedJob.getDescription());
+    }
+
+    @Test
+    void testReleasingBlockedTriggerDoesNotAllowConcurrentExecution() throws Exception {
+        JobStore store = createJobStore("testReleasingBlockedTrigger");
+        ClassLoadHelper loadHelper = new CascadingClassLoadHelper();
+        loadHelper.initialize();
+        store.initialize(loadHelper, new SampleSignaler());
+        store.schedulerStarted();
+
+        JobDetailImpl job = new JobDetailImpl("nonConcurrentJob", "jobGroup", NonConcurrentJob.class);
+        job.setDurability(true);
+        store.storeJob(job, false);
+
+        Date fireTime = new Date(System.currentTimeMillis() + 1000);
+        OperableTrigger t1 = new SimpleTriggerImpl("t1", "group", fireTime);
+        t1.setJobKey(job.getKey());
+        t1.computeFirstFireTime(null);
+        OperableTrigger t2 = new SimpleTriggerImpl("t2", "group", fireTime);
+        t2.setJobKey(job.getKey());
+        t2.computeFirstFireTime(null);
+        store.storeTrigger(t1, false);
+        store.storeTrigger(t2, false);
+
+        long noLaterThan = fireTime.getTime() + 10000;
+        // Two separate acquisitions, as two cluster nodes would do.
+        List<OperableTrigger> first = store.acquireNextTriggers(noLaterThan, 1, 0L);
+        List<OperableTrigger> second = store.acquireNextTriggers(noLaterThan, 1, 0L);
+        assertEquals(1, first.size());
+        assertEquals(1, second.size());
+        OperableTrigger running = first.get(0);
+        OperableTrigger other = second.get(0);
+
+        // The first trigger fires: the job is now executing and the other trigger gets blocked.
+        List<TriggerFiredResult> fired = store.triggersFired(Collections.singletonList(running));
+        TriggerFiredBundle bundle = fired.get(0).getTriggerFiredBundle();
+        assertNotNull(bundle);
+        assertEquals(TriggerState.BLOCKED, store.getTriggerState(other.getKey()));
+
+        // The other trigger cannot fire and is released by its scheduler thread.
+        assertNull(store.triggersFired(Collections.singletonList(other)).get(0).getTriggerFiredBundle());
+        store.releaseAcquiredTrigger(other);
+
+        // It must remain blocked while the job is still executing.
+        assertEquals(TriggerState.BLOCKED, store.getTriggerState(other.getKey()));
+        assertTrue(store.acquireNextTriggers(noLaterThan, 1, 0L).isEmpty());
+
+        // Once the job completes the other trigger becomes available again.
+        store.triggeredJobComplete(running, bundle.getJobDetail(), Trigger.CompletedExecutionInstruction.NOOP);
+        assertEquals(TriggerState.NORMAL, store.getTriggerState(other.getKey()));
+        List<OperableTrigger> afterCompletion = store.acquireNextTriggers(noLaterThan, 1, 0L);
+        assertEquals(1, afterCompletion.size());
+        assertEquals(other.getKey(), afterCompletion.get(0).getKey());
+
+        destroyJobStore("testReleasingBlockedTrigger");
+    }
+
+    @DisallowConcurrentExecution
+    public static class NonConcurrentJob implements Job {
+        public void execute(JobExecutionContext context) {
+        }
     }
 
     public static class SampleSignaler implements SchedulerSignaler {

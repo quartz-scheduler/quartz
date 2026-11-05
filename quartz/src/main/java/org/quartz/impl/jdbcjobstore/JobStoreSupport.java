@@ -2901,13 +2901,32 @@ public abstract class JobStoreSupport implements JobStore, Constants {
         try {
             getDelegate().updateTriggerStateFromOtherState(conn,
                     trigger.getKey(), STATE_WAITING, STATE_ACQUIRED);
-            getDelegate().updateTriggerStateFromOtherState(conn,
-                    trigger.getKey(), STATE_WAITING, STATE_BLOCKED);
+            if (!isJobExecutingElsewhere(conn, trigger)) {
+                getDelegate().updateTriggerStateFromOtherState(conn,
+                        trigger.getKey(), STATE_WAITING, STATE_BLOCKED);
+            }
             getDelegate().deleteFiredTrigger(conn, trigger.getFireInstanceId());
         } catch (SQLException e) {
             throw new JobPersistenceException(
                     "Couldn't release acquired trigger: " + e.getMessage(), e);
         }
+    }
+
+    private boolean isJobExecutingElsewhere(Connection conn, OperableTrigger trigger)
+        throws SQLException, JobPersistenceException {
+        JobKey jobKey = trigger.getJobKey();
+        if (jobKey == null) {
+            return false;
+        }
+        List<FiredTriggerRecord> records = getDelegate().selectFiredTriggerRecordsByJob(conn,
+                jobKey.getName(), jobKey.getGroup());
+        for (FiredTriggerRecord rec : records) {
+            if (STATE_EXECUTING.equals(rec.getFireInstanceState())
+                    && !rec.getFireInstanceId().equals(trigger.getFireInstanceId())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
