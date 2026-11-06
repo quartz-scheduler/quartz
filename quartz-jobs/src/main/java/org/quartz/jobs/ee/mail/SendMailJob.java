@@ -204,7 +204,9 @@ public class SendMailJob implements Job {
             };
         }
         log.debug("Sending mail with properties: {}", properties);
-        return Session.getDefaultInstance(properties, authenticator);
+        // Not getDefaultInstance(): that session is shared JVM-wide and would
+        // ignore these properties and credentials after the first job ran.
+        return Session.getInstance(properties, authenticator);
     }
     
     protected MailInfo createMailInfo() {
