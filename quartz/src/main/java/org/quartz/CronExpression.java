@@ -467,7 +467,7 @@ public final class CronExpression implements Serializable, Cloneable {
      *         cannot represent: seconds other than 0, a year restriction,
      *         or the 'L', 'W' and '#' characters
      */
-    public String toStringPosix() {
+    public String toStringPosix() throws UnsupportedOperationException {
         return PosixCronSupport.toPosix(this);
     }
 

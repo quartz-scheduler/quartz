@@ -135,7 +135,7 @@ final class PosixCronSupport {
      * @throws UnsupportedOperationException if the expression uses features
      *         that cannot be expressed in the 5-field format
      */
-    static String toPosix(CronExpression cron) {
+    static String toPosix(CronExpression cron) throws UnsupportedOperationException {
         if (!cron.seconds.equals(new TreeSet<>(Arrays.asList(0)))) {
             throw unsupported(cron, "it fires at seconds other than 0");
         }
