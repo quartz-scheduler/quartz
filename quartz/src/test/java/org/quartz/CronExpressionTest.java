@@ -909,6 +909,41 @@ public class CronExpressionTest extends SerializationTestSupport {
     }
 
     @Test
+    void testNearestWeekdayFromEarlierInTheMonth() throws Exception {
+        TimeZone utc = TimeZone.getTimeZone("UTC");
+
+        // 2021-01-15 is a Friday: the 9:00 fire on that day must not be
+        // skipped when searching from the afternoon of an earlier day
+        CronExpression fifteenthWeekday = new CronExpression("0 0 9,17 15W * ?");
+        fifteenthWeekday.setTimeZone(utc);
+        assertEquals(Instant.parse("2021-01-15T09:00:00Z"),
+                fifteenthWeekday.getTimeAfter(Date.from(Instant.parse("2021-01-08T12:00:00Z"))).toInstant());
+
+        // 2021-01-31 is a Sunday, so LW is Friday 2021-01-29
+        CronExpression lastWeekdayHourly = new CronExpression("0 0 * LW * ?");
+        lastWeekdayHourly.setTimeZone(utc);
+        assertEquals(Instant.parse("2021-01-29T00:00:00Z"),
+                lastWeekdayHourly.getTimeAfter(Date.from(Instant.parse("2021-01-08T16:56:06Z"))).toInstant());
+
+        // 2025-06-22 is a Sunday, so 22W fires on Monday 2025-06-23
+        CronExpression shiftedForward = new CronExpression("0 0 21 22W * ?");
+        shiftedForward.setTimeZone(utc);
+        assertEquals(Instant.parse("2025-06-23T21:00:00Z"),
+                shiftedForward.getTimeAfter(Date.from(Instant.parse("2025-06-23T10:00:00Z"))).toInstant());
+        assertEquals(Instant.parse("2025-06-23T21:00:00Z"),
+                shiftedForward.getTimeAfter(Date.from(Instant.parse("2025-06-22T21:30:00Z"))).toInstant());
+        assertTrue(shiftedForward.isSatisfiedBy(Date.from(Instant.parse("2025-06-23T21:00:00Z"))));
+        assertEquals(Instant.parse("2025-06-23T21:00:00Z"),
+                shiftedForward.getTimeBefore(Date.from(Instant.parse("2025-06-24T00:00:00Z"))).toInstant());
+
+        // 2026-08-01 is a Saturday, so 1W fires on Monday 2026-08-03
+        CronExpression firstWeekday = new CronExpression("0 30 8,12 1W * ?");
+        firstWeekday.setTimeZone(utc);
+        assertEquals(Instant.parse("2026-08-03T12:30:00Z"),
+                firstWeekday.getTimeAfter(Date.from(Instant.parse("2026-08-03T09:00:00Z"))).toInstant());
+    }
+
+    @Test
     public void testGetTimeAfterDuringDstFallBackOverlap() throws Exception {
         // https://github.com/quartz-scheduler/quartz/issues/1138
         // Africa/Casablanca ended DST on 2025-02-23 at 03:00+01:00 and fell back

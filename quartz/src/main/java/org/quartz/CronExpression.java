@@ -20,6 +20,8 @@ package org.quartz;
 
 import java.io.Serializable;
 import java.text.ParseException;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -1281,58 +1283,20 @@ public final class CronExpression implements Serializable, Cloneable {
             boolean dayOfWSpec = !daysOfWeek.contains(NO_SPEC);
             if (dayOfMSpec && !dayOfWSpec) { // get day by day of month rule
                 Optional<Integer> smallestDay = findSmallestDay(day, mon, cl.get(Calendar.YEAR), daysOfMonth);
-                Optional<Integer> smallestDayForWeekday = findSmallestDay(day, mon, cl.get(Calendar.YEAR), nearestWeekdays);
+                Optional<Integer> smallestWeekday = findSmallestNearestWeekday(day, mon, cl.get(Calendar.YEAR));
                 t = day;
                 day = -1;
-                if (smallestDayForWeekday.isPresent()) {
-                    day = smallestDayForWeekday.get();
-
-                    java.util.Calendar tcal = java.util.Calendar.getInstance(getTimeZone());
-                    tcal.set(Calendar.SECOND, 0);
-                    tcal.set(Calendar.MINUTE, 0);
-                    tcal.set(Calendar.HOUR_OF_DAY, 0);
-                    tcal.set(Calendar.DAY_OF_MONTH, day);
-                    tcal.set(Calendar.MONTH, mon - 1);
-                    tcal.set(Calendar.YEAR, cl.get(Calendar.YEAR));
-                    
-                    int ldom = getLastDayOfMonth(mon, cl.get(Calendar.YEAR));
-                    int dow = tcal.get(Calendar.DAY_OF_WEEK);
-
-                    if(dow == Calendar.SATURDAY && day == 1) {
-                        day += 2;
-                    } else if(dow == Calendar.SATURDAY) {
-                        day -= 1;
-                    } else if(dow == Calendar.SUNDAY && day == ldom) { 
-                        day -= 2;
-                    } else if(dow == Calendar.SUNDAY) { 
-                        day += 1;
-                    }
-                        
-                
-                    tcal.set(Calendar.SECOND, sec);
-                    tcal.set(Calendar.MINUTE, min);
-                    tcal.set(Calendar.HOUR_OF_DAY, hr);
-                    tcal.set(Calendar.DAY_OF_MONTH, day);
-                    tcal.set(Calendar.MONTH, mon - 1);
-                    Date nTime = tcal.getTime();
-                    if(nTime.before(afterTime)) {
-                        day = -1;
-                    }
-                }
-
-                boolean needAdvance = false;
                 if (smallestDay.isPresent()) {
-                    if (day == -1 || smallestDay.get() < day) {
-                        day = smallestDay.get();
-                        needAdvance = true;
-                    }
-                } else if (day == -1) {
+                    day = smallestDay.get();
+                }
+                if (smallestWeekday.isPresent() && (day == -1 || smallestWeekday.get() < day)) {
+                    day = smallestWeekday.get();
+                }
+                if (day == -1) {
                     day = 1;
                     mon++;
-                    needAdvance = true;
                 }
-
-                if (needAdvance && (day != t || mon != tmon)) {
+                if (day != t || mon != tmon) {
                     cl.set(Calendar.SECOND, 0);
                     cl.set(Calendar.MINUTE, 0);
                     cl.set(Calendar.HOUR_OF_DAY, 0);
@@ -1656,6 +1620,46 @@ public final class CronExpression implements Serializable, Cloneable {
         }
     }
     
+
+    /**
+     * Finds the earliest day of the month, on or after <code>day</code>, on
+     * which one of the 'W' (nearest weekday) values of the day-of-month field
+     * fires.
+     * <p>
+     * The weekday a 'W' value fires on can be up to two days before or after
+     * the day it was given for, so every value has to be resolved to its
+     * weekday before comparing it with <code>day</code>.
+     * </p>
+     */
+    private Optional<Integer> findSmallestNearestWeekday(int day, int mon, int year) {
+        if (nearestWeekdays.isEmpty()) {
+            return Optional.empty();
+        }
+
+        final int lastDay = getLastDayOfMonth(mon, year);
+        int smallest = Integer.MAX_VALUE;
+        for (int value : nearestWeekdays) {
+            // "LW", "L-3W", etc. are stored as offsets from the last day
+            int target = value >= LAST_DAY_OFFSET_START ? lastDay - (LAST_DAY_OFFSET_END - value) : value;
+            if (target < 1 || target > lastDay) {
+                continue;
+            }
+
+            int weekday = target;
+            DayOfWeek dow = LocalDate.of(year, mon, target).getDayOfWeek();
+            if (dow == DayOfWeek.SATURDAY) {
+                weekday = target == 1 ? target + 2 : target - 1;
+            } else if (dow == DayOfWeek.SUNDAY) {
+                weekday = target == lastDay ? target - 2 : target + 1;
+            }
+
+            if (weekday >= day && weekday < smallest) {
+                smallest = weekday;
+            }
+        }
+
+        return smallest == Integer.MAX_VALUE ? Optional.empty() : Optional.of(smallest);
+    }
 
     private Optional<Integer> findSmallestDay(int day, int mon, int year, TreeSet<Integer> set) {
         if (set.isEmpty()) {
