@@ -414,6 +414,64 @@ public final class CronExpression implements Serializable, Cloneable {
     }
 
     /**
+     * Creates a <code>CronExpression</code> from a POSIX-style 5-field cron
+     * expression, as used by Unix <code>crontab</code>.
+     * <p>
+     * The accepted syntax is the de-facto standard of Vixie cron / cronie,
+     * which is a superset of POSIX:
+     * </p>
+     * <ul>
+     * <li>5 fields: minute (0-59), hour (0-23), day-of-month (1-31),
+     * month (1-12 or JAN-DEC) and day-of-week (0-7 or SUN-SAT, where both 0
+     * and 7 mean Sunday).</li>
+     * <li>'*', lists (<code>1,5</code>), ranges (<code>1-5</code>) and steps
+     * (<code>*&#47;15</code>, <code>0-30/10</code>, <code>5/15</code> meaning
+     * <code>5-max/15</code>).</li>
+     * <li>The macros <code>@yearly</code>, <code>@annually</code>,
+     * <code>@monthly</code>, <code>@weekly</code>, <code>@daily</code>,
+     * <code>@midnight</code> and <code>@hourly</code>.</li>
+     * </ul>
+     * <p>
+     * The resulting expression fires at second 0. Like the Quartz format, it
+     * does not support restricting both day-of-month and day-of-week (which
+     * cron interprets as "either matches"), unless one of the two covers every
+     * day. Such expressions are rejected with a <code>ParseException</code>.
+     * <code>@reboot</code> is rejected too.
+     * </p>
+     * <p>
+     * {@link #toString()} of the result returns the equivalent Quartz
+     * expression; use {@link #toStringPosix()} to get a POSIX-style one.
+     * </p>
+     *
+     * @param posixCronExpression a POSIX / Vixie-cron style cron expression,
+     *                            for example <code>"*&#47;15 9-17 * * MON-FRI"</code>
+     * @return the equivalent <code>CronExpression</code>
+     * @throws java.text.ParseException
+     *         if the expression cannot be parsed or cannot be represented
+     *         by a <code>CronExpression</code>
+     */
+    public static CronExpression parsePosix(String posixCronExpression) throws ParseException {
+        return new CronExpression(PosixCronSupport.toQuartz(posixCronExpression));
+    }
+
+    /**
+     * Returns the POSIX-style 5-field representation of this
+     * <code>CronExpression</code>, in the syntax accepted by
+     * {@link #parsePosix(String)}. For example, the Quartz expression
+     * <code>"0 0/15 9-17 ? * MON-FRI"</code> is rendered as
+     * <code>"*&#47;15 9-17 * * 1-5"</code>.
+     *
+     * @return a POSIX-style string representation of this expression
+     * @throws UnsupportedOperationException
+     *         if the expression uses features that a 5-field cron expression
+     *         cannot represent: seconds other than 0, a year restriction,
+     *         or the 'L', 'W' and '#' characters
+     */
+    public String toStringPosix() throws UnsupportedOperationException {
+        return PosixCronSupport.toPosix(this);
+    }
+
+    /**
      * Indicates whether the specified cron expression can be parsed into a 
      * valid cron expression
      * 
