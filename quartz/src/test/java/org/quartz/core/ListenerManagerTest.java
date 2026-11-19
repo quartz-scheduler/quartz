@@ -27,7 +27,9 @@ import java.util.UUID;
 
 
 import org.junit.jupiter.api.Test;
+import org.quartz.JobKey;
 import org.quartz.JobListener;
+import org.quartz.Matcher;
 import org.quartz.SchedulerListener;
 import org.quartz.TriggerKey;
 import org.quartz.TriggerListener;
@@ -153,6 +155,38 @@ class ListenerManagerTest  {
             assertSame(listeners[i], listener, "Unexpected order of listeners");
             i++;
         }
+    }
+
+    @Test
+    void testJobListenerMatchersSnapshot() throws Exception {
+
+        ListenerManagerImpl manager = new ListenerManagerImpl();
+        manager.addJobListener(new TestJobListener("tl1"), jobGroupEquals("foo"));
+
+        // the scheduler iterates the returned list without holding the manager's lock,
+        // so adding a matcher meanwhile must not affect (or break) that iteration
+        List<Matcher<JobKey>> matchers = manager.getJobListenerMatchers("tl1");
+        for (Matcher<JobKey> matcher : matchers) {
+            manager.addJobListenerMatcher("tl1", jobNameContains("bar"));
+        }
+        assertEquals(1, matchers.size(), "Unexpected size of returned matcher list");
+        assertEquals(2, manager.getJobListenerMatchers("tl1").size(), "Unexpected size of listener's matcher list");
+    }
+
+    @Test
+    void testTriggerListenerMatchersSnapshot() throws Exception {
+
+        ListenerManagerImpl manager = new ListenerManagerImpl();
+        manager.addTriggerListener(new TestTriggerListener("tl1"), triggerGroupEquals("foo"));
+
+        // the scheduler iterates the returned list without holding the manager's lock,
+        // so adding a matcher meanwhile must not affect (or break) that iteration
+        List<Matcher<TriggerKey>> matchers = manager.getTriggerListenerMatchers("tl1");
+        for (Matcher<TriggerKey> matcher : matchers) {
+            manager.addTriggerListenerMatcher("tl1", NameMatcher.<TriggerKey>nameContains("bar"));
+        }
+        assertEquals(1, matchers.size(), "Unexpected size of returned matcher list");
+        assertEquals(2, manager.getTriggerListenerMatchers("tl1").size(), "Unexpected size of listener's matcher list");
     }
 
     @Test

@@ -106,7 +106,7 @@ public class ListenerManagerImpl implements ListenerManager {
             List<Matcher<JobKey>> matchers = globalJobListenersMatchers.get(listenerName);
             if(matchers == null)
                 return null;
-            return Collections.unmodifiableList(matchers);
+            return Collections.unmodifiableList(new LinkedList<>(matchers));
         }
     }
 
@@ -218,7 +218,7 @@ public class ListenerManagerImpl implements ListenerManager {
             List<Matcher<TriggerKey>> matchers = globalTriggerListenersMatchers.get(listenerName);
             if(matchers == null)
                 return null;
-            return Collections.unmodifiableList(matchers);
+            return Collections.unmodifiableList(new LinkedList<>(matchers));
         }
     }
 
