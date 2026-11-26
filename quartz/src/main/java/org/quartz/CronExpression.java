@@ -1011,6 +1011,11 @@ public final class CronExpression implements Serializable, Cloneable {
                 throw new ParseException(
                         "Day-of-Week values must be between 1 and 7", -1);
             }
+        } else if (type == YEAR) {
+            if ((val < 1 || val > MAX_YEAR || end > MAX_YEAR) && (val != ALL_SPEC_INT)) {
+                throw new ParseException(
+                        "Year must be between 1 and " + MAX_YEAR, -1);
+            }
         }
 
         if ((incr == 0 || incr == -1) && val != ALL_SPEC_INT) {
