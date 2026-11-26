@@ -1011,6 +1011,26 @@ public class CronExpressionTest extends SerializationTestSupport {
         assertNull(gapOnly.getTimeAfter(afterTime));
     }
 
+    @Test
+    void testYearRangeAboveMaximumIsRejected() {
+        String expression = "0 0 0 1 1 ? 1-" + (CronExpression.MAX_YEAR + 1);
+        ParseException ex = assertThrows(ParseException.class, () -> new CronExpression(expression));
+        assertTrue(ex.getMessage().startsWith("Year must be between"), ex.getMessage());
+    }
+
+    @Test
+    void testExplicitYearAboveMaximumIsRejected() {
+        String expression = "0 0 0 1 1 ? " + (CronExpression.MAX_YEAR + 1);
+        ParseException ex = assertThrows(ParseException.class, () -> new CronExpression(expression));
+        assertTrue(ex.getMessage().startsWith("Year must be between"), ex.getMessage());
+    }
+
+    @Test
+    void testYearAtMaximumIsAccepted() throws Exception {
+        CronExpression cronExpression = new CronExpression("0 0 0 1 1 ? " + CronExpression.MAX_YEAR);
+        assertNotNull(cronExpression.getNextValidTimeAfter(new Date()));
+    }
+
     // execute with version number to generate a new version's serialized form
     public static void main(String[] args) throws Exception {
         new CronExpressionTest().writeJobDataFile("1.5.2");
